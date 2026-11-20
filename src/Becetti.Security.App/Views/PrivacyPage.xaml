@@ -35,7 +35,7 @@
                     <ListView ItemsSource="{x:Bind ViewModel.Recommendations, Mode=OneWay}" Margin="0,8,0,0">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="x:String">
-                                <TextBlock Text="{x:Bind Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4" />
+                                <TextBlock Text="{x:Bind Mode=OneTime}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4" />
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

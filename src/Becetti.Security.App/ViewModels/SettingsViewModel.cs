@@ -29,7 +29,18 @@ public sealed class SettingsViewModel : ViewModelBase
     public RelayCommand TestConnectionCommand { get; }
 
     public string ApiBaseUrl { get => _apiBaseUrl; set => SetProperty(ref _apiBaseUrl, value); }
-    public string Language { get => _language; set => SetProperty(ref _language, value); }
+    public string Language
+    {
+        get => _language;
+        set
+        {
+            if (SetProperty(ref _language, value))
+            {
+                OnPropertyChanged(nameof(IsEnglish));
+                OnPropertyChanged(nameof(IsArabic));
+            }
+        }
+    }
 
     public string Theme
     {
@@ -51,8 +62,8 @@ public sealed class SettingsViewModel : ViewModelBase
     public bool TelemetryOptIn { get => _telemetryOptIn; set => SetProperty(ref _telemetryOptIn, value); }
     public string ConnectionText { get => _connectionText; set => SetProperty(ref _connectionText, value); }
 
-    public bool IsArabic => Language == "ar";
-    public bool IsEnglish => Language == "en";
+    public bool IsArabic { get => Language == "ar"; set { if (value) Language = "ar"; } }
+    public bool IsEnglish { get => Language == "en"; set { if (value) Language = "en"; } }
 
     private void LoadFromSettings()
     {
