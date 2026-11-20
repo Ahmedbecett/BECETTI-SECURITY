@@ -11,7 +11,7 @@
         <NavigationView
             x:Name="NavView"
             PaneDisplayMode="Left"
-            IsBackButtonVisible="False"
+            IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
             IsPaneOpen="True"
             Background="{StaticResource AppBackgroundBrush}">
