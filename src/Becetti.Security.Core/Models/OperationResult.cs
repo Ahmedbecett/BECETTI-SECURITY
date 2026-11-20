@@ -4,7 +4,7 @@ namespace Becetti.Security.Core.Models;
 /// Result of an operation that can fail. Services return this instead of
 /// throwing so the UI can always show the real error message.
 /// </summary>
-public sealed class OperationResult
+public class OperationResult
 {
     public bool Success { get; init; }
     public string Message { get; init; } = string.Empty;

@@ -26,9 +26,8 @@
     <ProjectReference Include="..\Becetti.Security.Core\Becetti.Security.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PRIResource Include="Strings\en-US\Resources.resw" />
-    <PRIResource Include="Strings\ar-SA\Resources.resw" />
-  </ItemGroup>
+  <!-- The .NET SDK already includes *.resw files from the project directory as PRIResource
+       items by default (EnableDefaultPriItems). Declaring them again here duplicates the
+       items and fails the build ("Duplicate 'PRIResource' items were included"). -->
 
 </Project>

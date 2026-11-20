@@ -12,6 +12,12 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.*" />
   </ItemGroup>
 
+  <!-- None of the test files declare "using Xunit;" explicitly, so Fact/Theory/InlineData
+       must come from an implicit global using instead. -->
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Becetti.Security.Core\Becetti.Security.Core.csproj" />
   </ItemGroup>
