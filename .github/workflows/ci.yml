@@ -73,7 +73,8 @@ jobs:
           $code = $LASTEXITCODE
           if ($code -ne 0) {
             Write-Host "::group::Test failed - failing test lines from test.log"
-            $hits = Select-String -Path test.log -Pattern 'Failed |Error |Exception|error |FAIL|Expected:|Actual:|StatusCode|at Becetti' -CaseSensitive:$false
+            $hits = Select-String -Path test.log -Pattern '\[FAIL\]|^\s*Failed |Error Message|Assert\.|Expected:|Actual:|Stack Trace|at Becetti' -CaseSensitive:$false |
+              Where-Object { $_.Line -notmatch '^\s*Passed ' }
             $shown = 0
             foreach ($hit in $hits) {
               if ($shown -ge 50) { break }
