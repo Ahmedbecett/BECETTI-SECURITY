@@ -53,8 +53,9 @@ public partial class App : Application
         if (cloud is CloudService concreteCloud)
             await concreteCloud.RestoreSessionAsync();
 
-        _window = new MainWindow();
-        MainWindow = _window;
-        _window.Activate();
+        var mainWindow = new MainWindow();
+        _window = mainWindow;
+        MainWindow = mainWindow;
+        mainWindow.Activate();
     }
 }
