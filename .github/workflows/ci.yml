@@ -66,7 +66,23 @@ jobs:
           }
 
       - name: Test
-        run: dotnet test Becetti.Security.sln -c Release --no-build -p:Platform=x64
+        shell: pwsh
+        run: |
+          dotnet test Becetti.Security.sln -c Release --no-build -p:Platform=x64 --logger "console;verbosity=detailed" 2>&1 |
+            Tee-Object -FilePath test.log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            Write-Host "::group::Test failed - failing test lines from test.log"
+            $hits = Select-String -Path test.log -Pattern 'Failed |Error |Exception|error |FAIL' -CaseSensitive:$false
+            $shown = 0
+            foreach ($hit in $hits) {
+              if ($shown -ge 50) { break }
+              Write-Host "::error::$($hit.Line.Trim())"
+              $shown++
+            }
+            Write-Host "::endgroup::"
+            exit $code
+          }
 
       - name: Upload test results
         if: always()
