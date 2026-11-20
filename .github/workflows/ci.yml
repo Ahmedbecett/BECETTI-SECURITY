@@ -27,12 +27,39 @@ jobs:
           $code = $LASTEXITCODE
           if ($code -ne 0) {
             Write-Host "::group::Build failed - error/warning lines from build.log"
-            $hits = Select-String -Path build.log -Pattern 'error |warning ' -CaseSensitive:$false
+            $hits = Select-String -Path build.log -Pattern 'error |warning |Xaml|APPX|WMC' -CaseSensitive:$false
             $shown = 0
             foreach ($hit in $hits) {
               if ($shown -ge 40) { break }
               Write-Host "::error::$($hit.Line.Trim())"
               $shown++
+            }
+            Write-Host "::endgroup::"
+
+            Write-Host "::group::Re-running Becetti.Security.App alone with detailed verbosity for diagnosis"
+            dotnet build src/Becetti.Security.App/Becetti.Security.App.csproj -c Release --no-restore -p:Platform=x64 -v:detailed 2>&1 |
+              Tee-Object -FilePath app-detailed.log | Out-Null
+            $lines = Get-Content app-detailed.log
+            $contextIdx = @()
+            for ($i = 0; $i -lt $lines.Count; $i++) {
+              if ($lines[$i] -match 'XamlCompiler|error |Exception|Unhandled') {
+                $contextIdx += $i
+              }
+            }
+            $shown2 = 0
+            $printed = New-Object 'System.Collections.Generic.HashSet[int]'
+            foreach ($idx in $contextIdx) {
+              if ($shown2 -ge 60) { break }
+              $start = [Math]::Max(0, $idx - 2)
+              $end = [Math]::Min($lines.Count - 1, $idx + 2)
+              for ($j = $start; $j -le $end; $j++) {
+                if ($printed.Contains($j)) { continue }
+                [void]$printed.Add($j)
+                if ([string]::IsNullOrWhiteSpace($lines[$j])) { continue }
+                Write-Host "::warning::$($lines[$j].Trim())"
+                $shown2++
+                if ($shown2 -ge 60) { break }
+              }
             }
             Write-Host "::endgroup::"
             exit $code
