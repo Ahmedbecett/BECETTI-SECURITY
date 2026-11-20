@@ -1,0 +1,46 @@
+<Page
+    x:Class="Becetti.Security.App.Views.AboutPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleAbout" Text="About BECETTI SECURITY" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleAbout" Text="Your Digital Protection Center" Style="{StaticResource SectionSubtitleStyle}" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Version" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}" Style="{StaticResource ValueStyle}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Build / Device" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.BuildText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Security Engine" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.DefenderText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="How It Works" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.CapabilityText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Developed by BECETTI" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="BECETTI SECURITY v1.0.0 — Windows 10 and Windows 11. English and Arabic." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Button Content="Refresh" Command="{x:Bind ViewModel.LoadCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

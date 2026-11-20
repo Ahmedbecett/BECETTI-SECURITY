@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="AppTitle" xml:space="preserve"><value>BECETTI SECURITY</value></data>
+  <data name="AppTagline" xml:space="preserve"><value>مركز الحماية الرقمية الخاص بك</value></data>
+
+  <data name="NavDashboard.Content" xml:space="preserve"><value>لوحة التحكم</value></data>
+  <data name="NavScan.Content" xml:space="preserve"><value>فحص ذكي</value></data>
+  <data name="NavProtection.Content" xml:space="preserve"><value>الحماية في الوقت الحقيقي</value></data>
+  <data name="NavCloud.Content" xml:space="preserve"><value>أمن السحابة</value></data>
+  <data name="NavThreats.Content" xml:space="preserve"><value>إدارة التهديدات</value></data>
+  <data name="NavPrivacy.Content" xml:space="preserve"><value>الخصوصية والشبكة</value></data>
+  <data name="NavHistory.Content" xml:space="preserve"><value>سجل الأمان</value></data>
+  <data name="NavUpdates.Content" xml:space="preserve"><value>التحديثات</value></data>
+  <data name="NavSettings.Content" xml:space="preserve"><value>الإعدادات</value></data>
+  <data name="NavAbout.Content" xml:space="preserve"><value>حول BECETTI SECURITY</value></data>
+
+  <data name="TitleDashboard.Text" xml:space="preserve"><value>لوحة التحكم</value></data>
+  <data name="TitleScan.Text" xml:space="preserve"><value>فحص ذكي</value></data>
+  <data name="TitleProtection.Text" xml:space="preserve"><value>الحماية في الوقت الحقيقي</value></data>
+  <data name="TitleCloud.Text" xml:space="preserve"><value>أمن السحابة</value></data>
+  <data name="TitleThreats.Text" xml:space="preserve"><value>إدارة التهديدات</value></data>
+  <data name="TitlePrivacy.Text" xml:space="preserve"><value>الخصوصية والشبكة</value></data>
+  <data name="TitleHistory.Text" xml:space="preserve"><value>سجل الأمان</value></data>
+  <data name="TitleUpdates.Text" xml:space="preserve"><value>التحديثات</value></data>
+  <data name="TitleSettings.Text" xml:space="preserve"><value>الإعدادات</value></data>
+  <data name="TitleAbout.Text" xml:space="preserve"><value>حول BECETTI SECURITY</value></data>
+
+  <data name="SubtitleDashboard.Text" xml:space="preserve"><value>حالة الأمان الموثقة، مقروءة مباشرة من Windows وMicrosoft Defender.</value></data>
+  <data name="SubtitleScan.Text" xml:space="preserve"><value>تعمل عمليات الفحص عبر Microsoft Defender (MpCmdRun). النتائج هي أحكام Defender نفسه — لا يخمّن BECETTI SECURITY أبدًا.</value></data>
+  <data name="SubtitleProtection.Text" xml:space="preserve"><value>حالة Microsoft Defender الموثقة. تُطبق التغييرات عبر Defender وتُتحقق قبل الإبلاغ عن النجاح.</value></data>
+  <data name="SubtitleCloud.Text" xml:space="preserve"><value>اتصل بواجهة BECETTI SECURITY السحابية لفحوصات السمعة ومعلومات التحديث. تُرسل بصمات الملفات فقط — لا تُرسل الملفات أبدًا.</value></data>
+  <data name="SubtitleThreats.Text" xml:space="preserve"><value>اكتشافات حقيقية أبلغ عنها Microsoft Defender. تتم الإزالة عبر Defender وتُتحقق قبل عرض النجاح.</value></data>
+  <data name="SubtitlePrivacy.Text" xml:space="preserve"><value>فحوصات شبكة وTLS وإعدادات مقاسة. تأتي التوصيات من القيم المقاسة فقط.</value></data>
+  <data name="SubtitleHistory.Text" xml:space="preserve"><value>سجل محلي للأحداث الحقيقية التي سجلها BECETTI SECURITY. لا شيء مزروع أو مخترع.</value></data>
+  <data name="SubtitleUpdates.Text" xml:space="preserve"><value>تحديثات التطبيق وتحديثات معلومات الأمان منفصلة. يُفحص كل منها عبر قناته الحقيقية.</value></data>
+  <data name="SubtitleSettings.Text" xml:space="preserve"><value>كل إعداد هنا يُحفظ ويُطبق. لا شيء شكلي.</value></data>
+  <data name="SubtitleAbout.Text" xml:space="preserve"><value>مركز الحماية الرقمية الخاص بك</value></data>
+</root>

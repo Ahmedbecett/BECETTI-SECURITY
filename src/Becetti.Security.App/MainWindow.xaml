@@ -1,0 +1,40 @@
+<Window
+    x:Class="Becetti.Security.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="BECETTI SECURITY">
+
+    <Grid Background="{StaticResource AppBackgroundBrush}">
+        <NavigationView
+            x:Name="NavView"
+            PaneDisplayMode="Left"
+            IsBackButtonVisible="False"
+            IsSettingsVisible="False"
+            IsPaneOpen="True"
+            Background="{StaticResource AppBackgroundBrush}">
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Uid="NavDashboard" Content="Dashboard" Tag="Dashboard" IsSelected="True" />
+                <NavigationViewItem x:Uid="NavScan" Content="Smart Scan" Tag="Scan" />
+                <NavigationViewItem x:Uid="NavProtection" Content="Real-Time Protection" Tag="Protection" />
+                <NavigationViewItem x:Uid="NavCloud" Content="Cloud Security" Tag="Cloud" />
+                <NavigationViewItem x:Uid="NavThreats" Content="Threat Management" Tag="Threats" />
+                <NavigationViewItem x:Uid="NavPrivacy" Content="Privacy &amp; Network" Tag="Privacy" />
+                <NavigationViewItem x:Uid="NavHistory" Content="Security History" Tag="History" />
+                <NavigationViewItem x:Uid="NavUpdates" Content="Updates" Tag="Updates" />
+                <NavigationViewItem x:Uid="NavSettings" Content="Settings" Tag="Settings" />
+                <NavigationViewItem x:Uid="NavAbout" Content="About BECETTI SECURITY" Tag="About" />
+            </NavigationView.MenuItems>
+            <NavigationView.Header>
+                <StackPanel Margin="16,12,16,8">
+                    <TextBlock Text="BECETTI SECURITY" FontSize="20" FontWeight="Bold" Foreground="{StaticResource AccentGreenBrush}" />
+                    <TextBlock Text="Your Digital Protection Center" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" />
+                </StackPanel>
+            </NavigationView.Header>
+            <Frame x:Name="ContentFrame" />
+        </NavigationView>
+    </Grid>
+
+</Window>

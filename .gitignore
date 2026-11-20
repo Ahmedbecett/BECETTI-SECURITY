@@ -1,0 +1,40 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+TestResults/
+
+# Windows / MSIX
+*.msix
+*.msixbundle
+*.appx
+*.appxbundle
+*.pfx
+*.snk
+AppPackages/
+BundleArtifacts/
+
+# IDE
+.vs/
+.idea/
+*.DotSettings.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / local config (never commit)
+appsettings.Development.json
+appsettings.Production.json
+.env
+*.pfx
+
+# Logs
+*.log
+logs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo

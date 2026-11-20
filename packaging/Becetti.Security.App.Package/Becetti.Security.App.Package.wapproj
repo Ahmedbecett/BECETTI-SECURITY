@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+    Windows Application Packaging Project: builds the MSIX package for
+    Microsoft Store submission. Requires the Windows SDK and a signing
+    certificate matching the Publisher in Package.appxmanifest.
+    See docs/STORE-SUBMISSION.md for the full release procedure.
+  -->
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <AppxBundleEnabled>false</AppxBundleEnabled>
+    <AppxPackageName>BECETTI SECURITY</AppxPackageName>
+    <AppxPackagePublisher>CN=BECETTI</AppxPackagePublisher>
+    <AppxPackagePublisherDisplayName>BECETTI</AppxPackagePublisher>
+    <AppxPackageVersion>1.0.0.0</AppxPackageVersion>
+    <AppxPackageDescription>BECETTI SECURITY — Windows security center powered by Microsoft Defender and the BECETTI cloud API.</AppxPackageDescription>
+    <AppxPackageDisplayName>BECETTI SECURITY</AppxPackageDisplayName>
+    <AppxPackageLogo>..\..\src\Becetti.Security.App\Assets\StoreLogo.png</AppxPackageLogo>
+    <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
+    <AppxPackageSigningCertificateThumbprint></AppxPackageSigningCertificateThumbprint>
+    <AppxPackageSigningCertificateFile></AppxPackageSigningCertificateFile>
+    <AppxPackageSigningCertificatePassword></AppxPackageSigningCertificatePassword>
+    <AppxPackageSigningTimestampServer>http://timestamp.digicert.com</AppxPackageSigningTimestampServer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AppxManifest Include="..\..\src\Becetti.Security.App\Package.appxmanifest" />
+    <ProjectReference Include="..\..\src\Becetti.Security.App\Becetti.Security.App.csproj">
+      <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+      <UseWinUI>true</UseWinUI>
+    </ProjectReference>
+  </ItemGroup>
+
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" Condition="false" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

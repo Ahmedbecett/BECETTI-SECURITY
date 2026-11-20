@@ -1,0 +1,57 @@
+<Page
+    x:Class="Becetti.Security.App.Views.CloudPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleCloud" Text="Cloud Security" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleCloud" Text="Connect to the BECETTI SECURITY cloud API for reputation checks and update information. Only file hashes are sent — never files." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="API Connection" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.ConnectionText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <TextBox Text="{x:Bind ViewModel.ApiUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="https://api.becetti.security" Margin="0,0,0,12" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Save API URL" Command="{x:Bind ViewModel.SaveApiUrlCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button Content="Test Connection" Command="{x:Bind ViewModel.TestConnectionCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Account" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.AccountText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Email" Margin="0,0,0,8" />
+                    <PasswordBox x:Name="PasswordBox" PlaceholderText="Password" Margin="0,0,0,12" PasswordChanged="PasswordBox_PasswordChanged" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Sign In" Command="{x:Bind ViewModel.LoginCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button Content="Create Account" Command="{x:Bind ViewModel.RegisterCommand}" />
+                        <Button Content="Sign Out" Command="{x:Bind ViewModel.LogoutCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="File Reputation Check" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="Computes the file's SHA-256 locally and asks the cloud API for its verdict." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{x:Bind ViewModel.ReputationFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="C:\path\to\file" />
+                        <Button Grid.Column="1" Content="Browse..." Click="BrowseButton_Click" />
+                    </Grid>
+                    <Button Content="Check Reputation" Command="{x:Bind ViewModel.CheckReputationCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,12,0,0" />
+                    <TextBlock Text="{x:Bind ViewModel.ReputationText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

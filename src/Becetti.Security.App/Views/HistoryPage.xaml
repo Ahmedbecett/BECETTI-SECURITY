@@ -1,0 +1,34 @@
+<Page
+    x:Class="Becetti.Security.App.Views.HistoryPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    mc:Ignorable="d">
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleHistory" Text="Security History" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleHistory" Text="Local log of real events recorded by BECETTI SECURITY. Nothing is seeded or invented." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <ListView ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}" MinHeight="200">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:SecurityEvent">
+                                <StackPanel Margin="0,8">
+                                    <TextBlock Text="{x:Bind Summary}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{x:Bind Type}" Foreground="{StaticResource TextSecondaryBrush}" />
+                                    <TextBlock Text="{x:Bind Timestamp}" Foreground="{StaticResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                </StackPanel>
+            </Border>
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

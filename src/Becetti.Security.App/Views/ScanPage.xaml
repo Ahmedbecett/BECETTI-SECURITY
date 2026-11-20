@@ -1,0 +1,53 @@
+<Page
+    x:Class="Becetti.Security.App.Views.ScanPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleScan" Text="Smart Scan" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleScan" Text="Scans run through Microsoft Defender (MpCmdRun). Results are Defender's own verdicts — BECETTI SECURITY never guesses." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsScanning, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Quick Scan" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="Scans common infection locations. Usually a few minutes." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <Button Content="Start Quick Scan" Command="{x:Bind ViewModel.QuickScanCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Full Scan" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="Scans every drive. Can take a long time." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <Button Content="Start Full Scan" Command="{x:Bind ViewModel.FullScanCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Custom File or Folder Scan" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="Choose a file or folder, then scan it with Defender." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{x:Bind ViewModel.TargetPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="C:\path\to\file-or-folder" />
+                        <Button Grid.Column="1" Content="Browse..." Click="BrowseButton_Click" />
+                    </Grid>
+                    <Button Content="Start Custom Scan" Command="{x:Bind ViewModel.CustomScanCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Result" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.ScanResultText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <TextBox Text="{x:Bind ViewModel.ScanOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="160" PlaceholderText="Defender output will appear here." />
+                </StackPanel>
+            </Border>
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

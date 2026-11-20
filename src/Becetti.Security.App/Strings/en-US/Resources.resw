@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="AppTitle" xml:space="preserve"><value>BECETTI SECURITY</value></data>
+  <data name="AppTagline" xml:space="preserve"><value>Your Digital Protection Center</value></data>
+
+  <data name="NavDashboard.Content" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="NavScan.Content" xml:space="preserve"><value>Smart Scan</value></data>
+  <data name="NavProtection.Content" xml:space="preserve"><value>Real-Time Protection</value></data>
+  <data name="NavCloud.Content" xml:space="preserve"><value>Cloud Security</value></data>
+  <data name="NavThreats.Content" xml:space="preserve"><value>Threat Management</value></data>
+  <data name="NavPrivacy.Content" xml:space="preserve"><value>Privacy &amp; Network</value></data>
+  <data name="NavHistory.Content" xml:space="preserve"><value>Security History</value></data>
+  <data name="NavUpdates.Content" xml:space="preserve"><value>Updates</value></data>
+  <data name="NavSettings.Content" xml:space="preserve"><value>Settings</value></data>
+  <data name="NavAbout.Content" xml:space="preserve"><value>About BECETTI SECURITY</value></data>
+
+  <data name="TitleDashboard.Text" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="TitleScan.Text" xml:space="preserve"><value>Smart Scan</value></data>
+  <data name="TitleProtection.Text" xml:space="preserve"><value>Real-Time Protection</value></data>
+  <data name="TitleCloud.Text" xml:space="preserve"><value>Cloud Security</value></data>
+  <data name="TitleThreats.Text" xml:space="preserve"><value>Threat Management</value></data>
+  <data name="TitlePrivacy.Text" xml:space="preserve"><value>Privacy &amp; Network</value></data>
+  <data name="TitleHistory.Text" xml:space="preserve"><value>Security History</value></data>
+  <data name="TitleUpdates.Text" xml:space="preserve"><value>Updates</value></data>
+  <data name="TitleSettings.Text" xml:space="preserve"><value>Settings</value></data>
+  <data name="TitleAbout.Text" xml:space="preserve"><value>About BECETTI SECURITY</value></data>
+
+  <data name="SubtitleDashboard.Text" xml:space="preserve"><value>Verified security status, read live from Windows and Microsoft Defender.</value></data>
+  <data name="SubtitleScan.Text" xml:space="preserve"><value>Scans run through Microsoft Defender (MpCmdRun). Results are Defender's own verdicts — BECETTI SECURITY never guesses.</value></data>
+  <data name="SubtitleProtection.Text" xml:space="preserve"><value>Verified Microsoft Defender state. Changes are applied through Defender and re-verified before success is reported.</value></data>
+  <data name="SubtitleCloud.Text" xml:space="preserve"><value>Connect to the BECETTI SECURITY cloud API for reputation checks and update information. Only file hashes are sent — never files.</value></data>
+  <data name="SubtitleThreats.Text" xml:space="preserve"><value>Real detections reported by Microsoft Defender. Removal runs through Defender and is verified before success is shown.</value></data>
+  <data name="SubtitlePrivacy.Text" xml:space="preserve"><value>Measured network, TLS and configuration checks. Recommendations come from the measured values only.</value></data>
+  <data name="SubtitleHistory.Text" xml:space="preserve"><value>Local log of real events recorded by BECETTI SECURITY. Nothing is seeded or invented.</value></data>
+  <data name="SubtitleUpdates.Text" xml:space="preserve"><value>Application updates and security-intelligence updates are separate. Each is checked through its real channel.</value></data>
+  <data name="SubtitleSettings.Text" xml:space="preserve"><value>Every setting here is stored and applied. Nothing is decorative.</value></data>
+  <data name="SubtitleAbout.Text" xml:space="preserve"><value>Your Digital Protection Center</value></data>
+</root>

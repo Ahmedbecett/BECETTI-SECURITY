@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Becetti.Security.Core</RootNamespace>
+    <AssemblyName>Becetti.Security.Core</AssemblyName>
+    <Description>Shared security logic for BECETTI SECURITY: Microsoft Defender integration, system checks, cloud client, settings and event history. No simulated data: every result comes from a real Windows API, a real Defender interface, or a real HTTPS response.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- DPAPI token protection (Windows). Guarded at runtime; falls back to plain storage with an explicit warning on non-Windows hosts. -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

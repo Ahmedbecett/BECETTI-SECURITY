@@ -1,0 +1,41 @@
+<Page
+    x:Class="Becetti.Security.App.Views.UpdatesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleUpdates" Text="Updates" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleUpdates" Text="Application updates and security-intelligence updates are separate. Each is checked through its real channel." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Application" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.CurrentVersion, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8" />
+                    <TextBlock Text="{x:Bind ViewModel.AppUpdateText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <Button Content="Check for Application Updates" Command="{x:Bind ViewModel.CheckAppUpdatesCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Security Intelligence (Defender Signatures)" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.SignatureText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,12" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Update Signatures Now" Command="{x:Bind ViewModel.UpdateSignaturesCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button Content="Refresh Signature Status" Command="{x:Bind ViewModel.RefreshSignaturesCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Microsoft Store" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.StoreText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>
