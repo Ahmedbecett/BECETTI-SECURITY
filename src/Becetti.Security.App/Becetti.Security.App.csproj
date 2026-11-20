@@ -16,7 +16,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.*" />
+    <!-- 1.5.* silently swallowed the real XamlCompiler.exe diagnostic on build failure,
+         reporting only "MSB3073: exited with code 1" with no file/line (fixed upstream in
+         microsoft/microsoft-ui-xaml#9813, shipped in WinAppSDK 1.8.8+). Pinned to the latest
+         1.8 servicing release so a real XAML error surfaces as an actual readable message. -->
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260921001" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.*" />
     <!-- Provides the IServiceCollection.AddHttpClient(...) extension used in App.xaml.cs. -->
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.*" />
