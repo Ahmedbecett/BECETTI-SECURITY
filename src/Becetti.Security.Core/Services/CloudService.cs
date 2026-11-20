@@ -40,18 +40,16 @@ public sealed class CloudService : ICloudService
         if (notConfigured is not null)
             return OperationResult<CloudHealth>.Fail(notConfigured.Message, notConfigured.ErrorCode);
 
-        return await SendAsync<HealthDto>(HttpMethod.Get, "/health", null, ct).ContinueWith<OperationResult<CloudHealth>>(t =>
+        var result = await SendAsync<HealthDto>(HttpMethod.Get, "/health", null, ct).ConfigureAwait(false);
+        if (!result.Success || result.Value is null)
+            return OperationResult<CloudHealth>.Fail(result.Message, result.ErrorCode);
+
+        return OperationResult<CloudHealth>.Ok(new CloudHealth
         {
-            var r = t.Result;
-            if (!r.Success || r.Value is null)
-                return OperationResult<CloudHealth>.Fail(r.Message, r.ErrorCode);
-            return OperationResult<CloudHealth>.Ok(new CloudHealth
-            {
-                Status = r.Value.Status,
-                Version = r.Value.Version,
-                ServerTime = r.Value.ServerTime
-            }, "Cloud API is reachable.");
-        }, ct).ConfigureAwait(false);
+            Status = result.Value.Status,
+            Version = result.Value.Version,
+            ServerTime = result.Value.ServerTime
+        }, "Cloud API is reachable.");
     }
 
     public async Task<OperationResult<AuthTokens>> LoginAsync(string email, string password, CancellationToken ct = default)

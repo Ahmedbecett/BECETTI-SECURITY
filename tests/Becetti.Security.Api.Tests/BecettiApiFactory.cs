@@ -2,6 +2,7 @@ using Becetti.Security.Api.Data;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -36,7 +37,15 @@ public sealed class BecettiApiFactory : WebApplicationFactory<Program>, IDisposa
 
         builder.ConfigureServices(services =>
         {
+            // Removing only AppDbContext leaves Program.cs's UseNpgsql(...) options/provider
+            // configuration registered, so EF Core would see two providers (Npgsql + Sqlite)
+            // for the same context and throw at startup. Remove every registration AddDbContext
+            // created (the context itself, its options, and the options configuration) first.
             services.RemoveAll<AppDbContext>();
+            services.RemoveAll<DbContextOptions<AppDbContext>>();
+            services.RemoveAll<DbContextOptions>();
+            services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();
+
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlite(_connection);

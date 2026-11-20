@@ -28,7 +28,7 @@ public sealed partial class ScanPage : Page
 
         // Associate the picker with the main window (WinUI 3 requirement).
         if (App.MainWindow is not null)
-            InitializeWithWindow.Initialize(picker, GetWindowHandle(App.MainWindow));
+            InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(App.MainWindow));
 
         var file = await picker.PickSingleFileAsync();
         if (file is not null)

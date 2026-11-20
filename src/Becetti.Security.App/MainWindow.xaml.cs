@@ -37,7 +37,10 @@ public sealed partial class MainWindow : Window
 
     private void ApplyFlowDirection(LocalizationService localization)
     {
-        Content.FlowDirection = localization.IsRtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+        // Window.Content is typed as UIElement; FlowDirection lives on FrameworkElement
+        // (the root Grid set by InitializeComponent), so it must be cast first.
+        if (Content is FrameworkElement root)
+            root.FlowDirection = localization.IsRtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
     }
 
     private void OnNavigationInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)

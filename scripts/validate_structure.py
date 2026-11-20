@@ -208,7 +208,9 @@ def check_braces(path: Path):
 
 def main():
     xml_files = list(ROOT.rglob("*.xaml")) + list(ROOT.rglob("*.csproj")) + \
-                list(ROOT.rglob("*.appxmanifest")) + list(ROOT.rglob("*.resw"))
+                list(ROOT.rglob("*.appxmanifest")) + list(ROOT.rglob("*.resw")) + \
+                list(ROOT.rglob("*.wapproj")) + list(ROOT.rglob("*.props")) + \
+                list(ROOT.rglob("*.targets"))
     json_files = list(ROOT.rglob("*.json"))
     cs_files = list(ROOT.rglob("*.cs"))
 

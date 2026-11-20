@@ -10,6 +10,11 @@
   <ItemGroup>
     <!-- DPAPI token protection (Windows). Guarded at runtime; falls back to plain storage with an explicit warning on non-Windows hosts. -->
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+    <!-- Registry read access (Windows) for real OS/build info and UAC state. This project targets plain
+         net8.0 (shared with the Api/Tests projects), so the registry types are not part of the default
+         reference assemblies and must be added explicitly. All call sites are guarded with
+         OperatingSystem.IsWindows() and throw PlatformNotSupportedException only on non-Windows hosts. -->
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

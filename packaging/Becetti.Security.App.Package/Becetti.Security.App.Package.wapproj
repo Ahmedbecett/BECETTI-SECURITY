@@ -12,7 +12,7 @@
     <AppxBundleEnabled>false</AppxBundleEnabled>
     <AppxPackageName>BECETTI SECURITY</AppxPackageName>
     <AppxPackagePublisher>CN=BECETTI</AppxPackagePublisher>
-    <AppxPackagePublisherDisplayName>BECETTI</AppxPackagePublisher>
+    <AppxPackagePublisherDisplayName>BECETTI</AppxPackagePublisherDisplayName>
     <AppxPackageVersion>1.0.0.0</AppxPackageVersion>
     <AppxPackageDescription>BECETTI SECURITY — Windows security center powered by Microsoft Defender and the BECETTI cloud API.</AppxPackageDescription>
     <AppxPackageDisplayName>BECETTI SECURITY</AppxPackageDisplayName>

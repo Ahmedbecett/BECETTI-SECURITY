@@ -33,7 +33,7 @@ public sealed partial class CloudPage : Page
         picker.FileTypeFilter.Add("*");
 
         if (App.MainWindow is not null)
-            InitializeWithWindow.Initialize(picker, GetWindowHandle(App.MainWindow));
+            InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(App.MainWindow));
 
         var file = await picker.PickSingleFileAsync();
         if (file is not null)
