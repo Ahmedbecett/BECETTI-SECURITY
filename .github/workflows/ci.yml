@@ -20,7 +20,23 @@ jobs:
         run: dotnet restore Becetti.Security.sln
 
       - name: Build (Release, x64)
-        run: dotnet build Becetti.Security.sln -c Release --no-restore -p:Platform=x64
+        shell: pwsh
+        run: |
+          dotnet build Becetti.Security.sln -c Release --no-restore -p:Platform=x64 2>&1 |
+            Tee-Object -FilePath build.log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            Write-Host "::group::Build failed - error/warning lines from build.log"
+            $hits = Select-String -Path build.log -Pattern 'error |warning ' -CaseSensitive:$false
+            $shown = 0
+            foreach ($hit in $hits) {
+              if ($shown -ge 40) { break }
+              Write-Host "::error::$($hit.Line.Trim())"
+              $shown++
+            }
+            Write-Host "::endgroup::"
+            exit $code
+          }
 
       - name: Test
         run: dotnet test Becetti.Security.sln -c Release --no-build -p:Platform=x64
