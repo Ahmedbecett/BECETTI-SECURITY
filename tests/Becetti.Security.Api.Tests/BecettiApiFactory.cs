@@ -2,7 +2,7 @@ using Becetti.Security.Api.Data;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -40,11 +40,14 @@ public sealed class BecettiApiFactory : WebApplicationFactory<Program>, IDisposa
             // Removing only AppDbContext leaves Program.cs's UseNpgsql(...) options/provider
             // configuration registered, so EF Core would see two providers (Npgsql + Sqlite)
             // for the same context and throw at startup. Remove every registration AddDbContext
-            // created (the context itself, its options, and the options configuration) first.
+            // created (the context itself and its options) first.
+            //
+            // Note: EF Core 9+ also registers IDbContextOptionsConfiguration<TContext>, which
+            // would need removing too on that version. This project pins EF Core 8.0.*, where
+            // that interface does not exist yet, so it is intentionally not referenced here.
             services.RemoveAll<AppDbContext>();
             services.RemoveAll<DbContextOptions<AppDbContext>>();
             services.RemoveAll<DbContextOptions>();
-            services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();
 
             services.AddDbContext<AppDbContext>(options =>
             {

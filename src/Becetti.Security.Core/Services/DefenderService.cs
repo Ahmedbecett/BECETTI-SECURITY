@@ -83,7 +83,7 @@ public sealed class DefenderService : IDefenderService
 
         try
         {
-            var status = ParseStatusJson(run.Value ?? string.Empty);
+            var status = ParseStatusJson(run.Value?.Output ?? string.Empty);
             return OperationResult<DefenderStatus>.Ok(status, "Defender status read from Get-MpComputerStatus.");
         }
         catch (Exception ex)
@@ -101,7 +101,7 @@ public sealed class DefenderService : IDefenderService
 
         try
         {
-            var list = ParseFirewallJson(run.Value ?? string.Empty);
+            var list = ParseFirewallJson(run.Value?.Output ?? string.Empty);
             return OperationResult<IReadOnlyList<FirewallProfileStatus>>.Ok(list, $"Read {list.Count} firewall profile(s).");
         }
         catch (Exception ex)
@@ -119,7 +119,7 @@ public sealed class DefenderService : IDefenderService
 
         try
         {
-            var threats = ParseThreatsJson(run.Value ?? string.Empty);
+            var threats = ParseThreatsJson(run.Value?.Output ?? string.Empty);
             return OperationResult<IReadOnlyList<ThreatInfo>>.Ok(threats, $"Defender reported {threats.Count} detection(s).");
         }
         catch (Exception ex)

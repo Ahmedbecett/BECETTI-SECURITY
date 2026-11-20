@@ -69,6 +69,10 @@ public sealed class TokenStore : ITokenStore
         _filePath = Path.Combine(dir, "tokens.dat");
     }
 
+    // Tells the platform-compatibility analyzer that this property is a valid
+    // "are we on Windows" guard, so the DPAPI calls below that are only reachable
+    // when it is true are not flagged as CA1416 (unsupported on all platforms).
+    [System.Runtime.Versioning.SupportedOSPlatformGuard("windows")]
     public bool ProtectionActive => OperatingSystem.IsWindows();
 
     public async Task SaveAsync(AuthTokens tokens, CancellationToken ct = default)

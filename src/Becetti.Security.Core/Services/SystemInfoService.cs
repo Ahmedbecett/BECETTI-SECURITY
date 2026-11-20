@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Principal;
@@ -115,7 +116,10 @@ public sealed class SystemInfoService : ISystemInfoService
                     // Default certificate validation is used on purpose: BECETTI SECURITY
                     // never disables TLS verification.
                     using var ssl = new SslStream(stream, leaveInnerStreamOpen: false);
-                    await ssl.AuthenticateAsClientAsync(uri.Host, ct).ConfigureAwait(false);
+                    // SslStream has no AuthenticateAsClientAsync(string, CancellationToken) overload;
+                    // the only overload that accepts a CancellationToken takes SslClientAuthenticationOptions.
+                    var sslOptions = new SslClientAuthenticationOptions { TargetHost = uri.Host };
+                    await ssl.AuthenticateAsClientAsync(sslOptions, ct).ConfigureAwait(false);
                     tlsOk = ssl.IsAuthenticated;
                     tlsDetail = tlsOk
                         ? $"TLS handshake succeeded with {uri.Host} (protocol {ssl.SslProtocol})."
