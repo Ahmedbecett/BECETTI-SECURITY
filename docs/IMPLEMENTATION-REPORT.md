@@ -145,7 +145,7 @@ accepting a Linux-sandbox structural check as proof.
       freshly generated self-signed test certificate, and verifies the
       produced `.msix` genuinely contains `AppxSignature.p7x` (proof it is
       signed, not just packaged) before publishing it as a GitHub Release.
-      Current download: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-1b738db
+      Current download: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-c8ec5b7
       (assets: the signed `.msix`, the public `.cer` to trust before
       installing, and `INSTALL.txt` with exact sideload steps). This is a
       **self-signed TEST package for sideloading only** — it is not signed
