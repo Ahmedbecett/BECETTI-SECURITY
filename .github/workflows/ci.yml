@@ -189,6 +189,33 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Stamp a unique package version for this build (fixes the "already installed" Reinstall/Launch trap)
+        shell: pwsh
+        run: |
+          # Every previous test release signed the manifest's hardcoded
+          # Version="1.0.0.0" unchanged. Windows identifies an MSIX package
+          # by Name + Publisher + Version + Architecture together, so every
+          # single test build - across every round, including real fixes
+          # like the self-contained change - looked like "the exact same
+          # package" already on a tester's machine. Windows then shows
+          # "<app> is already installed" with Reinstall/Launch buttons
+          # instead of a normal Install/Update flow, and a tester who clicks
+          # Launch (the more natural-looking button) runs the OLD cached
+          # build and sees an old bug "come back" even though the new .msix
+          # genuinely fixed it. Stamping a unique 4th version component per
+          # CI run makes every build an unambiguous, real upgrade.
+          $manifestPath = "src\Becetti.Security.App\Package.appxmanifest"
+          $version = "1.0.0.${{ github.run_number }}"
+          $original = Get-Content $manifestPath -Raw
+          $patched = $original -replace 'Version="1\.0\.0\.0"', "Version=`"$version`""
+          if ($patched -eq $original) {
+            Write-Host "::error::Package.appxmanifest's Version=`"1.0.0.0`" was not found/replaced - refusing to build with an unverified version."
+            exit 1
+          }
+          Set-Content -Path $manifestPath -Value $patched -Encoding utf8 -NoNewline
+          Write-Host "Package version for this build: $version (source repo file is untouched - this only patches the CI runner's checkout)."
+          "PACKAGE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v6
         with:
@@ -356,9 +383,11 @@ jobs:
             Write-Host "::error::No .msix file was produced by msbuild - see diagnostics above"
             exit 1
           }
-          Copy-Item $msix.FullName "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix"
-          Write-Host "MSIX produced: packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix (source: $($msix.FullName))"
-          Get-Item "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix" | Format-List Name, Length, FullName
+          $outName = "BECETTI-SECURITY_$($env:PACKAGE_VERSION)_x64.msix"
+          Copy-Item $msix.FullName "packaging\output\$outName"
+          Write-Host "MSIX produced: packaging\output\$outName (source: $($msix.FullName))"
+          Get-Item "packaging\output\$outName" | Format-List Name, Length, FullName
+          "MSIX_FILENAME=$outName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Verify the MSIX is actually signed (not just packaged)
         shell: pwsh
@@ -369,7 +398,7 @@ jobs:
           # intermediate pass, so verify the real output directly instead of
           # trusting exit codes alone.
           Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $path = (Resolve-Path "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix").Path
+          $path = (Resolve-Path "packaging\output\$($env:MSIX_FILENAME)").Path
           $zip = [System.IO.Compression.ZipFile]::OpenRead($path)
           try {
             $sig = $zip.Entries | Where-Object { $_.FullName -eq "AppxSignature.p7x" }
@@ -396,7 +425,7 @@ jobs:
             Sort-Object Name -Descending | Select-Object -First 1
           $signtool = Join-Path $sdkBin.FullName "x64\signtool.exe"
           if (Test-Path $signtool) {
-            & $signtool verify /pa /v "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix"
+            & $signtool verify /pa /v "packaging\output\$($env:MSIX_FILENAME)"
           } else {
             Write-Host "signtool.exe not found at expected SDK path - skipping chain verification (non-fatal)."
           }
@@ -414,6 +443,11 @@ jobs:
         run: |
           @"
           BECETTI SECURITY - TEST MSIX build (commit ${{ github.sha }})
+
+          Package version: $env:PACKAGE_VERSION
+          (unique per build - see "WHY THE VERSION NUMBER CHANGED" below if
+          Windows ever shows "already installed" with Reinstall/Launch
+          instead of a normal Install for an older download)
 
           Package identity: BECETTI.BECETTISECURITY
           Publisher: CN=A5D5DC31-4A15-4059-8030-D96C51054596
@@ -449,8 +483,19 @@ jobs:
           above BEFORE trusting it (PowerShell):
             certutil -hashfile BecettiTestCert.cer SHA256
 
+          IMPORTANT - if you installed ANY earlier BECETTI SECURITY test
+          build on this machine, uninstall it first (Settings -> Apps ->
+          Installed apps -> BECETTI SECURITY -> Uninstall) before installing
+          this one, THEN install this one fresh. Do not rely on
+          double-clicking the new .msix alone: Windows's installer may
+          show "BECETTI SECURITY is already installed" with Reinstall/
+          Launch buttons instead of a plain Install button, and clicking
+          "Launch" there runs whatever was already installed, NOT the new
+          file you just downloaded - the easiest way to be certain you are
+          actually running this build is to uninstall first.
+
           To install on Windows 10/11:
-            1. Download both BECETTI-SECURITY_1.0.0.0_x64.msix and
+            1. Download both $env:MSIX_FILENAME and
                BecettiTestCert.cer from this release.
             2. Verify the SHA-256 fingerprint of BecettiTestCert.cer matches
                the value printed above.
@@ -458,12 +503,16 @@ jobs:
                Local Machine -> "Place all certificates in the following
                store" -> Trusted People (or Trusted Root Certification
                Authorities) -> Finish. (Requires administrator rights.)
-            4. Double-click BECETTI-SECURITY_1.0.0.0_x64.msix -> Install.
+            4. If BECETTI SECURITY is already installed, uninstall it first
+               (Settings -> Apps -> Installed apps -> BECETTI SECURITY ->
+               Uninstall).
+            5. Double-click $env:MSIX_FILENAME -> Install.
 
           Alternative (PowerShell, as Administrator):
             certutil -hashfile BecettiTestCert.cer SHA256
             Import-Certificate -FilePath BecettiTestCert.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
-            Add-AppxPackage -Path BECETTI-SECURITY_1.0.0.0_x64.msix
+            Get-AppxPackage -Name BECETTI.BECETTISECURITY | Remove-AppxPackage
+            Add-AppxPackage -Path $env:MSIX_FILENAME
 
           Runtime dependency: this build is SELF-CONTAINED - it bundles its
           own .NET 8 runtime AND its own Microsoft.WindowsAppSDK 1.8 runtime
@@ -487,6 +536,22 @@ jobs:
           build you may have side-loaded. Windows will NOT let you upgrade
           an old CN=BECETTI install in place - uninstall it first, then
           install this one.
+
+          WHY THE VERSION NUMBER CHANGED (starting with this build): every
+          earlier test release signed the manifest with the same hardcoded
+          version, 1.0.0.0, even though the file contents were different
+          each time (real bug fixes included). Windows identifies an
+          installed package by Name + Publisher + Version + Architecture
+          together, so every one of those earlier releases looked like "the
+          exact same package" already installed, and Windows showed
+          "already installed" with Reinstall/Launch buttons instead of a
+          plain Install button - clicking Launch there runs whatever was
+          already on the machine, not the new download, which can make a
+          genuinely fixed bug look like it "came back". Starting with this
+          build, the version is stamped uniquely per CI run (this one is
+          $env:PACKAGE_VERSION) specifically so that can no longer happen -
+          every future release is an unambiguous, real Windows upgrade/
+          install, not a same-version "already installed" prompt.
 
           THE ONLY TWO WAYS TO GET WINDOWS TO TRUST THIS PUBLISHER WITHOUT A
           MANUAL TRUST STEP (no shortcut exists around this - it is how
@@ -519,11 +584,11 @@ jobs:
           set -euo pipefail
           tag="msix-test-${GITHUB_SHA::7}"
           gh release create "$tag" \
-            packaging/output/BECETTI-SECURITY_1.0.0.0_x64.msix \
+            "packaging/output/${MSIX_FILENAME}" \
             packaging/output/BecettiTestCert.cer \
             packaging/output/INSTALL.txt \
             --repo "$GITHUB_REPOSITORY" \
             --title "BECETTI SECURITY - signed test MSIX ($tag)" \
-            --notes "Publisher identity: CN=A5D5DC31-4A15-4059-8030-D96C51054596 (verified Microsoft Partner Center Windows Publisher ID). Signed with a self-signed TEST certificate - NOT a Microsoft-issued or CA-trusted certificate, and not the certificate Microsoft uses when it re-signs a package during real Store certification. Certificate SHA-256 fingerprint: ${CERT_SHA256} / SHA-1 thumbprint: ${CERT_SHA1} (verify with 'certutil -hashfile BecettiTestCert.cer SHA256' before trusting it). Self-contained build: bundles its own .NET 8 and Windows App Runtime 1.8, so no separate runtime install is needed on the target machine (only the one-time certificate trust step still applies). Built from commit ${GITHUB_SHA}. See INSTALL.txt in the release assets for install steps and the 0x800B010A fix. Not a Microsoft Store submission artifact." \
+            --notes "Package version: ${PACKAGE_VERSION} (unique per build - if Windows shows \"already installed\" with Reinstall/Launch for an OLDER downloaded copy, that one predates this per-build versioning; uninstall it first). Publisher identity: CN=A5D5DC31-4A15-4059-8030-D96C51054596 (verified Microsoft Partner Center Windows Publisher ID). Signed with a self-signed TEST certificate - NOT a Microsoft-issued or CA-trusted certificate, and not the certificate Microsoft uses when it re-signs a package during real Store certification. Certificate SHA-256 fingerprint: ${CERT_SHA256} / SHA-1 thumbprint: ${CERT_SHA1} (verify with 'certutil -hashfile BecettiTestCert.cer SHA256' before trusting it). Self-contained build: bundles its own .NET 8 and Windows App Runtime 1.8, so no separate runtime install is needed on the target machine (only the one-time certificate trust step still applies). Built from commit ${GITHUB_SHA}. See INSTALL.txt in the release assets for install steps and the 0x800B010A fix. Not a Microsoft Store submission artifact." \
             --latest=false
           echo "Release created: https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag"
