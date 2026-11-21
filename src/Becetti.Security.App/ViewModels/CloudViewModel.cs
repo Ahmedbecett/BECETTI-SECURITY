@@ -181,15 +181,27 @@ public sealed class CloudViewModel : ViewModelBase
 
     public async Task RefreshAccountAsync()
     {
-        IsSignedIn = _cloud.IsAuthenticated;
-        if (!_cloud.IsAuthenticated)
+        // Try/catch kept consistent with every other command method in this ViewModel:
+        // RelayCommand.Execute only has try/finally, not try/catch, so an uncaught
+        // exception here would otherwise surface as an unhandled exception on the UI
+        // thread instead of a normal ErrorMessage.
+        try
         {
-            AccountText = "Not signed in";
-            return;
-        }
+            IsSignedIn = _cloud.IsAuthenticated;
+            if (!_cloud.IsAuthenticated)
+            {
+                AccountText = "Not signed in";
+                return;
+            }
 
-        var me = await _cloud.GetCurrentUserEmailAsync();
-        AccountText = me.Success ? $"Signed in as {me.Value}" : "Session present, account details unavailable";
+            var me = await _cloud.GetCurrentUserEmailAsync();
+            AccountText = me.Success ? $"Signed in as {me.Value}" : "Session present, account details unavailable";
+        }
+        catch (Exception ex)
+        {
+            AccountText = "Account details unavailable";
+            ErrorMessage = $"Could not refresh account details: {ex.Message}";
+        }
     }
 
     public async Task CheckReputationAsync()

@@ -73,32 +73,46 @@ public sealed class UpdatesViewModel : ViewModelBase
 
     public async Task LoadSignaturesAsync()
     {
-        var status = await _defender.GetStatusAsync();
-        if (status.Success && status.Value is not null)
+        // Defensive try/catch kept consistent with every other ViewModel's LoadAsync:
+        // this is invoked both from OnNavigatedTo (an async void - an uncaught exception
+        // there would crash the app) and from RefreshSignaturesCommand (RelayCommand.Execute
+        // only has try/finally, not try/catch). _defender.GetStatusAsync() already wraps its
+        // own failures in a non-throwing OperationResult, but this guards against any
+        // unexpected exception surfacing from here instead of silently crashing the UI.
+        try
         {
-            var s = status.Value;
-            if (!s.Available)
+            var status = await _defender.GetStatusAsync();
+            if (status.Success && status.Value is not null)
             {
-                SignatureText = "Microsoft Defender could not be reached on this device.";
-            }
-            else if (!s.AntivirusEnabled)
-            {
-                SignatureText = "Microsoft Defender Antivirus is disabled on this device, so no signature status is tracked here.";
+                var s = status.Value;
+                if (!s.Available)
+                {
+                    SignatureText = "Microsoft Defender could not be reached on this device.";
+                }
+                else if (!s.AntivirusEnabled)
+                {
+                    SignatureText = "Microsoft Defender Antivirus is disabled on this device, so no signature status is tracked here.";
+                }
+                else
+                {
+                    var version = s.AntivirusSignatureVersion is not null
+                        ? $"Security intelligence: version {s.AntivirusSignatureVersion}, updated {s.AntivirusSignatureLastUpdated?.ToString("g") ?? "unknown"}"
+                        : "Security intelligence version unknown";
+                    SignatureText = s.ManagedByAnotherAntivirus
+                        ? $"{version}\nDefender running mode: {s.RunningMode} (another antivirus product is the active real-time engine on this device)."
+                        : version;
+                }
             }
             else
             {
-                var version = s.AntivirusSignatureVersion is not null
-                    ? $"Security intelligence: version {s.AntivirusSignatureVersion}, updated {s.AntivirusSignatureLastUpdated?.ToString("g") ?? "unknown"}"
-                    : "Security intelligence version unknown";
-                SignatureText = s.ManagedByAnotherAntivirus
-                    ? $"{version}\nDefender running mode: {s.RunningMode} (another antivirus product is the active real-time engine on this device)."
-                    : version;
+                SignatureText = "Unknown";
+                ErrorMessage = status.Message;
             }
         }
-        else
+        catch (Exception ex)
         {
             SignatureText = "Unknown";
-            ErrorMessage = status.Message;
+            ErrorMessage = $"Could not read Defender signature status: {ex.Message}";
         }
     }
 
