@@ -32,6 +32,7 @@ public partial class App : Application
         services.AddSingleton<IEventLogService, EventLogService>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
+        services.AddSingleton<Services.SpeechService>();
         services.AddHttpClient<ICloudService, CloudService>();
         services.AddHttpClient<IBecettiAiService, BecettiAiService>();
 

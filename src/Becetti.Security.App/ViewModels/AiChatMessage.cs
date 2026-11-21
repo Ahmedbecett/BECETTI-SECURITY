@@ -12,4 +12,11 @@ public sealed class AiChatMessage
 
     /// <summary>True when this bubble reports a real error (styled distinctly, never a normal reply).</summary>
     public bool IsError { get; init; }
+
+    /// <summary>
+    /// True when BECETTI AI signaled (via the backend's own honesty rules) that it
+    /// could not genuinely resolve this question, so the UI offers a one-tap
+    /// "open a support ticket" action under this specific message.
+    /// </summary>
+    public bool SuggestsSupportTicket { get; init; }
 }

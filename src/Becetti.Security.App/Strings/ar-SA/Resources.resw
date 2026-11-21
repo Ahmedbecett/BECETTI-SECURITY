@@ -57,4 +57,9 @@
   <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>حفظ سجل المحادثة على هذا الجهاز</value></data>
   <data name="SettingsAiApiBaseUrl.Header" xml:space="preserve"><value>رابط خادم BECETTI AI</value></data>
   <data name="SettingsSupportEmail.Header" xml:space="preserve"><value>عنوان بريد الدعم</value></data>
+
+  <data name="AiWelcomeMessage.Text" xml:space="preserve"><value>مرحباً، أنت بأمان.</value></data>
+  <data name="AiWelcomeSubtitle.Text" xml:space="preserve"><value>أنا BECETTI AI. اسألني عن أي جزء من حمايتك وسأشرح لك بالضبط ماذا يعني وأين تجده.</value></data>
+  <data name="AiVoiceToggle.Header" xml:space="preserve"><value>قراءة الردود صوتياً</value></data>
+  <data name="AiSupportTicketButton.Content" xml:space="preserve"><value>فتح طلب دعم</value></data>
 </root>

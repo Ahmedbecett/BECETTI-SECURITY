@@ -56,6 +56,8 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    private void AiLauncherButton_Click(object sender, RoutedEventArgs e) => NavigateTo("Ai");
+
     private void SettingsButton_Click(object sender, RoutedEventArgs e) => NavigateTo("Settings");
 
     private void AboutButton_Click(object sender, RoutedEventArgs e) => NavigateTo("About");

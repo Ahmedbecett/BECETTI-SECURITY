@@ -57,4 +57,9 @@
   <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>Save chat history on this device</value></data>
   <data name="SettingsAiApiBaseUrl.Header" xml:space="preserve"><value>BECETTI AI server URL</value></data>
   <data name="SettingsSupportEmail.Header" xml:space="preserve"><value>Support email address</value></data>
+
+  <data name="AiWelcomeMessage.Text" xml:space="preserve"><value>Welcome, you are safe.</value></data>
+  <data name="AiWelcomeSubtitle.Text" xml:space="preserve"><value>I'm BECETTI AI. Ask me about any part of your protection and I'll explain exactly what it shows and where to go.</value></data>
+  <data name="AiVoiceToggle.Header" xml:space="preserve"><value>Read replies aloud</value></data>
+  <data name="AiSupportTicketButton.Content" xml:space="preserve"><value>Open a support ticket</value></data>
 </root>

@@ -46,6 +46,14 @@ public sealed class AppSettings
     /// <summary>When true, BECETTI AI chat history is kept on disk between app runs. OFF by default.</summary>
     public bool AiSaveHistory { get; set; }
 
+    /// <summary>
+    /// When true, BECETTI AI reads its replies aloud using the Windows
+    /// text-to-speech engine (BECETTI AI page only). On by default — it is
+    /// the assistant's signature presentation; a mute control is always
+    /// visible on the page.
+    /// </summary>
+    public bool AiVoiceRepliesEnabled { get; set; } = true;
+
     /// <summary>Destination address for the "Contact Becetti" feature's prefilled email. Editable in Settings.</summary>
     public string SupportEmail { get; set; } = "ahmedbecetti35@gmail.com";
 }

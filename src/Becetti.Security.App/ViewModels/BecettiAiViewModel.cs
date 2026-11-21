@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Text.Json;
+using Becetti.Security.App.Services;
 using Becetti.Security.Core.Services;
 
 namespace Becetti.Security.App.ViewModels;
@@ -8,39 +10,61 @@ namespace Becetti.Security.App.ViewModels;
 /// BECETTI AI chat page. Talks only to the BECETTI AI backend (never to an
 /// AI provider directly, never with an embedded key). Every assistant bubble
 /// is either a real backend reply or a real, clearly-labeled error — this
-/// view model never invents a reply client-side.
+/// view model never invents a reply client-side. Optional, mutable extras:
+/// reading replies aloud with the Windows TTS engine, and a one-tap "open a
+/// support ticket" escalation that only ever prepares an email draft the
+/// user must send themselves.
 /// </summary>
 public sealed class BecettiAiViewModel : ViewModelBase
 {
+    private const string SupportTicketSentinel = "[[OFFER_SUPPORT_TICKET]]";
+
     private readonly IBecettiAiService _ai;
     private readonly IDefenderService _defender;
+    private readonly ISystemInfoService _system;
     private readonly ISettingsService _settings;
+    private readonly SpeechService _speech;
 
     private string _inputText = string.Empty;
     private bool _isSending;
     private bool _shareDeviceState;
     private bool _saveHistory;
+    private bool _voiceRepliesEnabled;
+    private bool _isSpeaking;
+    private string _lastDetectedLanguage = "en-US";
 
-    public BecettiAiViewModel(IBecettiAiService ai, IDefenderService defender, ISettingsService settings)
+    public BecettiAiViewModel(IBecettiAiService ai, IDefenderService defender, ISystemInfoService system, ISettingsService settings, SpeechService speech)
     {
         _ai = ai;
         _defender = defender;
+        _system = system;
         _settings = settings;
+        _speech = speech;
 
         _shareDeviceState = settings.Current.AiShareDeviceState;
         _saveHistory = settings.Current.AiSaveHistory;
+        _voiceRepliesEnabled = settings.Current.AiVoiceRepliesEnabled;
+
+        _speech.SpeakingStarted += (_, _) => IsSpeaking = true;
+        _speech.SpeakingEnded += (_, _) => IsSpeaking = false;
 
         SendCommand = new RelayCommand(SendAsync, () => !IsSending && !string.IsNullOrWhiteSpace(InputText));
         ClearCommand = new RelayCommand(ClearAsync);
+        CreateSupportTicketCommand = new RelayCommand(CreateSupportTicketAsync);
 
         if (_saveHistory)
             LoadHistory();
+
+        Messages.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasNoMessages));
     }
 
     public ObservableCollection<AiChatMessage> Messages { get; } = new();
 
     public RelayCommand SendCommand { get; }
     public RelayCommand ClearCommand { get; }
+    public RelayCommand CreateSupportTicketCommand { get; }
+
+    public bool HasNoMessages => Messages.Count == 0;
 
     public string InputText
     {
@@ -60,6 +84,13 @@ public sealed class BecettiAiViewModel : ViewModelBase
             if (SetProperty(ref _isSending, value))
                 SendCommand.RaiseCanExecuteChanged();
         }
+    }
+
+    /// <summary>True while a reply is actually being read aloud — drives the robot "talking" animation. Never faked.</summary>
+    public bool IsSpeaking
+    {
+        get => _isSpeaking;
+        private set => SetProperty(ref _isSpeaking, value);
     }
 
     /// <summary>Explicit per-user consent to attach real, live app/device state to the next message. OFF by default.</summary>
@@ -91,7 +122,37 @@ public sealed class BecettiAiViewModel : ViewModelBase
         }
     }
 
+    /// <summary>Read replies aloud with the Windows TTS engine. On by default; always one tap away from off.</summary>
+    public bool VoiceRepliesEnabled
+    {
+        get => _voiceRepliesEnabled;
+        set
+        {
+            if (SetProperty(ref _voiceRepliesEnabled, value))
+            {
+                _settings.Current.AiVoiceRepliesEnabled = value;
+                _ = _settings.SaveAsync();
+                if (!value)
+                    _speech.Stop();
+            }
+        }
+    }
+
     public bool IsConfigured => _ai.IsConfigured;
+
+    /// <summary>
+    /// Called once when the chat page first opens (empty conversation only)
+    /// to show and, if enabled, speak the welcome greeting in the app's
+    /// current UI language. Never runs again once a conversation exists.
+    /// </summary>
+    public async Task PlayWelcomeIfEmptyAsync(string welcomeText, string uiLanguageTag)
+    {
+        if (!HasNoMessages || !VoiceRepliesEnabled)
+            return;
+
+        _lastDetectedLanguage = uiLanguageTag;
+        await _speech.SpeakAsync(welcomeText, uiLanguageTag);
+    }
 
     private async Task SendAsync()
     {
@@ -101,8 +162,10 @@ public sealed class BecettiAiViewModel : ViewModelBase
 
         ClearMessages();
         InputText = string.Empty;
+        _speech.Stop();
 
         Messages.Add(new AiChatMessage { IsFromUser = true, Text = text });
+        _lastDetectedLanguage = DetectLanguageTag(text);
 
         var pending = new AiChatMessage { IsFromUser = false, Text = string.Empty, IsPending = true };
         Messages.Add(pending);
@@ -117,12 +180,24 @@ public sealed class BecettiAiViewModel : ViewModelBase
 
             if (result.Success && result.Value is not null)
             {
-                Messages.Add(new AiChatMessage { IsFromUser = false, Text = result.Value });
+                var raw = result.Value;
+                var offersTicket = raw.Contains(SupportTicketSentinel, StringComparison.Ordinal);
+                var displayText = offersTicket
+                    ? raw.Replace(SupportTicketSentinel, string.Empty).TrimEnd()
+                    : raw;
+
+                Messages.Add(new AiChatMessage { IsFromUser = false, Text = displayText, SuggestsSupportTicket = offersTicket });
                 StatusMessage = string.Empty;
+
+                if (VoiceRepliesEnabled)
+                    _ = _speech.SpeakAsync(displayText, _lastDetectedLanguage);
             }
             else
             {
-                Messages.Add(new AiChatMessage { IsFromUser = false, Text = result.Message, IsError = true });
+                // A technical failure (offline, server error, not configured, etc.) is
+                // just as much a case where BECETTI AI "could not solve it" as a plain
+                // knowledge gap, so it must offer the same support-ticket escalation.
+                Messages.Add(new AiChatMessage { IsFromUser = false, Text = result.Message, IsError = true, SuggestsSupportTicket = true });
                 ErrorMessage = result.Message;
             }
 
@@ -133,6 +208,24 @@ public sealed class BecettiAiViewModel : ViewModelBase
         {
             IsSending = false;
         }
+    }
+
+    /// <summary>
+    /// Best-effort language detection used only to pick a matching Windows
+    /// TTS voice — never used to decide or alter the actual answer. Falls
+    /// back to English when the text is ambiguous.
+    /// </summary>
+    private static string DetectLanguageTag(string text)
+    {
+        if (text.Any(c => c >= '\u0600' && c <= '\u06FF'))
+            return "ar-SA";
+
+        var lower = text.ToLowerInvariant();
+        var frenchMarkers = new[] { "é", "è", "ê", "à", "ù", "ç", "œ", " le ", " la ", " les ", " est ", " bonjour", "merci", " vous ", " je ", " pas " };
+        if (frenchMarkers.Any(lower.Contains))
+            return "fr-FR";
+
+        return "en-US";
     }
 
     private async Task<List<AiChatTurn>> BuildHistoryForRequestAsync()
@@ -173,8 +266,86 @@ public sealed class BecettiAiViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Prepares a support-ticket email draft (subject includes a real,
+    /// locally generated tracking number) in the user's own email app.
+    /// Exactly like Contact Becetti: nothing is ever sent automatically —
+    /// the user must review and press Send themselves.
+    /// </summary>
+    private async Task CreateSupportTicketAsync()
+    {
+        if (IsBusy)
+            return;
+
+        IsBusy = true;
+        ClearMessages();
+        try
+        {
+            var ticketId = $"BKT-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}";
+
+            var body = new StringBuilder();
+            body.AppendLine($"Support ticket: {ticketId}");
+            body.AppendLine($"Created: {DateTimeOffset.Now:u}");
+            body.AppendLine();
+            body.AppendLine("--- BECETTI AI conversation (for context) ---");
+            foreach (var m in Messages.Where(m => !m.IsPending))
+                body.AppendLine($"[{(m.IsFromUser ? "User" : "BECETTI AI")}] {m.Text}");
+
+            body.AppendLine();
+            body.AppendLine("--- Describe what you still need help with below ---");
+            body.AppendLine();
+
+            try
+            {
+                var device = await _system.GetDeviceInfoAsync();
+                if (device.Success && device.Value is not null)
+                {
+                    var d = device.Value;
+                    body.AppendLine($"(Diagnostics: {d.OsDescription} build {d.OsBuild}, {d.Architecture})");
+                }
+            }
+            catch
+            {
+                // Diagnostics are a courtesy only; never block ticket creation on them.
+            }
+
+            var subject = $"BECETTI SECURITY support ticket {ticketId}";
+            var uri = $"mailto:{Uri.EscapeDataString(_settings.Current.SupportEmail)}?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(body.ToString())}";
+
+            if (OperatingSystem.IsWindows())
+            {
+                var startInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = uri,
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(startInfo);
+
+                Messages.Add(new AiChatMessage
+                {
+                    IsFromUser = false,
+                    Text = $"Support ticket {ticketId} was prepared and your email app opened with it. Nothing is sent until you press Send there. Keep {ticketId} for your records."
+                });
+                StatusMessage = $"Ticket {ticketId} ready in your email app.";
+            }
+            else
+            {
+                ErrorMessage = "Opening the email app is only supported on Windows.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Could not prepare the support ticket: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     private Task ClearAsync()
     {
+        _speech.Stop();
         Messages.Clear();
         DeleteHistoryFile();
         ClearMessages();

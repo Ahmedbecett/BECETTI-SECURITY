@@ -126,6 +126,27 @@
                 <TextBlock x:Name="FooterCompatText" Grid.Column="3" Text="Windows 10 / 11 · x64" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" />
             </Grid>
         </Border>
+
+        <!--
+            Fixed, always-on-screen BECETTI AI launcher. Present on every page
+            (it floats above the Grid, spanning both rows) so the assistant is
+            never more than one tap away, per the product requirement that this
+            must not be buried in a menu. Opens the full BECETTI AI chat page —
+            never a small popup.
+        -->
+        <Button x:Name="AiLauncherButton"
+                Grid.Row="0" Grid.RowSpan="2"
+                Click="AiLauncherButton_Click"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Margin="0,0,28,28"
+                Width="64" Height="64"
+                CornerRadius="32"
+                Padding="0"
+                Background="{StaticResource ElectricBlueBrush}"
+                BorderThickness="0"
+                ToolTipService.ToolTip="BECETTI AI">
+            <Image Source="Assets/RobotMascotHero.png" Width="38" Height="38" Stretch="Uniform" />
+        </Button>
     </Grid>
 
 </Window>
