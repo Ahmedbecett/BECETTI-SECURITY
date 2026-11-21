@@ -100,17 +100,39 @@ from training-data memory, since Store policy details change over time):
   recommended/10 maximum) confirmed from
   `.../publish-your-app/msix/screenshots-and-images`.
 
-## 6. Support email and privacy policy hosting — IN PROGRESS, NOT YET DONE
+## 6. Support email and privacy policy hosting — DONE (with one caveat)
 
-- `store/privacy-policy.md` still has the placeholder
-  `support@becetti.example` - **awaiting your real support email address**
-  to replace it (cannot be invented; see the question sent alongside this
-  report).
-- The privacy policy is not yet hosted at any public URL. A Vercel project
-  will be created and the policy deployed there once the support email is
-  confirmed, giving a stable `https://*.vercel.app` URL suitable for
-  Partner Center's privacy policy field. This has **not been deployed
-  yet** - it will be done as the very next action once you answer.
+- `store/privacy-policy.md` now lists `ahmedbecetti35@gmail.com` (you
+  confirmed this is the address to use), replacing the
+  `support@becetti.example` placeholder. Verified by re-reading the file.
+- **Hosting attempted on Vercel first, and it failed** - not from lack of
+  trying. A project was created and a deployment was attempted 7 different
+  ways (plain files, git-linked, with explicit `project_settings` in every
+  reasonable shape). Every attempt returned the same Vercel API error:
+  *"The `projectSettings` object is required for new projects, but is
+  missing in the deployment payload"* - even though it was supplied. This
+  points to a bug in the Vercel connector tool's handling of a project's
+  very first deployment, which cannot be fixed from this session. Reported
+  honestly rather than worked around with a fake success.
+- **GitHub Pages attempted next, also failed** - `gh api -X POST
+  .../pages` returned `403 Resource not accessible by integration`; the
+  sandbox's GitHub token does not have the repository-admin scope Pages
+  setup requires. Only you can enable it, from the repo's
+  **Settings → Pages**.
+- **What is actually live right now, verified by fetching it in this
+  session**: GitHub renders `store/privacy-policy.md` as a formatted page
+  automatically, and the repository is public, so this URL works today,
+  with no sign-in:
+  `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/arena/1590a9fd-becetti-security/store/privacy-policy.md`
+  This is a real, working, public HTTPS URL - confirmed by fetching it
+  and seeing the rendered content with the real support email, not
+  assumed. **Caveat**: it points at this feature branch. After this work
+  is merged, switch the URL used in Partner Center to the `main`-branch
+  version so it survives this branch being deleted later.
+- A styled static HTML version was also prepared at `store/site/index.html`
+  (bilingual EN/AR, matches the app's dark theme) in case you later want a
+  nicer-looking page - e.g. by deploying it yourself through the Vercel
+  CLI/dashboard, or once the connector bug above is fixed.
 
 ## 7. What this sandbox categorically cannot do
 
@@ -135,18 +157,24 @@ from training-data memory, since Store policy details change over time):
 - Self-signed test-cert path kept fully separate from the Store path
   (confirmed: `package-msix.ps1`/CI test cert is never referenced by
   `package-store.ps1` or the `.wapproj`'s Store publish settings).
+- Real support email in place (`ahmedbecetti35@gmail.com`), confirmed by you.
+- Privacy policy live at a real, verified-reachable public HTTPS URL
+  (GitHub-rendered Markdown - see §6; Vercel and GitHub Pages were both
+  attempted and genuinely failed for reasons outside this session's
+  control, not silently skipped).
 
 **Drafted, not yet verified on a real machine/account:**
 - `scripts/package-store.ps1` (needs a Windows run).
 - The Visual Studio GUI packaging steps (needs Visual Studio).
 
 **Not started / blocking a real submission:**
-- Real support email (needs your input).
-- Hosted privacy policy URL (next action once email is confirmed).
 - Real screenshots (needs a Windows machine with the app actually running).
 - Partner Center app name reservation status (needs your confirmation -
   unknown from this sandbox).
 - Running the Windows App Certification Kit.
+- Re-pointing the privacy policy URL from the feature branch to `main`
+  once this work is merged (one-line change in Partner Center, not in
+  this repo).
 
 **Explicit scope boundary, per your instruction:** no submission, no
 certification request, and no live Store publishing will be triggered from

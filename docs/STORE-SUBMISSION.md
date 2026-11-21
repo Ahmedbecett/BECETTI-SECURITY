@@ -77,18 +77,38 @@ What still needs a real action before an actual submission can succeed -
 none of these can be fabricated or completed from inside a sandboxed CI
 environment, they need a human with a Partner Center account and/or a real
 Windows machine:
-- [ ] **Replace the placeholder support email** in
-      `store/privacy-policy.md` (currently `support@becetti.example`) with
-      a real, monitored address.
-- [ ] **Host the privacy policy at a public URL** for the Partner Center
-      submission form. The simplest option that needs no extra
-      infrastructure: link directly to the rendered Markdown file on
-      GitHub, e.g.
-      `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/<branch>/store/privacy-policy.md`
-      (GitHub renders `.md` files as formatted HTML automatically - this is
-      commonly accepted by Partner Center). A dedicated GitHub Pages site
-      is a cleaner alternative but requires enabling Pages in the repo's
-      Settings, which only the repository owner can do.
+- [x] **Support email** - `store/privacy-policy.md` now lists
+      `ahmedbecetti35@gmail.com` (confirmed by the user) instead of the
+      `support@becetti.example` placeholder.
+- [x] **Privacy policy hosted at a public HTTPS URL** - live now at:
+      `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/arena/1590a9fd-becetti-security/store/privacy-policy.md`
+      (GitHub renders `.md` as formatted HTML; verified publicly reachable,
+      no sign-in required, during this session). Two hosting paths were
+      attempted and ruled out first - recorded here so they aren't retried:
+      - **Vercel**: a project was created and a deployment was attempted
+        7 different ways (files-based, git-linked, with/without explicit
+        `project_settings`, with/without `root_directory`). Every attempt
+        failed with the same Vercel API error - *"The `projectSettings`
+        object is required for new projects, but is missing in the
+        deployment payload"* - even when `project_settings` was explicitly
+        supplied. This is a bug/limitation in the Vercel connector tool's
+        first-deployment path, not something fixable from this session. A
+        static HTML privacy-policy page was still prepared at
+        `store/site/index.html` in case you want to deploy it yourself
+        later (`vercel deploy` from the Vercel CLI, or retried through the
+        connector once/if that bug is fixed).
+      - **GitHub Pages**: `gh api -X POST .../pages` failed with `403
+        Resource not accessible by integration` - enabling Pages needs
+        repository-admin permission the sandbox's GitHub token doesn't
+        have; only you can enable it from **Settings → Pages** in the
+        GitHub UI.
+      - **Caveat on the current GitHub-blob URL**: it is tied to the
+        branch name `arena/1590a9fd-becetti-security`. Once this work is
+        merged, **update the Partner Center privacy policy field to point
+        at the `main` branch** version instead, e.g.
+        `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/main/store/privacy-policy.md`,
+        since a feature branch can be deleted after merging and would
+        break the link.
 - [ ] **Real screenshots of the actual running app**, captured on a real
       Windows 10/11 machine after installing a genuine build. These cannot
       be produced here: this sandbox has no Windows runtime, so the WinUI 3
