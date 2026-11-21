@@ -6,13 +6,27 @@
   IgnorableNamespaces="uap rescap">
 
   <!--
-    Microsoft Store identity. Replace Publisher and PublisherDisplayName with the
-    values from your Partner Center reservation before submission. The Publisher
-    value must match the certificate used to sign the MSIX package.
+    Microsoft Store identity. Publisher is set to the verified Microsoft
+    Partner Center Windows Publisher ID for this account
+    (CN=A5D5DC31-4A15-4059-8030-D96C51054596). This is the exact identity
+    Partner Center issued - it is NOT by itself a trusted/CA-issued
+    certificate; whatever certificate signs this package (currently a
+    self-signed CI test certificate, see docs/STORE-SUBMISSION.md and
+    docs/IMPLEMENTATION-REPORT.md) must have a Subject that matches this
+    Publisher string exactly, or MSIX signing fails outright.
+
+    IMPORTANT: Publisher is part of the package's identity together with
+    Name. Changing Publisher (as done here, from the placeholder
+    CN=BECETTI to the real Partner Center ID) changes package identity.
+    Any machine that already side-loaded a build signed under the old
+    CN=BECETTI identity cannot upgrade in place to a package signed under
+    this new identity - Windows treats it as a different app and the old
+    one must be uninstalled first before installing a build signed with
+    this identity.
   -->
   <Identity
     Name="BECETTI.BECETTISECURITY"
-    Publisher="CN=BECETTI"
+    Publisher="CN=A5D5DC31-4A15-4059-8030-D96C51054596"
     Version="1.0.0.0"
     ProcessorArchitecture="x64" />
 

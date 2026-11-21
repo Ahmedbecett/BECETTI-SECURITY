@@ -3,9 +3,24 @@
 ## Prerequisites
 1. Windows 10/11 machine with .NET 8 SDK, Windows SDK, Visual Studio 2022
    (or the CI pipeline) for the WinUI 3 build.
-2. A code-signing certificate whose subject matches the `Publisher` in
-   `src/Becetti.Security.App/Package.appxmanifest`. Replace the `CN=BECETTI`
-   placeholder with the Partner Center publisher ID.
+2. `src/Becetti.Security.App/Package.appxmanifest`'s `Identity/@Publisher`
+   is now set to the verified Microsoft Partner Center Windows Publisher ID
+   for this account: `CN=A5D5DC31-4A15-4059-8030-D96C51054596` (no longer
+   the `CN=BECETTI` placeholder). This value is **not itself a certificate**
+   - it is the identity string Partner Center expects. Two distinct paths
+   remain, and this document does not claim either is complete yet:
+   - **Store submission**: upload the MSIX to Partner Center as-is (signed
+     with any cert whose Subject matches the Publisher above, including the
+     CI's self-signed test certificate) - Microsoft re-signs the package
+     with its own trusted certificate during ingestion. The `Publisher`
+     match is what Partner Center validates; it does not require you to
+     already own a Microsoft-trusted certificate before uploading.
+   - **Direct/enterprise sideloading outside the Store**: requires an
+     actual CA-issued (or otherwise already-trusted-on-target-machines)
+     code-signing certificate whose Subject matches
+     `CN=A5D5DC31-4A15-4059-8030-D96C51054596` exactly. The CI pipeline's
+     self-signed certificate is for testing only and is not trusted by
+     default on any machine other than one where you manually imported it.
 3. A deployed cloud API (optional for Store submission, required for cloud
    features) — see `docs/API.md`.
 4. Hosted privacy policy URL (`store/privacy-policy.md`) and support contact.

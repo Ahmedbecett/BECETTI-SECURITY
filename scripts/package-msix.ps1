@@ -1,8 +1,13 @@
 # Packages the MSIX for Microsoft Store submission.
 # Prerequisites (see docs/STORE-SUBMISSION.md):
 #   - Windows SDK (MakeAppx.exe, SignTool.exe)
-#   - A code-signing certificate whose subject matches the Publisher in
-#     src/Becetti.Security.App/Package.appxmanifest (CN=BECETTI placeholder).
+#   - A code-signing certificate whose Subject matches the Publisher in
+#     src/Becetti.Security.App/Package.appxmanifest exactly:
+#     CN=A5D5DC31-4A15-4059-8030-D96C51054596 (the verified Microsoft
+#     Partner Center Windows Publisher ID for this account). Note that
+#     matching this string does not by itself make a certificate trusted -
+#     see docs/STORE-SUBMISSION.md for the Store-upload vs. direct-sideload
+#     distinction.
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
 Set-Location $root
