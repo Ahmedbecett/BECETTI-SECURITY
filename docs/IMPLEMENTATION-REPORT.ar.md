@@ -112,7 +112,7 @@
 4. نشر الحزمة الموقّعة + الشهادة العامة (`.cer`) + تعليمات تثبيت (`INSTALL.txt`) كأصول (assets) ضمن إصدار (Release) علني على GitHub.
 
 **رابط التحميل الحالي:**
-https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-c8ec5b7
+https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-cf5b68b
 
 ⚠️ **تنبيه مهم**: هذه حزمة اختبار (sideload) موقّعة بشهادة ذاتية التوقيع، **وليست** موقّعة من جهة إصدار شهادات موثوقة (CA) ولا من هوية ناشر Microsoft Partner Center حقيقية. لذلك يجب تثبيت الشهادة العامة (`BecettiTestCert.cer`) يدويًا والوثوق بها قبل أن يقبل نظام Windows تثبيت الحزمة — الخطوات الدقيقة موجودة في ملف `INSTALL.txt` المرفق داخل الإصدار نفسه. تقديم المنتج الحقيقي على متجر Microsoft Store يتطلب هوية ناشر حقيقية من Partner Center، كما هو موضّح في `docs/STORE-SUBMISSION.md`.
 
