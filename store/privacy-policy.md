@@ -36,5 +36,4 @@ for scanning and threat removal. It does not replace Microsoft Defender.
 - Delete local data by removing `%LocalAppData%\BecettiSecurity`.
 
 ## Contact
-Support: support@becetti.example — replace with the production support address
-before Store submission.
+Support: ahmedbecetti35@gmail.com

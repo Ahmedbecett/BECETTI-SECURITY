@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BECETTI SECURITY — Privacy Policy</title>
+<meta name="description" content="Privacy Policy for BECETTI SECURITY, a Windows security center powered by Microsoft Defender.">
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #121820;
+    --border: #1f2a36;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --accent: #3ddc97;
+    --accent2: #4aa8ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(circle at top, #10161d 0%, #0b0f14 60%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.65;
+  }
+  header {
+    padding: 48px 24px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  header .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  h1 {
+    margin: 0 0 6px;
+    font-size: 30px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  header p { color: var(--muted); margin: 0; font-size: 14px; }
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+  section { margin-bottom: 32px; }
+  h2 {
+    font-size: 19px;
+    color: var(--accent2);
+    border-left: 3px solid var(--accent2);
+    padding-left: 10px;
+    margin-bottom: 10px;
+  }
+  ul { padding-left: 20px; margin: 8px 0; }
+  li { margin-bottom: 6px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+  a { color: var(--accent2); }
+  code {
+    background: #0e141b;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.92em;
+  }
+  .lang-toggle {
+    text-align: center;
+    margin: 28px 0 8px;
+  }
+  .lang-toggle a {
+    display: inline-block;
+    margin: 0 8px;
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 14px;
+  }
+  .lang-toggle a:hover { border-color: var(--accent2); }
+  [dir="rtl"] { text-align: right; }
+  [dir="rtl"] h2 { border-left: none; border-right: 3px solid var(--accent2); padding-left: 0; padding-right: 10px; }
+  [dir="rtl"] ul { padding-left: 0; padding-right: 20px; }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">BECETTI SECURITY</div>
+  <h1>Privacy Policy</h1>
+  <p>Effective date: 2026-11-20 &nbsp;·&nbsp; Publisher: BECETTI</p>
+</header>
+
+<main>
+  <div class="lang-toggle">
+    <a href="#en">English</a>
+    <a href="#ar">العربية</a>
+  </div>
+
+  <article id="en" class="card">
+    <section>
+      <h2>What BECETTI SECURITY does</h2>
+      <p>BECETTI SECURITY is a Windows security center that uses Microsoft Defender for scanning and threat removal. It does not replace Microsoft Defender.</p>
+    </section>
+
+    <section>
+      <h2>Data processed on your device</h2>
+      <ul>
+        <li>Security status and scan results read from Microsoft Defender.</li>
+        <li>Your settings, stored locally under <code>%LocalAppData%\BecettiSecurity</code>.</li>
+        <li>A local history of security events that actually occurred.</li>
+        <li>Cloud session tokens, protected with Windows DPAPI.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Data sent to the BECETTI cloud API (only when you configure it)</h2>
+      <ul>
+        <li>Your account email and password (passwords are hashed with BCrypt on the server; plaintext is never stored).</li>
+        <li>SHA-256 hashes of files you explicitly choose to check. <strong>Files themselves are never uploaded.</strong></li>
+        <li>Your app version, when you check for updates.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Data never collected</h2>
+      <ul>
+        <li>No telemetry by default. Telemetry is opt-in in Settings and off by default.</li>
+        <li>No browsing history, no keystrokes, no screen content, no personal files.</li>
+        <li>No advertising identifiers.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Third-party services</h2>
+      <ul>
+        <li>Microsoft Defender (on-device, by Microsoft).</li>
+        <li>VirusTotal (server-side reputation lookups, only when the operator has configured an API key; hashes only).</li>
+        <li>Microsoft Store (distribution and updates, by Microsoft).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Your choices</h2>
+      <ul>
+        <li>Use the app fully offline: local features work without any account.</li>
+        <li>Sign out at any time (Cloud Security page); tokens are deleted locally.</li>
+        <li>Delete local data by removing <code>%LocalAppData%\BecettiSecurity</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>Support: <a href="mailto:ahmedbecetti35@gmail.com">ahmedbecetti35@gmail.com</a></p>
+    </section>
+  </article>
+
+  <article id="ar" class="card" dir="rtl" lang="ar" style="margin-top:32px;">
+    <section>
+      <h2>ما الذي يقوم به BECETTI SECURITY</h2>
+      <p>BECETTI SECURITY هو مركز أمان لنظام Windows يستخدم Microsoft Defender للفحص وإزالة التهديدات. لا يستبدل Microsoft Defender.</p>
+    </section>
+
+    <section>
+      <h2>البيانات المعالجة على جهازك</h2>
+      <ul>
+        <li>حالة الأمان ونتائج الفحص المقروءة من Microsoft Defender.</li>
+        <li>إعداداتك، مخزّنة محليًا تحت <code>%LocalAppData%\BecettiSecurity</code>.</li>
+        <li>سجل محلي للأحداث الأمنية التي وقعت فعليًا.</li>
+        <li>رموز جلسة السحابة، محمية باستخدام Windows DPAPI.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>البيانات المُرسلة إلى واجهة BECETTI السحابية (فقط عند تهيئتها)</h2>
+      <ul>
+        <li>بريدك الإلكتروني وكلمة المرور (كلمات المرور مُجزّأة بـ BCrypt على الخادم؛ لا يُخزَّن النص الصريح أبدًا).</li>
+        <li>بصمات SHA-256 للملفات التي تختار فحصها صراحةً. <strong>لا تُرفع الملفات نفسها أبدًا.</strong></li>
+        <li>إصدار التطبيق، عند التحقق من التحديثات.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>بيانات لا تُجمع أبدًا</h2>
+      <ul>
+        <li>لا قياس عن بُعد افتراضيًا. القياس عن بُعد اختياري في الإعدادات ومُعطّل افتراضيًا.</li>
+        <li>لا سجل تصفح، لا ضغطات مفاتيح، لا محتوى شاشة، لا ملفات شخصية.</li>
+        <li>لا معرّفات إعلانية.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>خدمات الطرف الثالث</h2>
+      <ul>
+        <li>Microsoft Defender (على الجهاز، من Microsoft).</li>
+        <li>VirusTotal (فحوصات سمعة من جانب الخادم، فقط عند تهيئة مفتاح API من قبل المشغّل؛ بصمات فقط).</li>
+        <li>Microsoft Store (التوزيع والتحديثات، من Microsoft).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>خياراتك</h2>
+      <ul>
+        <li>استخدم التطبيق دون اتصال بالكامل: الميزات المحلية تعمل بدون أي حساب.</li>
+        <li>سجّل الخروج في أي وقت (صفحة أمن السحابة)؛ تُحذف الرموز محليًا.</li>
+        <li>احذف البيانات المحلية بإزالة <code>%LocalAppData%\BecettiSecurity</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>التواصل</h2>
+      <p>الدعم: <a href="mailto:ahmedbecetti35@gmail.com">ahmedbecetti35@gmail.com</a></p>
+    </section>
+  </article>
+</main>
+
+<footer>
+  BECETTI SECURITY — Privacy Policy · Source maintained at
+  <a href="https://github.com/Ahmedbecett/BECETTI-SECURITY">github.com/Ahmedbecett/BECETTI-SECURITY</a>
+</footer>
+
+</body>
+</html>
