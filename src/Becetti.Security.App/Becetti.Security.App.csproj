@@ -8,12 +8,27 @@
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
-    <ApplicationManifest>Package.appxmanifest</ApplicationManifest>
+    <!-- ApplicationManifest must be a classic Win32 "<assembly>"-rooted side-by-side manifest
+         (app.manifest below), NOT the MSIX "Package.appxmanifest" (which has a "<Package>"
+         root and is picked up separately and automatically by the MSIX/EnableMsixTooling
+         packaging pipeline by filename convention - it needs no property of its own).
+         This was previously set to Package.appxmanifest by mistake; that silently "worked"
+         for a framework-dependent build because no manifest merge ever touched the file, but
+         it broke the self-contained build below: WindowsAppSDKSelfContained=true runs an
+         extra mt.exe merge step that reads $(ApplicationManifest) expecting an <assembly>
+         root, and fails with "manifest authoring error c1010005: The root element name
+         should be <assembly/>" when given the appxmanifest instead. -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\Logo.ico</ApplicationIcon>
     <RootNamespace>Becetti.Security.App</RootNamespace>
     <AssemblyName>Becetti.Security.App</AssemblyName>
     <Description>BECETTI SECURITY — Windows security center powered by Microsoft Defender and the BECETTI cloud API.</Description>
   </PropertyGroup>
+
+  <!-- Package.appxmanifest needs no ItemGroup entry of its own: the .NET SDK's default-item
+       globbing already picks it up as a None item (same mechanism noted below for *.resw),
+       and the MSIX/EnableMsixTooling packaging pipeline finds it by filename convention. This
+       already worked correctly across every prior CI build/package run before this change. -->
 
   <ItemGroup>
     <!-- 1.5.* silently swallowed the real XamlCompiler.exe diagnostic on build failure,
