@@ -102,6 +102,20 @@
 
 ---
 
+## 3.5 حزمة MSIX موقّعة جاهزة للتحميل (تحديث لاحق)
+
+بعد طلب المستخدم رابط تحميل، تمت إضافة مهمة جديدة لـ CI باسم `package-msix` تقوم بما يلي فعليًا على خادم `windows-latest`:
+
+1. توليد شهادة توقيع ذاتية التوقيع (self-signed) حقيقية بامتداد Code Signing الصحيح.
+2. بناء وتعبئة حزمة **MSIX حقيقية وموقّعة فعليًا** باستخدام الطريقة الرسمية الموثّقة من Microsoft لمشاريع WinUI 3 أحادية المشروع (`msbuild` + `UapAppxPackageBuildMode=SideloadOnly` + `GenerateAppxPackageOnBuild=true`).
+3. **التحقق داخل CI نفسه** من أن الحزمة الناتجة تحتوي فعليًا على ملف `AppxSignature.p7x` (دليل أنها موقّعة فعلًا وليست مجرد معبّأة) وملف `AppxManifest.xml` صالح — عبر فتح ملف MSIX كأرشيف zip والتأكد من وجود هذين العنصرين، وهذا نجح فعليًا (Run [`44844789535`](https://github.com/Ahmedbecett/BECETTI-SECURITY/actions/runs/44844789535)).
+4. نشر الحزمة الموقّعة + الشهادة العامة (`.cer`) + تعليمات تثبيت (`INSTALL.txt`) كأصول (assets) ضمن إصدار (Release) علني على GitHub.
+
+**رابط التحميل الحالي:**
+https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-342ced2
+
+⚠️ **تنبيه مهم**: هذه حزمة اختبار (sideload) موقّعة بشهادة ذاتية التوقيع، **وليست** موقّعة من جهة إصدار شهادات موثوقة (CA) ولا من هوية ناشر Microsoft Partner Center حقيقية. لذلك يجب تثبيت الشهادة العامة (`BecettiTestCert.cer`) يدويًا والوثوق بها قبل أن يقبل نظام Windows تثبيت الحزمة — الخطوات الدقيقة موجودة في ملف `INSTALL.txt` المرفق داخل الإصدار نفسه. تقديم المنتج الحقيقي على متجر Microsoft Store يتطلب هوية ناشر حقيقية من Partner Center، كما هو موضّح في `docs/STORE-SUBMISSION.md`.
+
 ## 4. الحالة الحالية (نهائية ومؤكدة بالدليل)
 
 | الجانب | الحالة | الدليل |

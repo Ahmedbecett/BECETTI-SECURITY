@@ -138,9 +138,22 @@ accepting a Linux-sandbox structural check as proof.
 - [ ] Cloud deployment: PostgreSQL, API host, domain + TLS, VirusTotal key.
 - [ ] Store screenshots, privacy-policy URL hosting, certification submission.
 - [ ] EICAR end-to-end detection test on a controlled machine.
-- [ ] Signed/packaged MSIX build and installation test (requires the
-      Windows SDK packaging tooling plus a signing certificate; CI builds
-      the app's assemblies but does not run `package-msix.ps1`).
+- [x] **Signed, downloadable MSIX test package** — a new CI job
+      (`package-msix`) now builds the real single-project MSIX using the
+      official Microsoft CI recipe (`msbuild` + `UapAppxPackageBuildMode=
+      SideloadOnly` + `GenerateAppxPackageOnBuild=true`), signs it with a
+      freshly generated self-signed test certificate, and verifies the
+      produced `.msix` genuinely contains `AppxSignature.p7x` (proof it is
+      signed, not just packaged) before publishing it as a GitHub Release.
+      Current download: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-342ced2
+      (assets: the signed `.msix`, the public `.cer` to trust before
+      installing, and `INSTALL.txt` with exact sideload steps). This is a
+      **self-signed TEST package for sideloading only** — it is not signed
+      by a trusted CA or a Partner Center publisher identity, so Windows
+      requires trusting `BecettiTestCert.cer` first (see INSTALL.txt). A
+      real Microsoft Store submission still requires the steps in
+      `docs/STORE-SUBMISSION.md` (Partner Center identity + a CA-issued or
+      Store-managed certificate).
 
 ## Known limitations (honest)
 - Scan progress is reported as Defender output, not a percentage — MpCmdRun
