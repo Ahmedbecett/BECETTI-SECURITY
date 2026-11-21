@@ -260,6 +260,47 @@ jobs:
           Write-Host "MSIX produced: packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix (source: $($msix.FullName))"
           Get-Item "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix" | Format-List Name, Length, FullName
 
+      - name: Verify the MSIX is actually signed (not just packaged)
+        shell: pwsh
+        run: |
+          # An MSIX is a zip container; a genuinely signed package always
+          # contains an AppxSignature.p7x member. The build step emitted some
+          # non-fatal APPX0107/APPX0105-looking warnings from an unrelated
+          # intermediate pass, so verify the real output directly instead of
+          # trusting exit codes alone.
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $path = (Resolve-Path "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix").Path
+          $zip = [System.IO.Compression.ZipFile]::OpenRead($path)
+          try {
+            $sig = $zip.Entries | Where-Object { $_.FullName -eq "AppxSignature.p7x" }
+            $manifest = $zip.Entries | Where-Object { $_.FullName -eq "AppxManifest.xml" }
+            if (-not $sig) {
+              Write-Host "::error::AppxSignature.p7x is missing from the .msix - the package was NOT actually signed."
+              exit 1
+            }
+            if (-not $manifest) {
+              Write-Host "::error::AppxManifest.xml is missing from the .msix - this is not a valid package."
+              exit 1
+            }
+            Write-Host "AppxSignature.p7x present ($($sig.Length) bytes) - the package is genuinely signed."
+            Write-Host "AppxManifest.xml present ($($manifest.Length) bytes) - the package is structurally valid."
+          } finally {
+            $zip.Dispose()
+          }
+
+      - name: Try to verify the signature chain (expected to show it is self-signed/untrusted)
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $sdkBin = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Directory -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $signtool = Join-Path $sdkBin.FullName "x64\signtool.exe"
+          if (Test-Path $signtool) {
+            & $signtool verify /pa /v "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix"
+          } else {
+            Write-Host "signtool.exe not found at expected SDK path - skipping chain verification (non-fatal)."
+          }
+
       - name: Upload publish log (diagnostics)
         if: always()
         uses: actions/upload-artifact@v7
