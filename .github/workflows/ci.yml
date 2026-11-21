@@ -175,17 +175,38 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path packaging\output | Out-Null
+
+          # A plain New-SelfSignedCertificate + Export-PfxCertificate pair is
+          # rejected by the MSIX packaging tools with APPX0107 ("not valid for
+          # signing"): it needs an explicit Basic Constraints extension plus
+          # the Code Signing EKU, and exporting via the X509Certificate2.Export
+          # API (rather than Export-PfxCertificate) avoids a separate
+          # "key file may be password protected" (APPX0105) failure some
+          # CSPs hit on Windows Server runner images.
+          $basicConstraints = [System.Security.Cryptography.X509Certificates.X509BasicConstraintsExtension]::new($false, $false, 0, $true)
+          $ekuOids = [System.Security.Cryptography.OidCollection]::new()
+          [void]$ekuOids.Add([System.Security.Cryptography.Oid]::new("1.3.6.1.5.5.7.3.3", "Code Signing"))
+          $eku = [System.Security.Cryptography.X509Certificates.X509EnhancedKeyUsageExtension]::new($ekuOids, $true)
+
           $cert = New-SelfSignedCertificate `
-            -Type Custom `
             -Subject "CN=BECETTI" `
-            -KeyUsage DigitalSignature `
-            -FriendlyName "BECETTI SECURITY test signing certificate" `
             -CertStoreLocation "Cert:\CurrentUser\My" `
-            -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
+            -KeySpec Signature `
+            -KeyUsage DigitalSignature `
+            -KeyLength 2048 `
+            -KeyAlgorithm RSA `
+            -HashAlgorithm SHA256 `
+            -Extension @($basicConstraints, $eku) `
+            -FriendlyName "BECETTI SECURITY test signing certificate" `
+            -NotAfter ([System.DateTime]::UtcNow.Date.AddYears(1))
+
           $pw = [System.Guid]::NewGuid().ToString("N")
-          $securePw = ConvertTo-SecureString -String $pw -Force -AsPlainText
-          Export-PfxCertificate -Cert $cert -FilePath packaging\output\BecettiTestCert.pfx -Password $securePw | Out-Null
-          Export-Certificate -Cert $cert -FilePath packaging\output\BecettiTestCert.cer | Out-Null
+          $pfxBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $pw)
+          [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.pfx", $pfxBytes)
+          $cerBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+          [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.cer", $cerBytes)
+          Remove-Item "Cert:\CurrentUser\My\$($cert.Thumbprint)" -Force
+
           "PFX_PASSWORD=$pw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Publish and package the MSIX (single-project MSIX, signed)
