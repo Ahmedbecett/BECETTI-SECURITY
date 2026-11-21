@@ -228,16 +228,32 @@ jobs:
       - name: Collect the signed MSIX next to its certificate
         shell: pwsh
         run: |
-          $msix = Get-ChildItem -Path src\Becetti.Security.App -Recurse -Filter *.msix | Select-Object -First 1
+          $msix = Get-ChildItem -Path . -Recurse -Filter *.msix -ErrorAction SilentlyContinue | Select-Object -First 1
           if (-not $msix) {
-            Write-Host "::error::No .msix file was produced by dotnet publish - see msix-publish.log"
-            Get-ChildItem -Path src\Becetti.Security.App -Recurse -Include *.msix,*.appxupload,AppxManifest.xml -ErrorAction SilentlyContinue |
-              ForEach-Object { Write-Host "Found: $($_.FullName)" }
+            Write-Host "::group::No .msix found anywhere in the repo tree - diagnostics"
+            Write-Host "--- Tail of msix-publish.log ---"
+            Get-Content msix-publish.log -ErrorAction SilentlyContinue | Select-Object -Last 150
+            Write-Host "--- Any App package-related output under src\Becetti.Security.App\bin ---"
+            Get-ChildItem -Path src\Becetti.Security.App\bin -Recurse -ErrorAction SilentlyContinue |
+              Select-Object -First 200 FullName
+            Write-Host "--- Any App package-related output under src\Becetti.Security.App\obj ---"
+            Get-ChildItem -Path src\Becetti.Security.App\obj -Recurse -Include *.msix,*.appx,AppxManifest.xml -ErrorAction SilentlyContinue |
+              Select-Object FullName
+            Write-Host "::endgroup::"
+            Write-Host "::error::No .msix file was produced by dotnet publish - see diagnostics above"
             exit 1
           }
           Copy-Item $msix.FullName "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix"
-          Write-Host "MSIX produced: packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix"
+          Write-Host "MSIX produced: packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix (source: $($msix.FullName))"
           Get-Item "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix" | Format-List Name, Length, FullName
+
+      - name: Upload publish log (diagnostics)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: msix-publish-log
+          path: msix-publish.log
+          if-no-files-found: ignore
 
       - name: Write install instructions
         shell: pwsh
