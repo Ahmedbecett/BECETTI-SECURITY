@@ -18,7 +18,8 @@ public sealed class DefenderParsingTests
               "AntivirusSignatureVersion": "1.419.123.0",
               "AntivirusSignatureLastUpdated": "2026-11-20T10:00:00.0000000+00:00",
               "QuickScanEndTime": "2026-11-19T08:30:00.0000000+00:00",
-              "FullScanEndTime": null
+              "FullScanEndTime": null,
+              "AMRunningMode": "Normal"
             }
             """;
 
@@ -34,6 +35,33 @@ public sealed class DefenderParsingTests
         Assert.NotNull(status.AntivirusSignatureLastUpdated);
         Assert.NotNull(status.QuickScanEndTime);
         Assert.Null(status.FullScanEndTime);
+        Assert.Equal("Normal", status.RunningMode);
+        Assert.False(status.ManagedByAnotherAntivirus);
+    }
+
+    [Fact]
+    public void ParseStatusJson_PassiveMode_IsManagedByAnotherAntivirus()
+    {
+        const string json = """
+            {
+              "AntivirusEnabled": true,
+              "RealTimeProtectionEnabled": false,
+              "AntivirusSignatureVersion": "1.419.123.0",
+              "AMRunningMode": "Passive Mode"
+            }
+            """;
+
+        var status = DefenderService.ParseStatusJson(json);
+
+        Assert.Equal("Passive Mode", status.RunningMode);
+        Assert.True(status.ManagedByAnotherAntivirus);
+    }
+
+    [Fact]
+    public void DefenderStatus_NoRunningMode_IsNotManagedByAnotherAntivirus()
+    {
+        var status = new Becetti.Security.Core.Models.DefenderStatus { Available = true, RunningMode = null };
+        Assert.False(status.ManagedByAnotherAntivirus);
     }
 
     [Fact]

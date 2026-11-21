@@ -77,7 +77,9 @@ accepting a Linux-sandbox structural check as proof.
       results from Defender exit codes only.
 - [x] Real-Time Protection: verified status, enable/disable via
       `Set-MpPreference` with re-verification, signature updates via
-      `Update-MpSignature`, UAC elevation flow.
+      `Update-MpSignature -UpdateSource MicrosoftUpdateServer` (falling back
+      to `MpCmdRun.exe -SignatureUpdate`) with genuine before/after
+      verification against `Get-MpComputerStatus`, UAC elevation flow.
 - [x] Threat Management: real `Get-MpThreatDetection` list, removal via
       `Remove-MpThreat` with re-query verification.
 - [x] Privacy & Network: measured network/DNS/TLS checks (validation never
@@ -199,6 +201,40 @@ is not the same claim as "the real API was observed to work," and this
 report does not conflate the two.
 
 ## Not yet done / requires external setup
+- [x] **Microsoft Defender signature-update mechanism hardened and
+      verified-after-the-fact (in source).** `DefenderService.UpdateSignaturesAsync`
+      now: (1) reads real `Get-MpComputerStatus` first and refuses to proceed
+      with a specific, honest message if Defender is unreachable
+      (`DEFENDER_UNAVAILABLE`), disabled (`DEFENDER_DISABLED`), or the caller
+      is not elevated (`ELEVATION_REQUIRED`); (2) detects and surfaces when
+      another antivirus product is the active real-time engine via the real
+      `AMRunningMode` field (`DefenderStatus.ManagedByAnotherAntivirus`),
+      without blocking the update (Defender still keeps its own signatures
+      current in that mode); (3) requests the update only from
+      `Update-MpSignature -UpdateSource MicrosoftUpdateServer`, Microsoft's
+      own supported update channel, falling back to `MpCmdRun.exe
+      -SignatureUpdate` (also official, also Microsoft-only) if the cmdlet
+      path fails; (4) never contacts any third-party/unofficial source and
+      never claims BECETTI maintains its own virus database; (5) re-reads
+      `Get-MpComputerStatus` afterward and compares the signature version and
+      last-updated timestamp before reporting success — it does not just
+      trust the command's exit code. The three real outcomes it can report
+      are: version changed (shows old → new version), version unchanged but
+      freshly re-validated (recent timestamp), or version unchanged with no
+      newer package available from Microsoft at the time — each a distinct,
+      honest message, never a generic "done". Both the Real-Time Protection
+      page and the Updates page use this same service method, so the
+      "Update Virus Definitions" button on both pages benefits.
+      **Verified**: by source review, pure JSON-parsing unit tests
+      (`DefenderParsingTests`, including the new `AMRunningMode`/passive-mode
+      cases) and CI build/test. **Not verified**: actually running the
+      update against a live Defender instance and observing a real signature
+      version change — no Windows desktop with Defender is available from
+      this sandbox or from CI job `build-and-test`'s runner during this
+      change (the GitHub-hosted Windows runner may itself have Defender
+      disabled or already current, so even a live CI run would not prove a
+      version bump). This still needs the same manual Windows verification
+      step as Defender items 5/6 above.
 - [ ] Manual Windows verification checklist (`docs/TESTING.md`) — launching
       the app, navigating all ten pages, exercising every button against a
       real Microsoft Defender installation, on a real Windows desktop.

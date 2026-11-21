@@ -74,9 +74,23 @@ public sealed class UpdatesViewModel : ViewModelBase
         if (status.Success && status.Value is not null)
         {
             var s = status.Value;
-            SignatureText = s.AntivirusSignatureVersion is not null
-                ? $"Security intelligence: version {s.AntivirusSignatureVersion}, updated {s.AntivirusSignatureLastUpdated?.ToString("g") ?? "unknown"}"
-                : "Security intelligence version unknown";
+            if (!s.Available)
+            {
+                SignatureText = "Microsoft Defender could not be reached on this device.";
+            }
+            else if (!s.AntivirusEnabled)
+            {
+                SignatureText = "Microsoft Defender Antivirus is disabled on this device, so no signature status is tracked here.";
+            }
+            else
+            {
+                var version = s.AntivirusSignatureVersion is not null
+                    ? $"Security intelligence: version {s.AntivirusSignatureVersion}, updated {s.AntivirusSignatureLastUpdated?.ToString("g") ?? "unknown"}"
+                    : "Security intelligence version unknown";
+                SignatureText = s.ManagedByAnotherAntivirus
+                    ? $"{version}\nDefender running mode: {s.RunningMode} (another antivirus product is the active real-time engine on this device)."
+                    : version;
+            }
         }
         else
         {

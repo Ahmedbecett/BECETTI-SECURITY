@@ -25,6 +25,17 @@ public sealed class DefenderStatus
     public DateTimeOffset? AntivirusSignatureLastUpdated { get; init; }
     public DateTimeOffset? QuickScanEndTime { get; init; }
     public DateTimeOffset? FullScanEndTime { get; init; }
+    /// <summary>
+    /// Raw AMRunningMode from Get-MpComputerStatus (e.g. "Normal", "Passive Mode",
+    /// "SxS Passive Mode", "EDR Block Mode"). Anything other than "Normal" means a
+    /// third-party antivirus is the active real-time engine and Defender is running
+    /// alongside it in a reduced role.
+    /// </summary>
+    public string? RunningMode { get; init; }
+    /// <summary>True when RunningMode indicates another antivirus product is managing real-time protection.</summary>
+    public bool ManagedByAnotherAntivirus =>
+        !string.IsNullOrWhiteSpace(RunningMode) &&
+        !string.Equals(RunningMode, "Normal", StringComparison.OrdinalIgnoreCase);
     public string? RawError { get; init; }
 }
 

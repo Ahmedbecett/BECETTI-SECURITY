@@ -10,8 +10,14 @@ namespace Becetti.Security.Core.Services;
 /// Microsoft Defender integration through supported Windows interfaces only:
 /// PowerShell Defender cmdlets (Get-MpComputerStatus, Get-MpThreatDetection,
 /// Get-NetFirewallProfile, Update-MpSignature, Set-MpPreference, Remove-MpThreat)
-/// and the MpCmdRun.exe command-line scanner. No independent verdicts are made:
-/// scan results come from MpCmdRun exit codes and Defender's own detection store.
+/// and the MpCmdRun.exe command-line scanner (-Scan, -SignatureUpdate). No
+/// independent verdicts are made: scan results come from MpCmdRun exit codes
+/// and Defender's own detection store. Signature updates only ever ask Defender
+/// to pull from Microsoft's own update service (Update-MpSignature
+/// -UpdateSource MicrosoftUpdateServer, or MpCmdRun.exe -SignatureUpdate as a
+/// fallback) — this app never downloads definitions itself, never contacts a
+/// third-party or unofficial source, and never maintains an independent virus
+/// database of its own.
 /// </summary>
 public sealed class DefenderService : IDefenderService
 {
@@ -76,7 +82,7 @@ public sealed class DefenderService : IDefenderService
 
     public async Task<OperationResult<DefenderStatus>> GetStatusAsync(CancellationToken ct = default)
     {
-        const string script = "Get-MpComputerStatus | Select-Object AntivirusEnabled,RealTimeProtectionEnabled,BehaviorMonitorEnabled,IoavProtectionEnabled,NISEnabled,IsTamperProtected,AntivirusSignatureVersion,AntivirusSignatureLastUpdated,QuickScanEndTime,FullScanEndTime | ConvertTo-Json -Depth 3";
+        const string script = "Get-MpComputerStatus | Select-Object AntivirusEnabled,RealTimeProtectionEnabled,BehaviorMonitorEnabled,IoavProtectionEnabled,NISEnabled,IsTamperProtected,AntivirusSignatureVersion,AntivirusSignatureLastUpdated,QuickScanEndTime,FullScanEndTime,AMRunningMode | ConvertTo-Json -Depth 3";
         var run = await RunPowerShellAsync(script, QueryTimeout, ct).ConfigureAwait(false);
         if (!run.Success)
             return OperationResult<DefenderStatus>.Fail(run.Message, run.ErrorCode);
@@ -185,13 +191,120 @@ public sealed class DefenderService : IDefenderService
         return OperationResult<ScanOutcome>.Ok(outcome, message);
     }
 
+    /// <summary>
+    /// Updates Microsoft Defender security intelligence (signatures) through the
+    /// two supported, official mechanisms only: Update-MpSignature with
+    /// -UpdateSource MicrosoftUpdateServer, falling back to MpCmdRun.exe
+    /// -SignatureUpdate if the cmdlet path is unavailable. BECETTI SECURITY never
+    /// downloads definitions itself and never maintains its own signature store;
+    /// it only asks Defender to pull from Microsoft, then re-reads
+    /// Get-MpComputerStatus to confirm what actually happened before reporting
+    /// success or failure.
+    /// </summary>
     public async Task<OperationResult> UpdateSignaturesAsync(CancellationToken ct = default)
     {
-        var run = await RunPowerShellAsync("Update-MpSignature", QueryTimeout, ct).ConfigureAwait(false);
-        if (!run.Success)
-            return OperationResult.Fail(run.Message, run.ErrorCode);
+        if (!OperatingSystem.IsWindows())
+            return OperationResult.Fail("Signature updates are only available on Windows.", "UNSUPPORTED_OS");
 
-        return OperationResult.Ok("Defender signature update completed.");
+        // Step 1: detect whether Defender is actually installed and active before touching anything.
+        var before = await GetStatusAsync(ct).ConfigureAwait(false);
+        if (!before.Success || before.Value is null || !before.Value.Available)
+        {
+            return OperationResult.Fail(
+                "Microsoft Defender could not be reached on this device (" + (before.Message ?? "no details") +
+                "). BECETTI SECURITY does not ship its own antivirus engine or signature database, so it cannot update definitions when Defender itself is unavailable.",
+                "DEFENDER_UNAVAILABLE");
+        }
+
+        if (!before.Value.AntivirusEnabled)
+        {
+            return OperationResult.Fail(
+                "Microsoft Defender Antivirus is currently disabled on this device (by policy, another antivirus product, or a manual setting). Signature updates cannot be applied while it is off.",
+                "DEFENDER_DISABLED");
+        }
+
+        if (!IsElevated())
+        {
+            return OperationResult.Fail(
+                "Updating signatures requires an administrator. Use 'Restart as administrator' and try again.",
+                "ELEVATION_REQUIRED");
+        }
+
+        var managedNote = before.Value.ManagedByAnotherAntivirus
+            ? $" Note: Defender reports running mode '{before.Value.RunningMode}', which means another antivirus product is the active real-time engine on this device; Defender continues to keep its own signatures current alongside it."
+            : string.Empty;
+
+        // Step 2: ask Defender to pull real signatures from Microsoft's own update service.
+        // This never reaches a third-party or unofficial source.
+        var primary = await RunPowerShellAsync(
+            "Update-MpSignature -UpdateSource MicrosoftUpdateServer",
+            QueryTimeout, ct).ConfigureAwait(false);
+
+        var primaryOk = primary.Success && primary.Value is not null && primary.Value.ExitCode == 0;
+        string? lastError = primaryOk
+            ? null
+            : (!primary.Success
+                ? primary.Message
+                : (string.IsNullOrWhiteSpace(primary.Value!.Error) ? primary.Value.Output : primary.Value.Error));
+
+        // Step 3: if the PowerShell cmdlet path failed, fall back to the MpCmdRun.exe
+        // command-line mechanism (also official, also Microsoft-only).
+        var fallbackAttempted = false;
+        var fallbackOk = false;
+        if (!primaryOk)
+        {
+            var mpCmdRun = FindMpCmdRun();
+            if (mpCmdRun is not null)
+            {
+                fallbackAttempted = true;
+                var fallback = await RunProcessAsync(mpCmdRun, "-SignatureUpdate", QueryTimeout, ct).ConfigureAwait(false);
+                fallbackOk = fallback.Success && fallback.Value is not null && fallback.Value.ExitCode == 0;
+                if (!fallbackOk)
+                {
+                    lastError = !fallback.Success
+                        ? fallback.Message
+                        : (string.IsNullOrWhiteSpace(fallback.Value?.Error) ? fallback.Value?.Output : fallback.Value?.Error) ?? lastError;
+                }
+            }
+        }
+
+        if (!primaryOk && !fallbackOk)
+        {
+            var attemptedFallback = fallbackAttempted ? " MpCmdRun.exe -SignatureUpdate was also attempted and failed." : string.Empty;
+            return OperationResult.Fail(
+                $"Signature update failed: {lastError ?? "unknown error"}.{attemptedFallback}",
+                "SIGNATURE_UPDATE_FAILED");
+        }
+
+        // Step 4: verify the actual outcome instead of trusting the exit code — re-read real state.
+        var after = await GetStatusAsync(ct).ConfigureAwait(false);
+        if (!after.Success || after.Value is null)
+        {
+            return OperationResult.Fail(
+                "The update command reported success, but the resulting Defender status could not be verified: " + (after.Message ?? "unknown error"),
+                "VERIFY_FAILED");
+        }
+
+        var mechanism = fallbackAttempted ? "MpCmdRun.exe -SignatureUpdate" : "Update-MpSignature -UpdateSource MicrosoftUpdateServer";
+        var oldVersion = before.Value.AntivirusSignatureVersion;
+        var newVersion = after.Value.AntivirusSignatureVersion;
+        var newUpdated = after.Value.AntivirusSignatureLastUpdated;
+
+        if (!string.IsNullOrWhiteSpace(newVersion) && !string.Equals(oldVersion, newVersion, StringComparison.OrdinalIgnoreCase))
+        {
+            return OperationResult.Ok(
+                $"Signatures updated via {mechanism}: version {oldVersion ?? "unknown"} -> {newVersion} (verified by re-reading Get-MpComputerStatus, last updated {newUpdated?.ToString("u") ?? "unknown"}).{managedNote}");
+        }
+
+        var justUpdated = newUpdated.HasValue && (DateTimeOffset.Now - newUpdated.Value) < TimeSpan.FromMinutes(10);
+        if (justUpdated)
+        {
+            return OperationResult.Ok(
+                $"Signatures re-validated via {mechanism}: version {newVersion ?? "unknown"} confirmed current as of {newUpdated:u} (verified).{managedNote}");
+        }
+
+        return OperationResult.Ok(
+            $"The update request to Microsoft completed via {mechanism}, and Defender reports version {newVersion ?? "unknown"} unchanged from before the request (last updated {newUpdated?.ToString("u") ?? "unknown"}). This normally means no newer signature package was available from Microsoft at this time.{managedNote}");
     }
 
     public async Task<OperationResult> SetRealTimeProtectionAsync(bool enable, CancellationToken ct = default)
@@ -315,7 +428,8 @@ public sealed class DefenderService : IDefenderService
             AntivirusSignatureVersion = GetString(root, "AntivirusSignatureVersion"),
             AntivirusSignatureLastUpdated = GetDate(root, "AntivirusSignatureLastUpdated"),
             QuickScanEndTime = GetDate(root, "QuickScanEndTime"),
-            FullScanEndTime = GetDate(root, "FullScanEndTime")
+            FullScanEndTime = GetDate(root, "FullScanEndTime"),
+            RunningMode = GetString(root, "AMRunningMode")
         };
     }
 

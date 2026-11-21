@@ -54,7 +54,8 @@ public sealed class ProtectionViewModel : ViewModelBase
             {
                 var s = status.Value;
                 RealTimeEnabled = s.RealTimeProtectionEnabled;
-                StatusText = $"Antivirus: {(s.AntivirusEnabled ? "Enabled" : "Disabled")} · Real-time: {(s.RealTimeProtectionEnabled ? "On" : "Off")} · Behavior monitor: {(s.BehaviorMonitorEnabled ? "On" : "Off")} · Tamper protection: {(s.TamperProtectionEnabled ? "On" : "Off")}";
+                StatusText = $"Antivirus: {(s.AntivirusEnabled ? "Enabled" : "Disabled")} · Real-time: {(s.RealTimeProtectionEnabled ? "On" : "Off")} · Behavior monitor: {(s.BehaviorMonitorEnabled ? "On" : "Off")} · Tamper protection: {(s.TamperProtectionEnabled ? "On" : "Off")}" +
+                    (s.ManagedByAnotherAntivirus ? $" · Running mode: {s.RunningMode} (another antivirus product is active)" : string.Empty);
                 SignatureText = s.AntivirusSignatureVersion is not null
                     ? $"Signature version {s.AntivirusSignatureVersion}, last updated {s.AntivirusSignatureLastUpdated?.ToString("g") ?? "unknown"}"
                     : "Signature version unknown";
