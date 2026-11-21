@@ -147,3 +147,121 @@ jobs:
             grep -qi "$t" tables.log || { echo "::error::Expected table $t was not created by the migration"; exit 1; }
           done
           echo "All expected tables exist in the real PostgreSQL database."
+
+  package-msix:
+    # Builds a real, installable MSIX of the WinUI 3 app and signs it with a
+    # freshly generated self-signed test certificate (there is no Partner
+    # Center / Store signing identity available in this environment - see
+    # docs/STORE-SUBMISSION.md). The signed package + its public certificate
+    # are published as a GitHub Release so they have a stable download URL.
+    # This is a TEST package for sideloading, not a Store-ready submission.
+    needs: build-and-test
+    if: github.event_name == 'push'
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore Becetti.Security.sln
+
+      - name: Generate self-signed test signing certificate
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path packaging\output | Out-Null
+          $cert = New-SelfSignedCertificate `
+            -Type Custom `
+            -Subject "CN=BECETTI" `
+            -KeyUsage DigitalSignature `
+            -FriendlyName "BECETTI SECURITY test signing certificate" `
+            -CertStoreLocation "Cert:\CurrentUser\My" `
+            -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
+          $pw = [System.Guid]::NewGuid().ToString("N")
+          $securePw = ConvertTo-SecureString -String $pw -Force -AsPlainText
+          Export-PfxCertificate -Cert $cert -FilePath packaging\output\BecettiTestCert.pfx -Password $securePw | Out-Null
+          Export-Certificate -Cert $cert -FilePath packaging\output\BecettiTestCert.cer | Out-Null
+          "PFX_PASSWORD=$pw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Publish and package the MSIX (single-project MSIX, signed)
+        shell: pwsh
+        run: |
+          dotnet publish src\Becetti.Security.App\Becetti.Security.App.csproj `
+            -c Release -p:Platform=x64 --self-contained false `
+            -p:AppxPackageSigningEnabled=true `
+            -p:PackageCertificateKeyFile=$PWD\packaging\output\BecettiTestCert.pfx `
+            -p:PackageCertificatePassword=$env:PFX_PASSWORD `
+            2>&1 | Tee-Object -FilePath msix-publish.log
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::group::MSIX publish failed - full log"
+            Get-Content msix-publish.log | Select-Object -Last 200 | ForEach-Object { Write-Host "::error::$_" }
+            Write-Host "::endgroup::"
+            exit $LASTEXITCODE
+          }
+
+      - name: Collect the signed MSIX next to its certificate
+        shell: pwsh
+        run: |
+          $msix = Get-ChildItem -Path src\Becetti.Security.App -Recurse -Filter *.msix | Select-Object -First 1
+          if (-not $msix) {
+            Write-Host "::error::No .msix file was produced by dotnet publish - see msix-publish.log"
+            Get-ChildItem -Path src\Becetti.Security.App -Recurse -Include *.msix,*.appxupload,AppxManifest.xml -ErrorAction SilentlyContinue |
+              ForEach-Object { Write-Host "Found: $($_.FullName)" }
+            exit 1
+          }
+          Copy-Item $msix.FullName "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix"
+          Write-Host "MSIX produced: packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix"
+          Get-Item "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix" | Format-List Name, Length, FullName
+
+      - name: Write install instructions
+        shell: pwsh
+        run: |
+          @"
+          BECETTI SECURITY - TEST MSIX build (commit ${{ github.sha }})
+
+          This package is signed with a self-signed TEST certificate generated
+          during this CI run. It is NOT signed by a trusted Certificate
+          Authority or by a Microsoft Partner Center publisher identity, so
+          Windows will refuse to install it until you trust the certificate
+          first. This is expected for a sideloaded test build.
+
+          To install on Windows 10/11:
+            1. Download both BECETTI-SECURITY_1.0.0.0_x64.msix and
+               BecettiTestCert.cer from this release.
+            2. Right-click BecettiTestCert.cer -> Install Certificate ->
+               Local Machine -> "Place all certificates in the following
+               store" -> Trusted People (or Trusted Root Certification
+               Authorities) -> Finish. (Requires administrator rights.)
+            3. Double-click BECETTI-SECURITY_1.0.0.0_x64.msix -> Install.
+
+          Alternative (PowerShell, as Administrator):
+            Import-Certificate -FilePath BecettiTestCert.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
+            Add-AppxPackage -Path BECETTI-SECURITY_1.0.0.0_x64.msix
+
+          This is a sideloading test package, not the Microsoft Store
+          submission artifact - see docs/STORE-SUBMISSION.md for that
+          process, which requires a real Partner Center publisher identity
+          and certificate.
+          "@ | Out-File -FilePath packaging\output\INSTALL.txt -Encoding utf8
+
+      - name: Publish signed MSIX + certificate to a GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="msix-test-${GITHUB_SHA::7}"
+          gh release create "$tag" \
+            packaging/output/BECETTI-SECURITY_1.0.0.0_x64.msix \
+            packaging/output/BecettiTestCert.cer \
+            packaging/output/INSTALL.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "BECETTI SECURITY - signed test MSIX ($tag)" \
+            --notes "Self-signed TEST sideload package built from commit ${GITHUB_SHA}. See INSTALL.txt in the release assets for how to trust the certificate before installing. Not a Microsoft Store submission artifact." \
+            --latest=false
+          echo "Release created: https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag"
