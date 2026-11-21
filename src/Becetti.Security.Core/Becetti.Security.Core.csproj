@@ -15,6 +15,11 @@
          reference assemblies and must be added explicitly. All call sites are guarded with
          OperatingSystem.IsWindows() and throw PlatformNotSupportedException only on non-Windows hosts. -->
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <!-- Real essential-service status (Windows Defender, Firewall, Windows Update, BITS,
+         Task Scheduler) for the PC Health page, via the official ServiceController API.
+         Guarded at runtime with OperatingSystem.IsWindows(); this project targets plain
+         net8.0 so the type is not part of the default reference assemblies. -->
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
   </ItemGroup>
 
 </Project>

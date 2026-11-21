@@ -181,6 +181,52 @@ public sealed class DefenderService : IDefenderService
         }
     }
 
+    public async Task<OperationResult<RansomwareProtectionStatus>> GetRansomwareProtectionAsync(CancellationToken ct = default)
+    {
+        const string script =
+            "try { $p = Get-MpPreference -ErrorAction Stop; " +
+            "[PSCustomObject]@{ Available = $true; EnableControlledFolderAccess = $p.EnableControlledFolderAccess; " +
+            "ProtectedFolders = @($p.ControlledFolderAccessProtectedFolders); " +
+            "AllowedApplications = @($p.ControlledFolderAccessAllowedApplications) } | ConvertTo-Json -Depth 4 } " +
+            "catch { [PSCustomObject]@{ Available = $false; Error = $_.Exception.Message } | ConvertTo-Json }";
+        var run = await RunPowerShellAsync(script, QueryTimeout, ct).ConfigureAwait(false);
+        if (!run.Success)
+            return OperationResult<RansomwareProtectionStatus>.Fail(run.Message, run.ErrorCode);
+
+        try
+        {
+            var status = ParseRansomwareJson(run.Value?.Output ?? string.Empty);
+            return status.Available
+                ? OperationResult<RansomwareProtectionStatus>.Ok(status, "Ransomware protection state read from Get-MpPreference.")
+                : OperationResult<RansomwareProtectionStatus>.Fail(status.RawError ?? "Could not read Controlled Folder Access state.", "DEFENDER_UNAVAILABLE");
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<RansomwareProtectionStatus>.Fail($"Could not parse ransomware protection state: {ex.Message}", "PARSE_ERROR");
+        }
+    }
+
+    public async Task<OperationResult> SetControlledFolderAccessAsync(bool enable, CancellationToken ct = default)
+    {
+        if (!IsElevated())
+            return OperationResult.Fail("Changing Controlled Folder Access requires an administrator. Use 'Restart as administrator' and try again.", "ELEVATION_REQUIRED");
+
+        var value = enable ? "Enabled" : "Disabled";
+        var script = $"Set-MpPreference -EnableControlledFolderAccess {value}";
+        var run = await RunPowerShellAsync(script, QueryTimeout, ct).ConfigureAwait(false);
+        if (!run.Success)
+            return OperationResult.Fail(run.Message, run.ErrorCode);
+
+        var verify = await GetRansomwareProtectionAsync(ct).ConfigureAwait(false);
+        if (!verify.Success || verify.Value is null)
+            return OperationResult.Fail("Preference changed but verification failed: " + (verify.Message ?? "unknown"), "VERIFY_FAILED");
+
+        if (verify.Value.ControlledFolderAccessEnabled != enable)
+            return OperationResult.Fail($"Controlled Folder Access is still {(verify.Value.ControlledFolderAccessEnabled ? "enabled" : "disabled")} after the change request.", "VERIFY_FAILED");
+
+        return OperationResult.Ok($"Controlled Folder Access is now {(enable ? "enabled" : "disabled")} (verified).");
+    }
+
     public async Task<OperationResult<IReadOnlyList<ThreatInfo>>> GetThreatsAsync(CancellationToken ct = default)
     {
         const string script = "Get-MpThreatDetection | Select-Object ThreatID,ThreatName,SeverityID,CategoryID,Resources,InitialDetectionTime,ActionSuccess,Action | ConvertTo-Json -Depth 4";
@@ -528,6 +574,29 @@ public sealed class DefenderService : IDefenderService
         return result;
     }
 
+    internal static RansomwareProtectionStatus ParseRansomwareJson(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return new RansomwareProtectionStatus { Available = false, RawError = "Empty response from Get-MpPreference." };
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object)
+            return new RansomwareProtectionStatus { Available = false, RawError = "Unexpected response shape from Get-MpPreference." };
+
+        var available = GetBool(root, "Available");
+        if (!available)
+            return new RansomwareProtectionStatus { Available = false, RawError = GetString(root, "Error") ?? "Get-MpPreference did not return a value." };
+
+        return new RansomwareProtectionStatus
+        {
+            Available = true,
+            ControlledFolderAccessRaw = GetNullableInt(root, "EnableControlledFolderAccess") ?? -1,
+            ProtectedFolders = GetStringArray(root, "ProtectedFolders"),
+            AllowedApplications = GetStringArray(root, "AllowedApplications")
+        };
+    }
+
     internal static IReadOnlyList<ThreatInfo> ParseThreatsJson(string json)
     {
         var result = new List<ThreatInfo>();
@@ -669,5 +738,27 @@ public sealed class DefenderService : IDefenderService
         return DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed)
             ? parsed
             : null;
+    }
+
+    /// <summary>
+    /// Reads a JSON array of strings, tolerating PowerShell's ConvertTo-Json
+    /// quirk of emitting a bare string (not an array) when the underlying
+    /// collection has exactly one element.
+    /// </summary>
+    private static IReadOnlyList<string> GetStringArray(JsonElement element, string name)
+    {
+        if (!element.TryGetProperty(name, out var value))
+            return Array.Empty<string>();
+
+        return value.ValueKind switch
+        {
+            JsonValueKind.Array => value.EnumerateArray()
+                .Where(e => e.ValueKind == JsonValueKind.String)
+                .Select(e => e.GetString() ?? string.Empty)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList(),
+            JsonValueKind.String => string.IsNullOrWhiteSpace(value.GetString()) ? Array.Empty<string>() : new[] { value.GetString()! },
+            _ => Array.Empty<string>()
+        };
     }
 }

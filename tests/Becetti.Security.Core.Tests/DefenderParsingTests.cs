@@ -228,4 +228,55 @@ public sealed class DefenderParsingTests
         var missing = Path.Combine(Path.GetTempPath(), "becetti-defender-platform-missing-" + Guid.NewGuid().ToString("N"));
         Assert.Null(DefenderService.FindNewestInPlatformFolder(missing));
     }
+
+    [Fact]
+    public void ParseRansomwareJson_Enabled_WithFolders()
+    {
+        const string json = """
+            {
+              "Available": true,
+              "EnableControlledFolderAccess": 1,
+              "ProtectedFolders": ["C:\\Users\\Test\\Documents", "C:\\Users\\Test\\Pictures"],
+              "AllowedApplications": "C:\\Tools\\trusted.exe"
+            }
+            """;
+
+        var status = DefenderService.ParseRansomwareJson(json);
+
+        Assert.True(status.Available);
+        Assert.True(status.ControlledFolderAccessEnabled);
+        Assert.Equal("Enabled (Block)", status.ControlledFolderAccessState);
+        Assert.Equal(2, status.ProtectedFolders.Count);
+        Assert.Single(status.AllowedApplications); // PowerShell emits a bare string for single-element arrays
+    }
+
+    [Fact]
+    public void ParseRansomwareJson_Disabled()
+    {
+        const string json = """{"Available": true, "EnableControlledFolderAccess": 0}""";
+        var status = DefenderService.ParseRansomwareJson(json);
+
+        Assert.True(status.Available);
+        Assert.False(status.ControlledFolderAccessEnabled);
+        Assert.Equal("Disabled", status.ControlledFolderAccessState);
+        Assert.Empty(status.ProtectedFolders);
+    }
+
+    [Fact]
+    public void ParseRansomwareJson_Unavailable_ReportsError()
+    {
+        const string json = """{"Available": false, "Error": "Access denied"}""";
+        var status = DefenderService.ParseRansomwareJson(json);
+
+        Assert.False(status.Available);
+        Assert.Equal("Access denied", status.RawError);
+    }
+
+    [Fact]
+    public void ParseRansomwareJson_Empty_ReturnsUnavailable()
+    {
+        var status = DefenderService.ParseRansomwareJson(string.Empty);
+        Assert.False(status.Available);
+        Assert.NotNull(status.RawError);
+    }
 }

@@ -62,4 +62,26 @@
   <data name="AiWelcomeSubtitle.Text" xml:space="preserve"><value>Je suis BECETTI AI. Posez-moi une question sur n'importe quelle partie de votre protection et je vous expliquerai exactement ce qu'elle montre et où aller.</value></data>
   <data name="AiVoiceToggle.Header" xml:space="preserve"><value>Lire les réponses à voix haute</value></data>
   <data name="AiSupportTicketButton.Content" xml:space="preserve"><value>Ouvrir un ticket de support</value></data>
+
+  <data name="NavRansomware.Content" xml:space="preserve"><value>Protection anti-rançongiciel</value></data>
+  <data name="NavPcHealth.Content" xml:space="preserve"><value>Santé intelligente du PC</value></data>
+
+  <data name="TitleRansomware.Text" xml:space="preserve"><value>Protection anti-rançongiciel</value></data>
+  <data name="SubtitleRansomware.Text" xml:space="preserve"><value>La fonction Accès contrôlé aux dossiers (Exploit Guard) de Microsoft Defender lui-même. BECETTI SECURITY ne fait que lire et expliquer cette fonctionnalité Windows réelle — il n'exécute jamais son propre moteur anti-rançongiciel.</value></data>
+  <data name="ElevationRequiredInfoBar.Title" xml:space="preserve"><value>Administrateur requis</value></data>
+  <data name="ElevationRequiredInfoBar.Message" xml:space="preserve"><value>La modification de l'accès contrôlé aux dossiers nécessite un administrateur. Utilisez Paramètres → Redémarrer en tant qu'administrateur.</value></data>
+  <data name="ProtectedFoldersLabel.Text" xml:space="preserve"><value>Dossiers protégés</value></data>
+  <data name="RansomwareRecommendationLabel.Text" xml:space="preserve"><value>Recommandation</value></data>
+  <data name="RansomwareRecommendationText.Text" xml:space="preserve"><value>Ajoutez vos dossiers personnels les plus importants (Documents, Images, Bureau) à l'accès contrôlé aux dossiers depuis Windows Security, afin qu'un rançongiciel ne puisse pas les chiffrer ou les supprimer silencieusement. Demandez à BECETTI AI si vous ne savez pas quels dossiers protéger.</value></data>
+  <data name="EnableButton.Content" xml:space="preserve"><value>Activer</value></data>
+  <data name="DisableButton.Content" xml:space="preserve"><value>Désactiver</value></data>
+
+  <data name="TitlePcHealth.Text" xml:space="preserve"><value>Santé intelligente du PC</value></data>
+  <data name="SubtitlePcHealth.Text" xml:space="preserve"><value>État en direct du processeur, de la mémoire, des disques et des services essentiels, lu directement depuis Windows — rien n'est mis en cache ni estimé.</value></data>
+  <data name="CpuUsageLabel.Text" xml:space="preserve"><value>Utilisation du processeur</value></data>
+  <data name="MemoryUsageLabel.Text" xml:space="preserve"><value>Utilisation de la mémoire</value></data>
+  <data name="DisksLabel.Text" xml:space="preserve"><value>Disques</value></data>
+  <data name="EssentialServicesLabel.Text" xml:space="preserve"><value>Services essentiels</value></data>
+
+  <data name="SecurityScoreTitle.Text" xml:space="preserve"><value>Score de sécurité</value></data>
 </root>

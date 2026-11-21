@@ -115,13 +115,16 @@ public sealed class ProtectionViewModel : ViewModelBase
                 await _events.RecordAsync("protection.failed", result.Message, false);
                 _sound.Play(SoundCue.Warning);
             }
-
-            await LoadAsync();
         }
         finally
         {
+            // LoadAsync has its own IsBusy guard, so it must run after this
+            // method's own IsBusy is cleared or it would see IsBusy still
+            // true and silently no-op, leaving the page showing stale state.
             IsBusy = false;
         }
+
+        await LoadAsync();
     }
 
     private async Task UpdateSignaturesAsync()
@@ -146,13 +149,13 @@ public sealed class ProtectionViewModel : ViewModelBase
                 await _events.RecordAsync("signatures.failed", result.Message, false);
                 _sound.Play(SoundCue.Warning);
             }
-
-            await LoadAsync();
         }
         finally
         {
             IsBusy = false;
         }
+
+        await LoadAsync();
     }
 
     private Task RestartElevated()

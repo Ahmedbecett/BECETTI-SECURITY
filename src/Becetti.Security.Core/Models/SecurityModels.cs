@@ -56,6 +56,47 @@ public sealed class FirewallProfileStatus
     public bool Enabled { get; init; }
 }
 
+/// <summary>
+/// Real ransomware (Controlled Folder Access) state, read only from
+/// Get-MpPreference. BECETTI SECURITY never implements its own ransomware
+/// detection — it only surfaces and explains Defender's own Exploit Guard
+/// feature and lets the user change it through the same, real Set-MpPreference
+/// interface Windows Security itself uses.
+/// </summary>
+public sealed class RansomwareProtectionStatus
+{
+    /// <summary>True once Get-MpPreference answered at all.</summary>
+    public bool Available { get; init; }
+
+    /// <summary>
+    /// Raw EnableControlledFolderAccess value from Get-MpPreference:
+    /// 0 = Disabled, 1 = Enabled (block), 2 = Audit Mode, 3 = Block disk modification only,
+    /// 4 = Audit disk modification only. -1 means it could not be read.
+    /// </summary>
+    public int ControlledFolderAccessRaw { get; init; } = -1;
+
+    public bool ControlledFolderAccessEnabled => ControlledFolderAccessRaw is 1 or 2 or 3 or 4;
+
+    /// <summary>Human-readable form of <see cref="ControlledFolderAccessRaw"/>, never guessed.</summary>
+    public string ControlledFolderAccessState => ControlledFolderAccessRaw switch
+    {
+        0 => "Disabled",
+        1 => "Enabled (Block)",
+        2 => "Audit Mode",
+        3 => "Block Disk Modification Only",
+        4 => "Audit Disk Modification Only",
+        _ => "Unknown"
+    };
+
+    /// <summary>Folders Defender is actively protecting from unauthorized changes. Empty if none or unreadable.</summary>
+    public IReadOnlyList<string> ProtectedFolders { get; init; } = Array.Empty<string>();
+
+    /// <summary>Apps the user has explicitly allowed to modify protected folders.</summary>
+    public IReadOnlyList<string> AllowedApplications { get; init; } = Array.Empty<string>();
+
+    public string? RawError { get; init; }
+}
+
 /// <summary>A threat detection reported by Microsoft Defender (from Get-MpThreatDetection).</summary>
 public sealed class ThreatInfo
 {
@@ -156,6 +197,87 @@ public sealed class ReputationVerdict
     public string Source { get; init; } = string.Empty;
     public string? Detail { get; init; }
     public DateTimeOffset CheckedAt { get; init; }
+}
+
+/// <summary>
+/// One contributing factor behind a <see cref="SecurityScoreResult"/>: a real,
+/// named signal (e.g. "Real-time protection is off") plus the points it added
+/// or removed. Never decorative text with no real signal behind it.
+/// </summary>
+public sealed class SecurityScoreFactor
+{
+    public string Title { get; init; } = string.Empty;
+    public string Detail { get; init; } = string.Empty;
+    /// <summary>Positive to add to the score, negative to subtract. Never zero (would not be listed).</summary>
+    public int PointsDelta { get; init; }
+    public bool IsPositive => PointsDelta >= 0;
+}
+
+/// <summary>
+/// 0-100 security score computed only from real, already-verified signals
+/// (Defender, firewall, Controlled Folder Access, signature freshness). The
+/// score and every factor behind it are recomputed fresh each time from
+/// whatever was actually read moments earlier — nothing here is cached,
+/// randomized, or a fixed placeholder number.
+/// </summary>
+public sealed class SecurityScoreResult
+{
+    /// <summary>0-100. Null only when nothing at all could be verified (e.g. Defender totally unreachable).</summary>
+    public int? Score { get; init; }
+
+    public string Grade => Score switch
+    {
+        null => "Unknown",
+        >= 90 => "Excellent",
+        >= 75 => "Good",
+        >= 50 => "Needs Attention",
+        _ => "At Risk"
+    };
+
+    public IReadOnlyList<SecurityScoreFactor> Factors { get; init; } = Array.Empty<SecurityScoreFactor>();
+}
+
+/// <summary>Real-time CPU/RAM snapshot from GetSystemTimes/GlobalMemoryStatusEx (Windows only).</summary>
+public sealed class PerformanceSnapshot
+{
+    public bool Available { get; init; }
+    public double CpuUsagePercent { get; init; }
+    public ulong TotalPhysicalMemoryBytes { get; init; }
+    public ulong AvailablePhysicalMemoryBytes { get; init; }
+    public double MemoryLoadPercent { get; init; }
+}
+
+/// <summary>Real free/total space for one fixed local drive (from DriveInfo).</summary>
+public sealed class DiskHealthInfo
+{
+    public string Name { get; init; } = string.Empty;
+    public string VolumeLabel { get; init; } = string.Empty;
+    public long FreeBytes { get; init; }
+    public long TotalBytes { get; init; }
+    public double FreePercent => TotalBytes <= 0 ? 0 : Math.Round(FreeBytes * 100.0 / TotalBytes, 1);
+    public bool IsLowSpace => TotalBytes > 0 && FreePercent < 10.0;
+    public bool HasEnoughSpace => !IsLowSpace;
+    public string DisplayName => string.IsNullOrWhiteSpace(VolumeLabel) ? Name : $"{Name} {VolumeLabel}";
+}
+
+/// <summary>Real running/stopped state of one essential Windows service (from ServiceController).</summary>
+public sealed class ServiceHealthInfo
+{
+    public string ServiceName { get; init; } = string.Empty;
+    public string DisplayName { get; init; } = string.Empty;
+    public string Status { get; init; } = "Unknown";
+    public bool IsRunning { get; init; }
+    /// <summary>True for services BECETTI SECURITY explains as security/update-relevant (Defender, Firewall, Update, BITS, Task Scheduler).</summary>
+    public bool IsSecurityRelevant { get; init; }
+}
+
+/// <summary>Full PC health snapshot: performance + disks + essential services, all read live.</summary>
+public sealed class PcHealthSnapshot
+{
+    public PerformanceSnapshot Performance { get; init; } = new();
+    public IReadOnlyList<DiskHealthInfo> Disks { get; init; } = Array.Empty<DiskHealthInfo>();
+    public IReadOnlyList<ServiceHealthInfo> Services { get; init; } = Array.Empty<ServiceHealthInfo>();
+    public DateTimeOffset CheckedAt { get; init; } = DateTimeOffset.Now;
 }
 
 /// <summary>Application update check result from the cloud API.</summary>

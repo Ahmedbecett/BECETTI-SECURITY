@@ -95,13 +95,13 @@ public sealed class ThreatsViewModel : ViewModelBase
                 ErrorMessage = result.Message;
                 await _events.RecordAsync("threat.remove.failed", result.Message, false, SelectedThreat.ThreatId);
             }
-
-            await LoadAsync();
         }
         finally
         {
             IsBusy = false;
         }
+
+        await LoadAsync();
     }
 
     /// <summary>

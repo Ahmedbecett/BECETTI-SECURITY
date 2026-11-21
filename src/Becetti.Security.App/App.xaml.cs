@@ -29,6 +29,7 @@ public partial class App : Application
         services.AddSingleton<ITokenStore, TokenStore>();
         services.AddSingleton<IDefenderService, DefenderService>();
         services.AddSingleton<ISystemInfoService, SystemInfoService>();
+        services.AddSingleton<IPcHealthService, PcHealthService>();
         services.AddSingleton<IEventLogService, EventLogService>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
@@ -48,6 +49,8 @@ public partial class App : Application
         services.AddTransient<AboutViewModel>();
         services.AddTransient<BecettiAiViewModel>();
         services.AddTransient<ContactViewModel>();
+        services.AddTransient<RansomwareViewModel>();
+        services.AddTransient<PcHealthViewModel>();
 
         Services = services.BuildServiceProvider();
 

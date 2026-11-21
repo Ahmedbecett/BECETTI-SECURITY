@@ -23,6 +23,7 @@ public sealed class DashboardViewModel : ViewModelBase
     private string _lastScanText = "No scan has run yet";
     private string _appVersion = "1.0.0";
     private ProtectionLevel _protectionLevel = ProtectionLevel.Unknown;
+    private SecurityScoreResult _securityScore = new();
 
     public DashboardViewModel(IDefenderService defender, ISystemInfoService system, ICloudService cloud, ISettingsService settings)
     {
@@ -76,6 +77,23 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public bool EnableAnimations => _settings.Current.EnableAnimations;
 
+    /// <summary>0-100 score computed fresh from this load's own verified Defender/firewall/ransomware reads.</summary>
+    public SecurityScoreResult SecurityScore
+    {
+        get => _securityScore;
+        private set
+        {
+            if (SetProperty(ref _securityScore, value))
+            {
+                OnPropertyChanged(nameof(SecurityScoreText));
+                OnPropertyChanged(nameof(SecurityScoreGrade));
+            }
+        }
+    }
+
+    public string SecurityScoreText => SecurityScore.Score?.ToString() ?? "—";
+    public string SecurityScoreGrade => SecurityScore.Grade;
+
     public async Task LoadAsync()
     {
         if (IsBusy)
@@ -115,6 +133,13 @@ public sealed class DashboardViewModel : ViewModelBase
             {
                 FirewallText = "Unknown";
             }
+
+            var ransomware = await _defender.GetRansomwareProtectionAsync();
+
+            SecurityScore = SecurityScoreEvaluator.Evaluate(
+                status.Success ? status.Value : null,
+                firewall.Success ? firewall.Value : null,
+                ransomware.Success ? ransomware.Value : null);
 
             var device = await _system.GetDeviceInfoAsync();
             if (device.Success && device.Value is not null)

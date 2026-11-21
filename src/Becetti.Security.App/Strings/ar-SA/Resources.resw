@@ -62,4 +62,26 @@
   <data name="AiWelcomeSubtitle.Text" xml:space="preserve"><value>أنا BECETTI AI. اسألني عن أي جزء من حمايتك وسأشرح لك بالضبط ماذا يعني وأين تجده.</value></data>
   <data name="AiVoiceToggle.Header" xml:space="preserve"><value>قراءة الردود صوتياً</value></data>
   <data name="AiSupportTicketButton.Content" xml:space="preserve"><value>فتح طلب دعم</value></data>
+
+  <data name="NavRansomware.Content" xml:space="preserve"><value>حماية الفدية</value></data>
+  <data name="NavPcHealth.Content" xml:space="preserve"><value>صحة الجهاز الذكية</value></data>
+
+  <data name="TitleRansomware.Text" xml:space="preserve"><value>حماية الفدية</value></data>
+  <data name="SubtitleRansomware.Text" xml:space="preserve"><value>ميزة Controlled Folder Access (Exploit Guard) الخاصة بـ Microsoft Defender نفسه. يقرأ BECETTI SECURITY ويشرح هذه الميزة الحقيقية فقط — ولا يشغّل محرك حماية فدية خاصًا به أبدًا.</value></data>
+  <data name="ElevationRequiredInfoBar.Title" xml:space="preserve"><value>مطلوب صلاحيات المسؤول</value></data>
+  <data name="ElevationRequiredInfoBar.Message" xml:space="preserve"><value>يتطلب تغيير Controlled Folder Access صلاحيات المسؤول. استخدم الإعدادات ← إعادة التشغيل كمسؤول.</value></data>
+  <data name="ProtectedFoldersLabel.Text" xml:space="preserve"><value>المجلدات المحمية</value></data>
+  <data name="RansomwareRecommendationLabel.Text" xml:space="preserve"><value>توصية</value></data>
+  <data name="RansomwareRecommendationText.Text" xml:space="preserve"><value>أضف أهم مجلداتك الشخصية (المستندات، الصور، سطح المكتب) إلى Controlled Folder Access من Windows Security حتى لا تتمكن برامج الفدية من تشفير أو حذف ملفاتك بصمت. اسأل BECETTI AI إذا لم تكن متأكداً من المجلدات التي يجب حمايتها.</value></data>
+  <data name="EnableButton.Content" xml:space="preserve"><value>تفعيل</value></data>
+  <data name="DisableButton.Content" xml:space="preserve"><value>تعطيل</value></data>
+
+  <data name="TitlePcHealth.Text" xml:space="preserve"><value>صحة الجهاز الذكية</value></data>
+  <data name="SubtitlePcHealth.Text" xml:space="preserve"><value>حالة حية للمعالج والذاكرة والأقراص والخدمات الأساسية، مقروءة مباشرة من Windows — لا شيء مخزّن مؤقتاً أو مقدّر.</value></data>
+  <data name="CpuUsageLabel.Text" xml:space="preserve"><value>استخدام المعالج</value></data>
+  <data name="MemoryUsageLabel.Text" xml:space="preserve"><value>استخدام الذاكرة</value></data>
+  <data name="DisksLabel.Text" xml:space="preserve"><value>الأقراص</value></data>
+  <data name="EssentialServicesLabel.Text" xml:space="preserve"><value>الخدمات الأساسية</value></data>
+
+  <data name="SecurityScoreTitle.Text" xml:space="preserve"><value>تقييم الأمان</value></data>
 </root>
