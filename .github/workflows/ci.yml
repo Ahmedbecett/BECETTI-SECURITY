@@ -157,16 +157,21 @@ jobs:
   package-msix:
     # Builds a real, installable MSIX of the WinUI 3 app. Package.appxmanifest's
     # Publisher is the verified Microsoft Partner Center Windows Publisher ID
-    # for this account (CN=A5D5DC31-4A15-4059-8030-D96C51054596), but this job
-    # still signs with a freshly generated self-signed TEST certificate whose
-    # Subject matches that Publisher string exactly (required for MSIX signing
-    # to succeed at all) - that certificate itself is NOT issued or trusted by
-    # Microsoft or any CA; see docs/STORE-SUBMISSION.md for the distinction
-    # between Store upload (Microsoft re-signs on ingestion) and direct
-    # sideloading (needs an actually-trusted certificate). The signed package
-    # + its public certificate are published as a GitHub Release so they have
-    # a stable download URL. This is a TEST package for sideloading, not a
-    # Store-ready submission.
+    # for this account (CN=A5D5DC31-4A15-4059-8030-D96C51054596). This job
+    # signs with a self-signed TEST certificate whose Subject matches that
+    # Publisher string exactly (required for MSIX signing to succeed at all)
+    # - if BECETTI_TEST_SIGNING_PFX_BASE64/_PASSWORD repo secrets are set, the
+    # SAME certificate is reused on every build (stable fingerprint, trust it
+    # once); otherwise a fresh one is generated per run. Either way this
+    # certificate itself is NOT issued or trusted by Microsoft or any CA; see
+    # docs/STORE-SUBMISSION.md for the distinction between Store upload
+    # (Microsoft re-signs on ingestion), a purchased CA certificate, and
+    # direct sideloading with a self-signed certificate (needs a one-time
+    # manual trust step - there is no way around that for a self-signed
+    # certificate on any Windows install). The signed package + its public
+    # certificate + its SHA-256/SHA-1 fingerprint are published as a GitHub
+    # Release so they have a stable, verifiable download URL. This is a TEST
+    # package for sideloading, not a Store-ready submission.
     needs: build-and-test
     if: github.event_name == 'push'
     runs-on: windows-latest
@@ -186,51 +191,99 @@ jobs:
       - name: Restore (msbuild, not dotnet - required for single-project MSIX packaging targets)
         run: msbuild src\Becetti.Security.App\Becetti.Security.App.csproj /t:Restore /p:Configuration=Release /p:Platform=x64
 
-      - name: Generate self-signed test signing certificate
+      - name: Prepare the test signing certificate (persistent if configured, else a fresh one-off)
         shell: pwsh
+        env:
+          PERSISTENT_PFX_BASE64: ${{ secrets.BECETTI_TEST_SIGNING_PFX_BASE64 }}
+          PERSISTENT_PFX_PASSWORD: ${{ secrets.BECETTI_TEST_SIGNING_PFX_PASSWORD }}
         run: |
           New-Item -ItemType Directory -Force -Path packaging\output | Out-Null
 
-          # A plain New-SelfSignedCertificate + Export-PfxCertificate pair is
-          # rejected by the MSIX packaging tools with APPX0107 ("not valid for
-          # signing"): it needs an explicit Basic Constraints extension plus
-          # the Code Signing EKU, and exporting via the X509Certificate2.Export
-          # API (rather than Export-PfxCertificate) avoids a separate
-          # "key file may be password protected" (APPX0105) failure some
-          # CSPs hit on Windows Server runner images.
-          $basicConstraints = [System.Security.Cryptography.X509Certificates.X509BasicConstraintsExtension]::new($false, $false, 0, $true)
-          $ekuOids = [System.Security.Cryptography.OidCollection]::new()
-          [void]$ekuOids.Add([System.Security.Cryptography.Oid]::new("1.3.6.1.5.5.7.3.3", "Code Signing"))
-          $eku = [System.Security.Cryptography.X509Certificates.X509EnhancedKeyUsageExtension]::new($ekuOids, $true)
+          if ($env:PERSISTENT_PFX_BASE64 -and $env:PERSISTENT_PFX_PASSWORD) {
+            # A maintainer has stored a persistent self-signed test certificate as the
+            # BECETTI_TEST_SIGNING_PFX_BASE64 / BECETTI_TEST_SIGNING_PFX_PASSWORD repo
+            # secrets (see docs/STORE-SUBMISSION.md for how to generate and add one).
+            # Reusing the SAME certificate on every build means a user who already
+            # trusted BecettiTestCert.cer does NOT need to re-trust it for the next
+            # release - its SHA-256/SHA-1 fingerprint stays the same. This is still a
+            # self-signed TEST certificate: it is not issued or trusted by Microsoft
+            # or any public Certificate Authority.
+            Write-Host "Using the persistent test signing certificate from repository secrets (stable fingerprint across releases)."
+            $pfxBytes = [System.Convert]::FromBase64String($env:PERSISTENT_PFX_BASE64)
+            [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.pfx", $pfxBytes)
 
-          # Subject MUST match Package.appxmanifest's Identity/@Publisher
-          # exactly, or MSIX signing fails with APPX0107. This is set to the
-          # verified Microsoft Partner Center Windows Publisher ID for this
-          # account. NOTE: this certificate is still self-signed - using
-          # the real Partner Center Publisher string as the Subject does
-          # NOT make it a Microsoft-issued or CA-trusted certificate. It
-          # only makes the test package's identity match what Partner
-          # Center will expect at real Store submission time.
-          $cert = New-SelfSignedCertificate `
-            -Subject "CN=A5D5DC31-4A15-4059-8030-D96C51054596" `
-            -CertStoreLocation "Cert:\CurrentUser\My" `
-            -KeySpec Signature `
-            -KeyUsage DigitalSignature `
-            -KeyLength 2048 `
-            -KeyAlgorithm RSA `
-            -HashAlgorithm SHA256 `
-            -Extension @($basicConstraints, $eku) `
-            -FriendlyName "BECETTI SECURITY test signing certificate" `
-            -NotAfter ([System.DateTime]::UtcNow.Date.AddYears(1))
+            $certFromPfx = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new(
+              $pfxBytes, $env:PERSISTENT_PFX_PASSWORD,
+              [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+            if ($certFromPfx.Subject -ne "CN=A5D5DC31-4A15-4059-8030-D96C51054596") {
+              Write-Host "::error::Persistent certificate Subject '$($certFromPfx.Subject)' does not match the required Publisher - refusing to use it."
+              exit 1
+            }
+            $cerBytes = $certFromPfx.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+            [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.cer", $cerBytes)
 
-          $pw = [System.Guid]::NewGuid().ToString("N")
-          $pfxBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $pw)
-          [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.pfx", $pfxBytes)
-          $cerBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
-          [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.cer", $cerBytes)
-          Remove-Item "Cert:\CurrentUser\My\$($cert.Thumbprint)" -Force
+            "PFX_PASSWORD=$($env:PERSISTENT_PFX_PASSWORD)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          } else {
+            Write-Host "No persistent certificate secrets configured - generating a fresh self-signed test certificate for this run only. Its fingerprint WILL differ from any previous release (see docs/STORE-SUBMISSION.md to make it persistent)."
 
-          "PFX_PASSWORD=$pw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            # A plain New-SelfSignedCertificate + Export-PfxCertificate pair is
+            # rejected by the MSIX packaging tools with APPX0107 ("not valid for
+            # signing"): it needs an explicit Basic Constraints extension plus
+            # the Code Signing EKU, and exporting via the X509Certificate2.Export
+            # API (rather than Export-PfxCertificate) avoids a separate
+            # "key file may be password protected" (APPX0105) failure some
+            # CSPs hit on Windows Server runner images.
+            $basicConstraints = [System.Security.Cryptography.X509Certificates.X509BasicConstraintsExtension]::new($false, $false, 0, $true)
+            $ekuOids = [System.Security.Cryptography.OidCollection]::new()
+            [void]$ekuOids.Add([System.Security.Cryptography.Oid]::new("1.3.6.1.5.5.7.3.3", "Code Signing"))
+            $eku = [System.Security.Cryptography.X509Certificates.X509EnhancedKeyUsageExtension]::new($ekuOids, $true)
+
+            # Subject MUST match Package.appxmanifest's Identity/@Publisher
+            # exactly, or MSIX signing fails with APPX0107. This is set to the
+            # verified Microsoft Partner Center Windows Publisher ID for this
+            # account. NOTE: this certificate is still self-signed - using
+            # the real Partner Center Publisher string as the Subject does
+            # NOT make it a Microsoft-issued or CA-trusted certificate. It
+            # only makes the test package's identity match what Partner
+            # Center will expect at real Store submission time.
+            $cert = New-SelfSignedCertificate `
+              -Subject "CN=A5D5DC31-4A15-4059-8030-D96C51054596" `
+              -CertStoreLocation "Cert:\CurrentUser\My" `
+              -KeySpec Signature `
+              -KeyUsage DigitalSignature `
+              -KeyLength 2048 `
+              -KeyAlgorithm RSA `
+              -HashAlgorithm SHA256 `
+              -Extension @($basicConstraints, $eku) `
+              -FriendlyName "BECETTI SECURITY test signing certificate" `
+              -NotAfter ([System.DateTime]::UtcNow.Date.AddYears(1))
+
+            $pw = [System.Guid]::NewGuid().ToString("N")
+            $pfxBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $pw)
+            [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.pfx", $pfxBytes)
+            $cerBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+            [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.cer", $cerBytes)
+            Remove-Item "Cert:\CurrentUser\My\$($cert.Thumbprint)" -Force
+
+            "PFX_PASSWORD=$pw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
+
+      - name: Record the certificate's fingerprint (so a user can verify it before trusting it)
+        shell: pwsh
+        run: |
+          $cerPath = "packaging\output\BecettiTestCert.cer"
+          $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($cerPath)
+          $sha256Bytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash([System.IO.File]::ReadAllBytes($cerPath))
+          $sha256Hex = (($sha256Bytes | ForEach-Object { $_.ToString("X2") }) -join "")
+
+          Write-Host "Certificate Subject:    $($cert.Subject)"
+          Write-Host "Certificate Not After:  $($cert.NotAfter)"
+          Write-Host "SHA-1 thumbprint (Windows 'Thumbprint' property): $($cert.Thumbprint)"
+          Write-Host "SHA-256 fingerprint (of the .cer file itself):    $sha256Hex"
+
+          "CERT_SHA1=$($cert.Thumbprint)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "CERT_SHA256=$sha256Hex" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "CERT_NOT_AFTER=$($cert.NotAfter.ToString('yyyy-MM-dd'))" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Build and package the signed MSIX (official single-project MSIX CI recipe)
         shell: pwsh
@@ -344,27 +397,53 @@ jobs:
           IMPORTANT - read this before assuming the package is "Microsoft
           signed": the Publisher value above matches the real Partner Center
           identity, but the certificate actually used to sign THIS build is
-          still a self-signed TEST certificate generated fresh in this CI
-          run. It is NOT issued by Microsoft, NOT issued by a trusted
-          Certificate Authority, and NOT the certificate Microsoft uses when
-          it re-signs a package during real Store certification. Having the
-          correct Publisher string in the manifest is a prerequisite for
-          eventual Store submission - it does not by itself make this
-          specific .msix trusted. Windows will still refuse to install it
-          until you manually trust BecettiTestCert.cer below.
+          still a self-signed TEST certificate (see "Certificate" section
+          below for which kind this build used). It is NOT issued by
+          Microsoft, NOT issued by a trusted Certificate Authority, and NOT
+          the certificate Microsoft uses when it re-signs a package during
+          real Store certification. Having the correct Publisher string in
+          the manifest is a prerequisite for eventual Store submission - it
+          does not by itself make this specific .msix trusted. Windows will
+          still show error 0x800B010A ("A certificate chain could not be
+          built to a trusted root authority") and Publisher "Unknown" until
+          you manually trust BecettiTestCert.cer below. This is expected,
+          correct Windows behavior for any package not signed by the Store
+          or a CA already in your device's trusted root store - it is not a
+          bug in this package, and bypassing it (disabling Defender,
+          ignoring signature checks) is never the right fix.
+
+          Certificate for this build:
+            Subject:        CN=A5D5DC31-4A15-4059-8030-D96C51054596
+            SHA-256 fingerprint of BecettiTestCert.cer: $env:CERT_SHA256
+            SHA-1 thumbprint (Windows "Thumbprint" property): $env:CERT_SHA1
+            Valid until:    $env:CERT_NOT_AFTER
+
+          Verify the certificate you downloaded matches the fingerprint
+          above BEFORE trusting it (PowerShell):
+            certutil -hashfile BecettiTestCert.cer SHA256
 
           To install on Windows 10/11:
             1. Download both BECETTI-SECURITY_1.0.0.0_x64.msix and
                BecettiTestCert.cer from this release.
-            2. Right-click BecettiTestCert.cer -> Install Certificate ->
+            2. Verify the SHA-256 fingerprint of BecettiTestCert.cer matches
+               the value printed above.
+            3. Right-click BecettiTestCert.cer -> Install Certificate ->
                Local Machine -> "Place all certificates in the following
                store" -> Trusted People (or Trusted Root Certification
                Authorities) -> Finish. (Requires administrator rights.)
-            3. Double-click BECETTI-SECURITY_1.0.0.0_x64.msix -> Install.
+            4. Double-click BECETTI-SECURITY_1.0.0.0_x64.msix -> Install.
 
           Alternative (PowerShell, as Administrator):
+            certutil -hashfile BecettiTestCert.cer SHA256
             Import-Certificate -FilePath BecettiTestCert.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
             Add-AppxPackage -Path BECETTI-SECURITY_1.0.0.0_x64.msix
+
+          Runtime dependency: this app targets Microsoft.WindowsAppSDK 1.8,
+          so AppxManifest.xml declares a dependency on
+          Microsoft.WindowsAppRuntime.1.8. Add-AppxPackage / the normal
+          double-click installer resolves and installs this automatically
+          on an internet-connected Windows 10 (10.0.17763.0+) or Windows 11
+          machine; it is not something you need to install separately.
 
           UPGRADE NOTE: this build's Publisher was changed from the earlier
           placeholder (CN=BECETTI) to the real Partner Center ID above.
@@ -373,6 +452,24 @@ jobs:
           build you may have side-loaded. Windows will NOT let you upgrade
           an old CN=BECETTI install in place - uninstall it first, then
           install this one.
+
+          THE ONLY TWO WAYS TO GET WINDOWS TO TRUST THIS PUBLISHER WITHOUT A
+          MANUAL TRUST STEP (no shortcut exists around this - it is how
+          Windows code-signing trust works for every publisher, not a
+          limitation specific to this app):
+            A) Submit to the Microsoft Store via Partner Center. Microsoft
+               re-signs the package with its own trusted certificate during
+               ingestion, and the Store's own trusted root makes the
+               Publisher show correctly with no manual cert install on the
+               user's machine. See docs/STORE-SUBMISSION.md.
+            B) Buy a commercial code-signing certificate (OV or EV) from a
+               public Certificate Authority already in Windows' trusted
+               root store (e.g. DigiCert, SSL.com, GlobalSign, Sectigo),
+               with Subject exactly matching the Publisher above, and sign
+               with that certificate instead of a self-signed one. This
+               costs real money and requires real identity verification by
+               the CA; nothing in this repository or CI pipeline can
+               substitute for it, and no tool here can fabricate that trust.
 
           This is a sideloading test package, not the Microsoft Store
           submission artifact - see docs/STORE-SUBMISSION.md for that
@@ -392,6 +489,6 @@ jobs:
             packaging/output/INSTALL.txt \
             --repo "$GITHUB_REPOSITORY" \
             --title "BECETTI SECURITY - signed test MSIX ($tag)" \
-            --notes "Publisher identity: CN=A5D5DC31-4A15-4059-8030-D96C51054596 (verified Microsoft Partner Center Windows Publisher ID). Signed with a self-signed TEST certificate built in this CI run - NOT a Microsoft-issued or CA-trusted certificate, and not the certificate Microsoft uses when it re-signs a package during real Store certification. Built from commit ${GITHUB_SHA}. See INSTALL.txt in the release assets for install steps and an important upgrade-in-place note. Not a Microsoft Store submission artifact." \
+            --notes "Publisher identity: CN=A5D5DC31-4A15-4059-8030-D96C51054596 (verified Microsoft Partner Center Windows Publisher ID). Signed with a self-signed TEST certificate - NOT a Microsoft-issued or CA-trusted certificate, and not the certificate Microsoft uses when it re-signs a package during real Store certification. Certificate SHA-256 fingerprint: ${CERT_SHA256} / SHA-1 thumbprint: ${CERT_SHA1} (verify with 'certutil -hashfile BecettiTestCert.cer SHA256' before trusting it). Built from commit ${GITHUB_SHA}. See INSTALL.txt in the release assets for install steps, the 0x800B010A fix, and an important upgrade-in-place note. Not a Microsoft Store submission artifact." \
             --latest=false
           echo "Release created: https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag"
