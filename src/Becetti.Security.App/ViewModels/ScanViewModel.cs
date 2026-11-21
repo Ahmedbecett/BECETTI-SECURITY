@@ -5,6 +5,24 @@ using Becetti.Security.Core.Services;
 namespace Becetti.Security.App.ViewModels;
 
 /// <summary>
+/// Visual state of the robot mascot on the Scan page. Every value here is
+/// driven directly by a real Defender scan state (IsScanning / the real
+/// MpCmdRun exit code) - never decorative or guessed, matching this app's
+/// standing rule that nothing ever fakes activity that isn't happening.
+/// </summary>
+public enum ScanMascotMood
+{
+    /// <summary>No scan is running and the last one (if any) is not being shown.</summary>
+    Idle,
+    /// <summary>A real Defender scan is currently in progress.</summary>
+    Scanning,
+    /// <summary>The last real scan completed with no threat found (MpCmdRun exit code 0).</summary>
+    Clean,
+    /// <summary>The last real scan found a threat (MpCmdRun exit code 2).</summary>
+    Alert
+}
+
+/// <summary>
 /// Smart Scan page. Scans run through Microsoft Defender (MpCmdRun.exe).
 /// Results come from Defender's exit codes — BECETTI SECURITY never declares
 /// a file infected on its own.
@@ -20,6 +38,8 @@ public sealed class ScanViewModel : ViewModelBase
     private string _scanOutput = string.Empty;
     private string _scanResultText = "No scan started yet.";
     private bool _isScanning;
+    private ScanMascotMood _mascotMood = ScanMascotMood.Idle;
+    private string _mascotStatusText = "Resting — no scan running right now.";
 
     public ScanViewModel(IDefenderService defender, IEventLogService events, ISettingsService settings, SoundService sound)
     {
@@ -46,6 +66,12 @@ public sealed class ScanViewModel : ViewModelBase
         set => SetProperty(ref _isScanning, value);
     }
 
+    /// <summary>Drives the robot mascot's glow color and pulse animation on the Scan page.</summary>
+    public ScanMascotMood MascotMood { get => _mascotMood; set => SetProperty(ref _mascotMood, value); }
+
+    /// <summary>Human-readable text shown next to the mascot, matching <see cref="MascotMood"/>.</summary>
+    public string MascotStatusText { get => _mascotStatusText; set => SetProperty(ref _mascotStatusText, value); }
+
     public bool IsAdministrator => _defender.IsElevated();
 
     public async Task RunScanAsync(DefenderScanType scanType, string? targetPath = null)
@@ -58,6 +84,8 @@ public sealed class ScanViewModel : ViewModelBase
         ScanOutput = string.Empty;
         ScanResultText = $"Running {scanType} scan...";
         StatusMessage = "Scan started. This may take a while; the result below comes from Microsoft Defender.";
+        MascotMood = ScanMascotMood.Scanning;
+        MascotStatusText = $"Scanning now ({scanType}) — this is a real Defender scan in progress.";
 
         try
         {
@@ -66,6 +94,8 @@ public sealed class ScanViewModel : ViewModelBase
             {
                 ScanResultText = "Scan could not run.";
                 ErrorMessage = result.Message;
+                MascotMood = ScanMascotMood.Idle;
+                MascotStatusText = "Resting — the last scan could not run.";
                 await _events.RecordAsync("scan.failed", $"{scanType} scan failed", false, result.Message);
                 return;
             }
@@ -73,6 +103,22 @@ public sealed class ScanViewModel : ViewModelBase
             var outcome = result.Value;
             ScanOutput = outcome.Output;
             ScanResultText = result.Message;
+
+            if (outcome.ThreatFound)
+            {
+                MascotMood = ScanMascotMood.Alert;
+                MascotStatusText = "Threat detected — see the result below and Threat Management.";
+            }
+            else if (outcome.CompletedWithoutThreat)
+            {
+                MascotMood = ScanMascotMood.Clean;
+                MascotStatusText = "All clear — Microsoft Defender found no threats.";
+            }
+            else
+            {
+                MascotMood = ScanMascotMood.Idle;
+                MascotStatusText = "Resting — the scan ended with an unexpected result; see the output below.";
+            }
 
             if (outcome.CompletedWithoutThreat || outcome.ThreatFound)
             {

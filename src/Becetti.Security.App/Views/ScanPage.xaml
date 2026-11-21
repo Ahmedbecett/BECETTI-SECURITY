@@ -4,13 +4,37 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Becetti.Security.App.Converters"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:ScanMascotMoodToBrushConverter x:Key="MoodToBrushConverter" />
+    </Page.Resources>
+
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
             <TextBlock x:Uid="TitleScan" Text="Smart Scan" Style="{StaticResource PageTitleStyle}" />
             <TextBlock x:Uid="SubtitleScan" Text="Scans run through Microsoft Defender (MpCmdRun). Results are Defender's own verdicts — BECETTI SECURITY never guesses." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
             <ProgressRing IsActive="{x:Bind ViewModel.IsScanning, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <!-- Robot mascot, reacting only to the real scan state: idle, actively
+                 scanning (pulsing glow), a verified clean result, or a verified
+                 threat. Never animated to suggest activity that isn't real. -->
+            <Border Style="{StaticResource GlassHeroCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{x:Bind ViewModel.MascotStatusText, Mode=OneWay}" FontSize="18" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" VerticalAlignment="Center" MaxWidth="480" />
+                    <Border x:Name="ScanMascotGlow" Grid.Column="1" Width="110" Height="110" CornerRadius="55" Margin="16,0,0,0" Opacity="0.3"
+                            Background="{x:Bind ViewModel.MascotMood, Mode=OneWay, Converter={StaticResource MoodToBrushConverter}}">
+                        <Image Source="Assets/RobotMascotHero.png" Width="92" Height="92" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </Grid>
+            </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="Quick Scan" Style="{StaticResource ValueStyle}" />

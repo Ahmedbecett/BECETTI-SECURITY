@@ -1,7 +1,9 @@
+using System.ComponentModel;
 using Becetti.Security.App.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 
@@ -9,12 +11,61 @@ namespace Becetti.Security.App.Views;
 
 public sealed partial class ScanPage : Page
 {
+    private Storyboard? _mascotPulseStoryboard;
+
     public ScanViewModel ViewModel { get; }
 
     public ScanPage()
     {
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<ScanViewModel>();
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(ScanViewModel.MascotMood))
+            return;
+
+        if (ViewModel.MascotMood == ScanMascotMood.Scanning)
+            StartMascotPulse();
+        else
+            StopMascotPulse();
+    }
+
+    /// <summary>
+    /// Pulsing glow behind the robot mascot, only while a real Defender scan
+    /// (ViewModel.IsScanning) is actually in progress - this mirrors
+    /// DashboardPage's float animation pattern, but is tied to real activity
+    /// instead of being purely decorative.
+    /// </summary>
+    private void StartMascotPulse()
+    {
+        if (_mascotPulseStoryboard is not null)
+            return;
+
+        var animation = new DoubleAnimation
+        {
+            From = 0.3,
+            To = 0.65,
+            Duration = new Duration(TimeSpan.FromSeconds(0.9)),
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
+        };
+        Storyboard.SetTarget(animation, ScanMascotGlow);
+        Storyboard.SetTargetProperty(animation, "Opacity");
+
+        _mascotPulseStoryboard = new Storyboard();
+        _mascotPulseStoryboard.Children.Add(animation);
+        _mascotPulseStoryboard.Begin();
+    }
+
+    private void StopMascotPulse()
+    {
+        _mascotPulseStoryboard?.Stop();
+        _mascotPulseStoryboard = null;
+        ScanMascotGlow.Opacity = 0.3;
     }
 
     private async void BrowseButton_Click(object sender, RoutedEventArgs e)
