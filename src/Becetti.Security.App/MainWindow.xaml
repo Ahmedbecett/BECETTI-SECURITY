@@ -42,6 +42,11 @@
                         <FontIcon Glyph="&#xE753;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavAi" Content="BECETTI AI" Tag="Ai">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE99A;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavThreats" Content="Threat Management" Tag="Threats">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE7BA;" />
@@ -65,6 +70,11 @@
                 <NavigationViewItem x:Uid="NavSettings" Content="Settings" Tag="Settings">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE713;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavContact" Content="Contact Becetti" Tag="Contact">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE715;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavAbout" Content="About BECETTI SECURITY" Tag="About">

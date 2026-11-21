@@ -16,6 +16,10 @@ public sealed class SettingsViewModel : ViewModelBase
     private bool _enableAnimations = true;
     private bool _enableSounds = true;
     private string _connectionText = string.Empty;
+    private string _aiApiBaseUrl = string.Empty;
+    private bool _aiShareDeviceState;
+    private bool _aiSaveHistory;
+    private string _supportEmail = string.Empty;
 
     public SettingsViewModel(ISettingsService settings, LocalizationService localization, ICloudService cloud)
     {
@@ -40,6 +44,7 @@ public sealed class SettingsViewModel : ViewModelBase
             {
                 OnPropertyChanged(nameof(IsEnglish));
                 OnPropertyChanged(nameof(IsArabic));
+                OnPropertyChanged(nameof(IsFrench));
             }
         }
     }
@@ -68,6 +73,12 @@ public sealed class SettingsViewModel : ViewModelBase
 
     public bool IsArabic { get => Language == "ar"; set { if (value) Language = "ar"; } }
     public bool IsEnglish { get => Language == "en"; set { if (value) Language = "en"; } }
+    public bool IsFrench { get => Language == "fr"; set { if (value) Language = "fr"; } }
+
+    public string AiApiBaseUrl { get => _aiApiBaseUrl; set => SetProperty(ref _aiApiBaseUrl, value); }
+    public bool AiShareDeviceState { get => _aiShareDeviceState; set => SetProperty(ref _aiShareDeviceState, value); }
+    public bool AiSaveHistory { get => _aiSaveHistory; set => SetProperty(ref _aiSaveHistory, value); }
+    public string SupportEmail { get => _supportEmail; set => SetProperty(ref _supportEmail, value); }
 
     private void LoadFromSettings()
     {
@@ -77,6 +88,10 @@ public sealed class SettingsViewModel : ViewModelBase
         TelemetryOptIn = _settings.Current.TelemetryOptIn;
         EnableAnimations = _settings.Current.EnableAnimations;
         EnableSounds = _settings.Current.EnableSounds;
+        AiApiBaseUrl = _settings.Current.AiApiBaseUrl;
+        AiShareDeviceState = _settings.Current.AiShareDeviceState;
+        AiSaveHistory = _settings.Current.AiSaveHistory;
+        SupportEmail = _settings.Current.SupportEmail;
     }
 
     public async Task SaveAsync()
@@ -93,12 +108,24 @@ public sealed class SettingsViewModel : ViewModelBase
             _settings.Current.TelemetryOptIn = TelemetryOptIn;
             _settings.Current.EnableAnimations = EnableAnimations;
             _settings.Current.EnableSounds = EnableSounds;
+            _settings.Current.AiApiBaseUrl = AiApiBaseUrl.Trim();
+            _settings.Current.AiShareDeviceState = AiShareDeviceState;
+            _settings.Current.AiSaveHistory = AiSaveHistory;
+            _settings.Current.SupportEmail = SupportEmail.Trim();
             await _settings.SaveAsync();
 
-            var language = Language == "ar" ? AppLanguage.Arabic : AppLanguage.English;
+            var language = Language switch
+            {
+                "ar" => AppLanguage.Arabic,
+                "fr" => AppLanguage.French,
+                _ => AppLanguage.English
+            };
+            var languageChanged = language != _localization.Current;
             await _localization.SetLanguageAsync(language);
 
-            StatusMessage = "Settings saved.";
+            StatusMessage = languageChanged
+                ? "Settings saved. Restart BECETTI SECURITY for the new language to fully apply."
+                : "Settings saved.";
         }
         finally
         {

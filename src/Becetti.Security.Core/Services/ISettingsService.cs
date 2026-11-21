@@ -27,6 +27,27 @@ public sealed class AppSettings
 
     /// <summary>Sound cues for genuine events only (scan completed, update completed, warnings). On by default.</summary>
     public bool EnableSounds { get; set; } = true;
+
+    /// <summary>
+    /// Base URL of the BECETTI AI backend (a small server that holds the real
+    /// AI provider key; never embedded in this app). Points at the deployed
+    /// BECETTI AI service by default; can be repointed in Settings.
+    /// </summary>
+    public string AiApiBaseUrl { get; set; } = "https://becetti-ai-backend-ahmed-d33b.vercel.app";
+
+    /// <summary>
+    /// Explicit, separate opt-in: when true, BECETTI AI may be given real,
+    /// current app/device state (e.g. Defender status) as context for a
+    /// question. OFF by default — the assistant must ask the user to turn
+    /// this on rather than assuming consent.
+    /// </summary>
+    public bool AiShareDeviceState { get; set; }
+
+    /// <summary>When true, BECETTI AI chat history is kept on disk between app runs. OFF by default.</summary>
+    public bool AiSaveHistory { get; set; }
+
+    /// <summary>Destination address for the "Contact Becetti" feature's prefilled email. Editable in Settings.</summary>
+    public string SupportEmail { get; set; } = "ahmedbecetti35@gmail.com";
 }
 
 public interface ISettingsService

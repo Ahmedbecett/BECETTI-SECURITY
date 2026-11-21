@@ -7,7 +7,7 @@ using Microsoft.UI.Xaml.Media;
 
 namespace Becetti.Security.App;
 
-/// <summary>Main window: navigation shell hosting the ten product pages.</summary>
+/// <summary>Main window: navigation shell hosting the product pages.</summary>
 public sealed partial class MainWindow : Window
 {
     private readonly Dictionary<string, Type> _pages = new()
@@ -16,11 +16,13 @@ public sealed partial class MainWindow : Window
         ["Scan"] = typeof(ScanPage),
         ["Protection"] = typeof(ProtectionPage),
         ["Cloud"] = typeof(CloudPage),
+        ["Ai"] = typeof(BecettiAiPage),
         ["Threats"] = typeof(ThreatsPage),
         ["Privacy"] = typeof(PrivacyPage),
         ["History"] = typeof(HistoryPage),
         ["Updates"] = typeof(UpdatesPage),
         ["Settings"] = typeof(SettingsPage),
+        ["Contact"] = typeof(ContactPage),
         ["About"] = typeof(AboutPage)
     };
 

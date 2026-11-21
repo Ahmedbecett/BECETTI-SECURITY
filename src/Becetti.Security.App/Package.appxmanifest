@@ -43,6 +43,7 @@
   <Resources>
     <Resource Language="en-US" />
     <Resource Language="ar-SA" />
+    <Resource Language="fr-FR" />
   </Resources>
 
   <Applications>

@@ -3,7 +3,8 @@ namespace Becetti.Security.Core.Services;
 public enum AppLanguage
 {
     English,
-    Arabic
+    Arabic,
+    French
 }
 
 /// <summary>Tracks the selected UI language and text direction (RTL for Arabic).</summary>
@@ -14,7 +15,12 @@ public sealed class LocalizationService
     public LocalizationService(ISettingsService settings)
     {
         _settings = settings;
-        Current = settings.Current.Language == "ar" ? AppLanguage.Arabic : AppLanguage.English;
+        Current = settings.Current.Language switch
+        {
+            "ar" => AppLanguage.Arabic,
+            "fr" => AppLanguage.French,
+            _ => AppLanguage.English
+        };
     }
 
     public AppLanguage Current { get; private set; }
@@ -26,7 +32,12 @@ public sealed class LocalizationService
     public async Task SetLanguageAsync(AppLanguage language, CancellationToken ct = default)
     {
         Current = language;
-        _settings.Current.Language = language == AppLanguage.Arabic ? "ar" : "en";
+        _settings.Current.Language = language switch
+        {
+            AppLanguage.Arabic => "ar",
+            AppLanguage.French => "fr",
+            _ => "en"
+        };
         await _settings.SaveAsync(ct).ConfigureAwait(false);
         LanguageChanged?.Invoke(this, EventArgs.Empty);
     }

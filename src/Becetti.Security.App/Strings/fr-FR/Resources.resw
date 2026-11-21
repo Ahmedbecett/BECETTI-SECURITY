@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="AppTitle" xml:space="preserve"><value>BECETTI SECURITY</value></data>
+  <data name="AppTagline" xml:space="preserve"><value>Votre centre de protection numérique</value></data>
+
+  <data name="AppHeaderTitle.Text" xml:space="preserve"><value>BECETTI SECURITY</value></data>
+  <data name="AppHeaderSubtitle.Text" xml:space="preserve"><value>Protection avancée pour Windows</value></data>
+  <data name="ScanNowButton.Content" xml:space="preserve"><value>Analyser maintenant</value></data>
+  <data name="SettingsAnimations.Header" xml:space="preserve"><value>Activer les animations décoratives</value></data>
+  <data name="SettingsSounds.Header" xml:space="preserve"><value>Activer les sons d'alerte</value></data>
+
+  <data name="NavDashboard.Content" xml:space="preserve"><value>Tableau de bord</value></data>
+  <data name="NavScan.Content" xml:space="preserve"><value>Analyse intelligente</value></data>
+  <data name="NavProtection.Content" xml:space="preserve"><value>Protection en temps réel</value></data>
+  <data name="NavCloud.Content" xml:space="preserve"><value>Sécurité cloud</value></data>
+  <data name="NavThreats.Content" xml:space="preserve"><value>Gestion des menaces</value></data>
+  <data name="NavPrivacy.Content" xml:space="preserve"><value>Confidentialité et réseau</value></data>
+  <data name="NavHistory.Content" xml:space="preserve"><value>Historique de sécurité</value></data>
+  <data name="NavUpdates.Content" xml:space="preserve"><value>Mises à jour</value></data>
+  <data name="NavSettings.Content" xml:space="preserve"><value>Paramètres</value></data>
+  <data name="NavAbout.Content" xml:space="preserve"><value>À propos de BECETTI SECURITY</value></data>
+  <data name="NavAi.Content" xml:space="preserve"><value>BECETTI AI</value></data>
+  <data name="NavContact.Content" xml:space="preserve"><value>Contacter Becetti</value></data>
+
+  <data name="TitleDashboard.Text" xml:space="preserve"><value>Tableau de bord</value></data>
+  <data name="TitleScan.Text" xml:space="preserve"><value>Analyse intelligente</value></data>
+  <data name="TitleProtection.Text" xml:space="preserve"><value>Protection en temps réel</value></data>
+  <data name="TitleCloud.Text" xml:space="preserve"><value>Sécurité cloud</value></data>
+  <data name="TitleThreats.Text" xml:space="preserve"><value>Gestion des menaces</value></data>
+  <data name="TitlePrivacy.Text" xml:space="preserve"><value>Confidentialité et réseau</value></data>
+  <data name="TitleHistory.Text" xml:space="preserve"><value>Historique de sécurité</value></data>
+  <data name="TitleUpdates.Text" xml:space="preserve"><value>Mises à jour</value></data>
+  <data name="TitleSettings.Text" xml:space="preserve"><value>Paramètres</value></data>
+  <data name="TitleAbout.Text" xml:space="preserve"><value>À propos de BECETTI SECURITY</value></data>
+  <data name="TitleAi.Text" xml:space="preserve"><value>BECETTI AI</value></data>
+  <data name="TitleContact.Text" xml:space="preserve"><value>Contacter Becetti</value></data>
+
+  <data name="SubtitleDashboard.Text" xml:space="preserve"><value>État de sécurité vérifié, lu en direct depuis Windows et Microsoft Defender.</value></data>
+  <data name="SubtitleScan.Text" xml:space="preserve"><value>Les analyses s'exécutent via Microsoft Defender (MpCmdRun). Les résultats sont les verdicts de Defender lui-même — BECETTI SECURITY ne devine jamais.</value></data>
+  <data name="SubtitleProtection.Text" xml:space="preserve"><value>État vérifié de Microsoft Defender. Les modifications sont appliquées via Defender et revérifiées avant de signaler un succès.</value></data>
+  <data name="SubtitleCloud.Text" xml:space="preserve"><value>Connectez-vous à l'API cloud BECETTI SECURITY pour les vérifications de réputation et les informations de mise à jour. Seuls les empreintes de fichiers sont envoyées — jamais les fichiers.</value></data>
+  <data name="SubtitleThreats.Text" xml:space="preserve"><value>Détections réelles signalées par Microsoft Defender. La suppression s'exécute via Defender et est vérifiée avant d'afficher un succès.</value></data>
+  <data name="SubtitlePrivacy.Text" xml:space="preserve"><value>Vérifications mesurées du réseau, du TLS et de la configuration. Les recommandations proviennent uniquement des valeurs mesurées.</value></data>
+  <data name="SubtitleHistory.Text" xml:space="preserve"><value>Journal local des événements réels enregistrés par BECETTI SECURITY. Rien n'est préchargé ni inventé.</value></data>
+  <data name="SubtitleUpdates.Text" xml:space="preserve"><value>Les mises à jour de l'application et les mises à jour des renseignements de sécurité sont distinctes. Chacune est vérifiée via son propre canal réel.</value></data>
+  <data name="SubtitleSettings.Text" xml:space="preserve"><value>Chaque paramètre ici est enregistré et appliqué. Rien n'est décoratif.</value></data>
+  <data name="SubtitleAbout.Text" xml:space="preserve"><value>Votre centre de protection numérique</value></data>
+  <data name="SubtitleAi.Text" xml:space="preserve"><value>Posez vos questions à BECETTI AI sur votre état de sécurité. Il ne répond qu'à partir d'informations réelles et vérifiées — il n'invente jamais une menace ou une solution.</value></data>
+  <data name="SubtitleContact.Text" xml:space="preserve"><value>Rien n'est envoyé automatiquement. Ceci prépare un brouillon dans votre propre application de messagerie — vous le relisez et appuyez vous-même sur Envoyer.</value></data>
+
+  <data name="SettingsAiShareDeviceState.Header" xml:space="preserve"><value>Partager l'état réel de l'appareil/Defender avec BECETTI AI pour cette discussion</value></data>
+  <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>Enregistrer l'historique de la discussion sur cet appareil</value></data>
+  <data name="SettingsAiApiBaseUrl.Header" xml:space="preserve"><value>URL du serveur BECETTI AI</value></data>
+  <data name="SettingsSupportEmail.Header" xml:space="preserve"><value>Adresse e-mail du support</value></data>
+</root>

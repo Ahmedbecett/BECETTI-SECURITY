@@ -33,6 +33,7 @@ public partial class App : Application
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
         services.AddHttpClient<ICloudService, CloudService>();
+        services.AddHttpClient<IBecettiAiService, BecettiAiService>();
 
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
@@ -44,11 +45,17 @@ public partial class App : Application
         services.AddTransient<UpdatesViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<AboutViewModel>();
+        services.AddTransient<BecettiAiViewModel>();
+        services.AddTransient<ContactViewModel>();
 
         Services = services.BuildServiceProvider();
 
         var settings = Services.GetRequiredService<ISettingsService>();
         await settings.LoadAsync();
+
+        // Apply the persisted UI language before any window/resw lookup happens,
+        // so the correct Strings/<culture>/Resources.resw is the one resolved.
+        ApplyLanguageOverride(settings.Current.Language);
 
         var cloud = Services.GetRequiredService<ICloudService>();
         if (cloud is CloudService concreteCloud)
@@ -58,5 +65,29 @@ public partial class App : Application
         _window = mainWindow;
         MainWindow = mainWindow;
         mainWindow.Activate();
+    }
+
+    /// <summary>
+    /// Sets the resource language actually used to resolve x:Uid-based resw strings.
+    /// Must run before any XAML is loaded for a language switch to take effect.
+    /// </summary>
+    private static void ApplyLanguageOverride(string languageCode)
+    {
+        var bcp47 = languageCode switch
+        {
+            "ar" => "ar-SA",
+            "fr" => "fr-FR",
+            _ => "en-US"
+        };
+
+        try
+        {
+            Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = bcp47;
+        }
+        catch
+        {
+            // Best-effort: if the override can't be set (e.g. unpackaged dev run),
+            // the app falls back to the OS-selected display language.
+        }
     }
 }

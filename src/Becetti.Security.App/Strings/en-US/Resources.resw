@@ -24,6 +24,8 @@
   <data name="NavUpdates.Content" xml:space="preserve"><value>Updates</value></data>
   <data name="NavSettings.Content" xml:space="preserve"><value>Settings</value></data>
   <data name="NavAbout.Content" xml:space="preserve"><value>About BECETTI SECURITY</value></data>
+  <data name="NavAi.Content" xml:space="preserve"><value>BECETTI AI</value></data>
+  <data name="NavContact.Content" xml:space="preserve"><value>Contact Becetti</value></data>
 
   <data name="TitleDashboard.Text" xml:space="preserve"><value>Dashboard</value></data>
   <data name="TitleScan.Text" xml:space="preserve"><value>Smart Scan</value></data>
@@ -35,6 +37,8 @@
   <data name="TitleUpdates.Text" xml:space="preserve"><value>Updates</value></data>
   <data name="TitleSettings.Text" xml:space="preserve"><value>Settings</value></data>
   <data name="TitleAbout.Text" xml:space="preserve"><value>About BECETTI SECURITY</value></data>
+  <data name="TitleAi.Text" xml:space="preserve"><value>BECETTI AI</value></data>
+  <data name="TitleContact.Text" xml:space="preserve"><value>Contact Becetti</value></data>
 
   <data name="SubtitleDashboard.Text" xml:space="preserve"><value>Verified security status, read live from Windows and Microsoft Defender.</value></data>
   <data name="SubtitleScan.Text" xml:space="preserve"><value>Scans run through Microsoft Defender (MpCmdRun). Results are Defender's own verdicts — BECETTI SECURITY never guesses.</value></data>
@@ -46,4 +50,11 @@
   <data name="SubtitleUpdates.Text" xml:space="preserve"><value>Application updates and security-intelligence updates are separate. Each is checked through its real channel.</value></data>
   <data name="SubtitleSettings.Text" xml:space="preserve"><value>Every setting here is stored and applied. Nothing is decorative.</value></data>
   <data name="SubtitleAbout.Text" xml:space="preserve"><value>Your Digital Protection Center</value></data>
+  <data name="SubtitleAi.Text" xml:space="preserve"><value>Ask BECETTI AI about your security status. It only answers from real, verified information — it never invents a threat or a fix.</value></data>
+  <data name="SubtitleContact.Text" xml:space="preserve"><value>Nothing is sent automatically. This prepares a draft in your own email app — you review and press Send yourself.</value></data>
+
+  <data name="SettingsAiShareDeviceState.Header" xml:space="preserve"><value>Share real device/Defender status with BECETTI AI for this chat</value></data>
+  <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>Save chat history on this device</value></data>
+  <data name="SettingsAiApiBaseUrl.Header" xml:space="preserve"><value>BECETTI AI server URL</value></data>
+  <data name="SettingsSupportEmail.Header" xml:space="preserve"><value>Support email address</value></data>
 </root>

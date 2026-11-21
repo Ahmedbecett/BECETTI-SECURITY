@@ -24,6 +24,8 @@
   <data name="NavUpdates.Content" xml:space="preserve"><value>التحديثات</value></data>
   <data name="NavSettings.Content" xml:space="preserve"><value>الإعدادات</value></data>
   <data name="NavAbout.Content" xml:space="preserve"><value>حول BECETTI SECURITY</value></data>
+  <data name="NavAi.Content" xml:space="preserve"><value>BECETTI AI</value></data>
+  <data name="NavContact.Content" xml:space="preserve"><value>تواصل مع Becetti</value></data>
 
   <data name="TitleDashboard.Text" xml:space="preserve"><value>لوحة التحكم</value></data>
   <data name="TitleScan.Text" xml:space="preserve"><value>فحص ذكي</value></data>
@@ -35,6 +37,8 @@
   <data name="TitleUpdates.Text" xml:space="preserve"><value>التحديثات</value></data>
   <data name="TitleSettings.Text" xml:space="preserve"><value>الإعدادات</value></data>
   <data name="TitleAbout.Text" xml:space="preserve"><value>حول BECETTI SECURITY</value></data>
+  <data name="TitleAi.Text" xml:space="preserve"><value>BECETTI AI</value></data>
+  <data name="TitleContact.Text" xml:space="preserve"><value>تواصل مع Becetti</value></data>
 
   <data name="SubtitleDashboard.Text" xml:space="preserve"><value>حالة الأمان الموثقة، مقروءة مباشرة من Windows وMicrosoft Defender.</value></data>
   <data name="SubtitleScan.Text" xml:space="preserve"><value>تعمل عمليات الفحص عبر Microsoft Defender (MpCmdRun). النتائج هي أحكام Defender نفسه — لا يخمّن BECETTI SECURITY أبدًا.</value></data>
@@ -46,4 +50,11 @@
   <data name="SubtitleUpdates.Text" xml:space="preserve"><value>تحديثات التطبيق وتحديثات معلومات الأمان منفصلة. يُفحص كل منها عبر قناته الحقيقية.</value></data>
   <data name="SubtitleSettings.Text" xml:space="preserve"><value>كل إعداد هنا يُحفظ ويُطبق. لا شيء شكلي.</value></data>
   <data name="SubtitleAbout.Text" xml:space="preserve"><value>مركز الحماية الرقمية الخاص بك</value></data>
+  <data name="SubtitleAi.Text" xml:space="preserve"><value>اسأل BECETTI AI عن حالة الأمان لديك. يجيب فقط بناءً على معلومات حقيقية موثقة — لا يخترع تهديدًا أو حلاً أبدًا.</value></data>
+  <data name="SubtitleContact.Text" xml:space="preserve"><value>لا شيء يُرسل تلقائيًا. هذا يُجهّز مسودة في تطبيق البريد الخاص بك — تراجعها وتضغط إرسال بنفسك.</value></data>
+
+  <data name="SettingsAiShareDeviceState.Header" xml:space="preserve"><value>مشاركة حالة الجهاز/Defender الحقيقية مع BECETTI AI لهذه المحادثة</value></data>
+  <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>حفظ سجل المحادثة على هذا الجهاز</value></data>
+  <data name="SettingsAiApiBaseUrl.Header" xml:space="preserve"><value>رابط خادم BECETTI AI</value></data>
+  <data name="SettingsSupportEmail.Header" xml:space="preserve"><value>عنوان بريد الدعم</value></data>
 </root>
