@@ -112,7 +112,7 @@
 4. نشر الحزمة الموقّعة + الشهادة العامة (`.cer`) + تعليمات تثبيت (`INSTALL.txt`) كأصول (assets) ضمن إصدار (Release) علني على GitHub.
 
 **رابط التحميل الحالي:**
-https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-cf5b68b
+https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-46220eb
 
 ⚠️ **تنبيه مهم**: هذه حزمة اختبار (sideload) موقّعة بشهادة ذاتية التوقيع، **وليست** موقّعة من جهة إصدار شهادات موثوقة (CA) ولا من هوية ناشر Microsoft Partner Center حقيقية. لذلك يجب تثبيت الشهادة العامة (`BecettiTestCert.cer`) يدويًا والوثوق بها قبل أن يقبل نظام Windows تثبيت الحزمة — الخطوات الدقيقة موجودة في ملف `INSTALL.txt` المرفق داخل الإصدار نفسه. تقديم المنتج الحقيقي على متجر Microsoft Store يتطلب هوية ناشر حقيقية من Partner Center، كما هو موضّح في `docs/STORE-SUBMISSION.md`.
 
@@ -148,7 +148,27 @@ https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-cf5b68b
 **لم يتم تعديل أي ملف XML أو بيان أو كود** — هوية الحزمة (`BECETTI.BECETTISECURITY`)، الناشر (`CN=BECETTI`)، الصلاحيات، وكل أسماء الملفات المرجعية في `Package.appxmanifest` بقيت كما هي دون أي تغيير، لذلك فإن تكامل Microsoft Defender والتوقيع وإعدادات التعبئة لم تتأثر إطلاقًا — فقط 8 ملفات صور ثنائية تم تغييرها. تم التحقق من نجاح البناء والتعبئة والتوقيع بالأيقونة الجديدة فعليًا عبر CI حقيقي (Run [`44847750407`](https://github.com/Ahmedbecett/BECETTI-SECURITY/actions/runs/44847750407) — نجاح كامل لكل من البناء والاختبارات وتعبئة MSIX الموقّعة).
 
 رابط التحميل المحدّث (يحمل الأيقونة الجديدة الآن):
-https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-cf5b68b
+https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-46220eb
+
+## 3.8 مواءمة هوية الناشر (Publisher) مع معرّف Partner Center الموثّق
+
+بناءً على طلب صريح من المستخدم، تم ضبط حقل `Publisher` في بيان الحزمة (`Package.appxmanifest`) ليطابق **معرّف ناشر Windows الموثّق من Microsoft Partner Center** لهذا الحساب:
+
+```
+CN=A5D5DC31-4A15-4059-8030-D96C51054596
+```
+
+**ما تم تنفيذه بالضبط:**
+1. ✅ تم الإبقاء على `Package Name` كما هو تمامًا: `BECETTI.BECETTISECURITY` — لم يتغيّر.
+2. ✅ تم ضبط `Publisher` في البيان على القيمة الموثّقة المذكورة أعلاه، بدلًا من القيمة المؤقتة `CN=BECETTI`.
+3. ✅ تم تحديث موضوع (Subject) شهادة التوقيع في CI لتطابق `Publisher` الجديد **حرفيًا** — وهذا إلزامي تقنيًا، إذ يرفض نظام توقيع MSIX أي عدم تطابق بين الاثنين (خطأ `APPX0107`).
+4. ✅ تم إعادة البناء وإعادة التوقيع فعليًا، والتحقق من نجاح ذلك عبر CI حقيقي: Run [`44850691934`](https://github.com/Ahmedbecett/BECETTI-SECURITY/actions/runs/44850691934) — نجاح كامل (البناء، الاختبارات، هجرات PostgreSQL، وتوقيع MSIX بالهوية الجديدة، مع التحقق الصريح من وجود `AppxSignature.p7x` داخل الحزمة الناتجة).
+5. ⚠️ **لم يُدّعى أن هذا ينشئ شهادة موثوقة صادرة من Microsoft** — الشهادة المستخدمة في CI لا تزال **ذاتية التوقيع (self-signed)**، تم توليدها داخل خط أنابيب CI، وهي **ليست** شهادة صادرة أو موثوقة من Microsoft أو من أي جهة إصدار شهادات (CA). مطابقة قيمة `Publisher` فقط هي شرط تقني ضروري لنجاح التوقيع نفسه ولقبول Partner Center للحزمة لاحقًا عند الرفع الفعلي للمتجر — وهي لا تجعل هذه الشهادة بعينها موثوقة.
+6. ✅ تكامل Microsoft Defender لم يتأثر إطلاقًا — لم يُعدَّل أي ملف كود وظيفي (`DefenderService.cs` وغيره)، فقط ملفات الهوية/البيان/CI الخاصة بالتعبئة والتوقيع.
+7. ⚠️ **توثيق أثر تغيير الهوية**: `Publisher` يُشكّل جزءًا من هوية الحزمة الكاملة إلى جانب `Name`. لذلك فإن تغييره (من `CN=BECETTI` إلى المعرّف الجديد) يعني أن هذه حزمة **بهوية مختلفة تمامًا** عن أي نسخة اختبار سابقة تم تثبيتها على جهاز ما تحت الهوية القديمة. **لا يمكن للمستخدم ترقية** تثبيت `CN=BECETTI` القديم إلى هذه الحزمة الجديدة مباشرة — يجب إلغاء تثبيت النسخة القديمة أولًا، ثم تثبيت هذه الحزمة الجديدة من الصفر.
+
+رابط التحميل المحدّث (بهوية الناشر الجديدة):
+https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-46220eb
 
 ## 4. الحالة الحالية (نهائية ومؤكدة بالدليل)
 

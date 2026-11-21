@@ -209,9 +209,27 @@ report does not conflate the two.
       real PostgreSQL 16 service container, applies the actual EF Core
       migration, and verifies every expected table was created (see CI
       history above).
-- [ ] MSIX signing certificate + Partner Center publisher identity
-      (manifest still carries the `CN=BECETTI` placeholder; the downloadable
-      package above uses a self-signed TEST certificate, not a Store one).
+- [x] **Partner Center Publisher identity aligned.** `Package.appxmanifest`'s
+      `Identity/@Publisher` now reads `CN=A5D5DC31-4A15-4059-8030-D96C51054596`
+      - the verified Microsoft Partner Center Windows Publisher ID for this
+      account - replacing the `CN=BECETTI` placeholder. `Package Name`
+      (`BECETTI.BECETTISECURITY`) is unchanged. **This does not mean the
+      package is Microsoft-signed or trusted**: the CI pipeline's
+      self-signed test certificate's Subject was updated to match this
+      Publisher exactly (required for signing to succeed at all - MSIX
+      rejects a Subject/Publisher mismatch with `APPX0107`), but that
+      certificate is still self-generated in CI and not issued or trusted
+      by Microsoft or any CA. Verified by CI run
+      [44850691934](https://github.com/Ahmedbecett/BECETTI-SECURITY/actions/runs/44850691934)
+      (build, test, Postgres migrations, and MSIX signing all passed with
+      the new identity). **Identity-change caveat**: Publisher is part of a
+      package's identity together with Name, so this is a different
+      identity than any earlier build signed under `CN=BECETTI`. A machine
+      that already side-loaded the old test package cannot upgrade to a
+      build with this new identity in place - it must uninstall the old one
+      first. A real CA-issued or Store-managed certificate is still needed
+      for Store submission or trusted direct distribution (see
+      `docs/STORE-SUBMISSION.md`).
 - [ ] Cloud deployment: PostgreSQL, API host, domain + TLS, VirusTotal key.
 - [ ] Store screenshots, privacy-policy URL hosting, certification submission.
 - [ ] EICAR end-to-end detection test on a controlled machine.
@@ -222,7 +240,7 @@ report does not conflate the two.
       freshly generated self-signed test certificate, and verifies the
       produced `.msix` genuinely contains `AppxSignature.p7x` (proof it is
       signed, not just packaged) before publishing it as a GitHub Release.
-      Current download: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-cf5b68b
+      Current download: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-46220eb
       (assets: the signed `.msix`, the public `.cer` to trust before
       installing, and `INSTALL.txt` with exact sideload steps). This is a
       **self-signed TEST package for sideloading only** — it is not signed
