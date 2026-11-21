@@ -1,5 +1,10 @@
 name: CI
 
+# Re-run trigger: the BECETTI_TEST_SIGNING_PFX_BASE64 / _PASSWORD repo
+# secrets were just added, to verify the "Prepare the test signing
+# certificate" step in package-msix now picks them up and reuses the
+# persistent certificate instead of generating a fresh one per run.
+
 on:
   push:
     branches: [main, "arena/**"]
