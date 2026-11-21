@@ -168,8 +168,11 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Restore
-        run: dotnet restore Becetti.Security.sln
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore (msbuild, not dotnet - required for single-project MSIX packaging targets)
+        run: msbuild src\Becetti.Security.App\Becetti.Security.App.csproj /t:Restore /p:Configuration=Release /p:Platform=x64
 
       - name: Generate self-signed test signing certificate
         shell: pwsh
@@ -209,17 +212,31 @@ jobs:
 
           "PFX_PASSWORD=$pw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-      - name: Publish and package the MSIX (single-project MSIX, signed)
+      - name: Build and package the signed MSIX (official single-project MSIX CI recipe)
         shell: pwsh
         run: |
-          dotnet publish src\Becetti.Security.App\Becetti.Security.App.csproj `
-            -c Release -p:Platform=x64 --self-contained false `
-            -p:AppxPackageSigningEnabled=true `
-            -p:PackageCertificateKeyFile=$PWD\packaging\output\BecettiTestCert.pfx `
-            -p:PackageCertificatePassword=$env:PFX_PASSWORD `
+          # This follows Microsoft's documented single-project MSIX CI recipe
+          # (learn.microsoft.com/windows/apps/package-and-deploy/ci-for-winui3):
+          # real msbuild.exe (not `dotnet publish`), UapAppxPackageBuildMode=
+          # SideloadOnly, AppxBundle=Never, GenerateAppxPackageOnBuild=true,
+          # and an explicit AppxPackageDir so the output location is known.
+          $certPath = Join-Path $PWD "packaging\output\BecettiTestCert.pfx"
+          $outDir = Join-Path $PWD "packaging\output\AppPackages\"
+          New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+
+          msbuild src\Becetti.Security.App\Becetti.Security.App.csproj `
+            /p:Configuration=Release `
+            /p:Platform=x64 `
+            /p:UapAppxPackageBuildMode=SideloadOnly `
+            /p:AppxBundle=Never `
+            /p:AppxPackageSigningEnabled=true `
+            /p:PackageCertificateKeyFile=$certPath `
+            /p:PackageCertificatePassword=$env:PFX_PASSWORD `
+            /p:AppxPackageDir=$outDir `
+            /p:GenerateAppxPackageOnBuild=true `
             2>&1 | Tee-Object -FilePath msix-publish.log
           if ($LASTEXITCODE -ne 0) {
-            Write-Host "::group::MSIX publish failed - full log"
+            Write-Host "::group::MSIX build failed - full log"
             Get-Content msix-publish.log | Select-Object -Last 200 | ForEach-Object { Write-Host "::error::$_" }
             Write-Host "::endgroup::"
             exit $LASTEXITCODE
@@ -233,14 +250,10 @@ jobs:
             Write-Host "::group::No .msix found anywhere in the repo tree - diagnostics"
             Write-Host "--- Tail of msix-publish.log ---"
             Get-Content msix-publish.log -ErrorAction SilentlyContinue | Select-Object -Last 150
-            Write-Host "--- Any App package-related output under src\Becetti.Security.App\bin ---"
-            Get-ChildItem -Path src\Becetti.Security.App\bin -Recurse -ErrorAction SilentlyContinue |
-              Select-Object -First 200 FullName
-            Write-Host "--- Any App package-related output under src\Becetti.Security.App\obj ---"
-            Get-ChildItem -Path src\Becetti.Security.App\obj -Recurse -Include *.msix,*.appx,AppxManifest.xml -ErrorAction SilentlyContinue |
-              Select-Object FullName
+            Write-Host "--- Contents of packaging\output ---"
+            Get-ChildItem -Path packaging\output -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
             Write-Host "::endgroup::"
-            Write-Host "::error::No .msix file was produced by dotnet publish - see diagnostics above"
+            Write-Host "::error::No .msix file was produced by msbuild - see diagnostics above"
             exit 1
           }
           Copy-Item $msix.FullName "packaging\output\BECETTI-SECURITY_1.0.0.0_x64.msix"
