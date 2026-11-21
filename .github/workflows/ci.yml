@@ -1,9 +1,13 @@
 name: CI
 
-# Re-run trigger: the BECETTI_TEST_SIGNING_PFX_BASE64 / _PASSWORD repo
-# secrets were just added, to verify the "Prepare the test signing
-# certificate" step in package-msix now picks them up and reuses the
-# persistent certificate instead of generating a fresh one per run.
+# Re-run trigger (2nd attempt): the BECETTI_TEST_SIGNING_PFX_BASE64 /
+# _PASSWORD repo secrets were re-added under Settings -> Secrets and
+# variables -> Actions (the first attempt was saved under the wrong
+# "Copilot agents" secrets section by mistake). Verifying the "Prepare the
+# test signing certificate" step in package-msix now reuses the persistent
+# certificate (expected SHA-256 fingerprint
+# 40FC907659B1B96323077D07C90658FDE4EAE20A16687C62BA7181B8FC3CA53D) instead
+# of generating a fresh one per run.
 
 on:
   push:
