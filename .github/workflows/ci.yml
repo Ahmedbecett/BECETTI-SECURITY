@@ -447,12 +447,25 @@ jobs:
             Import-Certificate -FilePath BecettiTestCert.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
             Add-AppxPackage -Path BECETTI-SECURITY_1.0.0.0_x64.msix
 
-          Runtime dependency: this app targets Microsoft.WindowsAppSDK 1.8,
-          so AppxManifest.xml declares a dependency on
-          Microsoft.WindowsAppRuntime.1.8. Add-AppxPackage / the normal
-          double-click installer resolves and installs this automatically
-          on an internet-connected Windows 10 (10.0.17763.0+) or Windows 11
-          machine; it is not something you need to install separately.
+          Runtime dependency: this app targets Microsoft.WindowsAppSDK 1.8
+          (NuGet 1.8.260921001), so AppxManifest.xml declares a framework
+          dependency on Microsoft.WindowsAppRuntime.1.8 rather than bundling
+          it inside the .msix. When installing FROM THE MICROSOFT STORE,
+          this is resolved and installed automatically - you never see this
+          note. When SIDELOADING (this release), that automatic resolution
+          can fail depending on the device (e.g. limited/unlicensed Store
+          services), and the app installs successfully but then fails to
+          LAUNCH with "The application has failed to start because its
+          side-by-side configuration is incorrect." If you see that error
+          after installing, the runtime simply is not on this machine yet -
+          install it once, then launch the app again (no msix reinstall
+          needed):
+            x64:   https://aka.ms/windowsappsdk/1.8/1.8.260921001/windowsappruntimeinstall-x64.exe
+            x86:   https://aka.ms/windowsappsdk/1.8/1.8.260921001/windowsappruntimeinstall-x86.exe
+            arm64: https://aka.ms/windowsappsdk/1.8/1.8.260921001/windowsappruntimeinstall-arm64.exe
+          Run the one matching your CPU as Administrator. (Source: Microsoft
+          Learn, Archive of Windows App SDK downloads, version 1.8.12 /
+          1.8.260921001 - see docs/STORE-SUBMISSION.md for more detail.)
 
           UPGRADE NOTE: this build's Publisher was changed from the earlier
           placeholder (CN=BECETTI) to the real Partner Center ID above.

@@ -355,3 +355,63 @@ rotated or expires. This certificate is still self-signed and still
 requires the one-time manual trust step above on each end-user machine -
 only Store submission or a CA-purchased certificate removes that step
 entirely.
+
+## "The application has failed to start because its side-by-side
+## configuration is incorrect" after a successful sideload install
+
+This happens **after** the certificate-trust step above has already
+succeeded (Windows accepted the package and shows "Ready!" / lets you
+Launch it) - it is a **separate, later** failure: the app's
+`Becetti.Security.App.exe` cannot find the **Windows App Runtime 1.8**
+framework package on that machine. This is expected and documented
+Microsoft behavior for *any* framework-dependent WinUI 3 app installed by
+sideloading rather than through the Microsoft Store, not a bug in this
+package: `Becetti.Security.App.csproj` intentionally keeps
+`SelfContained=false` (so the MSIX stays small and matches the ~70 KB
+framework-dependent pattern Microsoft's own WinUI 3 project template
+uses), which means `Microsoft.WindowsAppRuntime.1.8` and its `VCLibs`
+dependency are **not bundled inside the .msix** - they are expected to
+already be present on the machine, or to auto-download from the
+Microsoft Store during install. The Microsoft Store does that
+automatically for installs it serves itself; a sideloaded, self-signed
+install sometimes cannot trigger that same automatic resolution (for
+example if Store services are limited, unlicensed, or unreachable on that
+device), leaving the exe without its runtime and producing exactly this
+"side-by-side configuration is incorrect" error at launch.
+
+**Fix: install the matching Windows App Runtime 1.8 redistributable once
+on that machine, before launching the app.** The version must match the
+`Microsoft.WindowsAppSDK` NuGet version pinned in
+`src/Becetti.Security.App/Becetti.Security.App.csproj` (currently
+`1.8.260921001` - Windows App SDK 1.8.12, the final 1.8 servicing
+release). Microsoft publishes a direct installer for exactly that version:
+
+- x64: `https://aka.ms/windowsappsdk/1.8/1.8.260921001/windowsappruntimeinstall-x64.exe`
+- x86: `https://aka.ms/windowsappsdk/1.8/1.8.260921001/windowsappruntimeinstall-x86.exe`
+- arm64: `https://aka.ms/windowsappsdk/1.8/1.8.260921001/windowsappruntimeinstall-arm64.exe`
+- Full redistributable (installer + MSIX packages for all architectures):
+  `https://aka.ms/windowsappsdk/1.8/1.8.260921001/Microsoft.WindowsAppRuntime.Redist.1.8.zip`
+
+(Source: [Microsoft Learn - Archive of Windows App SDK downloads](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads-archive),
+"Windows App SDK 1.8" table, version 1.8.12 / 1.8.260921001.)
+
+Download and run the installer matching your CPU architecture (x64 for
+almost all PCs) as Administrator, then launch BECETTI SECURITY again - no
+reinstall of the `.msix` itself is needed. If the app was built for a
+different `Microsoft.WindowsAppSDK` version in the future, re-check that
+version's row in the same Microsoft Learn archive page rather than reusing
+this URL blindly, since the runtime version must match what the app was
+compiled against.
+
+An alternative, more general fix covering the same root cause plus any
+missing `VCLibs` dependency on its own:
+```powershell
+# As Administrator, PowerShell:
+Add-AppxPackage -Path .\Microsoft.VCLibs.x64.14.00.Desktop.appx   # if VCLibs itself is also missing
+.\windowsappruntimeinstall-x64.exe                                 # installs WindowsAppRuntime 1.8 + its own VCLibs dependency
+```
+
+As with the certificate-trust step, this manual install is only needed for
+sideloading; an end user installing BECETTI SECURITY from the Microsoft
+Store never has to do this - the Store resolves and installs framework
+dependencies automatically during the real install.
