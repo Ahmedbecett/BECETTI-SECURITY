@@ -21,6 +21,16 @@ public sealed class DefenderStatus
     public bool IoavProtectionEnabled { get; init; }
     public bool NetworkProtectionEnabled { get; init; }
     public bool TamperProtectionEnabled { get; init; }
+    /// <summary>
+    /// Cloud-delivered protection (MAPS) level from Get-MpPreference's MAPSReporting:
+    /// "Disabled", "Basic", "Advanced", or "Unknown" when Get-MpPreference could not be read.
+    /// </summary>
+    public string CloudProtectionLevel { get; init; } = "Unknown";
+    /// <summary>
+    /// Automatic sample submission mode from Get-MpPreference's SubmitSamplesConsent:
+    /// "Always Prompt", "Send Safe Samples", "Never Send", "Send All Samples", or "Unknown".
+    /// </summary>
+    public string SampleSubmissionMode { get; init; } = "Unknown";
     public string? AntivirusSignatureVersion { get; init; }
     public DateTimeOffset? AntivirusSignatureLastUpdated { get; init; }
     public DateTimeOffset? QuickScanEndTime { get; init; }

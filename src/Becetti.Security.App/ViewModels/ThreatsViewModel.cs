@@ -21,12 +21,15 @@ public sealed class ThreatsViewModel : ViewModelBase
         _events = events;
         RefreshCommand = new RelayCommand(LoadAsync);
         RemoveSelectedCommand = new RelayCommand(RemoveSelectedAsync);
+        OpenWindowsSecurityCommand = new RelayCommand(OpenWindowsSecurity);
     }
 
     public ObservableCollection<ThreatInfo> Threats { get; } = new();
 
     public RelayCommand RefreshCommand { get; }
     public RelayCommand RemoveSelectedCommand { get; }
+    /// <summary>Opens Windows Security's Protection History / quarantine view directly.</summary>
+    public RelayCommand OpenWindowsSecurityCommand { get; }
 
     public ThreatInfo? SelectedThreat
     {
@@ -99,5 +102,36 @@ public sealed class ThreatsViewModel : ViewModelBase
         {
             IsBusy = false;
         }
+    }
+
+    /// <summary>
+    /// Opens the real Windows Security "Protection history" view (quarantine, recovery
+    /// actions BECETTI SECURITY does not duplicate). Official windowsdefender: URI only.
+    /// </summary>
+    private Task OpenWindowsSecurity()
+    {
+        try
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                var startInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "windowsdefender://threat",
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(startInfo);
+                StatusMessage = "Opening Windows Security…";
+            }
+            else
+            {
+                ErrorMessage = "Windows Security can only be opened on Windows.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Could not open Windows Security: {ex.Message}";
+        }
+
+        return Task.CompletedTask;
     }
 }

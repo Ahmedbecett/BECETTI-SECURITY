@@ -65,6 +65,57 @@ public sealed class DefenderParsingTests
     }
 
     [Fact]
+    public void ParseStatusJson_MapsCloudProtectionAndSampleSubmission()
+    {
+        const string json = """
+            {
+              "AntivirusEnabled": true,
+              "MAPSReporting": 2,
+              "SubmitSamplesConsent": 1
+            }
+            """;
+
+        var status = DefenderService.ParseStatusJson(json);
+
+        Assert.Equal("Advanced", status.CloudProtectionLevel);
+        Assert.Equal("Send Safe Samples", status.SampleSubmissionMode);
+    }
+
+    [Fact]
+    public void ParseStatusJson_MissingPreferenceFields_ReportsUnknown()
+    {
+        const string json = """{"AntivirusEnabled": true}""";
+
+        var status = DefenderService.ParseStatusJson(json);
+
+        Assert.Equal("Unknown", status.CloudProtectionLevel);
+        Assert.Equal("Unknown", status.SampleSubmissionMode);
+    }
+
+    [Theory]
+    [InlineData(0, "Disabled")]
+    [InlineData(1, "Basic")]
+    [InlineData(2, "Advanced")]
+    [InlineData(99, "Unknown")]
+    [InlineData(null, "Unknown")]
+    public void CloudProtectionLabel_Cases(int? value, string expected)
+    {
+        Assert.Equal(expected, DefenderService.CloudProtectionLabel(value));
+    }
+
+    [Theory]
+    [InlineData(0, "Always Prompt")]
+    [InlineData(1, "Send Safe Samples")]
+    [InlineData(2, "Never Send")]
+    [InlineData(3, "Send All Samples")]
+    [InlineData(99, "Unknown")]
+    [InlineData(null, "Unknown")]
+    public void SampleSubmissionLabel_Cases(int? value, string expected)
+    {
+        Assert.Equal(expected, DefenderService.SampleSubmissionLabel(value));
+    }
+
+    [Fact]
     public void ParseStatusJson_Empty_ReturnsUnavailable()
     {
         var status = DefenderService.ParseStatusJson(string.Empty);

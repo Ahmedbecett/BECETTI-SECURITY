@@ -45,6 +45,14 @@
                     <ToggleSwitch Header="Allow telemetry" IsOn="{x:Bind ViewModel.TelemetryOptIn, Mode=TwoWay}" />
                 </StackPanel>
             </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Appearance &amp; Feedback" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="Animations are purely decorative and never used to imply a scan or update is running. Sounds play only on genuine completed/failed actions." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsAnimations" Header="Enable decorative animations" IsOn="{x:Bind ViewModel.EnableAnimations, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsSounds" Header="Enable sound cues" IsOn="{x:Bind ViewModel.EnableSounds, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <Button Content="Save Settings" Command="{x:Bind ViewModel.SaveCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                 <Button Content="Test Cloud Connection" Command="{x:Bind ViewModel.TestConnectionCommand}" />

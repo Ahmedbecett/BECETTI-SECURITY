@@ -82,7 +82,16 @@ public sealed class DefenderService : IDefenderService
 
     public async Task<OperationResult<DefenderStatus>> GetStatusAsync(CancellationToken ct = default)
     {
-        const string script = "Get-MpComputerStatus | Select-Object AntivirusEnabled,RealTimeProtectionEnabled,BehaviorMonitorEnabled,IoavProtectionEnabled,NISEnabled,IsTamperProtected,AntivirusSignatureVersion,AntivirusSignatureLastUpdated,QuickScanEndTime,FullScanEndTime,AMRunningMode | ConvertTo-Json -Depth 3";
+        // Get-MpComputerStatus covers the antivirus/real-time/signature state; Get-MpPreference
+        // is the only supported source for the cloud-delivered protection (MAPS) level and the
+        // automatic sample submission mode. The preference read is best-effort (wrapped so a
+        // failure there does not take down the primary status read) and merged into one object.
+        const string script =
+            "$s = Get-MpComputerStatus | Select-Object AntivirusEnabled,RealTimeProtectionEnabled,BehaviorMonitorEnabled,IoavProtectionEnabled,NISEnabled,IsTamperProtected,AntivirusSignatureVersion,AntivirusSignatureLastUpdated,QuickScanEndTime,FullScanEndTime,AMRunningMode; " +
+            "try { $p = Get-MpPreference -ErrorAction Stop } catch { $p = $null }; " +
+            "$s | Add-Member -NotePropertyName MAPSReporting -NotePropertyValue $p.MAPSReporting -Force; " +
+            "$s | Add-Member -NotePropertyName SubmitSamplesConsent -NotePropertyValue $p.SubmitSamplesConsent -Force; " +
+            "$s | ConvertTo-Json -Depth 3";
         var run = await RunPowerShellAsync(script, QueryTimeout, ct).ConfigureAwait(false);
         if (!run.Success)
             return OperationResult<DefenderStatus>.Fail(run.Message, run.ErrorCode);
@@ -429,7 +438,9 @@ public sealed class DefenderService : IDefenderService
             AntivirusSignatureLastUpdated = GetDate(root, "AntivirusSignatureLastUpdated"),
             QuickScanEndTime = GetDate(root, "QuickScanEndTime"),
             FullScanEndTime = GetDate(root, "FullScanEndTime"),
-            RunningMode = GetString(root, "AMRunningMode")
+            RunningMode = GetString(root, "AMRunningMode"),
+            CloudProtectionLevel = CloudProtectionLabel(GetNullableInt(root, "MAPSReporting")),
+            SampleSubmissionMode = SampleSubmissionLabel(GetNullableInt(root, "SubmitSamplesConsent"))
         };
     }
 
@@ -507,6 +518,25 @@ public sealed class DefenderService : IDefenderService
         _ => "Unknown"
     };
 
+    /// <summary>Maps Get-MpPreference's MAPSReporting (cloud-delivered protection level).</summary>
+    internal static string CloudProtectionLabel(int? mapsReporting) => mapsReporting switch
+    {
+        0 => "Disabled",
+        1 => "Basic",
+        2 => "Advanced",
+        _ => "Unknown"
+    };
+
+    /// <summary>Maps Get-MpPreference's SubmitSamplesConsent (automatic sample submission mode).</summary>
+    internal static string SampleSubmissionLabel(int? consent) => consent switch
+    {
+        0 => "Always Prompt",
+        1 => "Send Safe Samples",
+        2 => "Never Send",
+        3 => "Send All Samples",
+        _ => "Unknown"
+    };
+
     internal static string CategoryLabel(int categoryId) => categoryId switch
     {
         1 => "Virus",
@@ -549,6 +579,21 @@ public sealed class DefenderService : IDefenderService
             return parsed;
 
         return 0;
+    }
+
+    /// <summary>Like GetInt, but distinguishes "field absent/null" (returns null) from a real 0 value.</summary>
+    private static int? GetNullableInt(JsonElement element, string name)
+    {
+        if (!element.TryGetProperty(name, out var value) || value.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var n))
+            return n;
+
+        if (value.ValueKind == JsonValueKind.String && int.TryParse(value.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+            return parsed;
+
+        return null;
     }
 
     private static string? GetString(JsonElement element, string name)

@@ -1,3 +1,4 @@
+using Becetti.Security.App.Services;
 using Becetti.Security.Core.Models;
 using Becetti.Security.Core.Services;
 
@@ -14,16 +15,18 @@ public sealed class UpdatesViewModel : ViewModelBase
     private readonly ICloudService _cloud;
     private readonly IDefenderService _defender;
     private readonly IEventLogService _events;
+    private readonly SoundService _sound;
 
     private string _appUpdateText = "Not checked yet.";
     private string _signatureText = "Unknown";
     private string _storeText = "Microsoft Store updates are managed by the Store app. BECETTI SECURITY does not install its own updates.";
 
-    public UpdatesViewModel(ICloudService cloud, IDefenderService defender, IEventLogService events)
+    public UpdatesViewModel(ICloudService cloud, IDefenderService defender, IEventLogService events, SoundService sound)
     {
         _cloud = cloud;
         _defender = defender;
         _events = events;
+        _sound = sound;
         CheckAppUpdatesCommand = new RelayCommand(CheckAppUpdatesAsync);
         UpdateSignaturesCommand = new RelayCommand(UpdateSignaturesAsync);
         RefreshSignaturesCommand = new RelayCommand(LoadSignaturesAsync);
@@ -113,11 +116,13 @@ public sealed class UpdatesViewModel : ViewModelBase
             {
                 StatusMessage = result.Message;
                 await _events.RecordAsync("signatures.updated", result.Message, true);
+                _sound.Play(SoundCue.UpdateCompleted);
             }
             else
             {
                 ErrorMessage = result.Message;
                 await _events.RecordAsync("signatures.failed", result.Message, false);
+                _sound.Play(SoundCue.Warning);
             }
 
             await LoadSignaturesAsync();

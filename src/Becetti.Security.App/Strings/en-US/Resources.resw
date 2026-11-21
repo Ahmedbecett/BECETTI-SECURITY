@@ -8,6 +8,12 @@
   <data name="AppTitle" xml:space="preserve"><value>BECETTI SECURITY</value></data>
   <data name="AppTagline" xml:space="preserve"><value>Your Digital Protection Center</value></data>
 
+  <data name="AppHeaderTitle.Text" xml:space="preserve"><value>BECETTI SECURITY</value></data>
+  <data name="AppHeaderSubtitle.Text" xml:space="preserve"><value>Advanced Protection for Windows</value></data>
+  <data name="ScanNowButton.Content" xml:space="preserve"><value>Scan Now</value></data>
+  <data name="SettingsAnimations.Header" xml:space="preserve"><value>Enable decorative animations</value></data>
+  <data name="SettingsSounds.Header" xml:space="preserve"><value>Enable sound cues</value></data>
+
   <data name="NavDashboard.Content" xml:space="preserve"><value>Dashboard</value></data>
   <data name="NavScan.Content" xml:space="preserve"><value>Smart Scan</value></data>
   <data name="NavProtection.Content" xml:space="preserve"><value>Real-Time Protection</value></data>

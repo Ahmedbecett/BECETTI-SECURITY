@@ -1,3 +1,4 @@
+using Becetti.Security.App.Services;
 using Becetti.Security.Core.Models;
 using Becetti.Security.Core.Services;
 
@@ -13,17 +14,19 @@ public sealed class ScanViewModel : ViewModelBase
     private readonly IDefenderService _defender;
     private readonly IEventLogService _events;
     private readonly ISettingsService _settings;
+    private readonly SoundService _sound;
 
     private string _targetPath = string.Empty;
     private string _scanOutput = string.Empty;
     private string _scanResultText = "No scan started yet.";
     private bool _isScanning;
 
-    public ScanViewModel(IDefenderService defender, IEventLogService events, ISettingsService settings)
+    public ScanViewModel(IDefenderService defender, IEventLogService events, ISettingsService settings, SoundService sound)
     {
         _defender = defender;
         _events = events;
         _settings = settings;
+        _sound = sound;
         QuickScanCommand = new RelayCommand(() => RunScanAsync(DefenderScanType.Quick));
         FullScanCommand = new RelayCommand(() => RunScanAsync(DefenderScanType.Full));
         CustomScanCommand = new RelayCommand(() => RunScanAsync(DefenderScanType.Custom, TargetPath));
@@ -78,6 +81,8 @@ public sealed class ScanViewModel : ViewModelBase
                     ? $"{scanType} scan — threat found (see Threat Management)"
                     : $"{scanType} scan — no threats found";
                 await _settings.SaveAsync();
+
+                _sound.Play(outcome.ThreatFound ? SoundCue.Critical : SoundCue.ScanCompleted);
             }
 
             await _events.RecordAsync(

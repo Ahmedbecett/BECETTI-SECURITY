@@ -31,6 +31,7 @@ public partial class App : Application
         services.AddSingleton<ISystemInfoService, SystemInfoService>();
         services.AddSingleton<IEventLogService, EventLogService>();
         services.AddSingleton<LocalizationService>();
+        services.AddSingleton<Services.SoundService>();
         services.AddHttpClient<ICloudService, CloudService>();
 
         services.AddTransient<DashboardViewModel>();

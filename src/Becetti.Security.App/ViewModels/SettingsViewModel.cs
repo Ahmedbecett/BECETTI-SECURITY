@@ -13,6 +13,8 @@ public sealed class SettingsViewModel : ViewModelBase
     private string _language = "en";
     private string _theme = "dark";
     private bool _telemetryOptIn;
+    private bool _enableAnimations = true;
+    private bool _enableSounds = true;
     private string _connectionText = string.Empty;
 
     public SettingsViewModel(ISettingsService settings, LocalizationService localization, ICloudService cloud)
@@ -60,6 +62,8 @@ public sealed class SettingsViewModel : ViewModelBase
     public bool IsLight { get => Theme == "light"; set { if (value) Theme = "light"; } }
     public bool IsSystem { get => Theme == "system"; set { if (value) Theme = "system"; } }
     public bool TelemetryOptIn { get => _telemetryOptIn; set => SetProperty(ref _telemetryOptIn, value); }
+    public bool EnableAnimations { get => _enableAnimations; set => SetProperty(ref _enableAnimations, value); }
+    public bool EnableSounds { get => _enableSounds; set => SetProperty(ref _enableSounds, value); }
     public string ConnectionText { get => _connectionText; set => SetProperty(ref _connectionText, value); }
 
     public bool IsArabic { get => Language == "ar"; set { if (value) Language = "ar"; } }
@@ -71,6 +75,8 @@ public sealed class SettingsViewModel : ViewModelBase
         Language = _settings.Current.Language;
         Theme = _settings.Current.Theme;
         TelemetryOptIn = _settings.Current.TelemetryOptIn;
+        EnableAnimations = _settings.Current.EnableAnimations;
+        EnableSounds = _settings.Current.EnableSounds;
     }
 
     public async Task SaveAsync()
@@ -85,6 +91,8 @@ public sealed class SettingsViewModel : ViewModelBase
             _settings.Current.ApiBaseUrl = ApiBaseUrl.Trim();
             _settings.Current.Theme = Theme;
             _settings.Current.TelemetryOptIn = TelemetryOptIn;
+            _settings.Current.EnableAnimations = EnableAnimations;
+            _settings.Current.EnableSounds = EnableSounds;
             await _settings.SaveAsync();
 
             var language = Language == "ar" ? AppLanguage.Arabic : AppLanguage.English;

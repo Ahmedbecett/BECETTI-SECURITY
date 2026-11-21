@@ -21,6 +21,12 @@ public sealed class AppSettings
     public DateTimeOffset? LastVerifiedScan { get; set; }
 
     public string? LastScanSummary { get; set; }
+
+    /// <summary>Decorative UI animations (robot idle, shield glow, transitions). On by default; can be turned off (reduced motion).</summary>
+    public bool EnableAnimations { get; set; } = true;
+
+    /// <summary>Sound cues for genuine events only (scan completed, update completed, warnings). On by default.</summary>
+    public bool EnableSounds { get; set; } = true;
 }
 
 public interface ISettingsService

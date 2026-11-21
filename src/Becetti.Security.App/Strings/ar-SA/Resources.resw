@@ -8,6 +8,12 @@
   <data name="AppTitle" xml:space="preserve"><value>BECETTI SECURITY</value></data>
   <data name="AppTagline" xml:space="preserve"><value>مركز الحماية الرقمية الخاص بك</value></data>
 
+  <data name="AppHeaderTitle.Text" xml:space="preserve"><value>BECETTI SECURITY</value></data>
+  <data name="AppHeaderSubtitle.Text" xml:space="preserve"><value>حماية متقدمة لنظام Windows</value></data>
+  <data name="ScanNowButton.Content" xml:space="preserve"><value>افحص الآن</value></data>
+  <data name="SettingsAnimations.Header" xml:space="preserve"><value>تفعيل الرسوم المتحركة الزخرفية</value></data>
+  <data name="SettingsSounds.Header" xml:space="preserve"><value>تفعيل التنبيهات الصوتية</value></data>
+
   <data name="NavDashboard.Content" xml:space="preserve"><value>لوحة التحكم</value></data>
   <data name="NavScan.Content" xml:space="preserve"><value>فحص ذكي</value></data>
   <data name="NavProtection.Content" xml:space="preserve"><value>الحماية في الوقت الحقيقي</value></data>
