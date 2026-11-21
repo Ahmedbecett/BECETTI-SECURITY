@@ -92,3 +92,58 @@ jobs:
           name: test-results
           path: "**/TestResults/**"
           if-no-files-found: ignore
+
+  postgres-migrations:
+    # Windows runners cannot host service containers, so this job verifies
+    # real PostgreSQL connectivity + EF Core migrations on Linux instead.
+    # It only builds/runs the Api project (no WinUI 3 / Windows App SDK
+    # involved), against a genuine PostgreSQL server, not SQLite or a mock.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: becetti
+          POSTGRES_PASSWORD: becetti_ci_password
+          POSTGRES_DB: becetti_security
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      ConnectionStrings__Postgres: "Host=localhost;Port=5432;Database=becetti_security;Username=becetti;Password=becetti_ci_password"
+      Jwt__SigningKey: "ci-postgres-job-signing-key-at-least-32-characters-long"
+      Jwt__Issuer: "becetti-security-api"
+      Jwt__Audience: "becetti-security-app"
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore Api project
+        run: dotnet restore src/Becetti.Security.Api/Becetti.Security.Api.csproj
+
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 8.*
+
+      - name: Apply EF Core migrations to real PostgreSQL
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet ef database update \
+            --project src/Becetti.Security.Api/Becetti.Security.Api.csproj \
+            --connection "$ConnectionStrings__Postgres"
+
+      - name: Verify the migrated schema has the expected tables
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y postgresql-client
+          PGPASSWORD=becetti_ci_password psql -h localhost -U becetti -d becetti_security -c "\dt" | tee tables.log
+          for t in "Users" "RefreshTokens" "ReputationEntries" "ReleaseVersions" "AuditLogs"; do
+            grep -qi "$t" tables.log || { echo "::error::Expected table $t was not created by the migration"; exit 1; }
+          done
+          echo "All expected tables exist in the real PostgreSQL database."
