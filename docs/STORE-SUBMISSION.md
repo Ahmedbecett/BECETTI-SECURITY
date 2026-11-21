@@ -359,14 +359,22 @@ entirely.
 ## "The application has failed to start because its side-by-side
 ## configuration is incorrect" after a successful sideload install
 
-**FIXED as of commit `0372953` and every release after it**: the packaging
+**FIXED as of commit `3a3a837` and every release after it**: the packaging
 pipeline (`.github/workflows/ci.yml`'s `package-msix` job and
 `scripts/package-msix.ps1`) now builds with both `SelfContained=true` and
 `WindowsAppSDKSelfContained=true`, which bundle .NET 8 and Windows App
 Runtime 1.8 directly inside the `.msix`. A tester hit this error for real
 (confirmed on a real Windows machine, after the certificate-trust step had
-already succeeded), which is what prompted this fix. Releases built before
-that commit are still framework-dependent and can still hit this error if
+already succeeded), which is what prompted this fix. (Commit `e5ee969`
+first turned the two properties on but missed that the project's
+`ApplicationManifest` property was wrongly pointed at `Package.appxmanifest`
+instead of a real Win32 `app.manifest`, which made the self-contained
+build fail outright in CI with a manifest-merge error; `3a3a837` added the
+missing `app.manifest` and fixed that property, after which the build and
+packaging both succeeded - see the release `msix-test-3a3a837`, whose
+`.msix` is ~90 MB versus a few MB for the old framework-dependent build.)
+Releases built before `3a3a837` are still framework-dependent (or, for
+`e5ee969` alone, do not build at all) and can still hit this error if
 downloaded and sideloaded today - always use the latest `msix-test-*`
 release tag, not an older cached download. The rest of this section is
 kept for historical reference and in case `WindowsAppSDKSelfContained` ever
