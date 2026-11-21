@@ -89,7 +89,12 @@ accepting a Linux-sandbox structural check as proof.
       all persisted and applied.
 - [x] About: version, build, Defender presence, honest capability statement.
 - [x] Localization resources (`Resources.resw` EN + AR) wired via `x:Uid`.
-- [x] MSIX manifest, generated logo assets (PNG + ICO + SVG), packaging project.
+- [x] MSIX manifest, generated logo assets (PNG + ICO + SVG), packaging
+      project. App icon updated to the BECETTI robot-with-shield artwork
+      across every required Windows size (44/71/150/310/50px squares, the
+      wide 310x150 tile, and a proper multi-resolution `.ico`), visual-only
+      change with no effect on Package Identity, signing, or Defender
+      integration.
 
 ### Cloud API (ASP.NET Core 8 + PostgreSQL)
 - [x] JWT auth (register/login/refresh/logout/me), BCrypt, hashed refresh tokens.
@@ -126,15 +131,87 @@ accepting a Linux-sandbox structural check as proof.
       provisioned. These are called out explicitly below instead of being
       claimed as done.
 
+## Independent MSIX Viewer inspection (third-party tool, cross-checked)
+
+A user ran MSIX Viewer against the built package and reported: Package
+`BECETTI.BECETTISECURITY`, Version `1.0.0.0`, Architecture `x64`, Publisher
+`CN=BECETTI`, signature integrity intact (self-signed), capabilities
+`runFullTrust` + `internetClient`, minimum Windows `10.0.17763.0`,
+dependency `Microsoft.WindowsAppRuntime.1.8`, languages `EN-US`/`AR-SA`,
+executable `Becetti.Security.App.exe`. Every one of these fields was
+cross-checked directly against the source (`Package.appxmanifest`,
+`Becetti.Security.App.csproj`) and matches exactly — this is independent,
+tool-based confirmation that the signed package in the GitHub Release is
+structurally exactly what the source declares, not a different or stale
+artifact.
+
+**Response to each required action from that audit, stated honestly:**
+1. *Verify Microsoft Store signing/packaging requirements* — **not done.**
+   The current package uses a self-signed TEST certificate generated in CI
+   (see above); real Store submission needs a Partner Center publisher
+   identity and a CA-issued or Store-managed certificate. Tracked in
+   `docs/STORE-SUBMISSION.md`.
+2. *Confirm the final Store submission package is correctly configured* —
+   **partially done.** Structural configuration (identity, capabilities,
+   target OS version, dependency, languages, executable) is confirmed
+   correct by the cross-check above. The package is **not** Store-submission
+   ready (test certificate, no Store listing assets).
+3. *Verify Windows App Runtime dependency installation* — **not verified.**
+   This requires installing the package on a real Windows machine with
+   internet access to let the Windows App SDK runtime resolve/install;
+   GitHub's CI runners have no interactive session to test this.
+4. *Build and test on a real Windows environment* — **partially done.** The
+   solution builds and all automated tests run for real on a genuine
+   Windows GitHub Actions runner (see CI results above). A human has not
+   yet installed and clicked through the packaged app on a real Windows
+   desktop/VM.
+5. *Verify actual Microsoft Defender integration* — **not verified.** No
+   live Defender service is available in this environment (sandbox or CI).
+   The `DefenderService` code genuinely calls `MpCmdRun.exe`/PowerShell
+   Defender cmdlets (confirmed by source review and unit tests of its JSON
+   parsing), but its behavior against a real, running Defender instance has
+   not been observed.
+6. *Test real scan results, threat handling, quarantine, error reporting* —
+   **not verified**, same reason as #5.
+7. *Confirm all UI pages and buttons work* — **not verified.** No
+   interactive Windows desktop session is available from this sandbox or
+   from CI to click through the ten pages.
+8. *Verify Arabic and English localization* — **partially done.**
+   `Resources.resw` (EN + AR) exist, are wired via `x:Uid` throughout the
+   XAML, and the package manifest declares both `en-US` and `ar-SA` as
+   resources (confirmed by source review). Actually switching the running
+   app's language and visually confirming RTL layout has not been done -
+   that needs the same real desktop session as #7.
+9. *Provide build logs and test evidence* — **done.** Every fix in this
+   project cites its exact CI run ID and the exact compiler/test error it
+   fixed (see the CI history section above); nothing is asserted without
+   that evidence.
+
+**This project does not claim antivirus protection is "operational" or
+that Defender integration is proven end-to-end** - items 3, 5, 6, 7 remain
+explicitly open until someone runs the signed MSIX on a real Windows
+desktop. No simulated/mocked scan results, quarantine actions, or Defender
+output exist anywhere in the codebase (confirmed by the source audit
+across all prior rounds) - the code always calls the real `MpCmdRun.exe`/
+PowerShell Defender APIs and surfaces "Unknown"/failure states honestly
+when it cannot reach them, but "the code is written to call the real API"
+is not the same claim as "the real API was observed to work," and this
+report does not conflate the two.
+
 ## Not yet done / requires external setup
 - [ ] Manual Windows verification checklist (`docs/TESTING.md`) — launching
       the app, navigating all ten pages, exercising every button against a
       real Microsoft Defender installation, on a real Windows desktop.
-- [ ] Live PostgreSQL connectivity and `dotnet ef database update` against a
-      real server (migrations are present and reviewed, but have only run
-      against SQLite in CI, never against PostgreSQL in this environment).
+      (MSIX Viewer audit items 3, 4 [desktop portion], 5, 6, 7, 8 [runtime
+      portion] above.)
+- [x] Live PostgreSQL connectivity and `dotnet ef database update` against a
+      real server — a dedicated CI job (`postgres-migrations`) now runs a
+      real PostgreSQL 16 service container, applies the actual EF Core
+      migration, and verifies every expected table was created (see CI
+      history above).
 - [ ] MSIX signing certificate + Partner Center publisher identity
-      (manifest still carries the `CN=BECETTI` placeholder).
+      (manifest still carries the `CN=BECETTI` placeholder; the downloadable
+      package above uses a self-signed TEST certificate, not a Store one).
 - [ ] Cloud deployment: PostgreSQL, API host, domain + TLS, VirusTotal key.
 - [ ] Store screenshots, privacy-policy URL hosting, certification submission.
 - [ ] EICAR end-to-end detection test on a controlled machine.
