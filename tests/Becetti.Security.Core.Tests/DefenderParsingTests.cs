@@ -178,4 +178,54 @@ public sealed class DefenderParsingTests
     {
         Assert.Equal(expected, DefenderService.SeverityLabel(id));
     }
+
+    // FindMpCmdRun() originally only checked "Program Files\Windows Defender\
+    // MpCmdRun.exe", which a real tester's machine did not have - their only
+    // copy was under the versioned ProgramData "Platform" folder, so the app
+    // wrongly reported Defender as "not found" despite it being installed and
+    // working. These tests cover the version-folder parsing/selection logic
+    // that fixes that (the OperatingSystem.IsWindows() guard in the public
+    // FindMpCmdRun() itself is not exercised here since these tests also run
+    // on non-Windows CI).
+
+    [Theory]
+    [InlineData("4.18.26080.3", "4.18.26080.3")]
+    [InlineData("4.18.26080.3-0", "4.18.26080.3")] // trailing "-<build>" suffix seen on real machines
+    [InlineData("not-a-version", "0.0.0.0")] // unparseable folder name must not throw
+    public void ParsePlatformVersion_Cases(string folderName, string expectedVersion)
+    {
+        Assert.Equal(Version.Parse(expectedVersion), DefenderService.ParsePlatformVersion(folderName));
+    }
+
+    [Fact]
+    public void FindNewestInPlatformFolder_PicksHighestVersionWithMpCmdRunPresent()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "becetti-defender-platform-test-" + Guid.NewGuid().ToString("N"));
+        var older = Path.Combine(root, "4.18.26070.1-0");
+        var newer = Path.Combine(root, "4.18.26080.3-0");
+        var newestButEmpty = Path.Combine(root, "4.18.26090.1-0"); // no MpCmdRun.exe inside - must be skipped
+        try
+        {
+            Directory.CreateDirectory(older);
+            Directory.CreateDirectory(newer);
+            Directory.CreateDirectory(newestButEmpty);
+            File.WriteAllText(Path.Combine(older, "MpCmdRun.exe"), string.Empty);
+            File.WriteAllText(Path.Combine(newer, "MpCmdRun.exe"), string.Empty);
+
+            var result = DefenderService.FindNewestInPlatformFolder(root);
+
+            Assert.Equal(Path.Combine(newer, "MpCmdRun.exe"), result);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void FindNewestInPlatformFolder_MissingDirectory_ReturnsNull()
+    {
+        var missing = Path.Combine(Path.GetTempPath(), "becetti-defender-platform-missing-" + Guid.NewGuid().ToString("N"));
+        Assert.Null(DefenderService.FindNewestInPlatformFolder(missing));
+    }
 }

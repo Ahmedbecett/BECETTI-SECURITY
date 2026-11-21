@@ -28,19 +28,75 @@ public sealed class DefenderService : IDefenderService
         if (!OperatingSystem.IsWindows())
             return null;
 
-        var candidates = new[]
+        // On the large majority of real-world Windows 10/11 machines, the ONLY
+        // copy of MpCmdRun.exe lives under the versioned Defender "Platform"
+        // folder in ProgramData - that is where Windows Update actually drops
+        // each Defender platform update. The static "Program Files\Windows
+        // Defender\MpCmdRun.exe" path below is a legacy/compatibility
+        // location that modern installs frequently do not populate at all
+        // (confirmed: a real tester had Defender installed and working, but
+        // this method returned null and the app reported "Microsoft Defender
+        // (MpCmdRun.exe) was not found on this device" because it only ever
+        // checked Program Files). Prefer the newest Platform version folder
+        // when more than one is present (old versions can be left behind
+        // after an update).
+        var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+        var platformRoot = Path.Combine(programData, "Microsoft", "Windows Defender", "Platform");
+        var newestPlatformMpCmdRun = FindNewestInPlatformFolder(platformRoot);
+        if (newestPlatformMpCmdRun is not null)
+            return newestPlatformMpCmdRun;
+
+        var legacyCandidates = new[]
         {
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Windows Defender", "MpCmdRun.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Windows Defender", "MpCmdRun.exe")
         };
 
-        foreach (var candidate in candidates)
+        foreach (var candidate in legacyCandidates)
         {
             if (File.Exists(candidate))
                 return candidate;
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Returns the path to MpCmdRun.exe inside the highest-versioned
+    /// subfolder of the Defender "Platform" directory, or null if the
+    /// directory does not exist, is inaccessible, or contains no usable copy.
+    /// Platform folder names look like "4.18.26080.3-0" (a trailing build
+    /// suffix after the last dot-separated version segment is tolerated).
+    /// </summary>
+    internal static string? FindNewestInPlatformFolder(string platformRoot)
+    {
+        try
+        {
+            if (!Directory.Exists(platformRoot))
+                return null;
+
+            return Directory.GetDirectories(platformRoot)
+                .Select(dir => (Dir: dir, CandidatePath: Path.Combine(dir, "MpCmdRun.exe"), Version: ParsePlatformVersion(Path.GetFileName(dir))))
+                .Where(x => File.Exists(x.CandidatePath))
+                .OrderByDescending(x => x.Version)
+                .Select(x => x.CandidatePath)
+                .FirstOrDefault();
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+        {
+            // A locked-down or unusual ACL on ProgramData should fall back to
+            // the legacy Program Files check below, not crash the caller.
+            return null;
+        }
+    }
+
+    internal static Version ParsePlatformVersion(string folderName)
+    {
+        // Strip a trailing "-<build>" suffix (e.g. "4.18.26080.3-0" -> "4.18.26080.3")
+        // before parsing, since System.Version does not accept it.
+        var dashIndex = folderName.IndexOf('-');
+        var versionPart = dashIndex >= 0 ? folderName[..dashIndex] : folderName;
+        return Version.TryParse(versionPart, out var version) ? version : new Version(0, 0, 0, 0);
     }
 
     public bool IsElevated()
