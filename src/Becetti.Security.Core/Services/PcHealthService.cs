@@ -132,6 +132,12 @@ public sealed class PcHealthService : IPcHealthService
         }
     }
 
+    // ServiceController is only meaningful on Windows; GetSnapshotAsync already
+    // refuses to call into this method at all on any other OS via its own
+    // OperatingSystem.IsWindows() guard, so this attribute only documents that
+    // fact for the platform-compatibility analyzer (CA1416) rather than
+    // changing any runtime behavior.
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     private static IReadOnlyList<ServiceHealthInfo> ReadServices()
     {
         var results = new List<ServiceHealthInfo>();
