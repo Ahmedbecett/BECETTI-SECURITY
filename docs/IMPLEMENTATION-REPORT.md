@@ -276,7 +276,7 @@ report does not conflate the two.
       freshly generated self-signed test certificate, and verifies the
       produced `.msix` genuinely contains `AppxSignature.p7x` (proof it is
       signed, not just packaged) before publishing it as a GitHub Release.
-      Current download: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-46220eb
+      Current download: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/msix-test-9528c3f
       (assets: the signed `.msix`, the public `.cer` to trust before
       installing, and `INSTALL.txt` with exact sideload steps). This is a
       **self-signed TEST package for sideloading only** — it is not signed
