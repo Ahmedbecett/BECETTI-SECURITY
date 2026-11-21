@@ -115,37 +115,139 @@ normal Partner Center submission flow. In practice:
 1. Declaring `rescap:Capability Name="runFullTrust"` in the manifest (done)
    is itself the formal declaration - Partner Center detects it
    automatically from the uploaded package.
-2. Partner Center's submission form then asks you to **justify** each
-   declared restricted capability in a free-text box before you can submit.
-   Suggested justification text (EN):
+2. Partner Center's submission wizard has a dedicated
+   **Submission options → Restricted capabilities** step that appears
+   specifically because the package declares `runFullTrust`. It asks for a
+   free-text justification before the submission can proceed.
 
-   > BECETTI SECURITY is a desktop security companion app that reads and
-   > manages Microsoft Defender's real-time protection state. This requires
-   > full trust because it invokes Microsoft Defender's own command-line
-   > tool (MpCmdRun.exe) and PowerShell Defender cmdlets
-   > (Get-MpComputerStatus, Set-MpPreference, Update-MpSignature), neither
-   > of which can be called from an AppContainer-sandboxed process. The app
-   > does not use full trust for anything beyond Defender integration,
-   > local settings storage, and optional HTTPS calls to its own cloud API.
+   The justification text below was verified against the actual source in
+   this repository (not written from assumption) - every PowerShell cmdlet
+   and executable named in it is a real call made by
+   `src/Becetti.Security.Core/Services/DefenderService.cs`:
+   `Get-MpComputerStatus` (status), `Get-MpThreatDetection` (threat list),
+   `Get-NetFirewallProfile` (firewall state), `Update-MpSignature` /
+   `MpCmdRun.exe -SignatureUpdate` (signature updates), `Set-MpPreference`
+   (toggle real-time protection), `Remove-MpThreat` (quarantine/removal),
+   and `MpCmdRun.exe -Scan` (Quick/Full/Custom scans). None of these can be
+   invoked from an AppContainer-sandboxed process - they require
+   `runFullTrust`.
 
-   Arabic version:
+   Suggested justification text (EN), ready to paste as-is:
 
-   > تطبيق BECETTI SECURITY هو تطبيق أمان لسطح المكتب يقرأ ويدير حالة
-   > الحماية في الوقت الحقيقي الخاصة بـ Microsoft Defender. يتطلب ذلك
-   > الثقة الكاملة (full trust) لأنه يستدعي أداة سطر الأوامر الخاصة بـ
-   > Microsoft Defender نفسها (MpCmdRun.exe) وأوامر PowerShell الخاصة بـ
-   > Defender (Get-MpComputerStatus، Set-MpPreference،
-   > Update-MpSignature)، وكلاهما لا يمكن استدعاؤهما من عملية معزولة
-   > (AppContainer). لا يستخدم التطبيق الثقة الكاملة لأي غرض آخر غير
-   > التكامل مع Defender وتخزين الإعدادات محليًا واستدعاءات HTTPS
-   > الاختيارية إلى واجهته السحابية الخاصة.
+   > BECETTI SECURITY is a Windows security dashboard that reads and
+   > manages Microsoft Defender's real-time protection state. It does not
+   > contain its own antivirus engine; it is a front-end for Microsoft
+   > Defender. This requires full trust because it invokes the Microsoft
+   > Defender command-line scanner (MpCmdRun.exe, for -Scan and
+   > -SignatureUpdate) and PowerShell Defender/firewall cmdlets
+   > (Get-MpComputerStatus, Get-MpThreatDetection, Get-NetFirewallProfile,
+   > Update-MpSignature, Set-MpPreference, Remove-MpThreat), none of which
+   > can be called from an AppContainer-sandboxed process. Full trust is
+   > used only for this Defender integration, local settings/history
+   > storage under %LocalAppData%, and optional outbound HTTPS calls to the
+   > app's own cloud API (internetClient) for file-hash reputation lookups
+   > and update checks. The app never disables, replaces, or duplicates
+   > Defender's protection.
+
+   Arabic version, ready to paste as-is:
+
+   > تطبيق BECETTI SECURITY هو لوحة تحكم أمان لنظام Windows تقرأ وتدير حالة
+   > الحماية في الوقت الحقيقي الخاصة بـ Microsoft Defender. لا يحتوي على
+   > محرك مضاد فيروسات خاص به؛ إنه واجهة أمامية لـ Microsoft Defender.
+   > يتطلب ذلك الثقة الكاملة (full trust) لأنه يستدعي أداة سطر الأوامر
+   > الخاصة بـ Microsoft Defender (MpCmdRun.exe لأوامر -Scan و
+   > -SignatureUpdate) وأوامر PowerShell الخاصة بـ Defender والجدار الناري
+   > (Get-MpComputerStatus، Get-MpThreatDetection، Get-NetFirewallProfile،
+   > Update-MpSignature، Set-MpPreference، Remove-MpThreat)، وكل هذه لا
+   > يمكن استدعاؤها من عملية معزولة (AppContainer). تُستخدم الثقة الكاملة
+   > فقط لهذا التكامل مع Defender، وتخزين الإعدادات والسجل محليًا تحت
+   > %LocalAppData%، واستدعاءات HTTPS الصادرة الاختيارية
+   > (internetClient) إلى واجهة التطبيق السحابية الخاصة للتحقق من سمعة
+   > الملفات (بالبصمة فقط) والتحقق من التحديثات. لا يقوم التطبيق أبدًا
+   > بتعطيل Defender أو استبداله أو تكراره.
 3. Microsoft's certification team then reviews the app under its normal
    certification process (this can take longer for full-trust desktop
    apps than for sandboxed UWP apps, but it is a well-established,
    commonly-approved pattern - many mainstream desktop apps ship through
-   the Store this way). There is nothing to request or wait for *before*
-   submitting; the justification is reviewed as part of that one
-   certification pass.
+   the Store this way: Partner Center's own documentation confirms full
+   trust is allowed for Store submission as long as the restricted
+   capability is declared and justified). There is nothing to request or
+   wait for *before* submitting; the justification is reviewed as part of
+   that one certification pass.
+
+## Building the `.msixupload` on Windows (step by step)
+
+This package must be built on a real Windows machine - it cannot be built in
+this Linux sandbox (no Windows SDK, no MSBuild-for-UWP, no WinUI 3 toolchain
+here). Two supported ways to build it:
+
+### Option A - Visual Studio GUI (recommended, most reliable)
+
+1. Install **Visual Studio 2022** (Community edition is fine) with these
+   workloads checked in the Visual Studio Installer:
+   - ".NET desktop development"
+   - "Universal Windows Platform development"
+   - Under "Individual components", make sure **Windows App SDK C#
+     Templates** and the **Windows 10/11 SDK** matching
+     `10.0.26100.0` (the manifest's `MaxVersionTested`) are installed.
+2. Open `Becetti.Security.App.sln` (or the solution containing
+   `packaging/Becetti.Security.App.Package/Becetti.Security.App.Package.wapproj`)
+   in Visual Studio.
+3. In **Solution Explorer**, right-click the
+   **Becetti.Security.App.Package** project (the `.wapproj`, not the main
+   app project) → **Publish** → **Create App Packages...**.
+4. In the wizard:
+   - Choose **Microsoft Store under a new app name** or **... under an
+     existing app name you've already reserved** - pick the existing
+     reservation for `BECETTI SECURITY` if it is already reserved in
+     Partner Center, and sign in with the Partner Center account when
+     prompted. (If you don't want Visual Studio to associate the project
+     with Partner Center at all, choose **Sideloading** instead at this
+     step, then manually set `Signing method: Do not sign package` on the
+     next screen - the resulting package is still uploadable to Partner
+     Center by hand, you just skip the in-IDE account linking.)
+   - Version: leave at `1.0.0.0` for the first submission (bump the 3rd
+     number, the Build part, for subsequent updates - e.g. `1.0.1.0`).
+   - Architecture: check **x64** only (matches the current pipeline).
+   - Leave **Generate app bundle: Never** (a single x64 package, no bundle
+     needed for a desktop-only app with one architecture).
+5. Click **Create**. Visual Studio builds in Release and produces, under
+   `packaging\Becetti.Security.App.Package\AppPackages\`, a folder
+   containing `BECETTI SECURITY_1.0.0.0_x64.msixupload` (if you picked the
+   Store path) - **this exact file is what you upload to Partner Center**.
+   If you picked Sideloading + unsigned, you'll get a `.msix` there instead;
+   that works too since Partner Center accepts a bare unsigned `.msix` for
+   upload as well, not only `.msixupload`.
+6. **Do not sign this file manually** and do not point it at the test
+   certificate in `local-only/becetti-test-signing-cert/` - Microsoft signs
+   it during certification.
+
+### Option B - Build Tools / command line (for CI or no-GUI machines)
+
+Prerequisites: Visual Studio **Build Tools** 2022 with the same two
+workloads as above, run from a "Developer PowerShell for VS 2022" prompt
+(so `msbuild` is on PATH).
+
+```powershell
+.\scripts\package-store.ps1
+```
+
+This runs `msbuild` with `UapAppxPackageBuildMode=StoreUpload` and
+`AppxPackageSigningEnabled=false`, producing the same unsigned
+`.msixupload` under
+`packaging\Becetti.Security.App.Package\AppPackages\...\`. Pass
+`-Version 1.0.1.0` for a later update. See the script's header comment for
+full details.
+
+### After building, before uploading
+- Optionally run the **Windows App Certification Kit** (WACK) against the
+  built package first - it catches many certification failures (missing
+  capabilities, banned APIs, performance issues) before you spend a
+  certification cycle finding them. Start it from the Windows SDK's "App
+  Certification Kit" shortcut, or `certkit` must be run from a Windows
+  machine; it cannot run in this sandbox.
+- Upload the `.msixupload` (or `.msix`) file directly in Partner Center
+  under your submission's **Packages** step - no extra conversion step.
 
 ## After the Store listing goes live
 
