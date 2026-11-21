@@ -1,5 +1,6 @@
 using Becetti.Security.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Becetti.Security.Api.Data;
 
@@ -46,5 +47,26 @@ public sealed class AppDbContext : DbContext
         {
             entity.HasIndex(e => e.Timestamp);
         });
+
+        // SQLite (used only by the integration test host, never in production) has no
+        // native DateTimeOffset comparison/ordering support: "SQLite cannot order by
+        // expressions of type 'DateTimeOffset'" (NotSupportedException) hits every
+        // OrderBy(... .PublishedAt/Timestamp/etc.) query at runtime even though the model
+        // and migrations are correct. PostgreSQL has no such limitation, so this conversion
+        // is applied only when the active provider actually is Sqlite.
+        if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            var converter = new DateTimeOffsetToBinaryConverter();
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.ClrType.GetProperties())
+                {
+                    if (property.PropertyType == typeof(DateTimeOffset) || property.PropertyType == typeof(DateTimeOffset?))
+                    {
+                        modelBuilder.Entity(entityType.Name).Property(property.Name).HasConversion(converter);
+                    }
+                }
+            }
+        }
     }
 }
