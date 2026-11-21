@@ -17,7 +17,12 @@ $packageDir = "packaging\output"
 New-Item -ItemType Directory -Force -Path $packageDir | Out-Null
 
 Write-Host "Publishing app..."
-dotnet publish src\Becetti.Security.App\Becetti.Security.App.csproj -c Release -r win-x64 -p:Platform=x64 --self-contained false
+# Self-contained for BOTH .NET and the Windows App SDK: bundles .NET 8 and
+# Windows App Runtime 1.8 directly in the output, so a sideloaded install
+# does not depend on either being separately installed on the target
+# machine. See docs/STORE-SUBMISSION.md for the "side-by-side configuration
+# is incorrect" failure this fixes.
+dotnet publish src\Becetti.Security.App\Becetti.Security.App.csproj -c Release -r win-x64 -p:Platform=x64 --self-contained true -p:WindowsAppSDKSelfContained=true
 
 Write-Host "Packing MSIX..."
 & makeappx pack /d $publishDir /p "$packageDir\BECETTI-SECURITY_1.0.0.0_x64.msix" /nv /o

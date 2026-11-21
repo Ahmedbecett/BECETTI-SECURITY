@@ -198,7 +198,10 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Restore (msbuild, not dotnet - required for single-project MSIX packaging targets)
-        run: msbuild src\Becetti.Security.App\Becetti.Security.App.csproj /t:Restore /p:Configuration=Release /p:Platform=x64
+        # RuntimeIdentifier + SelfContained must match the actual build/package step below,
+        # so restore also fetches the win-x64 self-contained .NET runtime pack and the
+        # Windows App SDK's self-contained runtime assets (not just ref assemblies).
+        run: msbuild src\Becetti.Security.App\Becetti.Security.App.csproj /t:Restore /p:Configuration=Release /p:Platform=x64 /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:WindowsAppSDKSelfContained=true
 
       - name: Prepare the test signing certificate (persistent if configured, else a fresh one-off)
         shell: pwsh
@@ -302,6 +305,18 @@ jobs:
           # real msbuild.exe (not `dotnet publish`), UapAppxPackageBuildMode=
           # SideloadOnly, AppxBundle=Never, GenerateAppxPackageOnBuild=true,
           # and an explicit AppxPackageDir so the output location is known.
+          # SelfContained=true + WindowsAppSDKSelfContained=true bundle .NET 8
+          # and Windows App Runtime 1.8 INSIDE the .msix, instead of declaring
+          # them as framework dependencies the target machine must already
+          # have (or auto-resolve from the Microsoft Store). That auto-resolve
+          # can fail on a sideloaded install (confirmed: a real tester hit
+          # "The application has failed to start because its side-by-side
+          # configuration is incorrect" after a successful cert-trust +
+          # install, because Windows App Runtime 1.8 wasn't on that machine).
+          # Trade-off: a larger .msix (~150-250 MB instead of a few MB) -
+          # acceptable here since this is a sideload test package; Store
+          # submissions ship self-contained WinUI 3 apps too. See
+          # docs/STORE-SUBMISSION.md for the full "side-by-side" writeup.
           $certPath = Join-Path $PWD "packaging\output\BecettiTestCert.pfx"
           $outDir = Join-Path $PWD "packaging\output\AppPackages\"
           New-Item -ItemType Directory -Force -Path $outDir | Out-Null
@@ -309,6 +324,9 @@ jobs:
           msbuild src\Becetti.Security.App\Becetti.Security.App.csproj `
             /p:Configuration=Release `
             /p:Platform=x64 `
+            /p:RuntimeIdentifier=win-x64 `
+            /p:SelfContained=true `
+            /p:WindowsAppSDKSelfContained=true `
             /p:UapAppxPackageBuildMode=SideloadOnly `
             /p:AppxBundle=Never `
             /p:AppxPackageSigningEnabled=true `
@@ -447,25 +465,20 @@ jobs:
             Import-Certificate -FilePath BecettiTestCert.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
             Add-AppxPackage -Path BECETTI-SECURITY_1.0.0.0_x64.msix
 
-          Runtime dependency: this app targets Microsoft.WindowsAppSDK 1.8
-          (NuGet 1.8.260921001), so AppxManifest.xml declares a framework
-          dependency on Microsoft.WindowsAppRuntime.1.8 rather than bundling
-          it inside the .msix. When installing FROM THE MICROSOFT STORE,
-          this is resolved and installed automatically - you never see this
-          note. When SIDELOADING (this release), that automatic resolution
-          can fail depending on the device (e.g. limited/unlicensed Store
-          services), and the app installs successfully but then fails to
-          LAUNCH with "The application has failed to start because its
-          side-by-side configuration is incorrect." If you see that error
-          after installing, the runtime simply is not on this machine yet -
-          install it once, then launch the app again (no msix reinstall
-          needed):
-            x64:   https://aka.ms/windowsappsdk/1.8/1.8.260921001/windowsappruntimeinstall-x64.exe
-            x86:   https://aka.ms/windowsappsdk/1.8/1.8.260921001/windowsappruntimeinstall-x86.exe
-            arm64: https://aka.ms/windowsappsdk/1.8/1.8.260921001/windowsappruntimeinstall-arm64.exe
-          Run the one matching your CPU as Administrator. (Source: Microsoft
-          Learn, Archive of Windows App SDK downloads, version 1.8.12 /
-          1.8.260921001 - see docs/STORE-SUBMISSION.md for more detail.)
+          Runtime dependency: this build is SELF-CONTAINED - it bundles its
+          own .NET 8 runtime AND its own Microsoft.WindowsAppSDK 1.8 runtime
+          (1.8.260921001) directly inside the .msix. You do NOT need to
+          install the .NET Desktop Runtime or the Windows App Runtime
+          separately on this machine - that is exactly why this .msix is
+          larger than a typical framework-dependent package. (An earlier
+          test build was framework-dependent instead, and a real tester hit
+          "The application has failed to start because its side-by-side
+          configuration is incorrect" after installing it, because that
+          separate runtime wasn't present and sideloading does not always
+          auto-resolve it the way an install from the Microsoft Store would.
+          This build fixes that by not depending on it at all. See
+          docs/STORE-SUBMISSION.md for the full history if you ever see that
+          error again on an older downloaded copy.)
 
           UPGRADE NOTE: this build's Publisher was changed from the earlier
           placeholder (CN=BECETTI) to the real Partner Center ID above.
@@ -511,6 +524,6 @@ jobs:
             packaging/output/INSTALL.txt \
             --repo "$GITHUB_REPOSITORY" \
             --title "BECETTI SECURITY - signed test MSIX ($tag)" \
-            --notes "Publisher identity: CN=A5D5DC31-4A15-4059-8030-D96C51054596 (verified Microsoft Partner Center Windows Publisher ID). Signed with a self-signed TEST certificate - NOT a Microsoft-issued or CA-trusted certificate, and not the certificate Microsoft uses when it re-signs a package during real Store certification. Certificate SHA-256 fingerprint: ${CERT_SHA256} / SHA-1 thumbprint: ${CERT_SHA1} (verify with 'certutil -hashfile BecettiTestCert.cer SHA256' before trusting it). Built from commit ${GITHUB_SHA}. See INSTALL.txt in the release assets for install steps, the 0x800B010A fix, and an important upgrade-in-place note. Not a Microsoft Store submission artifact." \
+            --notes "Publisher identity: CN=A5D5DC31-4A15-4059-8030-D96C51054596 (verified Microsoft Partner Center Windows Publisher ID). Signed with a self-signed TEST certificate - NOT a Microsoft-issued or CA-trusted certificate, and not the certificate Microsoft uses when it re-signs a package during real Store certification. Certificate SHA-256 fingerprint: ${CERT_SHA256} / SHA-1 thumbprint: ${CERT_SHA1} (verify with 'certutil -hashfile BecettiTestCert.cer SHA256' before trusting it). Self-contained build: bundles its own .NET 8 and Windows App Runtime 1.8, so no separate runtime install is needed on the target machine (only the one-time certificate trust step still applies). Built from commit ${GITHUB_SHA}. See INSTALL.txt in the release assets for install steps and the 0x800B010A fix. Not a Microsoft Store submission artifact." \
             --latest=false
           echo "Release created: https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag"
