@@ -319,67 +319,155 @@ public sealed class DashboardViewModel : ViewModelBase
 
     private async Task ToggleYaraGuardAsync(bool enable)
     {
-        if (enable)
+        ClearMessages();
+        try
         {
-            var res = await _folderGuard.StartAsync();
-            StatusMessage = res.Message;
+            if (enable)
+            {
+                var res = await _folderGuard.StartAsync();
+                if (!res.Success)
+                {
+                    _yaraGuardActive = _folderGuard.IsRunning;
+                    OnPropertyChanged(nameof(YaraGuardActive));
+                    ErrorMessage = res.Message;
+                    return;
+                }
+                StatusMessage = res.Message;
+            }
+            else
+            {
+                _folderGuard.Stop();
+                StatusMessage = "Real-Time YARA Folder Guard stopped.";
+            }
+            _settings.Current.RealTimeYaraGuardEnabled = _folderGuard.IsRunning;
+            await _settings.SaveAsync();
         }
-        else
+        catch (Exception ex)
         {
-            _folderGuard.Stop();
-            StatusMessage = "Real-Time YARA Folder Guard stopped.";
+            _yaraGuardActive = _folderGuard.IsRunning;
+            OnPropertyChanged(nameof(YaraGuardActive));
+            ErrorMessage = ex.Message;
         }
-        _settings.Current.RealTimeYaraGuardEnabled = enable;
-        await _settings.SaveAsync();
     }
 
     private async Task ToggleCanaryAsync(bool enable)
     {
-        if (enable)
+        ClearMessages();
+        try
         {
-            var res = await _canary.ArmAsync();
-            StatusMessage = res.Message;
+            if (enable)
+            {
+                var res = await _canary.ArmAsync();
+                if (!res.Success)
+                {
+                    _canaryActive = _canary.IsArmed;
+                    OnPropertyChanged(nameof(CanaryActive));
+                    ErrorMessage = res.Message;
+                    return;
+                }
+                StatusMessage = res.Message;
+            }
+            else
+            {
+                _canary.Disarm(removeDecoyFiles: true);
+                StatusMessage = "Ransomware Canary Guard disarmed.";
+            }
+            _settings.Current.RansomwareCanaryEnabled = _canary.IsArmed;
+            await _settings.SaveAsync();
         }
-        else
+        catch (Exception ex)
         {
-            _canary.Disarm(removeDecoyFiles: true);
-            StatusMessage = "Ransomware Canary Guard disarmed.";
+            _canaryActive = _canary.IsArmed;
+            OnPropertyChanged(nameof(CanaryActive));
+            ErrorMessage = ex.Message;
         }
-        _settings.Current.RansomwareCanaryEnabled = enable;
-        await _settings.SaveAsync();
     }
 
     private async Task ToggleClipboardAsync(bool enable)
     {
-        _clipboard.IsEnabled = enable;
-        _settings.Current.ClipboardGuardEnabled = enable;
-        await _settings.SaveAsync();
-        StatusMessage = enable ? "Clipboard Hijack Guard enabled." : "Clipboard Hijack Guard disabled.";
+        ClearMessages();
+        try
+        {
+            _clipboard.IsEnabled = enable;
+            _settings.Current.ClipboardGuardEnabled = enable;
+            await _settings.SaveAsync();
+            StatusMessage = enable ? "Clipboard Hijack Guard enabled." : "Clipboard Hijack Guard disabled.";
+        }
+        catch (Exception ex)
+        {
+            _clipboardActive = _clipboard.IsEnabled;
+            OnPropertyChanged(nameof(ClipboardActive));
+            ErrorMessage = ex.Message;
+        }
     }
 
     private async Task ToggleUsbAsync(bool enable)
     {
-        if (enable) _usb.Start();
-        else _usb.Stop();
-        _settings.Current.UsbAutoScanEnabled = enable;
-        await _settings.SaveAsync();
-        StatusMessage = enable ? "USB Auto-Scan started." : "USB Auto-Scan stopped.";
+        ClearMessages();
+        try
+        {
+            if (enable) _usb.Start();
+            else _usb.Stop();
+            _settings.Current.UsbAutoScanEnabled = _usb.IsEnabled;
+            await _settings.SaveAsync();
+            StatusMessage = enable ? "USB Auto-Scan started." : "USB Auto-Scan stopped.";
+        }
+        catch (Exception ex)
+        {
+            _usbAutoActive = _usb.IsEnabled;
+            OnPropertyChanged(nameof(UsbAutoActive));
+            ErrorMessage = ex.Message;
+        }
     }
 
     private async Task ToggleHostsAsync(bool enable)
     {
-        var res = enable ? _hosts.StartWatching() : _hosts.StopWatching();
-        _settings.Current.HostsGuardEnabled = enable;
-        await _settings.SaveAsync();
-        StatusMessage = res.Message;
+        ClearMessages();
+        try
+        {
+            var res = enable ? _hosts.StartWatching() : _hosts.StopWatching();
+            if (!res.Success)
+            {
+                _hostsGuardActive = _hosts.IsWatching;
+                OnPropertyChanged(nameof(HostsGuardActive));
+                ErrorMessage = res.Message;
+                return;
+            }
+            _settings.Current.HostsGuardEnabled = _hosts.IsWatching;
+            await _settings.SaveAsync();
+            StatusMessage = res.Message;
+        }
+        catch (Exception ex)
+        {
+            _hostsGuardActive = _hosts.IsWatching;
+            OnPropertyChanged(nameof(HostsGuardActive));
+            ErrorMessage = ex.Message;
+        }
     }
 
     private async Task ToggleFimAsync(bool enable)
     {
-        var res = enable ? await _fim.StartWatchingAsync() : _fim.StopWatching();
-        _settings.Current.FimAutoWatchEnabled = enable;
-        await _settings.SaveAsync();
-        StatusMessage = res.Message;
+        ClearMessages();
+        try
+        {
+            var res = enable ? await _fim.StartWatchingAsync() : _fim.StopWatching();
+            if (!res.Success)
+            {
+                _fimActive = _fim.IsWatching;
+                OnPropertyChanged(nameof(FimActive));
+                ErrorMessage = res.Message;
+                return;
+            }
+            _settings.Current.FimAutoWatchEnabled = _fim.IsWatching;
+            await _settings.SaveAsync();
+            StatusMessage = res.Message;
+        }
+        catch (Exception ex)
+        {
+            _fimActive = _fim.IsWatching;
+            OnPropertyChanged(nameof(FimActive));
+            ErrorMessage = ex.Message;
+        }
     }
 
     public async Task GenerateAiBriefingAsync()

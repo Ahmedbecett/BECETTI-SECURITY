@@ -190,6 +190,13 @@ public sealed class UrlPhishingInspectorService : IUrlPhishingInspectorService
                         var next = resp.Headers.Location.IsAbsoluteUri
                             ? resp.Headers.Location
                             : new Uri(current, resp.Headers.Location);
+                        if (!string.Equals(next.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
+                            !string.Equals(next.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+                        {
+                            risk += 35;
+                            findings.Add($"Blocked redirect to non-HTTP(S) URI scheme: {next.Scheme}://");
+                            break;
+                        }
                         redirects.Add(next.ToString());
                         current = next;
                     }

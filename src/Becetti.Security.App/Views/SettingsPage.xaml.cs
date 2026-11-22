@@ -19,4 +19,9 @@ public sealed partial class SettingsPage : Page
         if (sender is PasswordBox pb)
             ViewModel.NewAppLockPin = pb.Password;
     }
+
+    private void RelaunchOnboarding_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        App.MainWindow?.ShowOnboardingWizard();
+    }
 }

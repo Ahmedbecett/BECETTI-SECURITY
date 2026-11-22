@@ -458,19 +458,20 @@
         document.getElementById("healthText").textContent = "BECETTI SECURITY Official Global Portal";
       });
 
-    // Live GitHub Releases API fetch for latest signed x64 MSIX
-    fetch("https://api.github.com/repos/Ahmedbecett/BECETTI-SECURITY/releases/latest")
-      .then(r => r.ok ? r.json() : fetch("https://api.github.com/repos/Ahmedbecett/BECETTI-SECURITY/releases?per_page=1").then(x => x.json()).then(arr => arr[0]))
-      .then(rel => {
-        if (!rel) return;
+    // Live GitHub Releases API fetch for latest signed x64 MSIX (queries releases list directly to avoid 404 on prereleases)
+    fetch("https://api.github.com/repos/Ahmedbecett/BECETTI-SECURITY/releases?per_page=10")
+      .then(r => r.ok ? r.json() : [])
+      .then(list => {
+        if (!Array.isArray(list) || list.length === 0) return;
+        const rel = list.find(r => Array.isArray(r.assets) && r.assets.some(a => a.name && a.name.toLowerCase().endsWith(".msix"))) || list[0];
         const msix = (rel.assets || []).find(a => a.name && a.name.toLowerCase().endsWith(".msix"));
         const btn = document.getElementById("downloadBtn");
         const meta = document.getElementById("releaseMeta");
-        if (msix && msix.browser_download_url) {
+        if (msix && typeof msix.browser_download_url === "string" && msix.browser_download_url.startsWith("https://")) {
           btn.href = msix.browser_download_url;
           const mb = (msix.size / (1024 * 1024)).toFixed(1);
           meta.textContent = `Latest Release: ${rel.tag_name} · ${msix.name} (${mb} MB) · Windows 10/11 x64`;
-        } else if (rel.html_url) {
+        } else if (typeof rel.html_url === "string" && rel.html_url.startsWith("https://")) {
           btn.href = rel.html_url;
           meta.textContent = `Latest Release: ${rel.tag_name} · Windows 10/11 x64`;
         }

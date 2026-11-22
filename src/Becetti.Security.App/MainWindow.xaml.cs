@@ -432,26 +432,30 @@ public sealed partial class MainWindow : Window
 
     private async void HelpButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new ContentDialog
+        try
         {
-            Title = _localization.Get("HelpDialogTitle", "BECETTI SECURITY — Help"),
-            CloseButtonText = _localization.Get("CloseButton", "Close"),
-            XamlRoot = (Content as FrameworkElement)?.XamlRoot,
-            Content = new TextBlock
+            var dialog = new ContentDialog
             {
-                TextWrapping = TextWrapping.Wrap,
-                Text = _localization.Get(
-                    "HelpDialogBody",
-                    "BECETTI SECURITY combines the official local Native YARA Engine (VirusTotal/yara x64), EDR & Windows Hardening tools, and Microsoft Defender:\n\n" +
-                    "• Press Ctrl+K anytime to open the instant Command Palette.\n" +
-                    "• YARA Engine runs real compiled .yar/.yara rules locally, validates every rule with yarac64, and includes AI YARA Rule Studio.\n" +
-                    "• Advanced Defense provides Real-Time YARA Folder Guard, AES-256-GCM Quarantine, Live Process Memory YARA Scan, PE/Entropy/Authenticode Forensics, Ransomware Canaries, Clipboard Guard, and USB Auto-Scan.\n" +
-                    "• EDR & Hardening provides Deep Persistence Hunter, Hosts/DNS Hijack Guard, Camera/Mic Privacy Auditor, PowerShell/LOLBins Decoder, URL Phishing Inspector, SHA-256 FIM, Windows Hardening Auditor, and Forensic ZIP Bundle export.\n\n" +
-                    "BECETTI SECURITY never simulates or fabricates detections.")
-            }
-        };
+                Title = _localization.Get("HelpDialogTitle", "BECETTI SECURITY — Help"),
+                CloseButtonText = _localization.Get("CloseButton", "Close"),
+                XamlRoot = (Content as FrameworkElement)?.XamlRoot,
+                Content = new TextBlock
+                {
+                    TextWrapping = TextWrapping.Wrap,
+                    Text = _localization.Get(
+                        "HelpDialogBody",
+                        "BECETTI SECURITY combines the official local Native YARA Engine (VirusTotal/yara x64), EDR & Windows Hardening tools, Global Threat Intel & GeoIP Radar, and Microsoft Defender:\n\n" +
+                        "• Press Ctrl+K anytime to open the instant Command Palette.\n" +
+                        "• YARA Engine runs real compiled .yar/.yara rules locally, validates every rule with yarac64, and includes AI YARA Rule Studio.\n" +
+                        "• Global Intel & Radar provides live abuse.ch C2/Malware feeds, outbound GeoIP Radar with 1-click Firewall blocking, MITRE ATT&CK matrix, Privacy Hardener, and GitHub Releases Auto-Updater.\n" +
+                        "• EDR & Hardening provides Deep Persistence Hunter, Hosts/DNS Hijack Guard, Camera/Mic Privacy Auditor, PowerShell/LOLBins Decoder, URL Phishing Inspector, SHA-256 FIM, Windows Hardening Auditor, and Forensic ZIP Bundle export.\n\n" +
+                        "BECETTI SECURITY never simulates or fabricates detections.")
+                }
+            };
 
-        await dialog.ShowAsync();
+            await dialog.ShowAsync();
+        }
+        catch { }
     }
 
     private void NavigateTo(string tag) => NavigateTo(tag, null);
@@ -572,20 +576,56 @@ public sealed partial class MainWindow : Window
         OnboardingStep2.Visibility = _onboardingStep == 2 ? Visibility.Visible : Visibility.Collapsed;
         OnboardingStep3.Visibility = _onboardingStep == 3 ? Visibility.Visible : Visibility.Collapsed;
         OnboardingBackBtn.Visibility = _onboardingStep > 1 ? Visibility.Visible : Visibility.Collapsed;
+
+        var (title, subtitle, next1, next2, next3) = _localization.Current switch
+        {
+            AppLanguage.Arabic => (
+                "مرحباً بك في الحماية العالمية BECETTI SECURITY",
+                "واجهات ويندوز حقيقية 100% · محرك YARA v4.6.0 · مصفوفة MITRE ATT&CK · بدون أي محاكاة",
+                "الخطوة التالية", "تفعيل الدروع الموصى بها", "إنهاء وفتح الاستخبارات العالمية"),
+            AppLanguage.French => (
+                "Bienvenue dans BECETTI SECURITY Global",
+                "APIs Windows 100% réelles · YARA v4.6.0 · MITRE ATT&CK EDR · Zéro simulation",
+                "Étape suivante", "Activer les boucliers recommandés", "Terminer et ouvrir Intel Global"),
+            AppLanguage.Spanish => (
+                "Bienvenido a BECETTI SECURITY Global",
+                "APIs reales de Windows 100% · YARA v4.6.0 · MITRE ATT&CK EDR · Cero simulación",
+                "Siguiente paso", "Activar escudos recomendados", "Finalizar y abrir Inteligencia Global"),
+            AppLanguage.German => (
+                "Willkommen bei BECETTI SECURITY Global",
+                "100% echte Windows-APIs · YARA v4.6.0 · MITRE ATT&CK EDR · Null Simulation",
+                "Nächster Schritt", "Empfohlene Schutzschilde aktivieren", "Abschließen & Global Intel öffnen"),
+            AppLanguage.Turkish => (
+                "BECETTI SECURITY Küresel Korumaya Hoş Geldiniz",
+                "%100 Gerçek Windows API'leri · YARA v4.6.0 · MITRE ATT&CK EDR · Sıfır Simülasyon",
+                "Sonraki Adım", "Önerilen Kalkanları Etkinleştir", "Bitir ve Küresel İstihbaratı Aç"),
+            _ => (
+                "Welcome to Global Endpoint Protection",
+                "100% Real Windows APIs · Native YARA v4.6.0 · MITRE ATT&CK EDR · Zero Simulation",
+                "Next Step", "Apply Recommended Shields", "Finish & Open Global Intel")
+        };
+
+        OnboardingTitle.Text = title;
+        OnboardingSubtitle.Text = subtitle;
         OnboardingNextBtn.Content = _onboardingStep switch
         {
-            1 => "Next Step",
-            2 => "Apply Recommended Shields",
-            _ => "Finish & Open Global Intel"
+            1 => next1,
+            2 => next2,
+            _ => next3
         };
     }
 
     private async void OnboardingLanguage_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not Button btn || btn.Tag is not string code) return;
-        _settings.Current.Language = code;
-        App.ApplyLanguageOverride(code);
-        await _localization.SetLanguageAsync(LocalizationService.ParseLanguageCode(code));
+        try
+        {
+            if (sender is not Button btn || btn.Tag is not string code) return;
+            _settings.Current.Language = code;
+            App.ApplyLanguageOverride(code);
+            await _localization.SetLanguageAsync(LocalizationService.ParseLanguageCode(code));
+            RenderOnboardingStep();
+        }
+        catch { }
     }
 
     private void OnboardingBack_Click(object sender, RoutedEventArgs e)
@@ -599,47 +639,55 @@ public sealed partial class MainWindow : Window
 
     private async void OnboardingNext_Click(object sender, RoutedEventArgs e)
     {
-        if (_onboardingStep == 1)
+        try
         {
-            _onboardingStep = 2;
-            RenderOnboardingStep();
-            return;
-        }
-
-        if (_onboardingStep == 2)
-        {
-            _settings.Current.RealTimeYaraGuardEnabled = ObYaraGuardCheck.IsChecked == true;
-            _settings.Current.RansomwareCanaryEnabled = ObCanaryCheck.IsChecked == true;
-            _settings.Current.HostsGuardEnabled = ObHostsGuardCheck.IsChecked == true;
-            _settings.Current.MinimizeToTrayOnClose = ObTrayCheck.IsChecked == true;
-            await _settings.SaveAsync();
-
-            try
+            if (_onboardingStep == 1)
             {
-                if (_settings.Current.RealTimeYaraGuardEnabled)
-                    await App.Services.GetRequiredService<IRealTimeYaraGuardService>().StartAsync();
-                if (_settings.Current.RansomwareCanaryEnabled)
-                    await App.Services.GetRequiredService<IRansomwareCanaryService>().ArmAsync();
-                if (_settings.Current.HostsGuardEnabled)
-                    App.Services.GetRequiredService<IHostsDnsGuardService>().StartWatching();
+                _onboardingStep = 2;
+                RenderOnboardingStep();
+                return;
             }
-            catch { }
 
-            _onboardingStep = 3;
-            RenderOnboardingStep();
-            return;
+            if (_onboardingStep == 2)
+            {
+                _settings.Current.RealTimeYaraGuardEnabled = ObYaraGuardCheck.IsChecked == true;
+                _settings.Current.RansomwareCanaryEnabled = ObCanaryCheck.IsChecked == true;
+                _settings.Current.HostsGuardEnabled = ObHostsGuardCheck.IsChecked == true;
+                _settings.Current.MinimizeToTrayOnClose = ObTrayCheck.IsChecked == true;
+                await _settings.SaveAsync();
+
+                try
+                {
+                    if (_settings.Current.RealTimeYaraGuardEnabled)
+                        await App.Services.GetRequiredService<IRealTimeYaraGuardService>().StartAsync();
+                    if (_settings.Current.RansomwareCanaryEnabled)
+                        await App.Services.GetRequiredService<IRansomwareCanaryService>().ArmAsync();
+                    if (_settings.Current.HostsGuardEnabled)
+                        App.Services.GetRequiredService<IHostsDnsGuardService>().StartWatching();
+                }
+                catch { }
+
+                _onboardingStep = 3;
+                RenderOnboardingStep();
+                return;
+            }
+
+            _settings.Current.OnboardingCompleted = true;
+            await _settings.SaveAsync();
+            OnboardingOverlay.Visibility = Visibility.Collapsed;
+            NavigateTo("GlobalIntel", null);
         }
-
-        _settings.Current.OnboardingCompleted = true;
-        await _settings.SaveAsync();
-        OnboardingOverlay.Visibility = Visibility.Collapsed;
-        NavigateTo("GlobalIntel", null);
+        catch { }
     }
 
     private async void OnboardingSkip_Click(object sender, RoutedEventArgs e)
     {
-        _settings.Current.OnboardingCompleted = true;
-        await _settings.SaveAsync();
-        OnboardingOverlay.Visibility = Visibility.Collapsed;
+        try
+        {
+            _settings.Current.OnboardingCompleted = true;
+            await _settings.SaveAsync();
+            OnboardingOverlay.Visibility = Visibility.Collapsed;
+        }
+        catch { }
     }
 }

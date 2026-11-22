@@ -22,22 +22,38 @@ public sealed partial class GlobalIntelPage : Page
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        if (ViewModel.PrivacyControls.Count == 0)
-            await ViewModel.AuditPrivacyAsync();
+        try
+        {
+            if (ViewModel.PrivacyControls.Count == 0)
+                await ViewModel.AuditPrivacyAsync();
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ErrorMessage = ex.Message;
+        }
     }
 
     private void OpenMitreUrl_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button { Tag: string url } && Uri.TryCreate(url, UriKind.Absolute, out _))
+        if (sender is Button { Tag: string url } &&
+            Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
+            uri.Scheme == Uri.UriSchemeHttps)
         {
-            try { Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true }); }
+            try { Process.Start(new ProcessStartInfo { FileName = uri.ToString(), UseShellExecute = true }); }
             catch { }
         }
     }
 
     private async void TogglePrivacyControl_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button { Tag: PrivacyControlItem item })
-            await ViewModel.TogglePrivacyControlAsync(item);
+        try
+        {
+            if (sender is Button { Tag: PrivacyControlItem item })
+                await ViewModel.TogglePrivacyControlAsync(item);
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ErrorMessage = ex.Message;
+        }
     }
 }

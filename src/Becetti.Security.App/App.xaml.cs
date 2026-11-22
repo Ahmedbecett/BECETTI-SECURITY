@@ -20,9 +20,37 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        UnhandledException += OnAppUnhandledException;
+    }
+
+    private void OnAppUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[BECETTI UnhandledException] {e.Exception}");
+            var events = Services?.GetService<IEventLogService>();
+            if (events is not null)
+                _ = events.RecordAsync("AppUnhandledException", e.Message ?? e.Exception?.Message ?? "Unexpected UI exception", false);
+        }
+        catch { }
+
+        // Keep the security dashboard alive on recoverable UI exceptions
+        e.Handled = true;
     }
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        try
+        {
+            await InitializeAndLaunchAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[BECETTI LaunchError] {ex}");
+        }
+    }
+
+    private async Task InitializeAndLaunchAsync()
     {
         var services = new ServiceCollection();
         services.AddSingleton<ISettingsService, SettingsService>();

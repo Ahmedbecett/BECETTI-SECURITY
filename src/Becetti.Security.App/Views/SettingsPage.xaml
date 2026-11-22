@@ -50,6 +50,7 @@
                     <ToggleSwitch x:Uid="SettingsAnimations" helpers:Loc.Uid="SettingsAnimations" Header="Enable decorative animations" IsOn="{x:Bind ViewModel.EnableAnimations, Mode=TwoWay}" />
                     <ToggleSwitch x:Uid="SettingsSounds" helpers:Loc.Uid="SettingsSounds" Header="Enable sound cues" IsOn="{x:Bind ViewModel.EnableSounds, Mode=TwoWay}" />
                     <ToggleSwitch x:Uid="SettingsMinimizeToTray" helpers:Loc.Uid="SettingsMinimizeToTray" Header="Keep running silently in Windows System Tray when window is closed" IsOn="{x:Bind ViewModel.MinimizeToTrayOnClose, Mode=TwoWay}" />
+                    <Button Content="Re-launch First-Run Setup Wizard" Click="RelaunchOnboarding_Click" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">

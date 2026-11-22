@@ -139,6 +139,7 @@ public sealed class GlobalIntelViewModel : ViewModelBase
 
     private Task LookupIocAsync()
     {
+        ClearMessages();
         var raw = IocLookupInput.Trim();
         var match = _feeds.CheckIp(raw) ?? _feeds.CheckSha256(raw) ?? _feeds.CheckDomainOrUrl(raw);
         if (match is not null)
@@ -228,9 +229,10 @@ public sealed class GlobalIntelViewModel : ViewModelBase
         {
             var res = await _privacy.SetControlHardenedAsync(item.Id, !item.IsHardened);
             if (!res.Success) { ErrorMessage = res.Message; return; }
-            StatusMessage = res.Message;
-            await _events.RecordAsync("PrivacyHardening", res.Message, true, item.Id);
-            await AuditPrivacyAsync();
+            var okMsg = res.Message;
+            await _events.RecordAsync("PrivacyHardening", okMsg, true, item.Id);
+            await RefreshPrivacyListCoreAsync();
+            StatusMessage = okMsg;
         }
         finally { IsBusy = false; NotifyCommands(); }
     }
@@ -244,11 +246,22 @@ public sealed class GlobalIntelViewModel : ViewModelBase
         {
             var res = await _privacy.HardenAllRecommendedAsync();
             if (!res.Success) { ErrorMessage = res.Message; return; }
-            StatusMessage = res.Message;
-            await _events.RecordAsync("PrivacyHardeningAll", res.Message, true);
-            await AuditPrivacyAsync();
+            var okMsg = res.Message;
+            await _events.RecordAsync("PrivacyHardeningAll", okMsg, true);
+            await RefreshPrivacyListCoreAsync();
+            StatusMessage = okMsg;
         }
         finally { IsBusy = false; NotifyCommands(); }
+    }
+
+    private async Task RefreshPrivacyListCoreAsync()
+    {
+        var res = await _privacy.AuditPrivacyControlsAsync();
+        if (!res.Success || res.Value is null) { ErrorMessage = res.Message; return; }
+        PrivacyControls.Clear();
+        foreach (var c in res.Value.Controls) PrivacyControls.Add(c);
+        PrivacyScoreText = $"{res.Value.PrivacyScorePercent}%";
+        PrivacySummary = res.Message;
     }
 
     public async Task CheckUpdatesAsync()
@@ -272,17 +285,21 @@ public sealed class GlobalIntelViewModel : ViewModelBase
 
     private Task DownloadUpdateAsync()
     {
-        if (!string.IsNullOrWhiteSpace(_updaterDownloadUrl))
+        if (Uri.TryCreate(_updaterDownloadUrl, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps)
         {
             try
             {
-                Process.Start(new ProcessStartInfo { FileName = _updaterDownloadUrl, UseShellExecute = true });
+                Process.Start(new ProcessStartInfo { FileName = uri.ToString(), UseShellExecute = true });
                 StatusMessage = "Opened official signed MSIX update download in your browser.";
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Could not open update URL: {ex.Message}";
             }
+        }
+        else if (!string.IsNullOrWhiteSpace(_updaterDownloadUrl))
+        {
+            ErrorMessage = "Blocked non-HTTPS update URL for security.";
         }
         return Task.CompletedTask;
     }
