@@ -94,6 +94,7 @@ public sealed class ExplorerContextMenuService : IExplorerContextMenuService
         }
     }
 
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     private static void WriteVerb(string keyPath, string exePath)
     {
         using var verbKey = Registry.CurrentUser.CreateSubKey(keyPath);

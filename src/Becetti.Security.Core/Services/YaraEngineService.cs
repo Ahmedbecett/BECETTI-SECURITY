@@ -823,6 +823,68 @@ public sealed class YaraEngineService : IYaraEngineService
         }
     }
 
+    private async Task<OperationResult<string>> EnsureReadyForScanAsync(CancellationToken ct)
+    {
+        var yara = FindYaraExecutable();
+        if (yara is null)
+            return OperationResult<string>.Fail(
+                "Native YARA engine (yara64.exe) was not found. Build or install the Windows x64 YARA binaries.",
+                "YARA_MISSING");
+
+        YaraEngineInfo engineInfo;
+        await _rulesLock.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            EnsureDirectories();
+            LoadStoreStateUnlocked();
+            SyncBundledRulesUnlocked();
+
+            if (!File.Exists(CompiledBundlePath))
+            {
+                var build = await RebuildCompiledRulesUnlockedAsync(ct).ConfigureAwait(false);
+                if (!build.Success || build.Value is null)
+                    return OperationResult<string>.Fail(build.Message, build.ErrorCode);
+                engineInfo = build.Value;
+            }
+            else
+            {
+                engineInfo = await BuildEngineInfoUnlockedAsync(ct).ConfigureAwait(false);
+                if (engineInfo.ValidRuleFiles == 0)
+                {
+                    var build = await RebuildCompiledRulesUnlockedAsync(ct).ConfigureAwait(false);
+                    if (!build.Success || build.Value is null)
+                        return OperationResult<string>.Fail(build.Message, build.ErrorCode);
+                    engineInfo = build.Value;
+                }
+            }
+        }
+        finally
+        {
+            _rulesLock.Release();
+        }
+
+        if (!engineInfo.CompiledBundleReady || engineInfo.ActiveRuleCount == 0)
+        {
+            return OperationResult<string>.Fail(
+                "No valid compiled YARA rules are active. Enable or import at least one valid .yar/.yara rule file.",
+                "NO_ACTIVE_RULES");
+        }
+
+        return OperationResult<string>.Ok(yara);
+    }
+
+    private static string FormatProcessFailure(OperationResult<NativeProcessRun> run)
+    {
+        if (!run.Success || run.Value is null)
+            return string.IsNullOrWhiteSpace(run.Message) ? "Process scan failed." : run.Message;
+
+        var err = run.Value.Error?.Trim();
+        if (!string.IsNullOrWhiteSpace(err))
+            return err;
+
+        return $"yara64 exited with code {run.Value.ExitCode}.";
+    }
+
     public async Task<OperationResult<YaraProcessScanReport>> ScanProcessAsync(int processId, CancellationToken ct = default)
     {
         if (processId <= 4)
@@ -830,10 +892,10 @@ public sealed class YaraEngineService : IYaraEngineService
 
         var startedAt = DateTimeOffset.UtcNow;
         var init = await EnsureReadyForScanAsync(ct).ConfigureAwait(false);
-        if (!init.Success || init.Value is null)
+        if (!init.Success || string.IsNullOrWhiteSpace(init.Value))
             return OperationResult<YaraProcessScanReport>.Fail(init.Message, init.ErrorCode);
 
-        var yaraExe = init.Value.YaraExecutablePath!;
+        var yaraExe = init.Value;
         string procName = $"PID-{processId}";
         string? exePath = null;
         try
@@ -847,7 +909,7 @@ public sealed class YaraEngineService : IYaraEngineService
             return OperationResult<YaraProcessScanReport>.Fail($"Process {processId} is not running or inaccessible: {ex.Message}", "PROCESS_NOT_FOUND");
         }
 
-        var args = new[] { "-C", "-g", "-m", "-s", "-t", "30", CompiledBundlePath, processId.ToString() };
+        var args = new[] { "-C", "-g", "-m", "-s", "-w", "-a", "25", CompiledBundlePath, processId.ToString() };
         var exec = await RunProcessAsync(yaraExe, args, TimeSpan.FromSeconds(35), ct).ConfigureAwait(false);
 
         var matches = new List<YaraProcessMatch>();
@@ -855,10 +917,10 @@ public sealed class YaraEngineService : IYaraEngineService
         int scanned = 0;
         int skippedDenied = 0;
 
-        if (exec.ExitCode == 0)
+        if (exec.Success && exec.Value is not null && exec.Value.ExitCode == 0)
         {
             scanned = 1;
-            var parsed = ParseYaraScanOutput(exec.StdOut, processId.ToString());
+            var parsed = ParseYaraScanOutput(exec.Value.Output, processId.ToString());
             foreach (var m in parsed)
             {
                 matches.Add(new YaraProcessMatch
@@ -905,10 +967,10 @@ public sealed class YaraEngineService : IYaraEngineService
     {
         var startedAt = DateTimeOffset.UtcNow;
         var init = await EnsureReadyForScanAsync(ct).ConfigureAwait(false);
-        if (!init.Success || init.Value is null)
+        if (!init.Success || string.IsNullOrWhiteSpace(init.Value))
             return OperationResult<YaraProcessScanReport>.Fail(init.Message, init.ErrorCode);
 
-        var yaraExe = init.Value.YaraExecutablePath!;
+        var yaraExe = init.Value;
         var selfPid = Environment.ProcessId;
         var allProcs = Process.GetProcesses()
             .Where(p => p.Id > 4 && p.Id != selfPid)
@@ -948,13 +1010,13 @@ public sealed class YaraEngineService : IYaraEngineService
                     Elapsed = DateTimeOffset.UtcNow - startedAt
                 });
 
-                var args = new[] { "-C", "-g", "-m", "-s", "-t", "15", CompiledBundlePath, pid.ToString() };
+                var args = new[] { "-C", "-g", "-m", "-s", "-w", "-a", "15", CompiledBundlePath, pid.ToString() };
                 var exec = await RunProcessAsync(yaraExe, args, TimeSpan.FromSeconds(20), ct).ConfigureAwait(false);
 
-                if (exec.ExitCode == 0)
+                if (exec.Success && exec.Value is not null && exec.Value.ExitCode == 0)
                 {
                     scanned++;
-                    var parsed = ParseYaraScanOutput(exec.StdOut, pid.ToString());
+                    var parsed = ParseYaraScanOutput(exec.Value.Output, pid.ToString());
                     foreach (var m in parsed)
                     {
                         matches.Add(new YaraProcessMatch
