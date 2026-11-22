@@ -23,10 +23,23 @@ public sealed partial class YaraScannerPage : Page
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
+        bool autoScan = false;
         if (e.Parameter is string prefillPath && !string.IsNullOrWhiteSpace(prefillPath))
-            ViewModel.TargetPath = prefillPath;
+        {
+            if (prefillPath.StartsWith("AUTO:", StringComparison.Ordinal))
+            {
+                autoScan = true;
+                ViewModel.TargetPath = prefillPath["AUTO:".Length..];
+            }
+            else
+            {
+                ViewModel.TargetPath = prefillPath;
+            }
+        }
 
         await ViewModel.InitializeAsync();
+        if (autoScan && !string.IsNullOrWhiteSpace(ViewModel.TargetPath))
+            await ViewModel.ScanTargetAsync();
     }
 
     private async void BrowseFileButton_Click(object sender, RoutedEventArgs e)
@@ -158,6 +171,21 @@ public sealed partial class YaraScannerPage : Page
         var prompt = ViewModel.BuildAiExplainPrompt();
         if (prompt is not null)
             App.MainWindow?.NavigateTo("Ai", prompt);
+    }
+
+    private async void QuarantineMatchButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: YaraRuleMatch match })
+            await ViewModel.QuarantineMatchAsync(match);
+    }
+
+    private async void InvestigateMatchWithAi_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: YaraRuleMatch match })
+        {
+            var prompt = await ViewModel.BuildDeepAiInvestigatorPromptAsync(match);
+            App.MainWindow?.NavigateTo("Ai", prompt);
+        }
     }
 
     private static void InitializePicker(object picker)

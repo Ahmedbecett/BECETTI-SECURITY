@@ -52,6 +52,15 @@ public partial class App : Application
         services.AddSingleton<ISecureVaultService, SecureVaultService>();
         services.AddSingleton<IParentalControlService, ParentalControlService>();
         services.AddSingleton<IGamePerformanceModeService, GamePerformanceModeService>();
+        services.AddSingleton<IQuarantineService, QuarantineService>();
+        services.AddSingleton<IFileForensicsService, FileForensicsService>();
+        services.AddSingleton<IRealTimeYaraGuardService, RealTimeYaraGuardService>();
+        services.AddSingleton<IRansomwareCanaryService, RansomwareCanaryService>();
+        services.AddSingleton<IClipboardGuardService, ClipboardGuardService>();
+        services.AddSingleton<IUsbAutoScanService, UsbAutoScanService>();
+        services.AddSingleton<IScheduledYaraUpdateService, ScheduledYaraUpdateService>();
+        services.AddSingleton<IExplorerContextMenuService, ExplorerContextMenuService>();
+        services.AddSingleton<IPerAppFirewallService, PerAppFirewallService>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
         services.AddSingleton<Services.SpeechService>();
@@ -79,6 +88,7 @@ public partial class App : Application
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
         services.AddTransient<YaraScannerViewModel>();
+        services.AddTransient<AdvancedDefenseViewModel>();
         services.AddTransient<ProtectionViewModel>();
         services.AddTransient<CloudViewModel>();
         services.AddTransient<ThreatsViewModel>();
@@ -128,12 +138,106 @@ public partial class App : Application
         if (cloud is CloudService concreteCloud)
             await concreteCloud.RestoreSessionAsync();
 
-        Services.GetRequiredService<Services.NotificationService>().Initialize();
+        var notifications = Services.GetRequiredService<Services.NotificationService>();
+        notifications.Initialize();
 
         var mainWindow = new MainWindow();
         _window = mainWindow;
         MainWindow = mainWindow;
         mainWindow.Activate();
+
+        WireAdvancedSecurityGuards(settings, notifications);
+
+        // Handle Windows Explorer Right-Click ("Scan with BECETTI YARA") launch argument
+        var yaraScanArg = ExtractYaraScanArgument(Environment.GetCommandLineArgs());
+        if (!string.IsNullOrWhiteSpace(yaraScanArg))
+            mainWindow.NavigateTo("Yara", "AUTO:" + yaraScanArg);
+    }
+
+    private static void WireAdvancedSecurityGuards(ISettingsService settings, Services.NotificationService notifications)
+    {
+        var folderGuard = Services.GetRequiredService<IRealTimeYaraGuardService>();
+        folderGuard.AutoQuarantineEnabled = settings.Current.RealTimeYaraAutoQuarantine;
+        folderGuard.ThreatDetected += (_, ev) =>
+            _ = notifications.NotifyCriticalAsync("BECETTI YARA Folder Guard Alert", ev.DisplayLine);
+
+        var canary = Services.GetRequiredService<IRansomwareCanaryService>();
+        canary.CanaryTripped += (_, alert) =>
+            _ = notifications.NotifyCriticalAsync("Ransomware Canary Alert!", $"{alert.ChangeType}: {alert.Details}");
+
+        var clipboardGuard = Services.GetRequiredService<IClipboardGuardService>();
+        clipboardGuard.IsEnabled = settings.Current.ClipboardGuardEnabled;
+        clipboardGuard.HijackDetected += (_, alert) =>
+            _ = notifications.NotifyCriticalAsync("Clipboard Hijack Detected!", alert.Message);
+
+        var usbAutoScan = Services.GetRequiredService<IUsbAutoScanService>();
+        usbAutoScan.UsbThreatDetected += (_, ev) =>
+            _ = notifications.NotifyCriticalAsync("USB YARA Threat Detected!", ev.Summary);
+
+        // Subscribe to real Windows Clipboard changes on the UI thread
+        try
+        {
+            Windows.ApplicationModel.DataTransfer.Clipboard.ContentChanged += async (_, _) =>
+            {
+                if (!clipboardGuard.IsEnabled)
+                    return;
+                try
+                {
+                    var pkg = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
+                    if (pkg.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text))
+                    {
+                        var text = await pkg.GetTextAsync();
+                        clipboardGuard.ObserveClipboardText(text);
+                    }
+                }
+                catch
+                {
+                    // Ignore transient clipboard lock from other apps
+                }
+            };
+        }
+        catch
+        {
+            // Clipboard API unavailable in restricted contexts
+        }
+
+        // Start user-enabled persistent background guards cleanly in the background
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                if (settings.Current.RealTimeYaraGuardEnabled)
+                    await folderGuard.StartAsync();
+
+                if (settings.Current.RansomwareCanaryEnabled)
+                    await canary.ArmAsync();
+
+                if (settings.Current.UsbAutoScanEnabled)
+                    usbAutoScan.Start();
+
+                var scheduledYara = Services.GetRequiredService<IScheduledYaraUpdateService>();
+                await scheduledYara.LoadConfigAsync();
+                if (scheduledYara.CurrentConfig.Enabled)
+                    scheduledYara.StartBackgroundLoop();
+            }
+            catch
+            {
+                // Non-fatal startup guard error
+            }
+        });
+    }
+
+    private static string? ExtractYaraScanArgument(string[] args)
+    {
+        for (int i = 0; i < args.Length - 1; i++)
+        {
+            if (string.Equals(args[i], "--yara-scan", StringComparison.OrdinalIgnoreCase) &&
+                !string.IsNullOrWhiteSpace(args[i + 1]))
+            {
+                return args[i + 1].Trim('"');
+            }
+        }
+        return null;
     }
 
     /// <summary>

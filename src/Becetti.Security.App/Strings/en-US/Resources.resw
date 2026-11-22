@@ -357,4 +357,41 @@ BECETTI SECURITY never simulates or fabricates detections.</value></data>
   <data name="FooterDanger" xml:space="preserve"><value>At risk — Defender antivirus is disabled</value></data>
   <data name="FooterYaraReady" xml:space="preserve"><value>Native YARA Engine ready</value></data>
   <data name="FooterUnknown" xml:space="preserve"><value>Protection status unknown — could not verify</value></data>
+
+  <data name="NavAdvancedDefense.Content" xml:space="preserve"><value>Advanced Defense</value></data>
+  <data name="TitleAdvancedDefense.Text" xml:space="preserve"><value>Advanced Defense &amp; Forensics</value></data>
+  <data name="SubtitleAdvancedDefense.Text" xml:space="preserve"><value>Real-time YARA Folder Guard, AES-256-GCM Quarantine Vault, live Process Memory YARA Scanner, PE/Entropy/Authenticode Forensics, Ransomware Canary Honeypot, Clipboard Hijack Guard, USB Auto-Scan, Scheduled YARA Updates, and Explorer Right-Click Integration.</value></data>
+  <data name="AdvFolderGuardTitle.Text" xml:space="preserve"><value>Real-Time YARA Folder Guard</value></data>
+  <data name="AdvFolderGuardToggle.Header" xml:space="preserve"><value>Monitor Downloads, Desktop, Temp &amp; Startup</value></data>
+  <data name="AdvAutoQuarantineToggle.Header" xml:space="preserve"><value>Auto-quarantine detected threats</value></data>
+  <data name="AdvQuarantineTitle.Text" xml:space="preserve"><value>Encrypted Quarantine Vault (AES-256-GCM)</value></data>
+  <data name="AdvQuarantineDesc.Text" xml:space="preserve"><value>Quarantined threats are encrypted locally with AES-256-GCM (DPAPI-protected key) and prevented from executing. You can restore with SHA-256 verification or wipe permanently.</value></data>
+  <data name="AdvProcessScanTitle.Text" xml:space="preserve"><value>Live Process &amp; Memory YARA Scanner</value></data>
+  <data name="AdvProcessScanDesc.Text" xml:space="preserve"><value>Scans active Windows process memory directly with yara64.exe to catch fileless malware and in-memory code injection.</value></data>
+  <data name="AdvScanAllProcsButton.Content" xml:space="preserve"><value>Scan All Processes in Memory</value></data>
+  <data name="AdvScanPidButton.Content" xml:space="preserve"><value>Scan PID</value></data>
+  <data name="AdvForensicsTitle.Text" xml:space="preserve"><value>PE Forensics, Shannon Entropy &amp; Authenticode Verifier</value></data>
+  <data name="AdvAnalyzeFileButton.Content" xml:space="preserve"><value>Analyze File</value></data>
+  <data name="AdvAiInvestigateButton.Content" xml:space="preserve"><value>AI Threat Investigator</value></data>
+  <data name="AdvCanaryTitle.Text" xml:space="preserve"><value>Ransomware Canary / Honeypot Guard</value></data>
+  <data name="AdvCanaryToggle.Header" xml:space="preserve"><value>Arm hidden sentinel canary files in Documents, Pictures &amp; Desktop</value></data>
+  <data name="AdvVerifyCanariesButton.Content" xml:space="preserve"><value>Verify Integrity Now</value></data>
+  <data name="AdvClipboardTitle.Text" xml:space="preserve"><value>Clipboard Hijack Guard (Crypto Wallet &amp; IBAN Protection)</value></data>
+  <data name="AdvClipboardToggle.Header" xml:space="preserve"><value>Detect clipper malware replacing copied wallet / IBAN addresses</value></data>
+  <data name="AdvUsbTitle.Text" xml:space="preserve"><value>USB Auto-Scan on Insertion (Native YARA)</value></data>
+  <data name="AdvUsbToggle.Header" xml:space="preserve"><value>Automatically scan newly plugged-in USB drives with YARA</value></data>
+  <data name="AdvScanUsbNowButton.Content" xml:space="preserve"><value>Scan Connected USB Now</value></data>
+  <data name="AdvScheduleTitle.Text" xml:space="preserve"><value>Scheduled Automatic YARA Rule Updates</value></data>
+  <data name="AdvScheduleToggle.Header" xml:space="preserve"><value>Enable automatic trusted repository updates</value></data>
+  <data name="AdvRunUpdateNowButton.Content" xml:space="preserve"><value>Run Auto-Update Now</value></data>
+  <data name="AdvContextMenuTitle.Text" xml:space="preserve"><value>Windows Explorer Right-Click Integration</value></data>
+  <data name="AdvRegisterContextMenuButton.Content" xml:space="preserve"><value>Register 'Scan with BECETTI YARA'</value></data>
+  <data name="AdvUnregisterContextMenuButton.Content" xml:space="preserve"><value>Remove Right-Click Entry</value></data>
+  <data name="YaraAiStudioTitle.Text" xml:space="preserve"><value>AI YARA Rule Studio (Powered by BECETTI AI + yarac64)</value></data>
+  <data name="YaraAiStudioDesc.Text" xml:space="preserve"><value>Describe a threat or paste IOCs (strings, domains, filenames). BECETTI AI drafts a YARA 4.x rule and validates it live with yarac64.exe before activation.</value></data>
+  <data name="YaraAiGenerateButton.Content" xml:space="preserve"><value>Generate &amp; Validate Rule</value></data>
+  <data name="YaraAiSaveButton.Content" xml:space="preserve"><value>Save &amp; Activate Rule</value></data>
+  <data name="PerAppFirewallTitle.Text" xml:space="preserve"><value>Per-App Windows Firewall Blocker</value></data>
+  <data name="PerAppFirewallDesc.Text" xml:space="preserve"><value>Block or unblock any executable (.exe) from accessing the internet using real Windows Firewall rules (Administrator rights required).</value></data>
+  <data name="PerAppBlockButton.Content" xml:space="preserve"><value>Block App</value></data>
 </root>

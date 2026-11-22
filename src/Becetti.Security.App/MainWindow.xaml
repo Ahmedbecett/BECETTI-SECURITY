@@ -43,6 +43,11 @@
                         <FontIcon Glyph="&#xE9D5;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavAdvancedDefense" helpers:Loc.Uid="NavAdvancedDefense" Content="Advanced Defense" Tag="AdvancedDefense">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE83D;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavProtection" helpers:Loc.Uid="NavProtection" Content="Real-Time Protection" Tag="Protection">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE7EF;" />

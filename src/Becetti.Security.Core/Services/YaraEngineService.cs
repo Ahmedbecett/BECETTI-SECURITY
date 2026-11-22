@@ -823,6 +823,197 @@ public sealed class YaraEngineService : IYaraEngineService
         }
     }
 
+    public async Task<OperationResult<YaraProcessScanReport>> ScanProcessAsync(int processId, CancellationToken ct = default)
+    {
+        if (processId <= 4)
+            return OperationResult<YaraProcessScanReport>.Fail("Cannot scan kernel/idle system PID.", "INVALID_PID");
+
+        var startedAt = DateTimeOffset.UtcNow;
+        var init = await EnsureReadyForScanAsync(ct).ConfigureAwait(false);
+        if (!init.Success || init.Value is null)
+            return OperationResult<YaraProcessScanReport>.Fail(init.Message, init.ErrorCode);
+
+        var yaraExe = init.Value.YaraExecutablePath!;
+        string procName = $"PID-{processId}";
+        string? exePath = null;
+        try
+        {
+            using var proc = Process.GetProcessById(processId);
+            procName = proc.ProcessName;
+            try { exePath = proc.MainModule?.FileName; } catch { }
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<YaraProcessScanReport>.Fail($"Process {processId} is not running or inaccessible: {ex.Message}", "PROCESS_NOT_FOUND");
+        }
+
+        var args = new[] { "-C", "-g", "-m", "-s", "-t", "30", CompiledBundlePath, processId.ToString() };
+        var exec = await RunProcessAsync(yaraExe, args, TimeSpan.FromSeconds(35), ct).ConfigureAwait(false);
+
+        var matches = new List<YaraProcessMatch>();
+        var notes = new List<string>();
+        int scanned = 0;
+        int skippedDenied = 0;
+
+        if (exec.ExitCode == 0)
+        {
+            scanned = 1;
+            var parsed = ParseYaraScanOutput(exec.StdOut, processId.ToString());
+            foreach (var m in parsed)
+            {
+                matches.Add(new YaraProcessMatch
+                {
+                    ProcessId = processId,
+                    ProcessName = procName,
+                    ExecutablePath = exePath,
+                    RuleName = m.RuleName,
+                    Description = m.Description,
+                    Severity = m.Severity,
+                    Tags = m.Tags
+                });
+            }
+        }
+        else
+        {
+            skippedDenied = 1;
+            notes.Add($"PID {processId} ({procName}): {FormatProcessFailure(exec)}");
+        }
+
+        var report = new YaraProcessScanReport
+        {
+            StartedAt = startedAt,
+            EndedAt = DateTimeOffset.UtcNow,
+            ProcessesEnumerated = 1,
+            ProcessesScanned = scanned,
+            ProcessesSkippedAccessDenied = skippedDenied,
+            Matches = matches,
+            Notes = notes
+        };
+
+        return OperationResult<YaraProcessScanReport>.Ok(
+            report,
+            matches.Count > 0
+                ? $"Memory scan detected {matches.Count} YARA match(es) in {procName} (PID {processId})."
+                : scanned == 1
+                    ? $"Process {procName} (PID {processId}) scanned cleanly in memory."
+                    : $"Process {procName} (PID {processId}) could not be opened for memory reading (protected/elevated).");
+    }
+
+    public async Task<OperationResult<YaraProcessScanReport>> ScanRunningProcessesAsync(
+        IProgress<YaraScanProgress>? progress = null,
+        CancellationToken ct = default)
+    {
+        var startedAt = DateTimeOffset.UtcNow;
+        var init = await EnsureReadyForScanAsync(ct).ConfigureAwait(false);
+        if (!init.Success || init.Value is null)
+            return OperationResult<YaraProcessScanReport>.Fail(init.Message, init.ErrorCode);
+
+        var yaraExe = init.Value.YaraExecutablePath!;
+        var selfPid = Environment.ProcessId;
+        var allProcs = Process.GetProcesses()
+            .Where(p => p.Id > 4 && p.Id != selfPid)
+            .OrderBy(p => p.ProcessName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var matches = new List<YaraProcessMatch>();
+        var notes = new List<string>();
+        int scanned = 0;
+        int skipped = 0;
+        bool cancelled = false;
+        int total = allProcs.Count;
+
+        try
+        {
+            for (int i = 0; i < allProcs.Count; i++)
+            {
+                if (ct.IsCancellationRequested)
+                {
+                    cancelled = true;
+                    break;
+                }
+
+                var proc = allProcs[i];
+                int pid = proc.Id;
+                string name = proc.ProcessName;
+                string? exePath = null;
+                try { exePath = proc.MainModule?.FileName; } catch { }
+
+                progress?.Report(new YaraScanProgress
+                {
+                    FilesScanned = i,
+                    TotalFiles = total,
+                    MatchesFound = matches.Count,
+                    ErrorsCount = skipped,
+                    CurrentFile = $"PID {pid} ({name})",
+                    Elapsed = DateTimeOffset.UtcNow - startedAt
+                });
+
+                var args = new[] { "-C", "-g", "-m", "-s", "-t", "15", CompiledBundlePath, pid.ToString() };
+                var exec = await RunProcessAsync(yaraExe, args, TimeSpan.FromSeconds(20), ct).ConfigureAwait(false);
+
+                if (exec.ExitCode == 0)
+                {
+                    scanned++;
+                    var parsed = ParseYaraScanOutput(exec.StdOut, pid.ToString());
+                    foreach (var m in parsed)
+                    {
+                        matches.Add(new YaraProcessMatch
+                        {
+                            ProcessId = pid,
+                            ProcessName = name,
+                            ExecutablePath = exePath,
+                            RuleName = m.RuleName,
+                            Description = m.Description,
+                            Severity = m.Severity,
+                            Tags = m.Tags
+                        });
+                    }
+                }
+                else
+                {
+                    skipped++;
+                    if (notes.Count < 40)
+                        notes.Add($"Skipped PID {pid} ({name}): {FormatProcessFailure(exec)}");
+                }
+            }
+        }
+        finally
+        {
+            foreach (var p in allProcs)
+            {
+                try { p.Dispose(); } catch { }
+            }
+        }
+
+        progress?.Report(new YaraScanProgress
+        {
+            FilesScanned = total,
+            TotalFiles = total,
+            MatchesFound = matches.Count,
+            ErrorsCount = skipped,
+            CurrentFile = cancelled ? "Cancelled" : "Complete",
+            Elapsed = DateTimeOffset.UtcNow - startedAt
+        });
+
+        var report = new YaraProcessScanReport
+        {
+            StartedAt = startedAt,
+            EndedAt = DateTimeOffset.UtcNow,
+            ProcessesEnumerated = total,
+            ProcessesScanned = scanned,
+            ProcessesSkippedAccessDenied = skipped,
+            WasCancelled = cancelled,
+            Matches = matches,
+            Notes = notes
+        };
+
+        return OperationResult<YaraProcessScanReport>.Ok(
+            report,
+            matches.Count > 0
+                ? $"Memory scan found {matches.Count} YARA match(es) across {scanned} scanned process(es)."
+                : $"Scanned {scanned} process(es) in memory — no YARA matches ({skipped} protected/inaccessible skipped).");
+    }
+
     public string FormatReportAsText(YaraScanReport report)
     {
         var sb = new StringBuilder();

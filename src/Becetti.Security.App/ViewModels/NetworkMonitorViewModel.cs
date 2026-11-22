@@ -5,33 +5,48 @@ using Becetti.Security.Core.Services;
 namespace Becetti.Security.App.ViewModels;
 
 /// <summary>
-/// Network Monitor page: real network adapters, real active TCP connections
-/// and listening ports (Get-NetTCPConnection), and real firewall profile
-/// state (reused from IDefenderService, not duplicated). BECETTI SECURITY
-/// never labels a connection "suspicious" on its own — it shows Windows'
-/// own verified list so the user can judge what is actually talking to
-/// the network right now.
+/// Network Monitor page: real network adapters, real active TCP connections,
+/// firewall profile state, and real per-application Windows Firewall blocking/unblocking.
 /// </summary>
 public sealed class NetworkMonitorViewModel : ViewModelBase
 {
     private readonly INetworkMonitorService _network;
     private readonly IDefenderService _defender;
+    private readonly IPerAppFirewallService _perAppFirewall;
 
     private string _firewallText = "Not checked yet.";
+    private string _appPathToBlock = string.Empty;
 
-    public NetworkMonitorViewModel(INetworkMonitorService network, IDefenderService defender)
+    public NetworkMonitorViewModel(
+        INetworkMonitorService network,
+        IDefenderService defender,
+        IPerAppFirewallService perAppFirewall)
     {
         _network = network;
         _defender = defender;
+        _perAppFirewall = perAppFirewall;
         RefreshCommand = new RelayCommand(LoadAsync);
+        BlockAppCommand = new RelayCommand(BlockAppAsync, () => !string.IsNullOrWhiteSpace(AppPathToBlock));
     }
 
     public ObservableCollection<NetworkAdapterInfo> Adapters { get; } = new();
     public ObservableCollection<NetworkConnectionInfo> Connections { get; } = new();
+    public ObservableCollection<FirewallBlockedApp> BlockedApps { get; } = new();
 
     public RelayCommand RefreshCommand { get; }
+    public RelayCommand BlockAppCommand { get; }
 
     public string FirewallText { get => _firewallText; set => SetProperty(ref _firewallText, value); }
+
+    public string AppPathToBlock
+    {
+        get => _appPathToBlock;
+        set
+        {
+            if (SetProperty(ref _appPathToBlock, value))
+                BlockAppCommand.RaiseCanExecuteChanged();
+        }
+    }
 
     public async Task LoadAsync()
     {
@@ -58,8 +73,6 @@ public sealed class NetworkMonitorViewModel : ViewModelBase
             Connections.Clear();
             if (connectionsResult.Success && connectionsResult.Value is not null)
             {
-                // Established/talking connections first — that is the actually interesting
-                // "who is my PC talking to right now" view; pure listeners follow.
                 foreach (var connection in connectionsResult.Value
                              .OrderByDescending(c => !string.Equals(c.State, "Listen", StringComparison.OrdinalIgnoreCase))
                              .ThenBy(c => c.LocalPort))
@@ -77,11 +90,58 @@ public sealed class NetworkMonitorViewModel : ViewModelBase
                 ? string.Join("  ·  ", firewall.Value.Select(p => $"{p.Name}: {(p.Enabled ? "On" : "Off")}"))
                 : "Unknown";
 
-            StatusMessage = $"{Adapters.Count} adapter(s), {Connections.Count} active connection(s)/listener(s).";
+            await ReloadBlockedAppsAsync();
+
+            StatusMessage = $"{Adapters.Count} adapter(s), {Connections.Count} active connection(s), {BlockedApps.Count} blocked app rule(s).";
         }
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    public async Task BlockAppAsync()
+    {
+        if (string.IsNullOrWhiteSpace(AppPathToBlock))
+            return;
+
+        ClearMessages();
+        var res = await _perAppFirewall.BlockApplicationAsync(AppPathToBlock.Trim());
+        if (res.Success)
+        {
+            StatusMessage = res.Message;
+            AppPathToBlock = string.Empty;
+            await ReloadBlockedAppsAsync();
+        }
+        else
+        {
+            ErrorMessage = res.Message;
+        }
+    }
+
+    public async Task UnblockRuleAsync(string ruleName)
+    {
+        ClearMessages();
+        var res = await _perAppFirewall.UnblockApplicationAsync(ruleName);
+        if (res.Success)
+        {
+            StatusMessage = res.Message;
+            await ReloadBlockedAppsAsync();
+        }
+        else
+        {
+            ErrorMessage = res.Message;
+        }
+    }
+
+    private async Task ReloadBlockedAppsAsync()
+    {
+        BlockedApps.Clear();
+        var res = await _perAppFirewall.GetBlockedAppsAsync();
+        if (res.Success && res.Value is not null)
+        {
+            foreach (var app in res.Value)
+                BlockedApps.Add(app);
         }
     }
 }

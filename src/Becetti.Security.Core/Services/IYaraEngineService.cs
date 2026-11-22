@@ -59,6 +59,14 @@ public interface IYaraEngineService
         string ruleUrl,
         CancellationToken ct = default);
 
+    /// <summary>Scans a single live Windows process in memory via native yara64.exe &lt;rules&gt; &lt;PID&gt;.</summary>
+    Task<OperationResult<YaraProcessScanReport>> ScanProcessAsync(int processId, CancellationToken ct = default);
+
+    /// <summary>Scans accessible running Windows processes in memory via native yara64.exe.</summary>
+    Task<OperationResult<YaraProcessScanReport>> ScanRunningProcessesAsync(
+        IProgress<YaraScanProgress>? progress = null,
+        CancellationToken ct = default);
+
     /// <summary>Formats a real scan report as a human-readable plain-text report (including YARA license notice).</summary>
     string FormatReportAsText(YaraScanReport report);
 

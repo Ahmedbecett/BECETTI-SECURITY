@@ -91,6 +91,21 @@ public sealed class AppSettings
     /// or clearing settings produces a new one.
     /// </summary>
     public string DeviceId { get; set; } = string.Empty;
+
+    /// <summary>When true, Real-Time YARA Folder Guard monitors Downloads, Desktop, Temp, and Startup.</summary>
+    public bool RealTimeYaraGuardEnabled { get; set; }
+
+    /// <summary>When true, threats detected by Real-Time YARA Folder Guard are automatically moved to AES-256-GCM Quarantine.</summary>
+    public bool RealTimeYaraAutoQuarantine { get; set; }
+
+    /// <summary>When true, Ransomware Canary decoy files are deployed and watched in user folders.</summary>
+    public bool RansomwareCanaryEnabled { get; set; }
+
+    /// <summary>When true, Clipboard Hijack Guard monitors copied wallet/IBAN addresses for clipper tampering.</summary>
+    public bool ClipboardGuardEnabled { get; set; }
+
+    /// <summary>When true, newly inserted USB removable drives are scanned automatically by Native YARA Engine.</summary>
+    public bool UsbAutoScanEnabled { get; set; }
 }
 
 public interface ISettingsService

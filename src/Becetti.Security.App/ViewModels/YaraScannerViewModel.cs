@@ -13,6 +13,10 @@ namespace Becetti.Security.App.ViewModels;
 public sealed class YaraScannerViewModel : ViewModelBase
 {
     private readonly IYaraEngineService _yara;
+    private readonly IQuarantineService _quarantine;
+    private readonly IFileForensicsService _forensics;
+    private readonly IBecettiAiService _ai;
+    private readonly LocalizationService _localization;
     private readonly IEventLogService _events;
     private readonly ISettingsService _settings;
     private readonly SoundService _sound;
@@ -36,15 +40,27 @@ public sealed class YaraScannerViewModel : ViewModelBase
     private string _customRuleUrl = string.Empty;
     private string _ruleUpdateSummary = string.Empty;
     private YaraTrustedRepository? _selectedRepository;
+    private string _aiRulePromptText = string.Empty;
+    private string _aiGeneratedRuleText = string.Empty;
+    private string _aiRuleStudioStatus = string.Empty;
+    private bool _isGeneratingAiRule;
 
     public YaraScannerViewModel(
         IYaraEngineService yara,
+        IQuarantineService quarantine,
+        IFileForensicsService forensics,
+        IBecettiAiService ai,
+        LocalizationService localization,
         IEventLogService events,
         ISettingsService settings,
         SoundService sound,
         NotificationService notifications)
     {
         _yara = yara;
+        _quarantine = quarantine;
+        _forensics = forensics;
+        _ai = ai;
+        _localization = localization;
         _events = events;
         _settings = settings;
         _sound = sound;
@@ -61,6 +77,8 @@ public sealed class YaraScannerViewModel : ViewModelBase
         CancelScanCommand = new RelayCommand(CancelScanAsync, () => IsScanning);
         UpdateFromRepositoryCommand = new RelayCommand(UpdateFromSelectedRepositoryAsync);
         UpdateFromCustomUrlCommand = new RelayCommand(UpdateFromCustomUrlAsync);
+        GenerateAiYaraRuleCommand = new RelayCommand(GenerateAiYaraRuleAsync, () => !IsGeneratingAiRule && !string.IsNullOrWhiteSpace(AiRulePromptText));
+        SaveAiYaraRuleCommand = new RelayCommand(SaveAiYaraRuleAsync, () => !IsGeneratingAiRule && !string.IsNullOrWhiteSpace(AiGeneratedRuleText));
     }
 
     public ObservableCollection<YaraRuleFileInfo> RuleFiles { get; } = new();
@@ -75,6 +93,43 @@ public sealed class YaraScannerViewModel : ViewModelBase
     public RelayCommand CancelScanCommand { get; }
     public RelayCommand UpdateFromRepositoryCommand { get; }
     public RelayCommand UpdateFromCustomUrlCommand { get; }
+    public RelayCommand GenerateAiYaraRuleCommand { get; }
+    public RelayCommand SaveAiYaraRuleCommand { get; }
+
+    public string AiRulePromptText
+    {
+        get => _aiRulePromptText;
+        set
+        {
+            if (SetProperty(ref _aiRulePromptText, value))
+                GenerateAiYaraRuleCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string AiGeneratedRuleText
+    {
+        get => _aiGeneratedRuleText;
+        set
+        {
+            if (SetProperty(ref _aiGeneratedRuleText, value))
+                SaveAiYaraRuleCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string AiRuleStudioStatus { get => _aiRuleStudioStatus; set => SetProperty(ref _aiRuleStudioStatus, value); }
+
+    public bool IsGeneratingAiRule
+    {
+        get => _isGeneratingAiRule;
+        set
+        {
+            if (SetProperty(ref _isGeneratingAiRule, value))
+            {
+                GenerateAiYaraRuleCommand.RaiseCanExecuteChanged();
+                SaveAiYaraRuleCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
 
     public bool IsEngineAvailable { get => _isEngineAvailable; private set => SetProperty(ref _isEngineAvailable, value); }
     public string EngineStatusText { get => _engineStatusText; private set => SetProperty(ref _engineStatusText, value); }
@@ -538,5 +593,129 @@ public sealed class YaraScannerViewModel : ViewModelBase
             lines.Add($"- Scan errors: {r.Errors.Count} (e.g. {r.Errors[0].DisplayLine})");
 
         return string.Join("\n", lines);
+    }
+
+    public async Task QuarantineMatchAsync(YaraRuleMatch match)
+    {
+        ClearMessages();
+        var res = await _quarantine.QuarantineFileAsync(
+            match.FilePath,
+            match.RuleName,
+            match.Description,
+            "Native YARA Engine");
+
+        if (res.Success)
+        {
+            StatusMessage = res.Message;
+            await _events.AppendAsync(new SecurityEvent
+            {
+                Category = "Quarantine",
+                Action = "Quarantined YARA match",
+                Outcome = "Success",
+                Detail = $"{match.RuleName} -> {match.FilePath}"
+            });
+        }
+        else
+        {
+            ErrorMessage = res.Message;
+        }
+    }
+
+    public async Task<string> BuildDeepAiInvestigatorPromptAsync(YaraRuleMatch match)
+    {
+        FileForensicsReport? forensics = null;
+        if (File.Exists(match.FilePath))
+        {
+            var f = await _forensics.AnalyzeFileAsync(match.FilePath);
+            if (f.Success)
+                forensics = f.Value;
+        }
+        return AiYaraRuleHelper.BuildThreatInvestigatorPrompt(match, forensics, _localization.ShortCode);
+    }
+
+    public async Task GenerateAiYaraRuleAsync()
+    {
+        if (IsGeneratingAiRule || string.IsNullOrWhiteSpace(AiRulePromptText))
+            return;
+
+        IsGeneratingAiRule = true;
+        ClearMessages();
+        AiRuleStudioStatus = "Asking BECETTI AI to generate a standard YARA 4.x rule...";
+        try
+        {
+            var prompt = AiYaraRuleHelper.BuildYaraRuleGenerationPrompt(AiRulePromptText);
+            var aiResult = await _ai.SendAsync(new[] { new AiChatTurn { Role = "user", Content = prompt } });
+            if (!aiResult.Success || string.IsNullOrWhiteSpace(aiResult.Value))
+            {
+                ErrorMessage = aiResult.Message;
+                AiRuleStudioStatus = aiResult.Message;
+                return;
+            }
+
+            var extracted = AiYaraRuleHelper.ExtractYaraRuleText(aiResult.Value);
+            if (string.IsNullOrWhiteSpace(extracted))
+            {
+                AiGeneratedRuleText = aiResult.Value;
+                AiRuleStudioStatus = "AI replied, but no YARA rule block was detected. Edit the rule below and validate with yarac64.";
+                return;
+            }
+
+            AiGeneratedRuleText = extracted;
+
+            // Live-validate immediately with native yarac64.exe!
+            var tempRule = Path.Combine(Path.GetTempPath(), $"becetti_ai_preview_{Guid.NewGuid():N}.yar");
+            try
+            {
+                await File.WriteAllTextAsync(tempRule, extracted);
+                var val = await _yara.ValidateRuleFileAsync(tempRule);
+                AiRuleStudioStatus = val.Success
+                    ? $"Generated and verified cleanly with yarac64.exe ({val.Value?.RuleCount ?? 1} rule(s)). Ready to Save & Activate!"
+                    : $"Generated rule has a yarac64.exe compiler error — edit before saving: {val.Message}";
+            }
+            finally
+            {
+                try { if (File.Exists(tempRule)) File.Delete(tempRule); } catch { }
+            }
+        }
+        finally
+        {
+            IsGeneratingAiRule = false;
+        }
+    }
+
+    public async Task SaveAiYaraRuleAsync()
+    {
+        if (IsGeneratingAiRule || string.IsNullOrWhiteSpace(AiGeneratedRuleText))
+            return;
+
+        IsGeneratingAiRule = true;
+        ClearMessages();
+        try
+        {
+            var tempRule = Path.Combine(Path.GetTempPath(), $"ai_custom_{DateTime.Now:yyyyMMdd_HHmmss}.yar");
+            try
+            {
+                await File.WriteAllTextAsync(tempRule, AiGeneratedRuleText.Trim());
+                var import = await _yara.ImportRuleFileAsync(tempRule);
+                if (!import.Success)
+                {
+                    ErrorMessage = import.Message;
+                    AiRuleStudioStatus = $"Rejected by yarac64.exe: {import.Message}";
+                    return;
+                }
+
+                AiRuleStudioStatus = $"Validated with yarac64.exe and activated '{import.Value?.FileName}'!";
+                StatusMessage = AiRuleStudioStatus;
+                await RefreshAfterRuleChangeAsync();
+            }
+            finally
+            {
+                try { if (File.Exists(tempRule)) File.Delete(tempRule); } catch { }
+            }
+        }
+        finally
+        {
+            IsGeneratingAiRule = false;
+        }
     }
 }

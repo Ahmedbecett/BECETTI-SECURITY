@@ -30,6 +30,32 @@
             </Border>
 
             <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="PerAppFirewallTitle" helpers:Loc.Uid="PerAppFirewallTitle" Text="Per-App Windows Firewall Blocker" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="PerAppFirewallDesc" helpers:Loc.Uid="PerAppFirewallDesc" Text="Block or unblock any executable (.exe) from accessing the internet using real Windows Firewall rules (Administrator rights required)." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Width="460" PlaceholderText="C:\Path\To\SuspiciousApp.exe" Text="{x:Bind ViewModel.AppPathToBlock, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button x:Uid="YaraBrowseFileButton" helpers:Loc.Uid="YaraBrowseFileButton" Content="Browse File..." Click="BrowseExeToBlock_Click" />
+                        <Button x:Uid="PerAppBlockButton" helpers:Loc.Uid="PerAppBlockButton" Content="Block App" Command="{x:Bind ViewModel.BlockAppCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.BlockedApps, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:FirewallBlockedApp">
+                                <Grid Margin="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind DisplayLine}" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                    <Button Grid.Column="1" Content="Unblock" Tag="{x:Bind RuleName}" Click="UnblockApp_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock x:Uid="NetworkAdaptersLabel" helpers:Loc.Uid="NetworkAdaptersLabel" Text="Network Adapters" Style="{StaticResource ValueStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.Adapters, Mode=OneWay}" MinHeight="120" Margin="0,8,0,0">

@@ -357,4 +357,41 @@
   <data name="FooterDanger" xml:space="preserve"><value>في خطر — مكافح الفيروسات معطّل</value></data>
   <data name="FooterYaraReady" xml:space="preserve"><value>محرك YARA المحلي جاهز</value></data>
   <data name="FooterUnknown" xml:space="preserve"><value>حالة الحماية غير معروفة — تعذّر التحقق</value></data>
+
+  <data name="NavAdvancedDefense.Content" xml:space="preserve"><value>الحماية المتقدمة</value></data>
+  <data name="TitleAdvancedDefense.Text" xml:space="preserve"><value>مركز الحماية المتقدمة والتحليل الجنائي</value></data>
+  <data name="SubtitleAdvancedDefense.Text" xml:space="preserve"><value>مراقبة فورية للمجلدات بـ YARA، حجر صحي مشفر AES-256-GCM، فحص العمليات في الذاكرة، تحليل PE والإنتروبيا والتوقيع الرقمي، مصيدة برامج الفدية، حماية الحافظة، الفحص التلقائي لـ USB، التحديث المجدول لقواعد YARA، وتكامل القائمة اليمنى لـ Windows.</value></data>
+  <data name="AdvFolderGuardTitle.Text" xml:space="preserve"><value>المراقبة الفورية للمجلدات بمحرك YARA</value></data>
+  <data name="AdvFolderGuardToggle.Header" xml:space="preserve"><value>مراقبة التنزيلات وسطح المكتب والملفات المؤقتة وبدء التشغيل</value></data>
+  <data name="AdvAutoQuarantineToggle.Header" xml:space="preserve"><value>نقل التهديدات المكتشفة تلقائياً إلى الحجر الصحي المشفر</value></data>
+  <data name="AdvQuarantineTitle.Text" xml:space="preserve"><value>خزنة الحجر الصحي المشفرة (AES-256-GCM)</value></data>
+  <data name="AdvQuarantineDesc.Text" xml:space="preserve"><value>يتم تشفير الملفات المعزولة محلياً بخوارزمية AES-256-GCM (مفتاح محمي عبر DPAPI) ومنع تشغيلها. يمكنك الاستعادة مع التحقق بـ SHA-256 أو المسح النهائي.</value></data>
+  <data name="AdvProcessScanTitle.Text" xml:space="preserve"><value>فاحص العمليات والذاكرة النشطة عبر YARA</value></data>
+  <data name="AdvProcessScanDesc.Text" xml:space="preserve"><value>يفحص ذاكرة العمليات النشطة مباشرة عبر yara64.exe لكشف البرمجيات الخبيثة العاملة في الذاكرة وحقن الكود.</value></data>
+  <data name="AdvScanAllProcsButton.Content" xml:space="preserve"><value>فحص جميع العمليات في الذاكرة</value></data>
+  <data name="AdvScanPidButton.Content" xml:space="preserve"><value>فحص PID</value></data>
+  <data name="AdvForensicsTitle.Text" xml:space="preserve"><value>محلل ملفات PE والإنتروبيا والتحقق من التوقيع الرقمي</value></data>
+  <data name="AdvAnalyzeFileButton.Content" xml:space="preserve"><value>تحليل الملف</value></data>
+  <data name="AdvAiInvestigateButton.Content" xml:space="preserve"><value>محقق التهديدات الذكي (AI)</value></data>
+  <data name="AdvCanaryTitle.Text" xml:space="preserve"><value>مصيدة برامج الفدية (Ransomware Canary)</value></data>
+  <data name="AdvCanaryToggle.Header" xml:space="preserve"><value>تفعيل ملفات الطُعم المخفية في المستندات والصور وسطح المكتب</value></data>
+  <data name="AdvVerifyCanariesButton.Content" xml:space="preserve"><value>التحقق من السلامة الآن</value></data>
+  <data name="AdvClipboardTitle.Text" xml:space="preserve"><value>حماية الحافظة من سرقة عناوين المحافظ وIBAN</value></data>
+  <data name="AdvClipboardToggle.Header" xml:space="preserve"><value>كشف برمجيات التلاعب التي تستبدل عناوين المحافظ أو IBAN في الحافظة</value></data>
+  <data name="AdvUsbTitle.Text" xml:space="preserve"><value>الفحص التلقائي لأجهزة USB عند التوصيل (YARA)</value></data>
+  <data name="AdvUsbToggle.Header" xml:space="preserve"><value>فحص أقراص USB تلقائياً بمحرك YARA بمجرد توصيلها</value></data>
+  <data name="AdvScanUsbNowButton.Content" xml:space="preserve"><value>فحص USB المتصل الآن</value></data>
+  <data name="AdvScheduleTitle.Text" xml:space="preserve"><value>التحديث التلقائي المجدول لقواعد YARA</value></data>
+  <data name="AdvScheduleToggle.Header" xml:space="preserve"><value>تفعيل التحديث التلقائي من المستودعات الموثوقة</value></data>
+  <data name="AdvRunUpdateNowButton.Content" xml:space="preserve"><value>تشغيل التحديث الآن</value></data>
+  <data name="AdvContextMenuTitle.Text" xml:space="preserve"><value>تكامل القائمة اليمنى لـ Windows Explorer</value></data>
+  <data name="AdvRegisterContextMenuButton.Content" xml:space="preserve"><value>تفعيل خيار «فحص بـ BECETTI YARA» في القائمة اليمنى</value></data>
+  <data name="AdvUnregisterContextMenuButton.Content" xml:space="preserve"><value>إزالة الخيار من القائمة اليمنى</value></data>
+  <data name="YaraAiStudioTitle.Text" xml:space="preserve"><value>استوديو توليد قواعد YARA بالذكاء الاصطناعي (BECETTI AI + yarac64)</value></data>
+  <data name="YaraAiStudioDesc.Text" xml:space="preserve"><value>صف التهديد أو الصق مؤشرات الاختراق (IOCs). يقوم BECETTI AI بكتابة قاعدة YARA 4.x والتحقق منها مباشرة عبر yarac64.exe قبل التفعيل.</value></data>
+  <data name="YaraAiGenerateButton.Content" xml:space="preserve"><value>توليد وفحص القاعدة</value></data>
+  <data name="YaraAiSaveButton.Content" xml:space="preserve"><value>حفظ وتفعيل القاعدة</value></data>
+  <data name="PerAppFirewallTitle.Text" xml:space="preserve"><value>حظر التطبيقات في جدار حماية Windows</value></data>
+  <data name="PerAppFirewallDesc.Text" xml:space="preserve"><value>حظر أو إلغاء حظر وصول أي برنامج (.exe) إلى الإنترنت عبر قواعد Windows Firewall الحقيقية (يتطلب صلاحيات المسؤول).</value></data>
+  <data name="PerAppBlockButton.Content" xml:space="preserve"><value>حظر التطبيق</value></data>
 </root>

@@ -137,6 +137,10 @@
                                         <TextBlock Text="{x:Bind MatchedStringsText}" Foreground="{StaticResource TextSecondaryBrush}"
                                                    FontFamily="Consolas" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
                                                    Visibility="{x:Bind MatchedStringsText, Converter={StaticResource NotEmptyToVisibility}}" />
+                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+                                            <Button Content="Quarantine (AES-256)" Tag="{x:Bind}" Click="QuarantineMatchButton_Click" />
+                                            <Button Content="AI Threat Investigator" Tag="{x:Bind}" Click="InvestigateMatchWithAi_Click" />
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -239,6 +243,33 @@
                     <TextBlock Text="{x:Bind ViewModel.RuleUpdateSummary, Mode=OneWay}"
                                Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap"
                                Visibility="{x:Bind ViewModel.RuleUpdateSummary, Mode=OneWay, Converter={StaticResource NotEmptyToVisibility}}" />
+                </StackPanel>
+            </Border>
+
+            <!-- AI YARA Rule Studio Card -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="YaraAiStudioTitle" helpers:Loc.Uid="YaraAiStudioTitle"
+                               Text="AI YARA Rule Studio (Powered by BECETTI AI + yarac64)" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="YaraAiStudioDesc" helpers:Loc.Uid="YaraAiStudioDesc"
+                               Text="Describe a threat or paste IOCs (strings, domains, filenames). BECETTI AI drafts a YARA 4.x rule and validates it live with yarac64.exe before activation."
+                               Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <TextBox Text="{x:Bind ViewModel.AiRulePromptText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="Example: Detect scripts containing 'evil-c2.example' and 'Invoke-Mimikatz'..."
+                             AcceptsReturn="True" TextWrapping="Wrap" MinHeight="64" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Uid="YaraAiGenerateButton" helpers:Loc.Uid="YaraAiGenerateButton"
+                                Content="Generate &amp; Validate Rule" Command="{x:Bind ViewModel.GenerateAiYaraRuleCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="YaraAiSaveButton" helpers:Loc.Uid="YaraAiSaveButton"
+                                Content="Save &amp; Activate Rule" Command="{x:Bind ViewModel.SaveAiYaraRuleCommand}" />
+                        <ProgressRing IsActive="{x:Bind ViewModel.IsGeneratingAiRule, Mode=OneWay}" Width="24" Height="24" />
+                    </StackPanel>
+                    <TextBox Text="{x:Bind ViewModel.AiGeneratedRuleText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="Consolas" FontSize="12" AcceptsReturn="True" TextWrapping="NoWrap"
+                             PlaceholderText="Generated .yar rule will appear here..." MinHeight="120" />
+                    <TextBlock Text="{x:Bind ViewModel.AiRuleStudioStatus, Mode=OneWay}"
+                               Foreground="{StaticResource ElectricBlueBrush}" FontSize="12" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
 

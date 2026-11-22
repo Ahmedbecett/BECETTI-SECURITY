@@ -21,6 +21,7 @@ public sealed partial class MainWindow : Window
         ["Dashboard"] = typeof(DashboardPage),
         ["Scan"] = typeof(ScanPage),
         ["Yara"] = typeof(YaraScannerPage),
+        ["AdvancedDefense"] = typeof(AdvancedDefensePage),
         ["Protection"] = typeof(ProtectionPage),
         ["Cloud"] = typeof(CloudPage),
         ["Ai"] = typeof(BecettiAiPage),

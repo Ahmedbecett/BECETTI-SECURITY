@@ -1,0 +1,210 @@
+<Page
+    x:Class="Becetti.Security.App.Views.AdvancedDefensePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    mc:Ignorable="d">
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="1040" Spacing="16">
+
+            <TextBlock x:Uid="TitleAdvancedDefense" helpers:Loc.Uid="TitleAdvancedDefense" Text="Advanced Defense &amp; Forensics" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleAdvancedDefense" helpers:Loc.Uid="SubtitleAdvancedDefense"
+                       Text="Real-time YARA Folder Guard, AES-256-GCM Quarantine Vault, live Process Memory YARA Scanner, PE/Entropy/Authenticode Forensics, Ransomware Canary Honeypot, Clipboard Hijack Guard, USB Auto-Scan, Scheduled YARA Updates, and Explorer Right-Click Integration."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" />
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource AccentGreenBrush}" TextWrapping="Wrap" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="28" Height="28" />
+
+            <!-- 1. Real-Time YARA Folder Guard -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="AdvFolderGuardTitle" helpers:Loc.Uid="AdvFolderGuardTitle" Text="Real-Time YARA Folder Guard" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.FolderGuardStatus, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="24">
+                        <ToggleSwitch x:Uid="AdvFolderGuardToggle" helpers:Loc.Uid="AdvFolderGuardToggle" Header="Monitor Downloads, Desktop, Temp &amp; Startup" IsOn="{x:Bind ViewModel.FolderGuardEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch x:Uid="AdvAutoQuarantineToggle" helpers:Loc.Uid="AdvAutoQuarantineToggle" Header="Auto-quarantine detected threats" IsOn="{x:Bind ViewModel.AutoQuarantineEnabled, Mode=TwoWay}" />
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.GuardEvents}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:RealTimeGuardEvent">
+                                <TextBlock Text="{x:Bind DisplayLine}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,2" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- 2. Local AES-256-GCM Encrypted Quarantine Vault -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <Grid>
+                        <TextBlock x:Uid="AdvQuarantineTitle" helpers:Loc.Uid="AdvQuarantineTitle" Text="Encrypted Quarantine Vault (AES-256-GCM)" Style="{StaticResource ValueStyle}" VerticalAlignment="Center" />
+                        <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshQuarantineCommand}" HorizontalAlignment="Right" />
+                    </Grid>
+                    <TextBlock x:Uid="AdvQuarantineDesc" helpers:Loc.Uid="AdvQuarantineDesc" Text="Quarantined threats are encrypted locally with AES-256-GCM (DPAPI-protected key) and prevented from executing. You can restore with SHA-256 verification or wipe permanently." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.QuarantineEntries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:QuarantineEntry">
+                                <Border Background="{StaticResource PanelBackgroundBrush}" CornerRadius="8" Padding="12" Margin="0,4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Spacing="2">
+                                            <TextBlock Text="{x:Bind SummaryLine}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                                            <TextBlock Text="{x:Bind OriginalPath}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                                            <TextBlock Text="{x:Bind Sha256}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" FontFamily="Consolas" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                            <Button Content="Restore" Tag="{x:Bind Id}" Click="RestoreQuarantine_Click" />
+                                            <Button Content="Delete Permanently" Tag="{x:Bind Id}" Click="DeleteQuarantine_Click" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- 3. Live Process & Memory YARA Scanner -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="AdvProcessScanTitle" helpers:Loc.Uid="AdvProcessScanTitle" Text="Live Process &amp; Memory YARA Scanner" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="AdvProcessScanDesc" helpers:Loc.Uid="AdvProcessScanDesc" Text="Scans active Windows process memory directly with yara64.exe to catch fileless malware and in-memory code injection." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Uid="AdvScanAllProcsButton" helpers:Loc.Uid="AdvScanAllProcsButton" Content="Scan All Processes in Memory" Command="{x:Bind ViewModel.ScanAllProcessesCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <TextBox Width="130" PlaceholderText="PID (e.g. 4210)" Text="{x:Bind ViewModel.TargetPidText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button x:Uid="AdvScanPidButton" helpers:Loc.Uid="AdvScanPidButton" Content="Scan PID" Command="{x:Bind ViewModel.ScanSinglePidCommand}" />
+                        <Button x:Uid="YaraCancelScanButton" helpers:Loc.Uid="YaraCancelScanButton" Content="Cancel" Command="{x:Bind ViewModel.CancelProcessScanCommand}" />
+                    </StackPanel>
+                    <ProgressBar Minimum="0" Maximum="100" Value="{x:Bind ViewModel.ProcScanPercent, Mode=OneWay}" Height="6" />
+                    <TextBlock Text="{x:Bind ViewModel.ProcScanStatus, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.ProcessMatches}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:YaraProcessMatch">
+                                <Border Background="{StaticResource PanelBackgroundBrush}" CornerRadius="6" Padding="10" Margin="0,4">
+                                    <TextBlock Text="{x:Bind DisplayLine}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- 4 & 5. Static PE, Shannon Entropy & Authenticode Signature Analyzer + AI Threat Investigator -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="AdvForensicsTitle" helpers:Loc.Uid="AdvForensicsTitle" Text="PE Forensics, Shannon Entropy &amp; Authenticode Verifier" Style="{StaticResource ValueStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Width="440" PlaceholderText="Select any .exe, .dll, or file..." Text="{x:Bind ViewModel.ForensicsFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button x:Uid="YaraBrowseFileButton" helpers:Loc.Uid="YaraBrowseFileButton" Content="Browse File..." Click="BrowseForensicsFile_Click" />
+                        <Button x:Uid="AdvAnalyzeFileButton" helpers:Loc.Uid="AdvAnalyzeFileButton" Content="Analyze File" Command="{x:Bind ViewModel.AnalyzeForensicsCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="AdvAiInvestigateButton" helpers:Loc.Uid="AdvAiInvestigateButton" Content="AI Threat Investigator" Command="{x:Bind ViewModel.InvestigateForensicsWithAiCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="{x:Bind ViewModel.ForensicsSummary, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.ForensicsRiskReasons}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <TextBlock Text="{x:Bind}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.ForensicsSections}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:PeSectionInfo">
+                                <TextBlock Text="{x:Bind DisplayLine}" Foreground="{StaticResource ElectricBlueBrush}" FontFamily="Consolas" FontSize="12" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- 6. Ransomware Canary / Honeypot Guard -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="AdvCanaryTitle" helpers:Loc.Uid="AdvCanaryTitle" Text="Ransomware Canary / Honeypot Guard" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.CanaryStatus, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <ToggleSwitch x:Uid="AdvCanaryToggle" helpers:Loc.Uid="AdvCanaryToggle" Header="Arm hidden sentinel canary files in Documents, Pictures &amp; Desktop" IsOn="{x:Bind ViewModel.CanaryEnabled, Mode=TwoWay}" />
+                        <Button x:Uid="AdvVerifyCanariesButton" helpers:Loc.Uid="AdvVerifyCanariesButton" Content="Verify Integrity Now" Command="{x:Bind ViewModel.VerifyCanariesCommand}" VerticalAlignment="Bottom" />
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.CanaryAlerts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:CanaryAlertEvent">
+                                <TextBlock Text="{x:Bind Details}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- 7. Clipboard Hijack Guard -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="AdvClipboardTitle" helpers:Loc.Uid="AdvClipboardTitle" Text="Clipboard Hijack Guard (Crypto Wallet &amp; IBAN Protection)" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.ClipboardStatus, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="AdvClipboardToggle" helpers:Loc.Uid="AdvClipboardToggle" Header="Detect clipper malware replacing copied wallet / IBAN addresses" IsOn="{x:Bind ViewModel.ClipboardGuardEnabled, Mode=TwoWay}" />
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.ClipboardAlerts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:ClipboardHijackAlert">
+                                <TextBlock Text="{x:Bind Message}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- 8. USB Auto-Scan on Insertion -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="AdvUsbTitle" helpers:Loc.Uid="AdvUsbTitle" Text="USB Auto-Scan on Insertion (Native YARA)" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.UsbStatus, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <ToggleSwitch x:Uid="AdvUsbToggle" helpers:Loc.Uid="AdvUsbToggle" Header="Automatically scan newly plugged-in USB drives with YARA" IsOn="{x:Bind ViewModel.UsbAutoScanEnabled, Mode=TwoWay}" />
+                        <Button x:Uid="AdvScanUsbNowButton" helpers:Loc.Uid="AdvScanUsbNowButton" Content="Scan Connected USB Now" Command="{x:Bind ViewModel.ScanUsbNowCommand}" VerticalAlignment="Bottom" />
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.UsbScanEvents}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:UsbAutoScanEvent">
+                                <TextBlock Text="{x:Bind Summary}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- 9. Scheduled YARA Auto-Updates -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="AdvScheduleTitle" helpers:Loc.Uid="AdvScheduleTitle" Text="Scheduled Automatic YARA Rule Updates" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.ScheduledYaraStatus, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <ToggleSwitch x:Uid="AdvScheduleToggle" helpers:Loc.Uid="AdvScheduleToggle" Header="Enable automatic trusted repository updates" IsOn="{x:Bind ViewModel.ScheduledYaraEnabled, Mode=TwoWay}" />
+                        <NumberBox Header="Interval (hours)" Minimum="1" Maximum="720" Value="{x:Bind ViewModel.ScheduledIntervalHours, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="150" />
+                        <Button x:Uid="SettingsSaveButton" helpers:Loc.Uid="SettingsSaveButton" Content="Save Settings" Command="{x:Bind ViewModel.SaveScheduleCommand}" VerticalAlignment="Bottom" />
+                        <Button x:Uid="AdvRunUpdateNowButton" helpers:Loc.Uid="AdvRunUpdateNowButton" Content="Run Auto-Update Now" Command="{x:Bind ViewModel.RunScheduledUpdateNowCommand}" Style="{StaticResource PrimaryButtonStyle}" VerticalAlignment="Bottom" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- 10. Windows Explorer Right-Click Integration -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="AdvContextMenuTitle" helpers:Loc.Uid="AdvContextMenuTitle" Text="Windows Explorer Right-Click Integration" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.ContextMenuStatus, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Uid="AdvRegisterContextMenuButton" helpers:Loc.Uid="AdvRegisterContextMenuButton" Content="Register 'Scan with BECETTI YARA'" Command="{x:Bind ViewModel.RegisterContextMenuCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="AdvUnregisterContextMenuButton" helpers:Loc.Uid="AdvUnregisterContextMenuButton" Content="Remove Right-Click Entry" Command="{x:Bind ViewModel.UnregisterContextMenuCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
