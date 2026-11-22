@@ -31,7 +31,9 @@ public sealed class AppUpdaterService : IAppUpdaterService
 
     public string GetCurrentVersion()
     {
-        var v = Assembly.GetEntryAssembly()?.GetName().Version
+        var entry = Assembly.GetEntryAssembly();
+        var useEntry = entry?.GetName().Name?.StartsWith("Becetti.Security", StringComparison.OrdinalIgnoreCase) == true;
+        var v = (useEntry ? entry!.GetName().Version : null)
                 ?? typeof(AppUpdaterService).Assembly.GetName().Version;
         return v is null ? "1.0.0.0" : $"{v.Major}.{v.Minor}.{v.Build}.{Math.Max(0, v.Revision)}";
     }
