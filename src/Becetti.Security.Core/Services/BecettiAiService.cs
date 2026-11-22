@@ -176,6 +176,11 @@ public sealed class BecettiAiService : IBecettiAiService
                 result.Add(new AiChatTurn { Role = role, Content = turn.Content });
             }
         }
+
+        // Gemini expects conversation history to begin with a user turn.
+        while (result.Count > 0 && !string.Equals(result[0].Role, "user", StringComparison.Ordinal))
+            result.RemoveAt(0);
+
         return result;
     }
 
