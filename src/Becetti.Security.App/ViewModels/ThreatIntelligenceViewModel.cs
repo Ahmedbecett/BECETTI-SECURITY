@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Becetti.Security.App.Services;
 using Becetti.Security.Core.Models;
 using Becetti.Security.Core.Services;
 
@@ -14,6 +15,7 @@ public sealed class ThreatIntelligenceViewModel : ViewModelBase
 {
     private readonly IThreatIntelligenceService _threatIntel;
     private readonly IThreatIntelHistoryService _history;
+    private readonly NotificationService _notifications;
 
     private string _selectedFilePath = string.Empty;
     private string _urlInput = string.Empty;
@@ -23,10 +25,11 @@ public sealed class ThreatIntelligenceViewModel : ViewModelBase
     private string? _pendingAnalysisId;
     private ThreatIntelTargetType _pendingTargetType;
 
-    public ThreatIntelligenceViewModel(IThreatIntelligenceService threatIntel, IThreatIntelHistoryService history)
+    public ThreatIntelligenceViewModel(IThreatIntelligenceService threatIntel, IThreatIntelHistoryService history, NotificationService notifications)
     {
         _threatIntel = threatIntel;
         _history = history;
+        _notifications = notifications;
 
         ScanFileCommand = new RelayCommand(ScanFileAsync, () => !IsBusy && !string.IsNullOrWhiteSpace(SelectedFilePath));
         ConfirmUploadCommand = new RelayCommand(ConfirmUploadAsync, () => !IsBusy && NeedsUploadConsent);
@@ -269,6 +272,13 @@ public sealed class ThreatIntelligenceViewModel : ViewModelBase
                 Permalink = report.Permalink
             });
             await LoadHistoryAsync();
+
+            if (report.Verdict == ThreatIntelVerdict.Malicious)
+            {
+                await _notifications.NotifyCriticalAsync(
+                    "BECETTI SECURITY — malicious result",
+                    $"VirusTotal flagged \"{targetDisplay}\" as malicious ({report.DetectionRatio}).");
+            }
         }
     }
 

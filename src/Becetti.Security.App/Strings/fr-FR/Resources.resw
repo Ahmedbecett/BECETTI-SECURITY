@@ -62,6 +62,10 @@
   <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>Enregistrer l'historique de la discussion sur cet appareil</value></data>
   <data name="SettingsAiApiBaseUrl.Header" xml:space="preserve"><value>URL du serveur BECETTI AI</value></data>
   <data name="SettingsSupportEmail.Header" xml:space="preserve"><value>Adresse e-mail du support</value></data>
+  <data name="SettingsCriticalAlertsLabel.Text" xml:space="preserve"><value>Alertes critiques</value></data>
+  <data name="SettingsCriticalAlertsDescription.Text" xml:space="preserve"><value>Un événement critique (menace détectée, e-mail/mot de passe vérifié trouvé dans une fuite, résultat d'analyse malveillant) affiche toujours une notification Windows. En option, il peut aussi être envoyé à une URL de webhook (Slack, Discord ou tout point de terminaison JSON générique) pour atteindre un autre appareil.</value></data>
+  <data name="SettingsCriticalAlertsToggle.Header" xml:space="preserve"><value>Afficher une notification Windows pour les événements critiques</value></data>
+  <data name="SettingsCriticalAlertsWebhook.Header" xml:space="preserve"><value>URL de webhook (facultatif)</value></data>
 
   <data name="AiWelcomeMessage.Text" xml:space="preserve"><value>Bienvenue, vous êtes en sécurité.</value></data>
   <data name="AiWelcomeSubtitle.Text" xml:space="preserve"><value>Je suis BECETTI AI. Posez-moi une question sur n'importe quelle partie de votre protection et je vous expliquerai exactement ce qu'elle montre et où aller.</value></data>
@@ -186,7 +190,7 @@
 
   <data name="NavThreatIntel.Content" xml:space="preserve"><value>Renseignement sur les menaces</value></data>
   <data name="TitleThreatIntel.Text" xml:space="preserve"><value>Renseignement sur les menaces</value></data>
-  <data name="SubtitleThreatIntel.Text" xml:space="preserve"><value>Un second avis facultatif provenant des quelque 70 moteurs antivirus tiers de VirusTotal pour un fichier ou un lien de votre choix. Ceci ne remplace jamais Microsoft Defender, le moteur de protection indépendant propre à BECETTI SECURITY — il s'agit d'une vérification distincte et clairement identifiée que vous lancez à la demande.</value></data>
+  <data name="SubtitleThreatIntel.Text" xml:space="preserve"><value>Un second avis facultatif provenant des quelque 70 moteurs antivirus tiers de VirusTotal pour un fichier ou un lien de votre choix — y compris une pièce jointe suspecte d'un e-mail que vous avez enregistrée, ou un lien provenant d'un e-mail ou d'un message, avant de l'ouvrir. Ceci ne remplace jamais Microsoft Defender, le moteur de protection indépendant propre à BECETTI SECURITY — il s'agit d'une vérification distincte et clairement identifiée que vous lancez à la demande.</value></data>
   <data name="ThreatIntelNotConfiguredBar.Title" xml:space="preserve"><value>Non configuré</value></data>
   <data name="ThreatIntelNotConfiguredBar.Message" xml:space="preserve"><value>Le serveur de renseignement sur les menaces n'est pas configuré. Ouvrez Paramètres et définissez l'URL du serveur BECETTI.</value></data>
   <data name="ThreatIntelFileSectionLabel.Text" xml:space="preserve"><value>Analyser un fichier</value></data>
@@ -217,4 +221,39 @@
   <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve"><value>Ce mot de passe est haché sur cet appareil — seul un fragment de 5 caractères de ce hachage en sort jamais. Le mot de passe lui-même n'est jamais envoyé ni stocké nulle part.</value></data>
   <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve"><value>Vérifier le mot de passe</value></data>
   <data name="DataBreachHistoryLabel.Text" xml:space="preserve"><value>Vérifications précédentes</value></data>
+  <data name="NavSecureVault.Content" xml:space="preserve"><value>Coffre-fort sécurisé</value></data>
+  <data name="NavFileShredder.Content" xml:space="preserve"><value>Destructeur de fichiers</value></data>
+  <data name="NavParentalControl.Content" xml:space="preserve"><value>Contrôle parental</value></data>
+  <data name="NavGameMode.Content" xml:space="preserve"><value>Mode Jeu / Performance</value></data>
+  <data name="TitleSecureVault.Text" xml:space="preserve"><value>Coffre-fort sécurisé</value></data>
+  <data name="SubtitleSecureVault.Text" xml:space="preserve"><value>Un espace de stockage local chiffré (AES-256) pour les fichiers que vous choisissez de protéger. La clé de chiffrement est liée à votre compte Windows sur cet appareil via DPAPI — rien n'est jamais téléversé où que ce soit.</value></data>
+  <data name="SecureVaultNotCreatedLabel.Text" xml:space="preserve"><value>Aucun coffre-fort n'existe encore sur cet appareil.</value></data>
+  <data name="SecureVaultCreateButton.Content" xml:space="preserve"><value>Créer le coffre-fort</value></data>
+  <data name="SecureVaultAddLabel.Text" xml:space="preserve"><value>Ajouter un fichier</value></data>
+  <data name="SecureVaultBrowseButton.Content" xml:space="preserve"><value>Parcourir</value></data>
+  <data name="SecureVaultShredOriginalCheckBox.Content" xml:space="preserve"><value>Supprimer définitivement le fichier d'origine après son chiffrement</value></data>
+  <data name="SecureVaultAddButton.Content" xml:space="preserve"><value>Ajouter au coffre-fort</value></data>
+  <data name="SecureVaultItemsLabel.Text" xml:space="preserve"><value>Fichiers dans le coffre-fort</value></data>
+  <data name="SecureVaultExtractButton.Content" xml:space="preserve"><value>Extraire</value></data>
+  <data name="SecureVaultDeleteButton.Content" xml:space="preserve"><value>Supprimer la sélection</value></data>
+  <data name="TitleFileShredder.Text" xml:space="preserve"><value>Destructeur de fichiers sécurisé</value></data>
+  <data name="SubtitleFileShredder.Text" xml:space="preserve"><value>Une suppression normale ne retire que l'entrée du fichier dans le dossier — les octets restent généralement sur le disque jusqu'à ce qu'autre chose les écrase. Ceci écrase d'abord le contenu réel du fichier avec des données aléatoires, puis le supprime, pour les fichiers que vous choisissez de détruire définitivement.</value></data>
+  <data name="FileShredderPickLabel.Text" xml:space="preserve"><value>Fichier à détruire</value></data>
+  <data name="FileShredderBrowseButton.Content" xml:space="preserve"><value>Parcourir</value></data>
+  <data name="FileShredderPassesLabel.Text" xml:space="preserve"><value>Passes d'écrasement</value></data>
+  <data name="FileShredderWarningBar.Title" xml:space="preserve"><value>Action irréversible</value></data>
+  <data name="FileShredderWarningBar.Message" xml:space="preserve"><value>Le fichier sera définitivement détruit. Il n'y a ni corbeille ni récupération possible.</value></data>
+  <data name="FileShredderShredButton.Content" xml:space="preserve"><value>Détruire définitivement</value></data>
+  <data name="FileShredderSessionLogLabel.Text" xml:space="preserve"><value>Détruits durant cette session</value></data>
+  <data name="TitleParentalControl.Text" xml:space="preserve"><value>Contrôle parental</value></data>
+  <data name="SubtitleParentalControl.Text" xml:space="preserve"><value>Bloque des sites web sur cet appareil en utilisant le véritable fichier hosts de Windows — le même mécanisme que Windows utilise pour résoudre les noms. Sa modification nécessite les droits administrateur.</value></data>
+  <data name="ParentalControlElevationBar.Title" xml:space="preserve"><value>Administrateur requis</value></data>
+  <data name="ParentalControlElevationBar.Message" xml:space="preserve"><value>Bloquer ou débloquer un site web nécessite les droits administrateur. Redémarrez BECETTI SECURITY en tant qu'administrateur depuis les Paramètres.</value></data>
+  <data name="ParentalControlAddLabel.Text" xml:space="preserve"><value>Bloquer un site web</value></data>
+  <data name="ParentalControlBlockButton.Content" xml:space="preserve"><value>Bloquer</value></data>
+  <data name="ParentalControlListLabel.Text" xml:space="preserve"><value>Sites web bloqués</value></data>
+  <data name="ParentalControlUnblockButton.Content" xml:space="preserve"><value>Débloquer</value></data>
+  <data name="TitleGameMode.Text" xml:space="preserve"><value>Mode Jeu / Performance</value></data>
+  <data name="SubtitleGameMode.Text" xml:space="preserve"><value>Bascule le véritable plan d'alimentation Windows sur Performances élevées et active le mode Jeu natif de Windows pendant qu'il est actif — les mêmes réglages disponibles dans les Options d'alimentation et l'application Paramètres. Aucun chiffre de performance inventé (FPS, etc.) n'est jamais affiché ; Windows n'en expose aucun de façon honnête.</value></data>
+  <data name="GameModeStatusLabel.Text" xml:space="preserve"><value>État actuel</value></data>
 </root>

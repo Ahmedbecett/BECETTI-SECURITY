@@ -62,6 +62,10 @@
   <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>Save chat history on this device</value></data>
   <data name="SettingsAiApiBaseUrl.Header" xml:space="preserve"><value>BECETTI AI server URL</value></data>
   <data name="SettingsSupportEmail.Header" xml:space="preserve"><value>Support email address</value></data>
+  <data name="SettingsCriticalAlertsLabel.Text" xml:space="preserve"><value>Critical Alerts</value></data>
+  <data name="SettingsCriticalAlertsDescription.Text" xml:space="preserve"><value>A critical event (threat found, a checked email/password found in a breach, a malicious scan result) always shows a Windows notification. Optionally, it can also be posted to a webhook URL (Slack, Discord or any generic JSON endpoint) so it reaches another device.</value></data>
+  <data name="SettingsCriticalAlertsToggle.Header" xml:space="preserve"><value>Show a Windows notification for critical events</value></data>
+  <data name="SettingsCriticalAlertsWebhook.Header" xml:space="preserve"><value>Webhook URL (optional)</value></data>
 
   <data name="AiWelcomeMessage.Text" xml:space="preserve"><value>Welcome, you are safe.</value></data>
   <data name="AiWelcomeSubtitle.Text" xml:space="preserve"><value>I'm BECETTI AI. Ask me about any part of your protection and I'll explain exactly what it shows and where to go.</value></data>
@@ -186,7 +190,7 @@
 
   <data name="NavThreatIntel.Content" xml:space="preserve"><value>Threat Intelligence</value></data>
   <data name="TitleThreatIntel.Text" xml:space="preserve"><value>Threat Intelligence</value></data>
-  <data name="SubtitleThreatIntel.Text" xml:space="preserve"><value>An optional second opinion from VirusTotal's ~70 third-party antivirus engines for a file or link you choose. This never replaces Microsoft Defender, BECETTI SECURITY's own independent protection engine — it is a separate, clearly-labelled check you run on demand.</value></data>
+  <data name="SubtitleThreatIntel.Text" xml:space="preserve"><value>An optional second opinion from VirusTotal's ~70 third-party antivirus engines for a file or link you choose — including a suspicious email attachment you saved, or a link from an email or message before you open it. This never replaces Microsoft Defender, BECETTI SECURITY's own independent protection engine — it is a separate, clearly-labelled check you run on demand.</value></data>
   <data name="ThreatIntelNotConfiguredBar.Title" xml:space="preserve"><value>Not configured</value></data>
   <data name="ThreatIntelNotConfiguredBar.Message" xml:space="preserve"><value>The threat-intelligence server is not configured. Open Settings and set the BECETTI server URL.</value></data>
   <data name="ThreatIntelFileSectionLabel.Text" xml:space="preserve"><value>Scan a file</value></data>
@@ -217,4 +221,39 @@
   <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve"><value>This password is hashed on this device — only a 5-character fragment of that hash ever leaves it. The password itself is never sent or stored anywhere.</value></data>
   <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve"><value>Check password</value></data>
   <data name="DataBreachHistoryLabel.Text" xml:space="preserve"><value>Previous checks</value></data>
+  <data name="NavSecureVault.Content" xml:space="preserve"><value>Secure Vault</value></data>
+  <data name="NavFileShredder.Content" xml:space="preserve"><value>File Shredder</value></data>
+  <data name="NavParentalControl.Content" xml:space="preserve"><value>Parental Controls</value></data>
+  <data name="NavGameMode.Content" xml:space="preserve"><value>Game / Performance Mode</value></data>
+  <data name="TitleSecureVault.Text" xml:space="preserve"><value>Secure Vault</value></data>
+  <data name="SubtitleSecureVault.Text" xml:space="preserve"><value>A local, encrypted (AES-256) storage area for files you choose to protect. The encryption key is bound to your Windows account on this device with DPAPI — nothing here is ever uploaded anywhere.</value></data>
+  <data name="SecureVaultNotCreatedLabel.Text" xml:space="preserve"><value>No vault exists on this device yet.</value></data>
+  <data name="SecureVaultCreateButton.Content" xml:space="preserve"><value>Create vault</value></data>
+  <data name="SecureVaultAddLabel.Text" xml:space="preserve"><value>Add a file</value></data>
+  <data name="SecureVaultBrowseButton.Content" xml:space="preserve"><value>Browse</value></data>
+  <data name="SecureVaultShredOriginalCheckBox.Content" xml:space="preserve"><value>Securely delete the original file after encrypting it</value></data>
+  <data name="SecureVaultAddButton.Content" xml:space="preserve"><value>Add to vault</value></data>
+  <data name="SecureVaultItemsLabel.Text" xml:space="preserve"><value>Files in the vault</value></data>
+  <data name="SecureVaultExtractButton.Content" xml:space="preserve"><value>Extract</value></data>
+  <data name="SecureVaultDeleteButton.Content" xml:space="preserve"><value>Remove selected</value></data>
+  <data name="TitleFileShredder.Text" xml:space="preserve"><value>Secure File Shredder</value></data>
+  <data name="SubtitleFileShredder.Text" xml:space="preserve"><value>A normal delete only removes a file's entry from the folder — the bytes usually remain on disk until something else happens to overwrite them. This overwrites the file's real content with random data first, then deletes it, for files you choose to permanently destroy.</value></data>
+  <data name="FileShredderPickLabel.Text" xml:space="preserve"><value>File to destroy</value></data>
+  <data name="FileShredderBrowseButton.Content" xml:space="preserve"><value>Browse</value></data>
+  <data name="FileShredderPassesLabel.Text" xml:space="preserve"><value>Overwrite passes</value></data>
+  <data name="FileShredderWarningBar.Title" xml:space="preserve"><value>This cannot be undone</value></data>
+  <data name="FileShredderWarningBar.Message" xml:space="preserve"><value>The file will be permanently destroyed. There is no recycle bin and no recovery.</value></data>
+  <data name="FileShredderShredButton.Content" xml:space="preserve"><value>Shred permanently</value></data>
+  <data name="FileShredderSessionLogLabel.Text" xml:space="preserve"><value>Shredded this session</value></data>
+  <data name="TitleParentalControl.Text" xml:space="preserve"><value>Parental Controls</value></data>
+  <data name="SubtitleParentalControl.Text" xml:space="preserve"><value>Blocks websites on this device using the real Windows hosts file — the same mechanism Windows itself uses to resolve names. Changing it requires Administrator.</value></data>
+  <data name="ParentalControlElevationBar.Title" xml:space="preserve"><value>Administrator required</value></data>
+  <data name="ParentalControlElevationBar.Message" xml:space="preserve"><value>Blocking or unblocking a website requires Administrator. Restart BECETTI SECURITY as administrator from Settings.</value></data>
+  <data name="ParentalControlAddLabel.Text" xml:space="preserve"><value>Block a website</value></data>
+  <data name="ParentalControlBlockButton.Content" xml:space="preserve"><value>Block</value></data>
+  <data name="ParentalControlListLabel.Text" xml:space="preserve"><value>Blocked websites</value></data>
+  <data name="ParentalControlUnblockButton.Content" xml:space="preserve"><value>Unblock</value></data>
+  <data name="TitleGameMode.Text" xml:space="preserve"><value>Game / Performance Mode</value></data>
+  <data name="SubtitleGameMode.Text" xml:space="preserve"><value>Switches the real Windows power plan to High performance and turns on Windows' own Game Mode setting while active — the same settings available in Power Options and the Settings app. No invented FPS or performance numbers are shown; Windows exposes none honestly.</value></data>
+  <data name="GameModeStatusLabel.Text" xml:space="preserve"><value>Current status</value></data>
 </root>

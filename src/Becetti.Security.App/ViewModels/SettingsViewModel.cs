@@ -20,6 +20,8 @@ public sealed class SettingsViewModel : ViewModelBase
     private bool _aiShareDeviceState;
     private bool _aiSaveHistory;
     private string _supportEmail = string.Empty;
+    private bool _criticalAlertNotificationsEnabled = true;
+    private string _criticalAlertWebhookUrl = string.Empty;
 
     public SettingsViewModel(ISettingsService settings, LocalizationService localization, ICloudService cloud)
     {
@@ -80,6 +82,12 @@ public sealed class SettingsViewModel : ViewModelBase
     public bool AiSaveHistory { get => _aiSaveHistory; set => SetProperty(ref _aiSaveHistory, value); }
     public string SupportEmail { get => _supportEmail; set => SetProperty(ref _supportEmail, value); }
 
+    /// <summary>Local Windows notification for critical events (threat found, breach found, malicious result). On by default.</summary>
+    public bool CriticalAlertNotificationsEnabled { get => _criticalAlertNotificationsEnabled; set => SetProperty(ref _criticalAlertNotificationsEnabled, value); }
+
+    /// <summary>Optional webhook URL (Slack/Discord/generic) critical alerts are also POSTed to. Empty = disabled.</summary>
+    public string CriticalAlertWebhookUrl { get => _criticalAlertWebhookUrl; set => SetProperty(ref _criticalAlertWebhookUrl, value); }
+
     private void LoadFromSettings()
     {
         ApiBaseUrl = _settings.Current.ApiBaseUrl;
@@ -92,6 +100,8 @@ public sealed class SettingsViewModel : ViewModelBase
         AiShareDeviceState = _settings.Current.AiShareDeviceState;
         AiSaveHistory = _settings.Current.AiSaveHistory;
         SupportEmail = _settings.Current.SupportEmail;
+        CriticalAlertNotificationsEnabled = _settings.Current.CriticalAlertNotificationsEnabled;
+        CriticalAlertWebhookUrl = _settings.Current.CriticalAlertWebhookUrl;
     }
 
     public async Task SaveAsync()
@@ -112,6 +122,8 @@ public sealed class SettingsViewModel : ViewModelBase
             _settings.Current.AiShareDeviceState = AiShareDeviceState;
             _settings.Current.AiSaveHistory = AiSaveHistory;
             _settings.Current.SupportEmail = SupportEmail.Trim();
+            _settings.Current.CriticalAlertNotificationsEnabled = CriticalAlertNotificationsEnabled;
+            _settings.Current.CriticalAlertWebhookUrl = CriticalAlertWebhookUrl.Trim();
             await _settings.SaveAsync();
 
             var language = Language switch

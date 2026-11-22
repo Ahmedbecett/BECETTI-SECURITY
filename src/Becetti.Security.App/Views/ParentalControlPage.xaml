@@ -1,0 +1,69 @@
+<Page
+    x:Class="Becetti.Security.App.Views.ParentalControlPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:converters="using:Becetti.Security.App.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+    </Page.Resources>
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleParentalControl" Text="Parental Controls" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleParentalControl"
+                       Text="Blocks websites on this device using the real Windows hosts file — the same mechanism Windows itself uses to resolve names. Changing it requires Administrator."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+
+            <InfoBar x:Uid="ParentalControlElevationBar" Title="Administrator required" Message="Blocking or unblocking a website requires Administrator. Restart BECETTI SECURITY as administrator from Settings."
+                     Severity="Warning" IsOpen="{x:Bind ViewModel.CannotManageBlocklist, Mode=OneWay}"
+                     IsClosable="False" Margin="0,0,0,16" />
+
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="ParentalControlAddLabel" Text="Block a website" Style="{StaticResource ValueStyle}" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{x:Bind ViewModel.DomainInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="example.com" Margin="0,0,8,0" IsEnabled="{x:Bind ViewModel.CanManageBlocklist, Mode=OneWay}" />
+                        <Button x:Uid="ParentalControlBlockButton" Grid.Column="1" Content="Block" Command="{x:Bind ViewModel.BlockCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{x:Bind ViewModel.CanManageBlocklist, Mode=OneWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="ParentalControlListLabel" Text="Blocked websites" Style="{StaticResource ValueStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.BlockedDomains}" MinHeight="160" Margin="0,8,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:BlockedDomainInfo">
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Domain}" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" />
+                                    <Button Grid.Column="1" x:Uid="ParentalControlUnblockButton" Content="Unblock" Tag="{x:Bind Domain}" Click="UnblockButton_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

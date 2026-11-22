@@ -73,6 +73,18 @@
                              Text="{x:Bind ViewModel.SupportEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
             </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="SettingsCriticalAlertsLabel" Text="Critical Alerts" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="SettingsCriticalAlertsDescription"
+                               Text="A critical event (threat found, a checked email/password found in a breach, a malicious scan result) always shows a Windows notification. Optionally, it can also be posted to a webhook URL (Slack, Discord or any generic JSON endpoint) so it reaches another device."
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsCriticalAlertsToggle" Header="Show a Windows notification for critical events" IsOn="{x:Bind ViewModel.CriticalAlertNotificationsEnabled, Mode=TwoWay}" />
+                    <TextBox x:Uid="SettingsCriticalAlertsWebhook" Header="Webhook URL (optional)"
+                             PlaceholderText="https://hooks.slack.com/services/..."
+                             Text="{x:Bind ViewModel.CriticalAlertWebhookUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <Button Content="Save Settings" Command="{x:Bind ViewModel.SaveCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                 <Button Content="Test Cloud Connection" Command="{x:Bind ViewModel.TestConnectionCommand}" />

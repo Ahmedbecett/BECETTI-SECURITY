@@ -857,3 +857,52 @@ public sealed class DataBreachCheckRecord
     [JsonIgnore]
     public string StatusLabel => Breached ? $"Breached ({Count:N0})" : "Clean";
 }
+
+// ---------------------------------------------------------------------------
+// Secure Vault — local AES-256-GCM encrypted storage for files the user
+// chooses, with the encryption key bound to this Windows account via DPAPI.
+// Entirely local: no network call, no cloud copy.
+// ---------------------------------------------------------------------------
+
+/// <summary>One file stored in the Secure Vault. Never carries plaintext content — only metadata.</summary>
+public sealed class VaultItemInfo
+{
+    public Guid Id { get; init; } = Guid.NewGuid();
+    public string OriginalFileName { get; init; } = string.Empty;
+    public long SizeBytes { get; init; }
+    public DateTimeOffset AddedUtc { get; init; } = DateTimeOffset.UtcNow;
+
+    /// <summary>UI convenience, not persisted.</summary>
+    [JsonIgnore]
+    public string SizeLabel => SizeBytes >= 1024 * 1024
+        ? $"{SizeBytes / (1024.0 * 1024.0):0.#} MB"
+        : $"{SizeBytes / 1024.0:0.#} KB";
+}
+
+// ---------------------------------------------------------------------------
+// Parental Controls — real, locally-enforced website blocking via the
+// Windows hosts file (the same mechanism Windows itself uses for name
+// resolution overrides). No content filtering service, no telemetry.
+// ---------------------------------------------------------------------------
+
+/// <summary>One domain BECETTI SECURITY has added to the Windows hosts file to block it.</summary>
+public sealed class BlockedDomainInfo
+{
+    public string Domain { get; init; } = string.Empty;
+    public DateTimeOffset AddedUtc { get; init; } = DateTimeOffset.UtcNow;
+}
+
+// ---------------------------------------------------------------------------
+// Game / Performance Mode — switches the real Windows power plan to High
+// performance and enables Windows' own Game Mode registry setting while
+// active, restoring both real previous values on exit. No invented "FPS
+// boost" numbers are ever shown.
+// ---------------------------------------------------------------------------
+
+/// <summary>Real, current state of the Game/Performance Mode toggle.</summary>
+public sealed class GamePerformanceStatus
+{
+    public bool Active { get; init; }
+    public string CurrentPowerPlanName { get; init; } = "Unknown";
+    public bool WindowsGameModeEnabled { get; init; }
+}

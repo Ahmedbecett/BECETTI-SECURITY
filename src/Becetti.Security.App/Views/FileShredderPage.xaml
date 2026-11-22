@@ -1,0 +1,63 @@
+<Page
+    x:Class="Becetti.Security.App.Views.FileShredderPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Becetti.Security.App.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:NotEmptyToVisibilityConverter x:Key="NotEmptyToVisibility" />
+    </Page.Resources>
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleFileShredder" Text="Secure File Shredder" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleFileShredder"
+                       Text="A normal delete only removes a file's entry from the folder — the bytes usually remain on disk until something else happens to overwrite them. This overwrites the file's real content with random data first, then deletes it, for files you choose to permanently destroy."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="FileShredderPickLabel" Text="File to destroy" Style="{StaticResource ValueStyle}" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{x:Bind ViewModel.SelectedFilePath, Mode=OneWay}" IsReadOnly="True" Margin="0,0,8,0" />
+                        <Button x:Uid="FileShredderBrowseButton" Grid.Column="1" Content="Browse" Click="BrowseButton_Click" />
+                    </Grid>
+
+                    <TextBlock x:Uid="FileShredderPassesLabel" Text="Overwrite passes" Style="{StaticResource ValueStyle}" Margin="0,16,0,0" />
+                    <Slider Minimum="1" Maximum="7" StepFrequency="1" TickFrequency="1" TickPlacement="BottomRight"
+                            Value="{x:Bind ViewModel.Passes, Mode=TwoWay}" Width="240" HorizontalAlignment="Left" />
+
+                    <InfoBar x:Uid="FileShredderWarningBar" Title="This cannot be undone" Message="The file will be permanently destroyed. There is no recycle bin and no recovery."
+                             Severity="Warning" IsOpen="True" IsClosable="False" Margin="0,16,0,0" />
+
+                    <Button x:Uid="FileShredderShredButton" Content="Shred permanently" Command="{x:Bind ViewModel.ShredCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                    <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.SessionLog.Count, Mode=OneWay, Converter={StaticResource NotEmptyToVisibility}}">
+                <StackPanel>
+                    <TextBlock x:Uid="FileShredderSessionLogLabel" Text="Shredded this session" Style="{StaticResource ValueStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.SessionLog}" MinHeight="40" Margin="0,8,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <TextBlock Text="{x:Bind}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,4" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

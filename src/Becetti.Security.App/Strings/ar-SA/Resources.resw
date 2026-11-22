@@ -62,6 +62,10 @@
   <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>حفظ سجل المحادثة على هذا الجهاز</value></data>
   <data name="SettingsAiApiBaseUrl.Header" xml:space="preserve"><value>رابط خادم BECETTI AI</value></data>
   <data name="SettingsSupportEmail.Header" xml:space="preserve"><value>عنوان بريد الدعم</value></data>
+  <data name="SettingsCriticalAlertsLabel.Text" xml:space="preserve"><value>التنبيهات الحرجة</value></data>
+  <data name="SettingsCriticalAlertsDescription.Text" xml:space="preserve"><value>أي حدث حرج (اكتشاف تهديد، أو العثور على بريد إلكتروني/كلمة مرور تم فحصها ضمن تسريب بيانات، أو نتيجة فحص ضارة) يعرض دائمًا إشعار ويندوز. يمكن اختياريًا إرساله أيضًا إلى رابط ويب هوك (Slack أو Discord أو أي نقطة نهاية JSON عامة) ليصل إلى جهاز آخر.</value></data>
+  <data name="SettingsCriticalAlertsToggle.Header" xml:space="preserve"><value>إظهار إشعار ويندوز للأحداث الحرجة</value></data>
+  <data name="SettingsCriticalAlertsWebhook.Header" xml:space="preserve"><value>رابط الويب هوك (اختياري)</value></data>
 
   <data name="AiWelcomeMessage.Text" xml:space="preserve"><value>مرحباً، أنت بأمان.</value></data>
   <data name="AiWelcomeSubtitle.Text" xml:space="preserve"><value>أنا BECETTI AI. اسألني عن أي جزء من حمايتك وسأشرح لك بالضبط ماذا يعني وأين تجده.</value></data>
@@ -186,7 +190,7 @@
 
   <data name="NavThreatIntel.Content" xml:space="preserve"><value>ذكاء التهديدات</value></data>
   <data name="TitleThreatIntel.Text" xml:space="preserve"><value>ذكاء التهديدات</value></data>
-  <data name="SubtitleThreatIntel.Text" xml:space="preserve"><value>رأي ثانٍ اختياري من نحو 70 محرك حماية خارجي عبر VirusTotal لملف أو رابط تختاره. هذا لا يحل أبدًا محل Microsoft Defender، محرك الحماية المستقل الخاص بـ BECETTI SECURITY — إنه فحص منفصل وواضح تقوم به عند الطلب.</value></data>
+  <data name="SubtitleThreatIntel.Text" xml:space="preserve"><value>رأي ثانٍ اختياري من نحو 70 محرك حماية خارجي عبر VirusTotal لملف أو رابط تختاره — بما في ذلك مرفق بريد إلكتروني مشبوه قمت بحفظه، أو رابط من بريد إلكتروني أو رسالة قبل فتحه. هذا لا يحل أبدًا محل Microsoft Defender، محرك الحماية المستقل الخاص بـ BECETTI SECURITY — إنه فحص منفصل وواضح تقوم به عند الطلب.</value></data>
   <data name="ThreatIntelNotConfiguredBar.Title" xml:space="preserve"><value>غير مُهيّأ</value></data>
   <data name="ThreatIntelNotConfiguredBar.Message" xml:space="preserve"><value>خادم ذكاء التهديدات غير مُهيّأ. افتح الإعدادات واضبط عنوان خادم BECETTI.</value></data>
   <data name="ThreatIntelFileSectionLabel.Text" xml:space="preserve"><value>فحص ملف</value></data>
@@ -217,4 +221,39 @@
   <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve"><value>يتم احتساب بصمة كلمة المرور هذه على هذا الجهاز — لا يغادر الجهاز سوى جزء من 5 أحرف من تلك البصمة. كلمة المرور نفسها لا تُرسل أو تُخزَّن في أي مكان أبدًا.</value></data>
   <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve"><value>فحص كلمة المرور</value></data>
   <data name="DataBreachHistoryLabel.Text" xml:space="preserve"><value>الفحوصات السابقة</value></data>
+  <data name="NavSecureVault.Content" xml:space="preserve"><value>الخزنة الآمنة</value></data>
+  <data name="NavFileShredder.Content" xml:space="preserve"><value>ممزق الملفات</value></data>
+  <data name="NavParentalControl.Content" xml:space="preserve"><value>الرقابة الأبوية</value></data>
+  <data name="NavGameMode.Content" xml:space="preserve"><value>وضع الألعاب / الأداء</value></data>
+  <data name="TitleSecureVault.Text" xml:space="preserve"><value>الخزنة الآمنة</value></data>
+  <data name="SubtitleSecureVault.Text" xml:space="preserve"><value>مساحة تخزين محلية مشفّرة (AES-256) للملفات التي تختار حمايتها. مفتاح التشفير مرتبط بحساب ويندوز الخاص بك على هذا الجهاز عبر DPAPI — لا يتم رفع أي شيء هنا إلى أي مكان.</value></data>
+  <data name="SecureVaultNotCreatedLabel.Text" xml:space="preserve"><value>لا توجد خزنة على هذا الجهاز بعد.</value></data>
+  <data name="SecureVaultCreateButton.Content" xml:space="preserve"><value>إنشاء الخزنة</value></data>
+  <data name="SecureVaultAddLabel.Text" xml:space="preserve"><value>إضافة ملف</value></data>
+  <data name="SecureVaultBrowseButton.Content" xml:space="preserve"><value>استعراض</value></data>
+  <data name="SecureVaultShredOriginalCheckBox.Content" xml:space="preserve"><value>حذف الملف الأصلي بشكل آمن بعد تشفيره</value></data>
+  <data name="SecureVaultAddButton.Content" xml:space="preserve"><value>إضافة إلى الخزنة</value></data>
+  <data name="SecureVaultItemsLabel.Text" xml:space="preserve"><value>الملفات في الخزنة</value></data>
+  <data name="SecureVaultExtractButton.Content" xml:space="preserve"><value>استخراج</value></data>
+  <data name="SecureVaultDeleteButton.Content" xml:space="preserve"><value>إزالة المحدد</value></data>
+  <data name="TitleFileShredder.Text" xml:space="preserve"><value>ممزق الملفات الآمن</value></data>
+  <data name="SubtitleFileShredder.Text" xml:space="preserve"><value>الحذف العادي يزيل فقط إدخال الملف من المجلد — وعادة ما تبقى البيانات الفعلية على القرص حتى يتم استبدالها بشيء آخر. هذه الميزة تكتب فوق المحتوى الحقيقي للملف ببيانات عشوائية أولاً، ثم تحذفه، للملفات التي تختار تدميرها نهائيًا.</value></data>
+  <data name="FileShredderPickLabel.Text" xml:space="preserve"><value>الملف المراد تدميره</value></data>
+  <data name="FileShredderBrowseButton.Content" xml:space="preserve"><value>استعراض</value></data>
+  <data name="FileShredderPassesLabel.Text" xml:space="preserve"><value>عدد مرات الكتابة فوق الملف</value></data>
+  <data name="FileShredderWarningBar.Title" xml:space="preserve"><value>لا يمكن التراجع عن هذا</value></data>
+  <data name="FileShredderWarningBar.Message" xml:space="preserve"><value>سيتم تدمير الملف نهائيًا. لا توجد سلة محذوفات ولا إمكانية استرجاع.</value></data>
+  <data name="FileShredderShredButton.Content" xml:space="preserve"><value>تدمير نهائي</value></data>
+  <data name="FileShredderSessionLogLabel.Text" xml:space="preserve"><value>تم تدميرها في هذه الجلسة</value></data>
+  <data name="TitleParentalControl.Text" xml:space="preserve"><value>الرقابة الأبوية</value></data>
+  <data name="SubtitleParentalControl.Text" xml:space="preserve"><value>يحظر المواقع الإلكترونية على هذا الجهاز باستخدام ملف hosts الحقيقي في ويندوز — نفس الآلية التي يستخدمها ويندوز نفسه لتحليل الأسماء. تغييره يتطلب صلاحيات المسؤول.</value></data>
+  <data name="ParentalControlElevationBar.Title" xml:space="preserve"><value>صلاحيات المسؤول مطلوبة</value></data>
+  <data name="ParentalControlElevationBar.Message" xml:space="preserve"><value>حظر أو إلغاء حظر موقع إلكتروني يتطلب صلاحيات المسؤول. أعد تشغيل BECETTI SECURITY كمسؤول من الإعدادات.</value></data>
+  <data name="ParentalControlAddLabel.Text" xml:space="preserve"><value>حظر موقع إلكتروني</value></data>
+  <data name="ParentalControlBlockButton.Content" xml:space="preserve"><value>حظر</value></data>
+  <data name="ParentalControlListLabel.Text" xml:space="preserve"><value>المواقع المحظورة</value></data>
+  <data name="ParentalControlUnblockButton.Content" xml:space="preserve"><value>إلغاء الحظر</value></data>
+  <data name="TitleGameMode.Text" xml:space="preserve"><value>وضع الألعاب / الأداء</value></data>
+  <data name="SubtitleGameMode.Text" xml:space="preserve"><value>يبدّل خطة طاقة ويندوز الحقيقية إلى الأداء العالي ويفعّل وضع الألعاب الخاص بويندوز نفسه أثناء التفعيل — نفس الإعدادات المتوفرة في خيارات الطاقة وتطبيق الإعدادات. لا تُعرض أي أرقام أداء مُختلقة (مثل معدل الإطارات)؛ فويندوز لا يوفر أيًا منها بصدق.</value></data>
+  <data name="GameModeStatusLabel.Text" xml:space="preserve"><value>الحالة الحالية</value></data>
 </root>

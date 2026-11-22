@@ -18,7 +18,7 @@
         <StackPanel Padding="32" MaxWidth="900">
             <TextBlock x:Uid="TitleThreatIntel" Text="Threat Intelligence" Style="{StaticResource PageTitleStyle}" />
             <TextBlock x:Uid="SubtitleThreatIntel"
-                       Text="An optional second opinion from VirusTotal's ~70 third-party antivirus engines for a file or link you choose. This never replaces Microsoft Defender, BECETTI SECURITY's own independent protection engine — it is a separate, clearly-labelled check you run on demand."
+                       Text="An optional second opinion from VirusTotal's ~70 third-party antivirus engines for a file or link you choose — including a suspicious email attachment you saved, or a link from an email or message before you open it. This never replaces Microsoft Defender, BECETTI SECURITY's own independent protection engine — it is a separate, clearly-labelled check you run on demand."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
 
             <InfoBar x:Uid="ThreatIntelNotConfiguredBar" Title="Not configured" Message="The threat-intelligence server is not configured. Open Settings and set the BECETTI server URL."

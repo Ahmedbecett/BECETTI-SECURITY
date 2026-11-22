@@ -47,9 +47,14 @@ public partial class App : Application
         services.AddSingleton<IEventLogService, EventLogService>();
         services.AddSingleton<IThreatIntelHistoryService, ThreatIntelHistoryService>();
         services.AddSingleton<IDataBreachHistoryService, DataBreachHistoryService>();
+        services.AddSingleton<IFileShredderService, FileShredderService>();
+        services.AddSingleton<ISecureVaultService, SecureVaultService>();
+        services.AddSingleton<IParentalControlService, ParentalControlService>();
+        services.AddSingleton<IGamePerformanceModeService, GamePerformanceModeService>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
         services.AddSingleton<Services.SpeechService>();
+        services.AddSingleton<Services.NotificationService>();
         // Real-device testing surfaced timeouts reaching the BECETTI AI backend on a
         // machine where a normal browser worked fine. HttpClient's default SocketsHttpHandler
         // has no explicit connect timeout, so when a restrictive firewall/antivirus or a flaky
@@ -99,6 +104,10 @@ public partial class App : Application
         services.AddTransient<KnowledgeBaseViewModel>();
         services.AddTransient<ThreatIntelligenceViewModel>();
         services.AddTransient<DataBreachViewModel>();
+        services.AddTransient<FileShredderViewModel>();
+        services.AddTransient<SecureVaultViewModel>();
+        services.AddTransient<ParentalControlViewModel>();
+        services.AddTransient<GamePerformanceModeViewModel>();
 
         Services = services.BuildServiceProvider();
 
@@ -112,6 +121,8 @@ public partial class App : Application
         var cloud = Services.GetRequiredService<ICloudService>();
         if (cloud is CloudService concreteCloud)
             await concreteCloud.RestoreSessionAsync();
+
+        Services.GetRequiredService<Services.NotificationService>().Initialize();
 
         var mainWindow = new MainWindow();
         _window = mainWindow;

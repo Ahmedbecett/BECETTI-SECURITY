@@ -66,6 +66,21 @@ public sealed class AppSettings
     /// never backfilled with a guessed value.
     /// </summary>
     public DateTimeOffset? LastCloudSyncAt { get; set; }
+
+    /// <summary>True while Game/Performance Mode is active (power plan switched to High performance).</summary>
+    public bool GamePerformanceModeActive { get; set; }
+
+    /// <summary>The real Windows power scheme GUID that was active before Game/Performance Mode was turned on, so it can be restored exactly.</summary>
+    public string? GamePerformancePreviousPowerSchemeGuid { get; set; }
+
+    /// <summary>The real value of HKCU GameBar\AutoGameModeEnabled before Game/Performance Mode changed it, so it can be restored exactly (null = the value did not exist).</summary>
+    public int? GamePerformancePreviousGameModeValue { get; set; }
+
+    /// <summary>Optional webhook URL (e.g. Slack/Discord/generic JSON endpoint) BECETTI SECURITY posts critical security alerts to, in addition to the local Windows notification. Empty = disabled.</summary>
+    public string CriticalAlertWebhookUrl { get; set; } = string.Empty;
+
+    /// <summary>Local Windows toast notifications for critical events (threat found, breach found, malicious file/URL). On by default.</summary>
+    public bool CriticalAlertNotificationsEnabled { get; set; } = true;
 }
 
 public interface ISettingsService

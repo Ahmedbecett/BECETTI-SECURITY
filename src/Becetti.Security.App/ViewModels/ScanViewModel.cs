@@ -33,6 +33,7 @@ public sealed class ScanViewModel : ViewModelBase
     private readonly IEventLogService _events;
     private readonly ISettingsService _settings;
     private readonly SoundService _sound;
+    private readonly NotificationService _notifications;
 
     private string _targetPath = string.Empty;
     private string _scanOutput = string.Empty;
@@ -44,12 +45,13 @@ public sealed class ScanViewModel : ViewModelBase
     private ScanOutcome? _lastOutcome;
     private DefenderScanType _lastScanType;
 
-    public ScanViewModel(IDefenderService defender, IEventLogService events, ISettingsService settings, SoundService sound)
+    public ScanViewModel(IDefenderService defender, IEventLogService events, ISettingsService settings, SoundService sound, NotificationService notifications)
     {
         _defender = defender;
         _events = events;
         _settings = settings;
         _sound = sound;
+        _notifications = notifications;
         QuickScanCommand = new RelayCommand(() => RunScanAsync(DefenderScanType.Quick));
         FullScanCommand = new RelayCommand(() => RunScanAsync(DefenderScanType.Full));
         CustomScanCommand = new RelayCommand(() => RunScanAsync(DefenderScanType.Custom, TargetPath));
@@ -151,6 +153,13 @@ public sealed class ScanViewModel : ViewModelBase
                 await _settings.SaveAsync();
 
                 _sound.Play(outcome.ThreatFound ? SoundCue.Critical : SoundCue.ScanCompleted);
+
+                if (outcome.ThreatFound)
+                {
+                    await _notifications.NotifyCriticalAsync(
+                        "BECETTI SECURITY — threat found",
+                        $"Microsoft Defender found a threat during a {scanType} scan. Open Threat Management to review it.");
+                }
             }
 
             await _events.RecordAsync(

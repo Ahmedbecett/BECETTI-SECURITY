@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Becetti.Security.App.Services;
 using Becetti.Security.Core.Models;
 using Becetti.Security.Core.Services;
 
@@ -15,16 +16,18 @@ public sealed class DataBreachViewModel : ViewModelBase
 {
     private readonly IDataBreachService _breach;
     private readonly IDataBreachHistoryService _history;
+    private readonly NotificationService _notifications;
 
     private string _emailInput = string.Empty;
     private string _passwordInput = string.Empty;
     private EmailBreachReport? _emailReport;
     private PasswordBreachReport? _passwordReport;
 
-    public DataBreachViewModel(IDataBreachService breach, IDataBreachHistoryService history)
+    public DataBreachViewModel(IDataBreachService breach, IDataBreachHistoryService history, NotificationService notifications)
     {
         _breach = breach;
         _history = history;
+        _notifications = notifications;
 
         CheckEmailCommand = new RelayCommand(CheckEmailAsync, () => !IsBusy && !string.IsNullOrWhiteSpace(EmailInput));
         CheckPasswordCommand = new RelayCommand(CheckPasswordAsync, () => !IsBusy && !string.IsNullOrEmpty(PasswordInput));
@@ -137,6 +140,13 @@ public sealed class DataBreachViewModel : ViewModelBase
                 Count = report.BreachCount
             });
             await LoadHistoryAsync();
+
+            if (report.Breached)
+            {
+                await _notifications.NotifyCriticalAsync(
+                    "BECETTI SECURITY — data breach found",
+                    $"\"{email}\" appeared in {report.BreachCount} known data breach(es).");
+            }
         }
         finally
         {
@@ -173,6 +183,13 @@ public sealed class DataBreachViewModel : ViewModelBase
                 Count = report.TimesSeen
             });
             await LoadHistoryAsync();
+
+            if (report.Breached)
+            {
+                await _notifications.NotifyCriticalAsync(
+                    "BECETTI SECURITY — exposed password",
+                    $"A checked password has appeared in known breaches {report.TimesSeen:N0} time(s).");
+            }
         }
         finally
         {
