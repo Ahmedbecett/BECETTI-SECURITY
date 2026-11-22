@@ -2,9 +2,11 @@ using Becetti.Security.App.Helpers;
 using Becetti.Security.App.Views;
 using Becetti.Security.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Windows.UI;
 
 namespace Becetti.Security.App;
 
@@ -61,6 +63,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ConfigureTitleBar();
         NavView.ItemInvoked += OnNavigationInvoked;
 
         _localization = App.Services.GetRequiredService<LocalizationService>();
@@ -73,6 +76,34 @@ public sealed partial class MainWindow : Window
         ContentFrame.Navigate(typeof(DashboardPage));
 
         _ = LoadFooterStatusAsync();
+    }
+
+    private void ConfigureTitleBar()
+    {
+        try
+        {
+            if (!AppWindowTitleBar.IsCustomizationSupported())
+                return;
+
+            var titleBar = AppWindow.TitleBar;
+            titleBar.BackgroundColor = Color.FromArgb(0xFF, 0x0D, 0x11, 0x19);
+            titleBar.InactiveBackgroundColor = Color.FromArgb(0xFF, 0x09, 0x0C, 0x12);
+            titleBar.ForegroundColor = Color.FromArgb(0xFF, 0xF1, 0xF5, 0xF9);
+            titleBar.InactiveForegroundColor = Color.FromArgb(0xFF, 0x64, 0x74, 0x8B);
+
+            titleBar.ButtonBackgroundColor = Color.FromArgb(0xFF, 0x0D, 0x11, 0x19);
+            titleBar.ButtonForegroundColor = Color.FromArgb(0xFF, 0x94, 0xA3, 0xB8);
+            titleBar.ButtonHoverBackgroundColor = Color.FromArgb(0xFF, 0x17, 0x20, 0x30);
+            titleBar.ButtonHoverForegroundColor = Color.FromArgb(0xFF, 0xF1, 0xF5, 0xF9);
+            titleBar.ButtonPressedBackgroundColor = Color.FromArgb(0xFF, 0x1E, 0x2B, 0x40);
+            titleBar.ButtonPressedForegroundColor = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
+            titleBar.ButtonInactiveBackgroundColor = Color.FromArgb(0xFF, 0x09, 0x0C, 0x12);
+            titleBar.ButtonInactiveForegroundColor = Color.FromArgb(0xFF, 0x64, 0x74, 0x8B);
+        }
+        catch
+        {
+            // Keep default Windows title bar if host environment does not support customization.
+        }
     }
 
     private void ApplyShellLocalization()

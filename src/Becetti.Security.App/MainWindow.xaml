@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Title="BECETTI SECURITY">
 
-    <Grid Background="{StaticResource AppBackgroundBrush}">
+    <Grid Background="{StaticResource AppBackgroundBrush}" RequestedTheme="Dark">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -18,6 +18,7 @@
             x:Name="NavView"
             Grid.Row="0"
             PaneDisplayMode="Left"
+            OpenPaneLength="268"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
             IsPaneOpen="True"
@@ -215,35 +216,64 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.Header>
-                <Grid Margin="16,12,16,8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Image Grid.Column="0" Source="Assets/Square150x150Logo.png" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" />
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock x:Uid="AppHeaderTitle" helpers:Loc.Uid="AppHeaderTitle" Text="BECETTI SECURITY" FontSize="20" FontWeight="Bold" Foreground="{StaticResource ElectricBlueBrush}" />
-                        <TextBlock x:Uid="AppHeaderSubtitle" helpers:Loc.Uid="AppHeaderSubtitle" Text="Advanced Protection for Windows" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" />
-                    </StackPanel>
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <Button x:Name="HelpButton" Style="{StaticResource HeaderIconButtonStyle}" Click="HelpButton_Click" ToolTipService.ToolTip="Help">
-                            <FontIcon Glyph="&#xE897;" FontSize="16" />
-                        </Button>
-                        <Button x:Name="AboutButton" Style="{StaticResource HeaderIconButtonStyle}" Click="AboutButton_Click" ToolTipService.ToolTip="About">
-                            <FontIcon Glyph="&#xE946;" FontSize="16" />
-                        </Button>
-                        <Button x:Name="SettingsButton" Style="{StaticResource HeaderIconButtonStyle}" Click="SettingsButton_Click" ToolTipService.ToolTip="Settings">
-                            <FontIcon Glyph="&#xE713;" FontSize="16" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
+                <Border Background="{StaticResource HeaderGradientBrush}"
+                        BorderBrush="{StaticResource ShellDividerBrush}"
+                        BorderThickness="0,0,0,1"
+                        Padding="20,12,20,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0"
+                                Width="40" Height="40"
+                                CornerRadius="10"
+                                Background="{StaticResource CardElevatedBrush}"
+                                BorderBrush="{StaticResource HeroBorderBrush}"
+                                BorderThickness="1"
+                                Padding="4"
+                                Margin="0,0,14,0"
+                                VerticalAlignment="Center">
+                            <Image Source="Assets/Square150x150Logo.png" Stretch="Uniform" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                            <TextBlock x:Uid="AppHeaderTitle"
+                                       helpers:Loc.Uid="AppHeaderTitle"
+                                       Text="BECETTI SECURITY"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       CharacterSpacing="80"
+                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock x:Uid="AppHeaderSubtitle"
+                                       helpers:Loc.Uid="AppHeaderSubtitle"
+                                       Text="Advanced Protection for Windows"
+                                       FontSize="12"
+                                       Foreground="{StaticResource ElectricBlueBrush}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <Button x:Name="HelpButton" Style="{StaticResource HeaderIconButtonStyle}" Click="HelpButton_Click" ToolTipService.ToolTip="Help">
+                                <FontIcon Glyph="&#xE897;" FontSize="15" />
+                            </Button>
+                            <Button x:Name="AboutButton" Style="{StaticResource HeaderIconButtonStyle}" Click="AboutButton_Click" ToolTipService.ToolTip="About">
+                                <FontIcon Glyph="&#xE946;" FontSize="15" />
+                            </Button>
+                            <Button x:Name="SettingsButton" Style="{StaticResource HeaderIconButtonStyle}" Click="SettingsButton_Click" ToolTipService.ToolTip="Settings">
+                                <FontIcon Glyph="&#xE713;" FontSize="15" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </NavigationView.Header>
             <Frame x:Name="ContentFrame" />
         </NavigationView>
 
         <!-- Footer status bar: real, verified readiness only — never decorative. -->
-        <Border Grid.Row="1" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="0,1,0,0" Padding="20,8">
+        <Border Grid.Row="1"
+                Background="{StaticResource FooterBackgroundBrush}"
+                BorderBrush="{StaticResource ShellDividerBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="20,8">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -251,10 +281,18 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Ellipse x:Name="ReadinessDot" Grid.Column="0" Width="8" Height="8" Fill="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0" />
-                <TextBlock x:Name="FooterReadinessText" Grid.Column="1" Text="Checking readiness…" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" />
-                <TextBlock x:Name="FooterVersionText" Grid.Column="2" Text="BECETTI SECURITY v1.0.0.0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" Margin="12,0" />
-                <TextBlock x:Name="FooterCompatText" Grid.Column="3" Text="Windows 10 / 11 · x64" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" />
+                <Border Grid.Column="0" Style="{StaticResource ShellBadgeStyle}" Margin="0,0,12,0">
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Ellipse x:Name="ReadinessDot" Width="8" Height="8" Fill="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                        <TextBlock x:Name="FooterReadinessText" Text="Checking readiness…" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource ShellBadgeStyle}" Margin="0,0,8,0">
+                    <TextBlock x:Name="FooterVersionText" Text="BECETTI SECURITY v1.0.0.0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center" />
+                </Border>
+                <Border Grid.Column="3" Style="{StaticResource ShellBadgeStyle}">
+                    <TextBlock x:Name="FooterCompatText" Text="Windows 10 / 11 · x64" Foreground="{StaticResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" />
+                </Border>
             </Grid>
         </Border>
 
@@ -263,14 +301,15 @@
                 Grid.Row="0" Grid.RowSpan="2"
                 Click="AiLauncherButton_Click"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                Margin="0,0,28,28"
-                Width="64" Height="64"
-                CornerRadius="32"
+                Margin="0,0,28,44"
+                Width="60" Height="60"
+                CornerRadius="30"
                 Padding="0"
-                Background="{StaticResource ElectricBlueBrush}"
-                BorderThickness="0"
+                Background="{StaticResource AiOrbGradientBrush}"
+                BorderBrush="{StaticResource HeroBorderBrush}"
+                BorderThickness="1.5"
                 ToolTipService.ToolTip="BECETTI AI">
-            <Image Source="Assets/RobotMascotHero.png" Width="38" Height="38" Stretch="Uniform" />
+            <Image Source="Assets/RobotMascotHero.png" Width="36" Height="36" Stretch="Uniform" />
         </Button>
     </Grid>
 

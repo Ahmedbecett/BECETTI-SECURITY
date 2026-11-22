@@ -103,9 +103,9 @@
                             <StackPanel HorizontalAlignment="{x:Bind IsFromUser, Converter={StaticResource MessageAlignment}}" Margin="0,6">
                                 <Border MaxWidth="560"
                                         Padding="14,10"
-                                        CornerRadius="14"
-                                        Background="{StaticResource PanelBackgroundBrush}"
-                                        BorderBrush="{StaticResource GlowBorderBrush}"
+                                        CornerRadius="12"
+                                        Background="{StaticResource CardBackgroundBrush}"
+                                        BorderBrush="{StaticResource ElevatedBorderBrush}"
                                         BorderThickness="1">
                                     <StackPanel>
                                         <TextBlock Text="{x:Bind Text}" TextWrapping="Wrap"
@@ -128,22 +128,28 @@
         </Grid>
 
         <!-- Composer -->
-        <Grid Grid.Row="2" Padding="32,12,32,24">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" x:Name="InputBox"
-                     x:Uid="AiInputBox" helpers:Loc.Uid="AiInputBox"
-                     PlaceholderText="Ask BECETTI AI…"
-                     Text="{x:Bind ViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     KeyDown="InputBox_KeyDown"
-                     AcceptsReturn="False" Margin="0,0,8,0" />
-            <Button Grid.Column="1" x:Uid="AiSendButton" helpers:Loc.Uid="AiSendButton" Content="Send" Command="{x:Bind ViewModel.SendCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" />
-            <Button Grid.Column="2" x:Uid="AiClearButton" helpers:Loc.Uid="AiClearButton" Content="Clear" Command="{x:Bind ViewModel.ClearCommand}" Margin="0,0,8,0" />
-            <Button Grid.Column="3" x:Uid="AiSupportTicketButton" helpers:Loc.Uid="AiSupportTicketButton" Content="Open a support ticket" Command="{x:Bind ViewModel.CreateSupportTicketCommand}" FontSize="12" />
-        </Grid>
+        <Border Grid.Row="2"
+                Background="{StaticResource PanelBackgroundBrush}"
+                BorderBrush="{StaticResource ShellDividerBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="32,14,32,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" x:Name="InputBox"
+                         x:Uid="AiInputBox" helpers:Loc.Uid="AiInputBox"
+                         PlaceholderText="Ask BECETTI AI…"
+                         Text="{x:Bind ViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         KeyDown="InputBox_KeyDown"
+                         AcceptsReturn="False" Margin="0,0,8,0" />
+                <Button Grid.Column="1" x:Uid="AiSendButton" helpers:Loc.Uid="AiSendButton" Content="Send" Command="{x:Bind ViewModel.SendCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" />
+                <Button Grid.Column="2" x:Uid="AiClearButton" helpers:Loc.Uid="AiClearButton" Content="Clear" Command="{x:Bind ViewModel.ClearCommand}" Margin="0,0,8,0" />
+                <Button Grid.Column="3" x:Uid="AiSupportTicketButton" helpers:Loc.Uid="AiSupportTicketButton" Content="Open a support ticket" Command="{x:Bind ViewModel.CreateSupportTicketCommand}" FontSize="12" />
+            </Grid>
+        </Border>
     </Grid>
 </Page>
