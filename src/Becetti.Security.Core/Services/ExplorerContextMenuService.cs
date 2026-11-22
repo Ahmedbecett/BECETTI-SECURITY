@@ -1,3 +1,4 @@
+using Becetti.Security.Core.Models;
 using Microsoft.Win32;
 
 namespace Becetti.Security.Core.Services;
