@@ -106,9 +106,11 @@ module.exports = async (req, res) => {
   };
 
   // gemini-2.5-flash was retired for newly-issued API keys/projects (Google now
-  // returns 404 "no longer available to new users" and points to this model);
-  // confirmed live via /api/health?deep=1 against this project's actual key.
-  const GEMINI_MODEL = "gemini-3.8-flash";
+  // returns 404 "no longer available to new users"). Using Google's own
+  // "gemini-flash-latest" stable alias instead of a pinned version number so
+  // the next model retirement doesn't silently break chat again; confirmed
+  // live via /api/health?deep=1 against this project's actual key.
+  const GEMINI_MODEL = "gemini-flash-latest";
 
   try {
     const upstream = await fetch(
