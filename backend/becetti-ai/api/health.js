@@ -5,7 +5,7 @@
 
 // The model chat.js actually calls. Kept in sync manually since this file
 // has no shared import with chat.js (two independent Vercel functions).
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.8-flash";
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
