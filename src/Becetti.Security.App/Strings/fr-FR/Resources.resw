@@ -183,4 +183,23 @@
   <data name="SubtitleKnowledge.Text" xml:space="preserve"><value>Articles rédigés localement expliquant les fonctionnalités de sécurité réelles de BECETTI SECURITY et les bonnes pratiques générales. Aucun appel réseau n'est effectué pour afficher ce contenu.</value></data>
   <data name="KnowledgeSearchBox.PlaceholderText" xml:space="preserve"><value>Rechercher des articles...</value></data>
   <data name="SearchButton.Content" xml:space="preserve"><value>Rechercher</value></data>
+
+  <data name="NavThreatIntel.Content" xml:space="preserve"><value>Renseignement sur les menaces</value></data>
+  <data name="TitleThreatIntel.Text" xml:space="preserve"><value>Renseignement sur les menaces</value></data>
+  <data name="SubtitleThreatIntel.Text" xml:space="preserve"><value>Un second avis facultatif provenant des quelque 70 moteurs antivirus tiers de VirusTotal pour un fichier ou un lien de votre choix. Ceci ne remplace jamais Microsoft Defender, le moteur de protection indépendant propre à BECETTI SECURITY — il s'agit d'une vérification distincte et clairement identifiée que vous lancez à la demande.</value></data>
+  <data name="ThreatIntelNotConfiguredBar.Title" xml:space="preserve"><value>Non configuré</value></data>
+  <data name="ThreatIntelNotConfiguredBar.Message" xml:space="preserve"><value>Le serveur de renseignement sur les menaces n'est pas configuré. Ouvrez Paramètres et définissez l'URL du serveur BECETTI.</value></data>
+  <data name="ThreatIntelFileSectionLabel.Text" xml:space="preserve"><value>Analyser un fichier</value></data>
+  <data name="ThreatIntelScanFileButton.Content" xml:space="preserve"><value>Vérifier l'empreinte</value></data>
+  <data name="ThreatIntelHashOnlyNote.Text" xml:space="preserve"><value>Le SHA-256 du fichier est calculé sur cet appareil puis vérifié dans la base de VirusTotal — le fichier lui-même n'est pas envoyé à cette étape.</value></data>
+  <data name="ThreatIntelUploadConsentBar.Title" xml:space="preserve"><value>Aucun rapport VirusTotal existant</value></data>
+  <data name="ThreatIntelUploadConsentBar.Message" xml:space="preserve"><value>L'empreinte de ce fichier est inconnue de VirusTotal. L'envoyer partagera le contenu réel du fichier avec VirusTotal et ses partenaires de sécurité, selon les conditions propres de VirusTotal. Seuls les fichiers jusqu'à la taille indiquée ci-dessous peuvent être envoyés ici.</value></data>
+  <data name="ThreatIntelConfirmUploadButton.Content" xml:space="preserve"><value>Envoyer et analyser</value></data>
+  <data name="ThreatIntelUrlSectionLabel.Text" xml:space="preserve"><value>Vérifier un lien</value></data>
+  <data name="ThreatIntelUrlTextBox.PlaceholderText" xml:space="preserve"><value>https://example.com/suspicious-link</value></data>
+  <data name="ThreatIntelScanUrlButton.Content" xml:space="preserve"><value>Analyser le lien</value></data>
+  <data name="ThreatIntelResultLabel.Text" xml:space="preserve"><value>Résultat</value></data>
+  <data name="ThreatIntelCheckStatusButton.Content" xml:space="preserve"><value>Vérifier l'état</value></data>
+  <data name="ThreatIntelOpenReportButton.Content" xml:space="preserve"><value>Ouvrir le rapport complet sur virustotal.com</value></data>
+  <data name="ThreatIntelHistoryLabel.Text" xml:space="preserve"><value>Vérifications précédentes</value></data>
 </root>

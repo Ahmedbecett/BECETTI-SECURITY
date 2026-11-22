@@ -1,0 +1,134 @@
+<Page
+    x:Class="Becetti.Security.App.Views.ThreatIntelligencePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:converters="using:Becetti.Security.App.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:ThreatIntelVerdictToBrushConverter x:Key="VerdictToBrush" />
+        <converters:NotEmptyToVisibilityConverter x:Key="NotEmptyToVisibility" />
+    </Page.Resources>
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleThreatIntel" Text="Threat Intelligence" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleThreatIntel"
+                       Text="An optional second opinion from VirusTotal's ~70 third-party antivirus engines for a file or link you choose. This never replaces Microsoft Defender, BECETTI SECURITY's own independent protection engine — it is a separate, clearly-labelled check you run on demand."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+
+            <InfoBar x:Uid="ThreatIntelNotConfiguredBar" Title="Not configured" Message="The threat-intelligence server is not configured. Open Settings and set the BECETTI server URL."
+                     Severity="Warning" IsOpen="{x:Bind ViewModel.IsNotConfigured, Mode=OneWay}"
+                     IsClosable="False" Margin="0,0,0,16" />
+
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <!-- File scan -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="ThreatIntelFileSectionLabel" Text="Scan a file" Style="{StaticResource ValueStyle}" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{x:Bind ViewModel.SelectedFilePath, Mode=OneWay}" IsReadOnly="True" Margin="0,0,8,0" />
+                        <Button Grid.Column="1" Content="Browse..." Click="BrowseButton_Click" Margin="0,0,8,0" />
+                        <Button x:Uid="ThreatIntelScanFileButton" Grid.Column="2" Content="Check hash" Command="{x:Bind ViewModel.ScanFileCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    </Grid>
+                    <TextBlock x:Uid="ThreatIntelHashOnlyNote" Text="The file's SHA-256 is computed on this device and checked against VirusTotal's database — the file itself is not uploaded for this step."
+                               Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0" />
+
+                    <InfoBar x:Uid="ThreatIntelUploadConsentBar" Title="No existing VirusTotal report"
+                             Message="This file's hash is unknown to VirusTotal. Uploading it will share the actual file content with VirusTotal and its security-industry partners, per VirusTotal's own terms. Only files up to the size shown below can be uploaded here."
+                             Severity="Warning" IsOpen="{x:Bind ViewModel.NeedsUploadConsent, Mode=OneWay}" IsClosable="False" Margin="0,12,0,0">
+                        <InfoBar.ActionButton>
+                            <Button x:Uid="ThreatIntelConfirmUploadButton" Content="Upload and scan" Command="{x:Bind ViewModel.ConfirmUploadCommand}" />
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+                    <TextBlock Text="{x:Bind ViewModel.MaxUploadSizeLabel, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"
+                               Visibility="{x:Bind ViewModel.NeedsUploadConsent, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" Margin="0,4,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- URL scan -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="ThreatIntelUrlSectionLabel" Text="Check a link" Style="{StaticResource ValueStyle}" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Uid="ThreatIntelUrlTextBox" Grid.Column="0" Text="{x:Bind ViewModel.UrlInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="https://example.com/suspicious-link" Margin="0,0,8,0" />
+                        <Button x:Uid="ThreatIntelScanUrlButton" Grid.Column="1" Content="Scan link" Command="{x:Bind ViewModel.ScanUrlCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Result -->
+            <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.HasReport, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <TextBlock x:Uid="ThreatIntelResultLabel" Text="Result" Style="{StaticResource ValueStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,8,0,0">
+                        <TextBlock Text="{x:Bind ViewModel.CurrentReport.DetectionRatio, Mode=OneWay}" FontSize="28" FontWeight="Bold"
+                                   Foreground="{x:Bind ViewModel.CurrentReport.Verdict, Mode=OneWay, Converter={StaticResource VerdictToBrush}}" />
+                        <TextBlock Text="{x:Bind ViewModel.CurrentReport.Verdict, Mode=OneWay}" FontSize="20" VerticalAlignment="Center"
+                                   Foreground="{x:Bind ViewModel.CurrentReport.Verdict, Mode=OneWay, Converter={StaticResource VerdictToBrush}}" />
+                    </StackPanel>
+                    <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
+
+                    <Button x:Uid="ThreatIntelCheckStatusButton" Content="Check status" Command="{x:Bind ViewModel.CheckStatusCommand}"
+                            Visibility="{x:Bind ViewModel.IsQueued, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" Margin="0,8,0,0" />
+
+                    <Button x:Uid="ThreatIntelOpenReportButton" Content="Open full report on virustotal.com" Click="OpenPermalinkButton_Click"
+                            Visibility="{x:Bind ViewModel.CurrentReport.Permalink, Mode=OneWay, Converter={StaticResource NotEmptyToVisibility}}" Margin="0,4,0,0" />
+
+                    <ListView ItemsSource="{x:Bind ViewModel.FlaggedEngines}" MinHeight="40" Margin="0,12,0,0"
+                              Visibility="{x:Bind ViewModel.FlaggedEngines.Count, Mode=OneWay, Converter={StaticResource NotEmptyToVisibility}}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ThreatIntelEngineVerdict">
+                                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4">
+                                    <TextBlock Text="{x:Bind EngineName}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Width="180" />
+                                    <TextBlock Text="{x:Bind Category}" Foreground="{StaticResource DangerBrush}" Width="90" />
+                                    <TextBlock Text="{x:Bind Result}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- History -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="ThreatIntelHistoryLabel" Text="Previous checks" Style="{StaticResource ValueStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.History}" MinHeight="120" Margin="0,8,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ThreatIntelScanRecord">
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Timestamp}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Width="140" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind TargetDisplay}" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" Margin="8,0" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind DetectionRatio}" Foreground="{x:Bind Verdict, Converter={StaticResource VerdictToBrush}}" FontWeight="SemiBold" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshHistoryCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

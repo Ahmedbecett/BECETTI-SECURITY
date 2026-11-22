@@ -183,4 +183,23 @@
   <data name="SubtitleKnowledge.Text" xml:space="preserve"><value>Locally-authored articles explaining the real security features BECETTI SECURITY exposes and general safe-use practices. No network call is made to show this content.</value></data>
   <data name="KnowledgeSearchBox.PlaceholderText" xml:space="preserve"><value>Search articles...</value></data>
   <data name="SearchButton.Content" xml:space="preserve"><value>Search</value></data>
+
+  <data name="NavThreatIntel.Content" xml:space="preserve"><value>Threat Intelligence</value></data>
+  <data name="TitleThreatIntel.Text" xml:space="preserve"><value>Threat Intelligence</value></data>
+  <data name="SubtitleThreatIntel.Text" xml:space="preserve"><value>An optional second opinion from VirusTotal's ~70 third-party antivirus engines for a file or link you choose. This never replaces Microsoft Defender, BECETTI SECURITY's own independent protection engine — it is a separate, clearly-labelled check you run on demand.</value></data>
+  <data name="ThreatIntelNotConfiguredBar.Title" xml:space="preserve"><value>Not configured</value></data>
+  <data name="ThreatIntelNotConfiguredBar.Message" xml:space="preserve"><value>The threat-intelligence server is not configured. Open Settings and set the BECETTI server URL.</value></data>
+  <data name="ThreatIntelFileSectionLabel.Text" xml:space="preserve"><value>Scan a file</value></data>
+  <data name="ThreatIntelScanFileButton.Content" xml:space="preserve"><value>Check hash</value></data>
+  <data name="ThreatIntelHashOnlyNote.Text" xml:space="preserve"><value>The file's SHA-256 is computed on this device and checked against VirusTotal's database — the file itself is not uploaded for this step.</value></data>
+  <data name="ThreatIntelUploadConsentBar.Title" xml:space="preserve"><value>No existing VirusTotal report</value></data>
+  <data name="ThreatIntelUploadConsentBar.Message" xml:space="preserve"><value>This file's hash is unknown to VirusTotal. Uploading it will share the actual file content with VirusTotal and its security-industry partners, per VirusTotal's own terms. Only files up to the size shown below can be uploaded here.</value></data>
+  <data name="ThreatIntelConfirmUploadButton.Content" xml:space="preserve"><value>Upload and scan</value></data>
+  <data name="ThreatIntelUrlSectionLabel.Text" xml:space="preserve"><value>Check a link</value></data>
+  <data name="ThreatIntelUrlTextBox.PlaceholderText" xml:space="preserve"><value>https://example.com/suspicious-link</value></data>
+  <data name="ThreatIntelScanUrlButton.Content" xml:space="preserve"><value>Scan link</value></data>
+  <data name="ThreatIntelResultLabel.Text" xml:space="preserve"><value>Result</value></data>
+  <data name="ThreatIntelCheckStatusButton.Content" xml:space="preserve"><value>Check status</value></data>
+  <data name="ThreatIntelOpenReportButton.Content" xml:space="preserve"><value>Open full report on virustotal.com</value></data>
+  <data name="ThreatIntelHistoryLabel.Text" xml:space="preserve"><value>Previous checks</value></data>
 </root>

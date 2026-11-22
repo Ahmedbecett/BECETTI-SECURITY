@@ -45,6 +45,7 @@ public partial class App : Application
         services.AddSingleton<IWifiSecurityService, WifiSecurityService>();
         services.AddSingleton<IKnowledgeBaseService, KnowledgeBaseService>();
         services.AddSingleton<IEventLogService, EventLogService>();
+        services.AddSingleton<IThreatIntelHistoryService, ThreatIntelHistoryService>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
         services.AddSingleton<Services.SpeechService>();
@@ -63,6 +64,7 @@ public partial class App : Application
 
         services.AddHttpClient<ICloudService, CloudService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IBecettiAiService, BecettiAiService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IThreatIntelligenceService, ThreatIntelligenceService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
 
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
@@ -93,6 +95,7 @@ public partial class App : Application
         services.AddTransient<BackupAdvisorViewModel>();
         services.AddTransient<WifiSecurityViewModel>();
         services.AddTransient<KnowledgeBaseViewModel>();
+        services.AddTransient<ThreatIntelligenceViewModel>();
 
         Services = services.BuildServiceProvider();
 

@@ -673,3 +673,102 @@ public sealed class KnowledgeBaseArticle
     public string Category { get; init; } = string.Empty;
     public string Body { get; init; } = string.Empty;
 }
+
+// ---------- Threat Intelligence (VirusTotal) ----------
+// BECETTI SECURITY's core protection engine stays Microsoft Defender, read
+// and managed only through Defender's own official interfaces. VirusTotal
+// is an optional, clearly separate SECOND OPINION from ~70 third-party
+// antivirus engines, reached only through BECETTI's own server-side proxy
+// (see /backend/becetti-ai) so the VirusTotal API key never ships inside
+// this app. Every value below is copied from VirusTotal's own real
+// response — nothing here is simulated or backfilled.
+
+/// <summary>What kind of target a VirusTotal check was for.</summary>
+public enum ThreatIntelTargetType
+{
+    File,
+    Url
+}
+
+/// <summary>The real, current state of a VirusTotal check, as reported by VirusTotal itself.</summary>
+public enum ThreatIntelStatus
+{
+    /// <summary>Not yet submitted / unknown.</summary>
+    Unknown,
+    /// <summary>Hash lookup found no existing VirusTotal report; file content has not been uploaded.</summary>
+    NotFound,
+    /// <summary>Submitted to VirusTotal; the real scan is still running there.</summary>
+    Queued,
+    /// <summary>VirusTotal finished scanning and returned a real result.</summary>
+    Completed,
+    /// <summary>A real error occurred (network, rate limit, invalid key, etc.) — never a fabricated result.</summary>
+    Error
+}
+
+/// <summary>Overall verdict as computed directly from VirusTotal's own detection stats.</summary>
+public enum ThreatIntelVerdict
+{
+    Unknown,
+    Clean,
+    Suspicious,
+    Malicious
+}
+
+/// <summary>One third-party engine's real verdict for this target, copied verbatim from VirusTotal.</summary>
+public sealed class ThreatIntelEngineVerdict
+{
+    public string EngineName { get; init; } = string.Empty;
+    /// <summary>VirusTotal's own category for this engine's verdict: "malicious" or "suspicious".</summary>
+    public string Category { get; init; } = string.Empty;
+    /// <summary>The engine's own label for the threat (e.g. "Trojan.GenericKD.12345"), when VirusTotal provides one.</summary>
+    public string? Result { get; init; }
+}
+
+/// <summary>A completed or in-progress VirusTotal report for one file or URL.</summary>
+public sealed class ThreatIntelReport
+{
+    public ThreatIntelStatus Status { get; init; } = ThreatIntelStatus.Unknown;
+    public ThreatIntelTargetType TargetType { get; init; }
+    public ThreatIntelVerdict Verdict { get; init; } = ThreatIntelVerdict.Unknown;
+
+    /// <summary>VirusTotal analysis id, when a scan is queued or completed (used to poll for results).</summary>
+    public string? AnalysisId { get; init; }
+
+    public string? Sha256 { get; init; }
+    public string? Url { get; init; }
+    public string? FileName { get; init; }
+
+    public int Malicious { get; init; }
+    public int Suspicious { get; init; }
+    public int Harmless { get; init; }
+    public int Undetected { get; init; }
+    public int Timeout { get; init; }
+    public int TotalEngines { get; init; }
+
+    /// <summary>e.g. "3/72" — malicious+suspicious over total engines that produced a verdict.</summary>
+    public string DetectionRatio { get; init; } = "0/0";
+
+    /// <summary>Only engines that flagged this target malicious or suspicious — never the full clean list.</summary>
+    public IReadOnlyList<ThreatIntelEngineVerdict> FlaggedEngines { get; init; } = Array.Empty<ThreatIntelEngineVerdict>();
+
+    public DateTimeOffset? ScanDateUtc { get; init; }
+
+    /// <summary>Link to VirusTotal's own public report page for this item.</summary>
+    public string? Permalink { get; init; }
+
+    /// <summary>Human-readable message accompanying this state (e.g. why it is not found, or a real error).</summary>
+    public string Message { get; init; } = string.Empty;
+}
+
+/// <summary>One locally-recorded, real VirusTotal check — BECETTI SECURITY's local scan history for this feature.</summary>
+public sealed class ThreatIntelScanRecord
+{
+    public DateTimeOffset Timestamp { get; init; } = DateTimeOffset.UtcNow;
+    public ThreatIntelTargetType TargetType { get; init; }
+    /// <summary>File name or URL shown in the history list.</summary>
+    public string TargetDisplay { get; init; } = string.Empty;
+    public string? Sha256 { get; init; }
+    public ThreatIntelVerdict Verdict { get; init; } = ThreatIntelVerdict.Unknown;
+    public string DetectionRatio { get; init; } = "0/0";
+    public string? Permalink { get; init; }
+}

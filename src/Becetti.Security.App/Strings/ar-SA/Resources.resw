@@ -183,4 +183,23 @@
   <data name="SubtitleKnowledge.Text" xml:space="preserve"><value>مقالات مؤلَّفة محليًا تشرح ميزات الأمان الحقيقية التي يقدمها BECETTI SECURITY وممارسات الاستخدام الآمن العامة. لا يتم إجراء أي اتصال شبكي لعرض هذا المحتوى.</value></data>
   <data name="KnowledgeSearchBox.PlaceholderText" xml:space="preserve"><value>ابحث في المقالات...</value></data>
   <data name="SearchButton.Content" xml:space="preserve"><value>بحث</value></data>
+
+  <data name="NavThreatIntel.Content" xml:space="preserve"><value>ذكاء التهديدات</value></data>
+  <data name="TitleThreatIntel.Text" xml:space="preserve"><value>ذكاء التهديدات</value></data>
+  <data name="SubtitleThreatIntel.Text" xml:space="preserve"><value>رأي ثانٍ اختياري من نحو 70 محرك حماية خارجي عبر VirusTotal لملف أو رابط تختاره. هذا لا يحل أبدًا محل Microsoft Defender، محرك الحماية المستقل الخاص بـ BECETTI SECURITY — إنه فحص منفصل وواضح تقوم به عند الطلب.</value></data>
+  <data name="ThreatIntelNotConfiguredBar.Title" xml:space="preserve"><value>غير مُهيّأ</value></data>
+  <data name="ThreatIntelNotConfiguredBar.Message" xml:space="preserve"><value>خادم ذكاء التهديدات غير مُهيّأ. افتح الإعدادات واضبط عنوان خادم BECETTI.</value></data>
+  <data name="ThreatIntelFileSectionLabel.Text" xml:space="preserve"><value>فحص ملف</value></data>
+  <data name="ThreatIntelScanFileButton.Content" xml:space="preserve"><value>تحقق من البصمة</value></data>
+  <data name="ThreatIntelHashOnlyNote.Text" xml:space="preserve"><value>يتم احتساب بصمة SHA-256 الخاصة بالملف على هذا الجهاز والتحقق منها في قاعدة بيانات VirusTotal — لا يتم رفع الملف نفسه في هذه الخطوة.</value></data>
+  <data name="ThreatIntelUploadConsentBar.Title" xml:space="preserve"><value>لا يوجد تقرير سابق في VirusTotal</value></data>
+  <data name="ThreatIntelUploadConsentBar.Message" xml:space="preserve"><value>بصمة هذا الملف غير معروفة لدى VirusTotal. رفعه سيشارك محتوى الملف الفعلي مع VirusTotal وشركائها الأمنيين، وفق شروط VirusTotal الخاصة. يمكن رفع الملفات حتى الحجم الموضح أدناه فقط.</value></data>
+  <data name="ThreatIntelConfirmUploadButton.Content" xml:space="preserve"><value>رفع وفحص</value></data>
+  <data name="ThreatIntelUrlSectionLabel.Text" xml:space="preserve"><value>التحقق من رابط</value></data>
+  <data name="ThreatIntelUrlTextBox.PlaceholderText" xml:space="preserve"><value>https://example.com/suspicious-link</value></data>
+  <data name="ThreatIntelScanUrlButton.Content" xml:space="preserve"><value>فحص الرابط</value></data>
+  <data name="ThreatIntelResultLabel.Text" xml:space="preserve"><value>النتيجة</value></data>
+  <data name="ThreatIntelCheckStatusButton.Content" xml:space="preserve"><value>تحقق من الحالة</value></data>
+  <data name="ThreatIntelOpenReportButton.Content" xml:space="preserve"><value>فتح التقرير الكامل على virustotal.com</value></data>
+  <data name="ThreatIntelHistoryLabel.Text" xml:space="preserve"><value>الفحوصات السابقة</value></data>
 </root>

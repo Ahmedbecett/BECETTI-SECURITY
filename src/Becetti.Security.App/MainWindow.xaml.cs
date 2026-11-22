@@ -34,6 +34,7 @@ public sealed partial class MainWindow : Window
         ["Reports"] = typeof(SecurityReportsPage),
         ["CloudSync"] = typeof(CloudSyncPage),
         ["Knowledge"] = typeof(KnowledgeBasePage),
+        ["ThreatIntel"] = typeof(ThreatIntelligencePage),
         ["Emergency"] = typeof(EmergencyCenterPage),
         ["Privacy"] = typeof(PrivacyPage),
         ["History"] = typeof(HistoryPage),
