@@ -5,10 +5,11 @@
 
 // The model chat.js actually calls. Kept in sync manually since this file
 // has no shared import with chat.js (two independent Vercel functions).
-// "gemini-flash-latest" is Google's own stable alias for whichever Flash
-// model is currently recommended — it survives the next model retirement
-// instead of needing another manual update like gemini-2.5-flash's did.
-const GEMINI_MODEL = "gemini-flash-latest";
+// gemini-flash-lite-latest is the model actually usable on this key's
+// current free-tier quota (full gemini-flash-latest authenticates but
+// returns 503/429 on this account — see chat.js's comment for the
+// live-verified diagnosis).
+const GEMINI_MODEL = "gemini-flash-lite-latest";
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

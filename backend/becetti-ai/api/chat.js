@@ -105,12 +105,16 @@ module.exports = async (req, res) => {
     }
   };
 
-  // gemini-2.5-flash was retired for newly-issued API keys/projects (Google now
-  // returns 404 "no longer available to new users"). Using Google's own
-  // "gemini-flash-latest" stable alias instead of a pinned version number so
-  // the next model retirement doesn't silently break chat again; confirmed
-  // live via /api/health?deep=1 against this project's actual key.
-  const GEMINI_MODEL = "gemini-flash-latest";
+  // gemini-2.5-flash was retired for newly-issued API keys/projects (404).
+  // gemini-flash-latest (full Flash) authenticates fine but this key's free
+  // tier currently has no usable capacity on it — confirmed live via
+  // /api/health?deep=1, which got repeated real 503 "high demand" responses
+  // for full Flash while gemini-pro-latest returned an explicit 429 "limit: 0
+  // ... Free Tier" quota error. gemini-flash-lite-latest is the one model
+  // that actually completed a real generateContent call on this key (verified
+  // live, got a real reply back), so it is what chat.js uses until the
+  // account has paid/Flash quota.
+  const GEMINI_MODEL = "gemini-flash-lite-latest";
 
   try {
     const upstream = await fetch(
