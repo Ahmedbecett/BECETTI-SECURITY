@@ -229,6 +229,39 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
         }
     }
 
+    // -------------------------------------------------------------------------
+    //  Expanded 43-Rule Built-In Native YARA Rule Suite Verification
+    // -------------------------------------------------------------------------
+    [Fact]
+    public void BuiltInYaraRulesSuite_ContainsAllTenExpandedPacksAndFortyPlusRules()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? rulesDir = null;
+        while (dir is not null)
+        {
+            var candidate = Path.Combine(dir.FullName, "src", "Becetti.Security.App", "Rules", "yara");
+            if (Directory.Exists(candidate))
+            {
+                rulesDir = candidate;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(rulesDir);
+        var files = Directory.GetFiles(rulesDir!, "*.yar");
+        Assert.True(files.Length >= 10, $"Expected >= 10 YARA rule packs, found {files.Length}");
+
+        var ruleCount = 0;
+        foreach (var f in files)
+        {
+            var lines = File.ReadAllLines(f);
+            ruleCount += lines.Count(l => l.TrimStart().StartsWith("rule ", StringComparison.Ordinal));
+        }
+
+        Assert.True(ruleCount >= 40, $"Expected >= 40 built-in YARA rules, found {ruleCount}");
+    }
+
     private sealed class StubHttpHandler : HttpMessageHandler
     {
         private readonly Func<HttpRequestMessage, HttpResponseMessage> _factory;
