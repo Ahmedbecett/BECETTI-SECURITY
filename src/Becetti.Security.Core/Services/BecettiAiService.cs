@@ -15,7 +15,10 @@ namespace Becetti.Security.Core.Services;
 /// </summary>
 public sealed class BecettiAiService : IBecettiAiService
 {
-    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(45);
+    // Reduced from 45s: with one automatic retry below (see SendAsync), 45s per attempt
+    // meant a genuinely unreachable server could take up to ~90 seconds to finally report
+    // a failure. 30s is still generous for a gpt-4o-mini reply (max 700 tokens).
+    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(30);
 
     private readonly HttpClient _http;
     private readonly ISettingsService _settings;
@@ -42,6 +45,37 @@ public sealed class BecettiAiService : IBecettiAiService
         if (history.Count == 0)
             return OperationResult<string>.Fail("No message to send.", "EMPTY_INPUT");
 
+        // Real-device testing showed this exact request timing out on a machine where a
+        // normal browser reached the internet fine — a classic symptom of a one-off dropped
+        // handshake (a restrictive firewall/antivirus, or a momentary flaky connection)
+        // rather than the service genuinely being unreachable. One automatic retry of the
+        // same real request rides out that kind of transient blip without ever fabricating
+        // a result; if the second real attempt also fails, the real failure is reported.
+        var first = await SendOnceAsync(history, ct).ConfigureAwait(false);
+        if (first.Success || (first.ErrorCode != "TIMEOUT" && first.ErrorCode != "OFFLINE") || ct.IsCancellationRequested)
+            return first;
+
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(2), ct).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            return first;
+        }
+
+        var second = await SendOnceAsync(history, ct).ConfigureAwait(false);
+        if (second.Success)
+            return second;
+
+        return OperationResult<string>.Fail(
+            second.Message + " This happened twice in a row (BECETTI SECURITY already retried automatically). " +
+            "If your internet otherwise works fine, check that your firewall or antivirus is not blocking BECETTI SECURITY from reaching the internet.",
+            second.ErrorCode);
+    }
+
+    private async Task<OperationResult<string>> SendOnceAsync(IReadOnlyList<AiChatTurn> history, CancellationToken ct)
+    {
         using var timeoutCts = new CancellationTokenSource(RequestTimeout);
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeoutCts.Token);
 

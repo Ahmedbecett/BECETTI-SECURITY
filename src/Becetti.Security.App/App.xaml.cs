@@ -37,8 +37,21 @@ public partial class App : Application
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
         services.AddSingleton<Services.SpeechService>();
-        services.AddHttpClient<ICloudService, CloudService>();
-        services.AddHttpClient<IBecettiAiService, BecettiAiService>();
+        // Real-device testing surfaced timeouts reaching the BECETTI AI backend on a
+        // machine where a normal browser worked fine. HttpClient's default SocketsHttpHandler
+        // has no explicit connect timeout, so when a restrictive firewall/antivirus or a flaky
+        // network silently drops the TCP/TLS handshake instead of refusing it outright, the
+        // whole request can sit doing nothing until the much longer per-request timeout below
+        // finally gives up. An explicit, shorter ConnectTimeout makes that specific failure
+        // mode fail fast with a clear, distinguishable error instead of a long silent hang.
+        static SocketsHttpHandler NetworkResilientHandler() => new()
+        {
+            ConnectTimeout = TimeSpan.FromSeconds(10),
+            PooledConnectionLifetime = TimeSpan.FromMinutes(5)
+        };
+
+        services.AddHttpClient<ICloudService, CloudService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IBecettiAiService, BecettiAiService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
 
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
