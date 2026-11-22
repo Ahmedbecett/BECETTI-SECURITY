@@ -43,9 +43,11 @@
 
   <data name="SubtitleDashboard.Text" xml:space="preserve"><value>État de sécurité vérifié, lu en direct depuis Windows et Microsoft Defender.</value></data>
   <data name="SubtitleScan.Text" xml:space="preserve"><value>Les analyses s'exécutent via Microsoft Defender (MpCmdRun). Les résultats sont les verdicts de Defender lui-même — BECETTI SECURITY ne devine jamais.</value></data>
+  <data name="AskAiAboutScanButton.Content" xml:space="preserve"><value>Demander à BECETTI AI d'expliquer ceci</value></data>
   <data name="SubtitleProtection.Text" xml:space="preserve"><value>État vérifié de Microsoft Defender. Les modifications sont appliquées via Defender et revérifiées avant de signaler un succès.</value></data>
   <data name="SubtitleCloud.Text" xml:space="preserve"><value>Connectez-vous à l'API cloud BECETTI SECURITY pour les vérifications de réputation et les informations de mise à jour. Seuls les empreintes de fichiers sont envoyées — jamais les fichiers.</value></data>
   <data name="SubtitleThreats.Text" xml:space="preserve"><value>Détections réelles signalées par Microsoft Defender. La suppression s'exécute via Defender et est vérifiée avant d'afficher un succès.</value></data>
+  <data name="AskAiAboutThreatButton.Content" xml:space="preserve"><value>Demander à BECETTI AI d'expliquer ceci</value></data>
   <data name="SubtitlePrivacy.Text" xml:space="preserve"><value>Vérifications mesurées du réseau, du TLS et de la configuration. Les recommandations proviennent uniquement des valeurs mesurées.</value></data>
   <data name="SubtitleHistory.Text" xml:space="preserve"><value>Journal local des événements réels enregistrés par BECETTI SECURITY. Rien n'est préchargé ni inventé.</value></data>
   <data name="SubtitleUpdates.Text" xml:space="preserve"><value>Les mises à jour de l'application et les mises à jour des renseignements de sécurité sont distinctes. Chacune est vérifiée via son propre canal réel.</value></data>

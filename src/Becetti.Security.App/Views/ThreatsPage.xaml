@@ -29,6 +29,8 @@
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
                         <Button Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                         <Button Content="Remove Selected Threat" Command="{x:Bind ViewModel.RemoveSelectedCommand}" />
+                        <Button x:Uid="AskAiAboutThreatButton" Content="Ask BECETTI AI to explain this"
+                                Click="AskAiAboutThreat_Click" />
                     </StackPanel>
                 </StackPanel>
             </Border>

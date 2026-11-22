@@ -105,6 +105,27 @@ public sealed class ThreatsViewModel : ViewModelBase
     }
 
     /// <summary>
+    /// Builds a plain-text prompt from the selected real Defender threat for BECETTI AI to
+    /// explain — every field comes straight from Defender's own detection record, never
+    /// invented. Returns null if nothing is selected.
+    /// </summary>
+    public string? BuildAiExplainPrompt()
+    {
+        if (SelectedThreat is null)
+            return null;
+
+        var t = SelectedThreat;
+        return "Please explain this real Microsoft Defender threat detection from BECETTI SECURITY's Threat Management in plain language, and tell me if I need to do anything next:\n" +
+               $"- Threat name: {t.ThreatName}\n" +
+               $"- Severity: {t.Severity}\n" +
+               $"- Category: {t.Category}\n" +
+               (string.IsNullOrWhiteSpace(t.Resources) ? string.Empty : $"- Affected resource: {t.Resources}\n") +
+               (t.DetectedAt.HasValue ? $"- Detected at: {t.DetectedAt.Value:u}\n" : string.Empty) +
+               $"- Action taken by Defender: {(string.IsNullOrWhiteSpace(t.ActionTaken) ? "none recorded" : t.ActionTaken)}\n" +
+               $"- Action succeeded: {t.ActionSucceeded}\n";
+    }
+
+    /// <summary>
     /// Opens the real Windows Security "Protection history" view (quarantine, recovery
     /// actions BECETTI SECURITY does not duplicate). Official windowsdefender: URI only.
     /// </summary>

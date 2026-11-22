@@ -141,6 +141,16 @@ public sealed class BecettiAiViewModel : ViewModelBase
     public bool IsConfigured => _ai.IsConfigured;
 
     /// <summary>
+    /// Prefills the message box with a real report (e.g. a just-completed scan result or
+    /// a specific Defender threat) so the user can review it and tap Send themselves —
+    /// nothing is sent to BECETTI AI automatically just by navigating here.
+    /// </summary>
+    public void SeedInput(string text)
+    {
+        InputText = text;
+    }
+
+    /// <summary>
     /// Called once when the chat page first opens (empty conversation only)
     /// to show and, if enabled, speak the welcome greeting in the app's
     /// current UI language. Never runs again once a conversation exists.

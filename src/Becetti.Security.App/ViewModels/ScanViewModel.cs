@@ -40,6 +40,9 @@ public sealed class ScanViewModel : ViewModelBase
     private bool _isScanning;
     private ScanMascotMood _mascotMood = ScanMascotMood.Idle;
     private string _mascotStatusText = "Resting — no scan running right now.";
+    private string _elapsedText = string.Empty;
+    private ScanOutcome? _lastOutcome;
+    private DefenderScanType _lastScanType;
 
     public ScanViewModel(IDefenderService defender, IEventLogService events, ISettingsService settings, SoundService sound)
     {
@@ -66,6 +69,17 @@ public sealed class ScanViewModel : ViewModelBase
         set => SetProperty(ref _isScanning, value);
     }
 
+    /// <summary>
+    /// Real elapsed time since the running scan started, ticking once a second.
+    /// MpCmdRun.exe reports no percentage-complete while it runs, so a fabricated
+    /// progress bar would be a fake number — elapsed time is the only "progress"
+    /// BECETTI SECURITY can show honestly while Defender is still working.
+    /// </summary>
+    public string ElapsedText { get => _elapsedText; set => SetProperty(ref _elapsedText, value); }
+
+    /// <summary>True once a scan has actually completed (clean or threat found) and can be explained.</summary>
+    public bool HasExplainableResult => _lastOutcome is not null;
+
     /// <summary>Drives the robot mascot's glow color and pulse animation on the Scan page.</summary>
     public ScanMascotMood MascotMood { get => _mascotMood; set => SetProperty(ref _mascotMood, value); }
 
@@ -86,6 +100,12 @@ public sealed class ScanViewModel : ViewModelBase
         StatusMessage = "Scan started. This may take a while; the result below comes from Microsoft Defender.";
         MascotMood = ScanMascotMood.Scanning;
         MascotStatusText = $"Scanning now ({scanType}) — this is a real Defender scan in progress.";
+        _lastOutcome = null;
+        _lastScanType = scanType;
+        OnPropertyChanged(nameof(HasExplainableResult));
+
+        using var elapsedCts = new CancellationTokenSource();
+        var elapsedTask = TickElapsedAsync(elapsedCts.Token);
 
         try
         {
@@ -103,6 +123,8 @@ public sealed class ScanViewModel : ViewModelBase
             var outcome = result.Value;
             ScanOutput = outcome.Output;
             ScanResultText = result.Message;
+            _lastOutcome = outcome;
+            OnPropertyChanged(nameof(HasExplainableResult));
 
             if (outcome.ThreatFound)
             {
@@ -140,6 +162,51 @@ public sealed class ScanViewModel : ViewModelBase
         finally
         {
             IsScanning = false;
+            elapsedCts.Cancel();
+            try { await elapsedTask; } catch (OperationCanceledException) { /* expected */ }
+            ElapsedText = string.Empty;
         }
+    }
+
+    /// <summary>Ticks ElapsedText once a second while a scan is running. Real wall-clock time only.</summary>
+    private async Task TickElapsedAsync(CancellationToken ct)
+    {
+        var startedAt = DateTimeOffset.Now;
+        try
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                var elapsed = DateTimeOffset.Now - startedAt;
+                ElapsedText = elapsed.TotalHours >= 1
+                    ? $"{(int)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00} elapsed"
+                    : $"{elapsed.Minutes:00}:{elapsed.Seconds:00} elapsed";
+                await Task.Delay(TimeSpan.FromSeconds(1), ct).ConfigureAwait(false);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected when the scan finishes; ElapsedText is cleared by the caller.
+        }
+    }
+
+    /// <summary>
+    /// Builds a plain-text prompt from the last real scan outcome for BECETTI AI to
+    /// explain — every field comes straight from Defender's own MpCmdRun result, never
+    /// invented. Returns null until a scan has actually completed.
+    /// </summary>
+    public string? BuildAiExplainPrompt()
+    {
+        if (_lastOutcome is null)
+            return null;
+
+        var o = _lastOutcome;
+        return "Please explain this real Microsoft Defender scan result from BECETTI SECURITY's Smart Scan in plain language, and tell me if I need to do anything next:\n" +
+               $"- Scan type: {_lastScanType}\n" +
+               (string.IsNullOrWhiteSpace(o.TargetPath) ? string.Empty : $"- Target: {o.TargetPath}\n") +
+               $"- Started: {o.StartedAt:u}, ended: {o.EndedAt:u}\n" +
+               $"- Defender process exit code: {o.ProcessExitCode}\n" +
+               $"- Threat found: {o.ThreatFound}\n" +
+               $"- Completed without threat: {o.CompletedWithoutThreat}\n" +
+               (string.IsNullOrWhiteSpace(o.Error) ? string.Empty : $"- Error: {o.Error}\n");
     }
 }

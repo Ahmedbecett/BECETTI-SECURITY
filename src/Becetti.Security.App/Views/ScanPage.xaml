@@ -9,6 +9,7 @@
 
     <Page.Resources>
         <converters:ScanMascotMoodToBrushConverter x:Key="MoodToBrushConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
     </Page.Resources>
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
@@ -67,8 +68,13 @@
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="Result" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.ElapsedText, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}"
+                               Visibility="{x:Bind ViewModel.IsScanning, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8" />
                     <TextBlock Text="{x:Bind ViewModel.ScanResultText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
                     <TextBox Text="{x:Bind ViewModel.ScanOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="160" PlaceholderText="Defender output will appear here." />
+                    <Button x:Uid="AskAiAboutScanButton" Content="Ask BECETTI AI to explain this"
+                            Click="AskAiAboutScan_Click" Margin="0,12,0,0"
+                            Visibility="{x:Bind ViewModel.HasExplainableResult, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
                 </StackPanel>
             </Border>
             <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />

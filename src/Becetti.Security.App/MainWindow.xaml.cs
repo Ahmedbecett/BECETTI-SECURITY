@@ -95,11 +95,17 @@ public sealed partial class MainWindow : Window
         await dialog.ShowAsync();
     }
 
-    private void NavigateTo(string tag)
+    private void NavigateTo(string tag) => NavigateTo(tag, null);
+
+    /// <summary>
+    /// Navigates to a page by its nav tag, optionally passing a value through to the
+    /// page's OnNavigatedTo (e.g. a real scan report BECETTI AI should be seeded with).
+    /// </summary>
+    public void NavigateTo(string tag, object? parameter)
     {
         if (_pages.TryGetValue(tag, out var pageType))
         {
-            ContentFrame.Navigate(pageType);
+            ContentFrame.Navigate(pageType, parameter);
             foreach (var item in NavView.MenuItems.OfType<NavigationViewItem>())
             {
                 if (item.Tag as string == tag)

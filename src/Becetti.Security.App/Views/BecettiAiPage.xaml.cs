@@ -26,6 +26,12 @@ public sealed partial class BecettiAiPage : Page
     {
         base.OnNavigatedTo(e);
 
+        // A caller (e.g. Smart Scan's "Ask BECETTI AI to explain this" button, or Threat
+        // Management's equivalent) can pass a real report as the navigation parameter; it
+        // only ever prefills the message box, the user must still tap Send themselves.
+        if (e.Parameter is string seedText && !string.IsNullOrWhiteSpace(seedText))
+            ViewModel.SeedInput(seedText);
+
         var localization = App.Services.GetRequiredService<LocalizationService>();
         var (welcomeText, languageTag) = localization.Current switch
         {
