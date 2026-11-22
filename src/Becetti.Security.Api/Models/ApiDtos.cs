@@ -71,6 +71,32 @@ public sealed class HealthResponse
     public DateTimeOffset ServerTime { get; set; }
 }
 
+public sealed class DeviceHeartbeatRequest
+{
+    /// <summary>Stable identifier generated once on the device's own installation (not the database row Id).</summary>
+    [Required, MaxLength(128)]
+    public string DeviceId { get; set; } = string.Empty;
+
+    [Required, MaxLength(128)]
+    public string DeviceName { get; set; } = string.Empty;
+
+    [Required, MaxLength(64)]
+    public string Platform { get; set; } = string.Empty;
+
+    [Required, MaxLength(32)]
+    public string AppVersion { get; set; } = string.Empty;
+}
+
+public sealed class DeviceResponse
+{
+    public string DeviceId { get; set; } = string.Empty;
+    public string DeviceName { get; set; } = string.Empty;
+    public string Platform { get; set; } = string.Empty;
+    public string AppVersion { get; set; } = string.Empty;
+    public DateTimeOffset FirstSeenAt { get; set; }
+    public DateTimeOffset LastSeenAt { get; set; }
+}
+
 public sealed class IntelStatsResponse
 {
     public long TotalUsers { get; set; }

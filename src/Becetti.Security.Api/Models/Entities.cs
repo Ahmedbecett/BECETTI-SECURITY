@@ -19,6 +19,7 @@ public sealed class User
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public ICollection<Device> Devices { get; set; } = new List<Device>();
 }
 
 /// <summary>Hashed refresh token (the raw token is only ever shown once, at issuance).</summary>
@@ -80,6 +81,37 @@ public sealed class ReleaseVersion
 
     public bool IsMandatory { get; set; }
     public DateTimeOffset PublishedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+/// <summary>
+/// A device that has checked in under a signed-in user's account, for the
+/// multi-device dashboard. "DeviceId" is a stable identifier generated once
+/// on each installation (stored locally in app settings) — it is how the
+/// same physical device is recognized across repeated heartbeats, separate
+/// from the database row's own Id.
+/// </summary>
+public sealed class Device
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    public Guid UserId { get; set; }
+
+    [Required, MaxLength(128)]
+    public string DeviceId { get; set; } = string.Empty;
+
+    [Required, MaxLength(128)]
+    public string DeviceName { get; set; } = string.Empty;
+
+    [Required, MaxLength(64)]
+    public string Platform { get; set; } = string.Empty;
+
+    [Required, MaxLength(32)]
+    public string AppVersion { get; set; } = string.Empty;
+
+    public DateTimeOffset FirstSeenAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset LastSeenAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public User User { get; set; } = null!;
 }
 
 /// <summary>Server-side audit trail for security-relevant actions.</summary>

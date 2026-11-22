@@ -45,7 +45,12 @@
   <data name="SubtitleScan.Text" xml:space="preserve"><value>تعمل عمليات الفحص عبر Microsoft Defender (MpCmdRun). النتائج هي أحكام Defender نفسه — لا يخمّن BECETTI SECURITY أبدًا.</value></data>
   <data name="AskAiAboutScanButton.Content" xml:space="preserve"><value>اسأل BECETTI AI لشرح هذا</value></data>
   <data name="SubtitleProtection.Text" xml:space="preserve"><value>حالة Microsoft Defender الموثقة. تُطبق التغييرات عبر Defender وتُتحقق قبل الإبلاغ عن النجاح.</value></data>
-  <data name="SubtitleCloud.Text" xml:space="preserve"><value>اتصل بواجهة BECETTI SECURITY السحابية لفحوصات السمعة ومعلومات التحديث. تُرسل بصمات الملفات فقط — لا تُرسل الملفات أبدًا.</value></data>
+  <data name="SubtitleCloud.Text" xml:space="preserve"><value>اتصل بواجهة BECETTI SECURITY السحابية لفحوصات السمعة ومعلومات التحديث ولوحة تحكم متعددة الأجهزة. تُرسل بصمات الملفات فقط — لا تُرسل الملفات أبدًا.</value></data>
+  <data name="CloudDevicesSectionLabel.Text" xml:space="preserve"><value>أجهزتك</value></data>
+  <data name="CloudDevicesSectionNote.Text" xml:space="preserve"><value>كل جهاز سجّل الدخول إلى هذا الحساب السحابي وأرسل تسجيل حضور، بما في ذلك هذا الجهاز. أزل جهازًا إذا كان مفقودًا أو لم يعد مستخدمًا.</value></data>
+  <data name="CloudRefreshDevicesButton.Content" xml:space="preserve"><value>تحديث</value></data>
+  <data name="CloudThisDeviceBadge.Text" xml:space="preserve"><value>(هذا الجهاز)</value></data>
+  <data name="CloudRemoveDeviceButton.Content" xml:space="preserve"><value>إزالة</value></data>
   <data name="SubtitleThreats.Text" xml:space="preserve"><value>اكتشافات حقيقية أبلغ عنها Microsoft Defender. تتم الإزالة عبر Defender وتُتحقق قبل عرض النجاح.</value></data>
   <data name="AskAiAboutThreatButton.Content" xml:space="preserve"><value>اسأل BECETTI AI لشرح هذا</value></data>
   <data name="SubtitlePrivacy.Text" xml:space="preserve"><value>فحوصات شبكة وTLS وإعدادات مقاسة. تأتي التوصيات من القيم المقاسة فقط.</value></data>

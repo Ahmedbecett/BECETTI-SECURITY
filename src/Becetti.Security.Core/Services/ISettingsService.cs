@@ -81,6 +81,16 @@ public sealed class AppSettings
 
     /// <summary>Local Windows toast notifications for critical events (threat found, breach found, malicious file/URL). On by default.</summary>
     public bool CriticalAlertNotificationsEnabled { get; set; } = true;
+
+    /// <summary>
+    /// Stable identifier for this installation. Empty until the first real
+    /// device heartbeat is sent, at which point ICloudService generates one
+    /// and saves it immediately — this is how the cloud API's multi-device
+    /// dashboard tells this device apart from every other device on the same
+    /// account. Not tied to any hardware serial number; reinstalling the app
+    /// or clearing settings produces a new one.
+    /// </summary>
+    public string DeviceId { get; set; } = string.Empty;
 }
 
 public interface ISettingsService

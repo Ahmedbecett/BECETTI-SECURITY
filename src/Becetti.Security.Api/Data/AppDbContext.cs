@@ -16,6 +16,7 @@ public sealed class AppDbContext : DbContext
     public DbSet<ReputationEntry> ReputationEntries => Set<ReputationEntry>();
     public DbSet<ReleaseVersion> ReleaseVersions => Set<ReleaseVersion>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Device> Devices => Set<Device>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,6 +47,15 @@ public sealed class AppDbContext : DbContext
         modelBuilder.Entity<AuditLog>(entity =>
         {
             entity.HasIndex(e => e.Timestamp);
+        });
+
+        modelBuilder.Entity<Device>(entity =>
+        {
+            entity.HasIndex(e => new { e.UserId, e.DeviceId }).IsUnique();
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Devices)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // SQLite (used only by the integration test host, never in production) has no

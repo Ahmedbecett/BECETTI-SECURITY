@@ -45,7 +45,12 @@
   <data name="SubtitleScan.Text" xml:space="preserve"><value>Les analyses s'exécutent via Microsoft Defender (MpCmdRun). Les résultats sont les verdicts de Defender lui-même — BECETTI SECURITY ne devine jamais.</value></data>
   <data name="AskAiAboutScanButton.Content" xml:space="preserve"><value>Demander à BECETTI AI d'expliquer ceci</value></data>
   <data name="SubtitleProtection.Text" xml:space="preserve"><value>État vérifié de Microsoft Defender. Les modifications sont appliquées via Defender et revérifiées avant de signaler un succès.</value></data>
-  <data name="SubtitleCloud.Text" xml:space="preserve"><value>Connectez-vous à l'API cloud BECETTI SECURITY pour les vérifications de réputation et les informations de mise à jour. Seuls les empreintes de fichiers sont envoyées — jamais les fichiers.</value></data>
+  <data name="SubtitleCloud.Text" xml:space="preserve"><value>Connectez-vous à l'API cloud BECETTI SECURITY pour les vérifications de réputation, les informations de mise à jour et un tableau de bord multi-appareils. Seuls les empreintes de fichiers sont envoyées — jamais les fichiers.</value></data>
+  <data name="CloudDevicesSectionLabel.Text" xml:space="preserve"><value>Vos appareils</value></data>
+  <data name="CloudDevicesSectionNote.Text" xml:space="preserve"><value>Chaque appareil connecté à ce compte cloud et ayant envoyé un signalement, y compris celui-ci. Supprimez un appareil s'il est perdu ou n'est plus utilisé.</value></data>
+  <data name="CloudRefreshDevicesButton.Content" xml:space="preserve"><value>Actualiser</value></data>
+  <data name="CloudThisDeviceBadge.Text" xml:space="preserve"><value>(cet appareil)</value></data>
+  <data name="CloudRemoveDeviceButton.Content" xml:space="preserve"><value>Supprimer</value></data>
   <data name="SubtitleThreats.Text" xml:space="preserve"><value>Détections réelles signalées par Microsoft Defender. La suppression s'exécute via Defender et est vérifiée avant d'afficher un succès.</value></data>
   <data name="AskAiAboutThreatButton.Content" xml:space="preserve"><value>Demander à BECETTI AI d'expliquer ceci</value></data>
   <data name="SubtitlePrivacy.Text" xml:space="preserve"><value>Vérifications mesurées du réseau, du TLS et de la configuration. Les recommandations proviennent uniquement des valeurs mesurées.</value></data>

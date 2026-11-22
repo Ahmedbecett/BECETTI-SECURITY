@@ -4,7 +4,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:converters="using:Becetti.Security.App.Converters"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+    </Page.Resources>
+
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
             <TextBlock x:Uid="TitleCloud" Text="Cloud Security" Style="{StaticResource PageTitleStyle}" />
@@ -35,6 +42,47 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
+            <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.IsSignedIn, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" x:Uid="CloudDevicesSectionLabel" Text="Your devices" Style="{StaticResource ValueStyle}" />
+                        <Button Grid.Column="1" x:Uid="CloudRefreshDevicesButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshDevicesCommand}" />
+                    </Grid>
+                    <TextBlock x:Uid="CloudDevicesSectionNote" Text="Every device that has signed in to this cloud account and sent a check-in, including this one. Remove a device if it is lost or no longer in use."
+                               Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,12" />
+                    <TextBlock Text="{x:Bind ViewModel.DevicesStatusText, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8" TextWrapping="Wrap" />
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Devices}" MinHeight="40"
+                              Visibility="{x:Bind ViewModel.HasDevices, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:DeviceSummary">
+                                <Grid Margin="0,6" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{x:Bind DeviceName}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" />
+                                            <TextBlock x:Uid="CloudThisDeviceBadge" Text="(this device)" Foreground="{StaticResource AccentGreenBrush}" FontSize="12"
+                                                       Visibility="{x:Bind IsThisDevice, Converter={StaticResource BoolToVisibility}}" />
+                                        </StackPanel>
+                                        <TextBlock Text="{x:Bind Platform}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind LastSeenAt}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center" />
+                                    <Button Grid.Column="2" x:Uid="CloudRemoveDeviceButton" Content="Remove" Click="RemoveDeviceButton_Click" Tag="{x:Bind}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="File Reputation Check" Style="{StaticResource ValueStyle}" />

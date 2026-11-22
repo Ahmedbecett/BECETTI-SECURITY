@@ -158,7 +158,7 @@ jobs:
         run: |
           sudo apt-get update -y && sudo apt-get install -y postgresql-client
           PGPASSWORD=becetti_ci_password psql -h localhost -U becetti -d becetti_security -c "\dt" | tee tables.log
-          for t in "Users" "RefreshTokens" "ReputationEntries" "ReleaseVersions" "AuditLogs"; do
+          for t in "Users" "RefreshTokens" "ReputationEntries" "ReleaseVersions" "AuditLogs" "Devices"; do
             grep -qi "$t" tables.log || { echo "::error::Expected table $t was not created by the migration"; exit 1; }
           done
           echo "All expected tables exist in the real PostgreSQL database."

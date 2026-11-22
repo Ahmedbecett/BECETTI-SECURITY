@@ -200,6 +200,24 @@ public sealed class ReputationVerdict
 }
 
 /// <summary>
+/// One real device registered under the signed-in cloud account's multi-device
+/// dashboard (Cloud Security page) — built entirely from the server's own
+/// heartbeat records, never invented locally.
+/// </summary>
+public sealed class DeviceSummary
+{
+    public string DeviceId { get; init; } = string.Empty;
+    public string DeviceName { get; init; } = string.Empty;
+    public string Platform { get; init; } = string.Empty;
+    public string AppVersion { get; init; } = string.Empty;
+    public DateTimeOffset FirstSeenAt { get; init; }
+    public DateTimeOffset LastSeenAt { get; init; }
+
+    /// <summary>Set client-side by comparing DeviceId to this installation's own persisted device id — never sent by the server.</summary>
+    public bool IsThisDevice { get; init; }
+}
+
+/// <summary>
 /// One contributing factor behind a <see cref="SecurityScoreResult"/>: a real,
 /// named signal (e.g. "Real-time protection is off") plus the points it added
 /// or removed. Never decorative text with no real signal behind it.

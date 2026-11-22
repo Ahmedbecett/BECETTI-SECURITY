@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -169,6 +170,74 @@ public sealed class CloudService : ICloudService
         return OperationResult<string>.Ok(result.Value.Email, "Signed-in account.");
     }
 
+    public async Task<OperationResult<DeviceSummary>> SendDeviceHeartbeatAsync(string deviceName, string platform, string appVersion, CancellationToken ct = default)
+    {
+        var notConfigured = CheckConfigured();
+        if (notConfigured is not null)
+            return OperationResult<DeviceSummary>.Fail(notConfigured.Message, notConfigured.ErrorCode);
+
+        if (!IsAuthenticated)
+            return OperationResult<DeviceSummary>.Fail("Not signed in.", "NOT_AUTHENTICATED");
+
+        if (string.IsNullOrWhiteSpace(_settings.Current.DeviceId))
+        {
+            _settings.Current.DeviceId = Guid.NewGuid().ToString("N");
+            await _settings.SaveAsync(ct).ConfigureAwait(false);
+        }
+
+        var deviceId = _settings.Current.DeviceId;
+        var payload = new { deviceId, deviceName, platform, appVersion };
+        var result = await SendAsync<DeviceDto>(HttpMethod.Post, "/api/v1/devices/heartbeat", payload, ct).ConfigureAwait(false);
+        if (!result.Success || result.Value is null)
+            return OperationResult<DeviceSummary>.Fail(result.Message, result.ErrorCode);
+
+        return OperationResult<DeviceSummary>.Ok(MapDevice(result.Value, deviceId), "Device check-in recorded.");
+    }
+
+    public async Task<OperationResult<IReadOnlyList<DeviceSummary>>> GetDevicesAsync(CancellationToken ct = default)
+    {
+        var notConfigured = CheckConfigured();
+        if (notConfigured is not null)
+            return OperationResult<IReadOnlyList<DeviceSummary>>.Fail(notConfigured.Message, notConfigured.ErrorCode);
+
+        if (!IsAuthenticated)
+            return OperationResult<IReadOnlyList<DeviceSummary>>.Fail("Not signed in.", "NOT_AUTHENTICATED");
+
+        var result = await SendAsync<List<DeviceDto>>(HttpMethod.Get, "/api/v1/devices", null, ct).ConfigureAwait(false);
+        if (!result.Success || result.Value is null)
+            return OperationResult<IReadOnlyList<DeviceSummary>>.Fail(result.Message, result.ErrorCode);
+
+        var thisDeviceId = _settings.Current.DeviceId;
+        IReadOnlyList<DeviceSummary> devices = result.Value.Select(d => MapDevice(d, thisDeviceId)).ToList();
+        return OperationResult<IReadOnlyList<DeviceSummary>>.Ok(devices, $"{devices.Count} device(s) on this account.");
+    }
+
+    public async Task<OperationResult> RemoveDeviceAsync(string deviceId, CancellationToken ct = default)
+    {
+        var notConfigured = CheckConfigured();
+        if (notConfigured is not null)
+            return OperationResult.Fail(notConfigured.Message, notConfigured.ErrorCode);
+
+        if (!IsAuthenticated)
+            return OperationResult.Fail("Not signed in.", "NOT_AUTHENTICATED");
+
+        var result = await SendNoContentAsync(HttpMethod.Delete, $"/api/v1/devices/{Uri.EscapeDataString(deviceId)}", ct).ConfigureAwait(false);
+        return result.Success
+            ? OperationResult.Ok("Device removed from the dashboard.")
+            : OperationResult.Fail(result.Message, result.ErrorCode);
+    }
+
+    private static DeviceSummary MapDevice(DeviceDto dto, string thisDeviceId) => new()
+    {
+        DeviceId = dto.DeviceId,
+        DeviceName = dto.DeviceName,
+        Platform = dto.Platform,
+        AppVersion = dto.AppVersion,
+        FirstSeenAt = dto.FirstSeenAt,
+        LastSeenAt = dto.LastSeenAt,
+        IsThisDevice = !string.IsNullOrEmpty(thisDeviceId) && string.Equals(dto.DeviceId, thisDeviceId, StringComparison.Ordinal)
+    };
+
     /// <summary>Restore a persisted session (called at startup).</summary>
     public async Task RestoreSessionAsync(CancellationToken ct = default)
     {
@@ -253,6 +322,55 @@ public sealed class CloudService : ICloudService
         }
     }
 
+    /// <summary>
+    /// For endpoints that reply with 204 No Content on success (nothing to
+    /// deserialize) — SendAsync&lt;T&gt; above treats an empty body as an
+    /// error, which would be wrong here.
+    /// </summary>
+    private async Task<OperationResult> SendNoContentAsync(HttpMethod method, string path, CancellationToken ct)
+    {
+        using var timeoutCts = new CancellationTokenSource(RequestTimeout);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeoutCts.Token);
+
+        try
+        {
+            using var request = new HttpRequestMessage(method, BaseUrl + path);
+            if (!string.IsNullOrWhiteSpace(AccessToken))
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+
+            using var response = await _http.SendAsync(request, linkedCts.Token).ConfigureAwait(false);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                return OperationResult.Fail("The server rejected the session (401). Sign in again.", "UNAUTHORIZED");
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return OperationResult.Fail("That device was not found on this account.", "NOT_FOUND");
+
+            if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                return OperationResult.Fail("The server rate-limited this request (429). Wait and retry.", "RATE_LIMITED");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(linkedCts.Token).ConfigureAwait(false);
+                return OperationResult.Fail($"Server returned {(int)response.StatusCode} {response.StatusCode}: {Truncate(errorBody, 300)}", "SERVER_ERROR");
+            }
+
+            return OperationResult.Ok("Request completed.");
+        }
+        catch (OperationCanceledException)
+        {
+            return OperationResult.Fail("The request timed out. Check your internet connection.", "TIMEOUT");
+        }
+        catch (HttpRequestException ex)
+        {
+            return OperationResult.Fail($"Could not reach the cloud API: {ex.Message}", "OFFLINE");
+        }
+        catch (Exception ex)
+        {
+            return OperationResult.Fail($"Cloud request failed: {ex.Message}", "CLOUD_ERROR");
+        }
+    }
+
     private static string Truncate(string value, int maxLength) =>
         value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...";
 
@@ -292,5 +410,15 @@ public sealed class CloudService : ICloudService
     private sealed class MeDto
     {
         [JsonPropertyName("email")] public string Email { get; set; } = string.Empty;
+    }
+
+    private sealed class DeviceDto
+    {
+        [JsonPropertyName("deviceId")] public string DeviceId { get; set; } = string.Empty;
+        [JsonPropertyName("deviceName")] public string DeviceName { get; set; } = string.Empty;
+        [JsonPropertyName("platform")] public string Platform { get; set; } = string.Empty;
+        [JsonPropertyName("appVersion")] public string AppVersion { get; set; } = string.Empty;
+        [JsonPropertyName("firstSeenAt")] public DateTimeOffset FirstSeenAt { get; set; }
+        [JsonPropertyName("lastSeenAt")] public DateTimeOffset LastSeenAt { get; set; }
     }
 }

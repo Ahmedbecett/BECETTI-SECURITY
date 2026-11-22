@@ -45,7 +45,12 @@
   <data name="SubtitleScan.Text" xml:space="preserve"><value>Scans run through Microsoft Defender (MpCmdRun). Results are Defender's own verdicts — BECETTI SECURITY never guesses.</value></data>
   <data name="AskAiAboutScanButton.Content" xml:space="preserve"><value>Ask BECETTI AI to explain this</value></data>
   <data name="SubtitleProtection.Text" xml:space="preserve"><value>Verified Microsoft Defender state. Changes are applied through Defender and re-verified before success is reported.</value></data>
-  <data name="SubtitleCloud.Text" xml:space="preserve"><value>Connect to the BECETTI SECURITY cloud API for reputation checks and update information. Only file hashes are sent — never files.</value></data>
+  <data name="SubtitleCloud.Text" xml:space="preserve"><value>Connect to the BECETTI SECURITY cloud API for reputation checks, update information, and a multi-device dashboard. Only file hashes are sent — never files.</value></data>
+  <data name="CloudDevicesSectionLabel.Text" xml:space="preserve"><value>Your devices</value></data>
+  <data name="CloudDevicesSectionNote.Text" xml:space="preserve"><value>Every device that has signed in to this cloud account and sent a check-in, including this one. Remove a device if it is lost or no longer in use.</value></data>
+  <data name="CloudRefreshDevicesButton.Content" xml:space="preserve"><value>Refresh</value></data>
+  <data name="CloudThisDeviceBadge.Text" xml:space="preserve"><value>(this device)</value></data>
+  <data name="CloudRemoveDeviceButton.Content" xml:space="preserve"><value>Remove</value></data>
   <data name="SubtitleThreats.Text" xml:space="preserve"><value>Real detections reported by Microsoft Defender. Removal runs through Defender and is verified before success is shown.</value></data>
   <data name="AskAiAboutThreatButton.Content" xml:space="preserve"><value>Ask BECETTI AI to explain this</value></data>
   <data name="SubtitlePrivacy.Text" xml:space="preserve"><value>Measured network, TLS and configuration checks. Recommendations come from the measured values only.</value></data>

@@ -1,7 +1,9 @@
 using Becetti.Security.App.ViewModels;
+using Becetti.Security.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 
@@ -17,10 +19,22 @@ public sealed partial class CloudPage : Page
         ViewModel = App.Services.GetRequiredService<CloudViewModel>();
     }
 
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        await ViewModel.InitializeAsync();
+    }
+
     private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
     {
         if (sender is PasswordBox box)
             ViewModel.Password = box.Password;
+    }
+
+    private async void RemoveDeviceButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: DeviceSummary device })
+            await ViewModel.RemoveDeviceAsync(device);
     }
 
     private async void BrowseButton_Click(object sender, RoutedEventArgs e)
