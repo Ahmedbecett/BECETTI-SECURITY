@@ -202,4 +202,19 @@
   <data name="ThreatIntelCheckStatusButton.Content" xml:space="preserve"><value>تحقق من الحالة</value></data>
   <data name="ThreatIntelOpenReportButton.Content" xml:space="preserve"><value>فتح التقرير الكامل على virustotal.com</value></data>
   <data name="ThreatIntelHistoryLabel.Text" xml:space="preserve"><value>الفحوصات السابقة</value></data>
+
+  <data name="NavDataBreach.Content" xml:space="preserve"><value>مراقبة تسرب البيانات</value></data>
+  <data name="TitleDataBreach.Text" xml:space="preserve"><value>مراقبة تسرب البيانات</value></data>
+  <data name="SubtitleDataBreach.Text" xml:space="preserve"><value>رأي ثانٍ اختياري حول تعرّض بياناتك: تحقق إن كان بريدك الإلكتروني أو كلمة مرورك قد ظهرا في تسريب بيانات عام معروف. هذا لا يحل أبدًا محل حماية BECETTI SECURITY المحلية الخاصة — إنه فحص منفصل وواضح تقوم به عند الطلب.</value></data>
+  <data name="DataBreachNotConfiguredBar.Title" xml:space="preserve"><value>غير مُهيّأ</value></data>
+  <data name="DataBreachNotConfiguredBar.Message" xml:space="preserve"><value>خادم مراقبة تسرب البيانات غير مُهيّأ. افتح الإعدادات واضبط عنوان خادم BECETTI.</value></data>
+  <data name="DataBreachEmailSectionLabel.Text" xml:space="preserve"><value>فحص بريد إلكتروني</value></data>
+  <data name="DataBreachEmailTextBox.PlaceholderText" xml:space="preserve"><value>name@example.com</value></data>
+  <data name="DataBreachCheckEmailButton.Content" xml:space="preserve"><value>فحص البريد الإلكتروني</value></data>
+  <data name="DataBreachRiskLabelPrefix.Text" xml:space="preserve"><value>مستوى الخطورة الإجمالي:</value></data>
+  <data name="DataBreachPasswordSectionLabel.Text" xml:space="preserve"><value>فحص كلمة مرور</value></data>
+  <data name="DataBreachPasswordBox.PlaceholderText" xml:space="preserve"><value>كلمة المرور المراد فحصها</value></data>
+  <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve"><value>يتم احتساب بصمة كلمة المرور هذه على هذا الجهاز — لا يغادر الجهاز سوى جزء من 5 أحرف من تلك البصمة. كلمة المرور نفسها لا تُرسل أو تُخزَّن في أي مكان أبدًا.</value></data>
+  <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve"><value>فحص كلمة المرور</value></data>
+  <data name="DataBreachHistoryLabel.Text" xml:space="preserve"><value>الفحوصات السابقة</value></data>
 </root>

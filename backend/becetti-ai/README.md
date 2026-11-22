@@ -2,17 +2,22 @@
 
 Minimal Vercel serverless API that lets the BECETTI SECURITY Windows app talk
 to external cloud services (Google Gemini for BECETTI AI, VirusTotal for
-threat intelligence) without ever embedding an API key inside the Windows
-app itself — per the app's own security rules (API keys live on the server,
-never inside the client, never committed to source control).
+threat intelligence, XposedOrNot + HIBP for data-breach monitoring) without
+ever embedding an API key inside the Windows app itself — per the app's own
+security rules (API keys live on the server, never inside the client, never
+committed to source control).
 
 ## Why this exists
 
 The BECETTI SECURITY WinUI app calls this backend over HTTPS instead of
-calling Gemini or VirusTotal directly. That keeps `GEMINI_API_KEY` and
+calling these services directly. That keeps `GEMINI_API_KEY` and
 `VIRUSTOTAL_API_KEY` out of the shipped `.msix` package entirely: both are
 only ever set as Vercel project environment variables (type `sensitive`),
-configured through the Vercel dashboard/API, never committed here.
+configured through the Vercel dashboard/API, never committed here. The
+data-breach routes use two upstream services that are free and require no
+key at all (XposedOrNot and HIBP's Pwned Passwords range API) — they are
+still proxied through this backend for the same auditable, single-path
+architecture, not because they hold a secret.
 
 ## Endpoints
 
@@ -56,6 +61,30 @@ Every one of these returns VirusTotal's own real error (including real
 429 rate-limit/quota errors, forwarded with `Retry-After` when present) on
 failure — nothing here is simulated, cached as fake data, or backfilled.
 
+### Data Breach Monitoring (XposedOrNot + HIBP)
+
+Neither upstream here needs an API key — both are free, public, keyless
+services. Shared logic lives in `api/_breachlib.js`.
+
+- `GET /api/breach-health` — one real, cheap read against each upstream
+  (a domain-filtered breach-catalog lookup for XposedOrNot, and the
+  well-known public `5BAA6` prefix for HIBP's range API) to confirm both are
+  reachable.
+- `GET /api/breach-email?email=...` — proxies XposedOrNot's real
+  `breach-analytics` endpoint and returns a normalized report: whether the
+  address appears in any known public breach, and if so the list of
+  breaches (name, domain, industry, date, records exposed, exposed data
+  categories, password-crackability rating) plus an overall risk
+  label/score. A "not breached" result only ever comes from XposedOrNot's
+  own documented empty shape — never guessed.
+- `GET /api/breach-password?prefix=XXXXX` — proxies HIBP's "Pwned
+  Passwords" k-anonymity range API. The client computes a SHA-1 hash of the
+  password **locally** and sends only its first 5 hex characters as
+  `prefix`; this endpoint forwards just that prefix to HIBP and returns the
+  full list of matching suffix:count pairs for the client to match locally.
+  Neither this proxy nor HIBP ever receives the full hash or the password
+  itself — the architecture guarantees that, it is not just a policy.
+
 ## Deployment
 
 Deployed as a standalone Vercel project (not tied to any other app in this
@@ -77,5 +106,10 @@ linked GitHub repository.
   The Windows app is responsible for showing the user a clear warning before
   taking that step; this proxy does not make that decision on the user's
   behalf.
+- `/api/breach-password` never sees a full password hash, let alone a
+  plaintext password — only a 5-character SHA-1 prefix, by design (the same
+  k-anonymity model HIBP itself designed and recommends).
+- `/api/breach-email` does not store the email addresses it is asked about;
+  each request is a stateless pass-through to XposedOrNot.
 - CORS is open (`*`) because the caller is a desktop app (WinUI `HttpClient`),
   not a browser page that needs to be restricted to an origin.

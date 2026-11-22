@@ -202,4 +202,19 @@
   <data name="ThreatIntelCheckStatusButton.Content" xml:space="preserve"><value>Check status</value></data>
   <data name="ThreatIntelOpenReportButton.Content" xml:space="preserve"><value>Open full report on virustotal.com</value></data>
   <data name="ThreatIntelHistoryLabel.Text" xml:space="preserve"><value>Previous checks</value></data>
+
+  <data name="NavDataBreach.Content" xml:space="preserve"><value>Data Breach Monitor</value></data>
+  <data name="TitleDataBreach.Text" xml:space="preserve"><value>Data Breach Monitor</value></data>
+  <data name="SubtitleDataBreach.Text" xml:space="preserve"><value>An optional second opinion on credential exposure: check whether an email address or password has shown up in a known public data breach. This never replaces BECETTI SECURITY's own local protection — it is a separate, clearly-labelled check you run on demand.</value></data>
+  <data name="DataBreachNotConfiguredBar.Title" xml:space="preserve"><value>Not configured</value></data>
+  <data name="DataBreachNotConfiguredBar.Message" xml:space="preserve"><value>The data-breach monitoring server is not configured. Open Settings and set the BECETTI server URL.</value></data>
+  <data name="DataBreachEmailSectionLabel.Text" xml:space="preserve"><value>Check an email address</value></data>
+  <data name="DataBreachEmailTextBox.PlaceholderText" xml:space="preserve"><value>name@example.com</value></data>
+  <data name="DataBreachCheckEmailButton.Content" xml:space="preserve"><value>Check email</value></data>
+  <data name="DataBreachRiskLabelPrefix.Text" xml:space="preserve"><value>Overall risk:</value></data>
+  <data name="DataBreachPasswordSectionLabel.Text" xml:space="preserve"><value>Check a password</value></data>
+  <data name="DataBreachPasswordBox.PlaceholderText" xml:space="preserve"><value>Password to check</value></data>
+  <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve"><value>This password is hashed on this device — only a 5-character fragment of that hash ever leaves it. The password itself is never sent or stored anywhere.</value></data>
+  <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve"><value>Check password</value></data>
+  <data name="DataBreachHistoryLabel.Text" xml:space="preserve"><value>Previous checks</value></data>
 </root>

@@ -142,6 +142,11 @@
                         <FontIcon Glyph="&#xE7BA;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavDataBreach" Content="Data Breach Monitor" Tag="DataBreach">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8D7;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavPrivacy" Content="Privacy &amp; Network" Tag="Privacy">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE774;" />

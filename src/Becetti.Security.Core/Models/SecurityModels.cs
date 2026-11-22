@@ -772,3 +772,88 @@ public sealed class ThreatIntelScanRecord
     public string DetectionRatio { get; init; } = "0/0";
     public string? Permalink { get; init; }
 }
+
+// ---------------------------------------------------------------------------
+// Data Breach Monitoring (XposedOrNot for email, HIBP Pwned Passwords for
+// password exposure) — an optional "has this shown up in a known public
+// breach?" second opinion, independent of the core local AV engine, mirrored
+// architecturally on the ThreatIntel* types above.
+// ---------------------------------------------------------------------------
+
+/// <summary>One real, named data breach that an email address was found in (from XposedOrNot).</summary>
+public sealed class DataBreachRecord
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Domain { get; init; }
+    public string? Industry { get; init; }
+    public string? Description { get; init; }
+    /// <summary>Categories of data this breach exposed (e.g. "Email addresses", "Passwords").</summary>
+    public IReadOnlyList<string> ExposedData { get; init; } = Array.Empty<string>();
+    /// <summary>Year (or date string) the breach occurred, as reported by the source.</summary>
+    public string? BreachDate { get; init; }
+    public long? RecordsExposed { get; init; }
+    /// <summary>How crackable the exposed passwords were judged to be (e.g. "easytocrack", "hardtocrack", "unknown").</summary>
+    public string? PasswordRisk { get; init; }
+    public bool Verified { get; init; }
+    public string? ReferenceUrl { get; init; }
+}
+
+/// <summary>Real result of checking an email address against known public data breaches.</summary>
+public sealed class EmailBreachReport
+{
+    public string Email { get; init; } = string.Empty;
+    public bool Breached { get; init; }
+    public int BreachCount { get; init; }
+    /// <summary>Every known breach this email appeared in — empty when not breached.</summary>
+    public IReadOnlyList<DataBreachRecord> Breaches { get; init; } = Array.Empty<DataBreachRecord>();
+    public string? RiskLabel { get; init; }
+    public int? RiskScore { get; init; }
+    public string Message { get; init; } = string.Empty;
+    public DateTimeOffset CheckedUtc { get; init; } = DateTimeOffset.UtcNow;
+}
+
+/// <summary>
+/// Real result of checking a password against HIBP's Pwned Passwords corpus.
+/// The password itself is never transmitted anywhere — only a 5-character
+/// SHA-1 prefix leaves the device; the exact match happens locally.
+/// </summary>
+public sealed class PasswordBreachReport
+{
+    public bool Breached { get; init; }
+    /// <summary>How many times this exact password has been seen across known breaches.</summary>
+    public long TimesSeen { get; init; }
+    public string Message { get; init; } = string.Empty;
+    public DateTimeOffset CheckedUtc { get; init; } = DateTimeOffset.UtcNow;
+}
+
+/// <summary>Kind of check recorded in the data-breach monitoring history.</summary>
+public enum DataBreachCheckType
+{
+    Email = 0,
+    Password = 1
+}
+
+/// <summary>
+/// One locally-recorded breach-monitoring check. For password checks,
+/// <see cref="TargetDisplay"/> is a fixed placeholder, never the password or
+/// any part of its hash — nothing identifying the checked password is ever
+/// persisted.
+/// </summary>
+public sealed class DataBreachCheckRecord
+{
+    public DateTimeOffset Timestamp { get; init; } = DateTimeOffset.UtcNow;
+    public DataBreachCheckType CheckType { get; init; }
+    /// <summary>The email address checked, or a fixed placeholder for password checks.</summary>
+    public string TargetDisplay { get; init; } = string.Empty;
+    public bool Breached { get; init; }
+    /// <summary>Breach count (email checks) or times-seen count (password checks).</summary>
+    public long Count { get; init; }
+
+    /// <summary>UI convenience, not persisted: true when this check found nothing.</summary>
+    [JsonIgnore]
+    public bool IsClean => !Breached;
+
+    /// <summary>UI convenience, not persisted: a short human-readable outcome for the history list.</summary>
+    [JsonIgnore]
+    public string StatusLabel => Breached ? $"Breached ({Count:N0})" : "Clean";
+}

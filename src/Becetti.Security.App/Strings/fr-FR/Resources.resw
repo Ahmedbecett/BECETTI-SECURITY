@@ -202,4 +202,19 @@
   <data name="ThreatIntelCheckStatusButton.Content" xml:space="preserve"><value>Vérifier l'état</value></data>
   <data name="ThreatIntelOpenReportButton.Content" xml:space="preserve"><value>Ouvrir le rapport complet sur virustotal.com</value></data>
   <data name="ThreatIntelHistoryLabel.Text" xml:space="preserve"><value>Vérifications précédentes</value></data>
+
+  <data name="NavDataBreach.Content" xml:space="preserve"><value>Surveillance des fuites de données</value></data>
+  <data name="TitleDataBreach.Text" xml:space="preserve"><value>Surveillance des fuites de données</value></data>
+  <data name="SubtitleDataBreach.Text" xml:space="preserve"><value>Un second avis facultatif sur l'exposition de vos identifiants : vérifiez si une adresse e-mail ou un mot de passe est apparu dans une fuite de données publique connue. Ceci ne remplace jamais la protection locale propre à BECETTI SECURITY — il s'agit d'une vérification distincte et clairement identifiée que vous lancez à la demande.</value></data>
+  <data name="DataBreachNotConfiguredBar.Title" xml:space="preserve"><value>Non configuré</value></data>
+  <data name="DataBreachNotConfiguredBar.Message" xml:space="preserve"><value>Le serveur de surveillance des fuites de données n'est pas configuré. Ouvrez Paramètres et définissez l'URL du serveur BECETTI.</value></data>
+  <data name="DataBreachEmailSectionLabel.Text" xml:space="preserve"><value>Vérifier une adresse e-mail</value></data>
+  <data name="DataBreachEmailTextBox.PlaceholderText" xml:space="preserve"><value>nom@exemple.com</value></data>
+  <data name="DataBreachCheckEmailButton.Content" xml:space="preserve"><value>Vérifier l'e-mail</value></data>
+  <data name="DataBreachRiskLabelPrefix.Text" xml:space="preserve"><value>Risque global :</value></data>
+  <data name="DataBreachPasswordSectionLabel.Text" xml:space="preserve"><value>Vérifier un mot de passe</value></data>
+  <data name="DataBreachPasswordBox.PlaceholderText" xml:space="preserve"><value>Mot de passe à vérifier</value></data>
+  <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve"><value>Ce mot de passe est haché sur cet appareil — seul un fragment de 5 caractères de ce hachage en sort jamais. Le mot de passe lui-même n'est jamais envoyé ni stocké nulle part.</value></data>
+  <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve"><value>Vérifier le mot de passe</value></data>
+  <data name="DataBreachHistoryLabel.Text" xml:space="preserve"><value>Vérifications précédentes</value></data>
 </root>
