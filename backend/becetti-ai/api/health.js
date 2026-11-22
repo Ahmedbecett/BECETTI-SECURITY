@@ -47,9 +47,14 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Optional diagnostic override (deep check only, never used by chat.js) to tell
+  // "this one model is overloaded" apart from "something is wrong account-wide".
+  const modelOverride = (req.query && typeof req.query.model === "string" && req.query.model.trim()) || null;
+  const modelToTest = modelOverride || GEMINI_MODEL;
+
   try {
     const upstream = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelToTest}:generateContent`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
@@ -66,7 +71,7 @@ module.exports = async (req, res) => {
       geminiReachable: modelsOk,
       httpStatus,
       modelCount,
-      model: GEMINI_MODEL,
+      model: modelToTest,
       generateContentOk: upstream.ok,
       generateContentHttpStatus: upstream.status,
       generateContentError: upstream.ok ? null : ((data && data.error && data.error.message) || `HTTP ${upstream.status}`),
@@ -78,7 +83,7 @@ module.exports = async (req, res) => {
       geminiReachable: modelsOk,
       httpStatus,
       modelCount,
-      model: GEMINI_MODEL,
+      model: modelToTest,
       generateContentOk: false,
       generateContentError: String((err && err.message) || err)
     });
