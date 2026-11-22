@@ -6,18 +6,19 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
     <Page.Resources>
         <converters:BoolToStatusBrushConverter x:Key="BoolToStatusBrush" />
     </Page.Resources>
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleStartup" Text="Startup Manager" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleStartup"
+            <TextBlock x:Uid="TitleStartup" helpers:Loc.Uid="TitleStartup" Text="Startup Manager" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleStartup" helpers:Loc.Uid="SubtitleStartup"
                        Text="Real registry startup entries — the same Run-key and Task Manager convention Windows itself uses. No performance impact score is invented: Windows does not expose one through any stable API."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
-            <InfoBar x:Uid="AdminRequiredInfoBar" Title="Administrator required"
+            <InfoBar x:Uid="AdminRequiredInfoBar" helpers:Loc.Uid="AdminRequiredInfoBar" Title="Administrator required"
                      Message="Changing this startup item requires an administrator. Restart BECETTI SECURITY as administrator from Settings."
                      Severity="Warning" IsOpen="{x:Bind ViewModel.SelectionNeedsElevation, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
             <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
@@ -44,9 +45,9 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
-                        <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
-                        <Button x:Uid="EnableButton" Content="Enable" Command="{x:Bind ViewModel.EnableCommand}" IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}" />
-                        <Button x:Uid="DisableButton" Content="Disable" Command="{x:Bind ViewModel.DisableCommand}" IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}" />
+                        <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="EnableButton" helpers:Loc.Uid="EnableButton" Content="Enable" Command="{x:Bind ViewModel.EnableCommand}" IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}" />
+                        <Button x:Uid="DisableButton" helpers:Loc.Uid="DisableButton" Content="Disable" Command="{x:Bind ViewModel.DisableCommand}" IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

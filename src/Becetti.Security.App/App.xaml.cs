@@ -71,12 +71,14 @@ public partial class App : Application
 
         services.AddHttpClient<ICloudService, CloudService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IBecettiAiService, BecettiAiService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IYaraEngineService, YaraEngineService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IThreatIntelligenceService, ThreatIntelligenceService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IDataBreachService, DataBreachService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IIpReputationService, IpReputationService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
 
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
+        services.AddTransient<YaraScannerViewModel>();
         services.AddTransient<ProtectionViewModel>();
         services.AddTransient<CloudViewModel>();
         services.AddTransient<ThreatsViewModel>();
@@ -118,8 +120,9 @@ public partial class App : Application
         await settings.LoadAsync();
 
         // Apply the persisted UI language before any window/resw lookup happens,
-        // so the correct Strings/<culture>/Resources.resw is the one resolved.
+        // and synchronize our live LocalizationService catalog with the loaded setting.
         ApplyLanguageOverride(settings.Current.Language);
+        Services.GetRequiredService<LocalizationService>().SyncFromSettings();
 
         var cloud = Services.GetRequiredService<ICloudService>();
         if (cloud is CloudService concreteCloud)
@@ -134,10 +137,10 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// Sets the resource language actually used to resolve x:Uid-based resw strings.
-    /// Must run before any XAML is loaded for a language switch to take effect.
+    /// Sets the resource language override used by Windows/WinUI3 resource loaders.
+    /// Live UI updates are handled immediately by LocalizationService + helpers:Loc.Uid.
     /// </summary>
-    private static void ApplyLanguageOverride(string languageCode)
+    public static void ApplyLanguageOverride(string languageCode)
     {
         var bcp47 = languageCode switch
         {

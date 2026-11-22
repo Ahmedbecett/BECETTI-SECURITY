@@ -52,7 +52,7 @@ public sealed class BecettiAiService : IBecettiAiService
         // same real request rides out that kind of transient blip without ever fabricating
         // a result; if the second real attempt also fails, the real failure is reported.
         var first = await SendOnceAsync(history, ct).ConfigureAwait(false);
-        if (first.Success || (first.ErrorCode != "TIMEOUT" && first.ErrorCode != "OFFLINE") || ct.IsCancellationRequested)
+        if (first.Success || !IsTransientError(first.ErrorCode) || ct.IsCancellationRequested)
             return first;
 
         try
@@ -68,11 +68,15 @@ public sealed class BecettiAiService : IBecettiAiService
         if (second.Success)
             return second;
 
-        return OperationResult<string>.Fail(
-            second.Message + " This happened twice in a row (BECETTI SECURITY already retried automatically). " +
-            "If your internet otherwise works fine, check that your firewall or antivirus is not blocking BECETTI SECURITY from reaching the internet.",
-            second.ErrorCode);
+        var extraHint = second.ErrorCode is "TIMEOUT" or "OFFLINE"
+            ? " This happened twice in a row (BECETTI SECURITY already retried automatically). If your internet otherwise works fine, check that your firewall or antivirus is not blocking BECETTI SECURITY from reaching the internet."
+            : " (BECETTI SECURITY already retried automatically — please try again in a few seconds.)";
+
+        return OperationResult<string>.Fail(second.Message + extraHint, second.ErrorCode);
     }
+
+    private static bool IsTransientError(string? code) =>
+        code is "TIMEOUT" or "OFFLINE" or "UPSTREAM_BUSY";
 
     private async Task<OperationResult<string>> SendOnceAsync(IReadOnlyList<AiChatTurn> history, CancellationToken ct)
     {
@@ -81,9 +85,10 @@ public sealed class BecettiAiService : IBecettiAiService
 
         try
         {
+            var normalized = NormalizeTurns(history);
             var payload = new
             {
-                messages = history.Select(h => new { role = h.Role, content = h.Content }).ToArray()
+                messages = normalized.Select(h => new { role = h.Role, content = h.Content }).ToArray()
             };
 
             using var request = new HttpRequestMessage(HttpMethod.Post, BaseUrl + "/api/chat")
@@ -96,14 +101,30 @@ public sealed class BecettiAiService : IBecettiAiService
             var responseBody = await response.Content.ReadAsStringAsync(linkedCts.Token).ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
-                return OperationResult<string>.Fail("BECETTI AI's server is not configured yet (no AI key set up).", "NOT_CONFIGURED");
+            {
+                var errDto = TryReadErrorDto(responseBody);
+                if (string.Equals(errDto?.Error, "NOT_CONFIGURED", StringComparison.OrdinalIgnoreCase))
+                    return OperationResult<string>.Fail("BECETTI AI's server is not configured yet (no AI key set up).", "NOT_CONFIGURED");
+
+                return OperationResult<string>.Fail(
+                    errDto?.Message ?? "BECETTI AI is temporarily busy (HTTP 503).",
+                    "UPSTREAM_BUSY");
+            }
+
+            if (response.StatusCode == HttpStatusCode.BadGateway)
+            {
+                var errDto = TryReadErrorDto(responseBody);
+                return OperationResult<string>.Fail(
+                    errDto?.Message ?? "BECETTI AI upstream model is temporarily unavailable (HTTP 502).",
+                    "UPSTREAM_BUSY");
+            }
 
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 return OperationResult<string>.Fail("Too many requests. Wait a moment and try again.", "RATE_LIMITED");
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorMessage = TryReadErrorMessage(responseBody) ?? $"Server returned {(int)response.StatusCode} {response.StatusCode}.";
+                var errorMessage = TryReadErrorDto(responseBody)?.Message ?? $"Server returned {(int)response.StatusCode} {response.StatusCode}.";
                 return OperationResult<string>.Fail(errorMessage, "SERVER_ERROR");
             }
 
@@ -130,12 +151,39 @@ public sealed class BecettiAiService : IBecettiAiService
         }
     }
 
-    private static string? TryReadErrorMessage(string body)
+    internal static IReadOnlyList<AiChatTurn> NormalizeTurns(IReadOnlyList<AiChatTurn> history)
+    {
+        var result = new List<AiChatTurn>();
+        foreach (var turn in history)
+        {
+            if (string.IsNullOrWhiteSpace(turn.Content))
+                continue;
+
+            var role = string.Equals(turn.Role, "assistant", StringComparison.OrdinalIgnoreCase)
+                ? "assistant"
+                : "user";
+
+            if (result.Count > 0 && string.Equals(result[^1].Role, role, StringComparison.Ordinal))
+            {
+                result[^1] = new AiChatTurn
+                {
+                    Role = role,
+                    Content = result[^1].Content + "\n\n" + turn.Content
+                };
+            }
+            else
+            {
+                result.Add(new AiChatTurn { Role = role, Content = turn.Content });
+            }
+        }
+        return result;
+    }
+
+    private static ErrorDto? TryReadErrorDto(string body)
     {
         try
         {
-            var dto = JsonSerializer.Deserialize<ErrorDto>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            return dto?.Message;
+            return JsonSerializer.Deserialize<ErrorDto>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
         catch
         {

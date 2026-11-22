@@ -1,11 +1,14 @@
+using System.Collections.Specialized;
 using System.ComponentModel;
 using Becetti.Security.App.ViewModels;
 using Becetti.Security.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
+using Windows.System;
 
 namespace Becetti.Security.App.Views;
 
@@ -20,15 +23,13 @@ public sealed partial class BecettiAiPage : Page
 
         Loaded += OnPageLoaded;
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+        ViewModel.Messages.CollectionChanged += OnMessagesChanged;
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
 
-        // A caller (e.g. Smart Scan's "Ask BECETTI AI to explain this" button, or Threat
-        // Management's equivalent) can pass a real report as the navigation parameter; it
-        // only ever prefills the message box, the user must still tap Send themselves.
         if (e.Parameter is string seedText && !string.IsNullOrWhiteSpace(seedText))
             ViewModel.SeedInput(seedText);
 
@@ -43,10 +44,26 @@ public sealed partial class BecettiAiPage : Page
         await ViewModel.PlayWelcomeIfEmptyAsync(welcomeText, languageTag);
     }
 
+    private void InputBox_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.Enter && ViewModel.SendCommand.CanExecute(null))
+        {
+            e.Handled = true;
+            ViewModel.SendCommand.Execute(null);
+        }
+    }
+
+    private void OnMessagesChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        DispatcherQueue?.TryEnqueue(() =>
+        {
+            ChatScroller.UpdateLayout();
+            ChatScroller.ChangeView(null, ChatScroller.ScrollableHeight, null, disableAnimation: false);
+        });
+    }
+
     private void OnPageLoaded(object sender, RoutedEventArgs e)
     {
-        // The robot "walks in" from the edge once, every time this page opens —
-        // purely a cinematic entrance, never implying anything about real state.
         if (Resources.TryGetValue("RobotEntranceStoryboard", out var entrance) && entrance is Storyboard storyboard)
             storyboard.Begin();
     }

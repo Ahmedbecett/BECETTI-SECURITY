@@ -39,9 +39,15 @@ public sealed class SettingsService : ISettingsService
                 // point — the user can change it any time in Settings, and that choice
                 // is what gets persisted and respected afterward.
                 var osLanguage = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                var initialLanguage = osLanguage.ToLowerInvariant() switch
+                {
+                    "ar" => "ar",
+                    "fr" => "fr",
+                    _ => "en"
+                };
                 Current = new AppSettings
                 {
-                    Language = string.Equals(osLanguage, "ar", StringComparison.OrdinalIgnoreCase) ? "ar" : "en"
+                    Language = initialLanguage
                 };
                 return;
             }

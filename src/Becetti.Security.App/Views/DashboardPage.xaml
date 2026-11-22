@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:Becetti.Security.App.Converters"
     xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -15,8 +16,8 @@
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleDashboard" Text="Dashboard" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleDashboard" Text="Verified security status, read live from Windows and Microsoft Defender." Style="{StaticResource SectionSubtitleStyle}" />
+            <TextBlock x:Uid="TitleDashboard" helpers:Loc.Uid="TitleDashboard" Text="Dashboard" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleDashboard" helpers:Loc.Uid="SubtitleDashboard" Text="Verified security status, read live from Windows and Microsoft Defender." Style="{StaticResource SectionSubtitleStyle}" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
             <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
 
@@ -35,7 +36,7 @@
                             <TextBlock Text="{x:Bind ViewModel.ProtectionHeadline, Mode=OneWay}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" />
                         </StackPanel>
                         <TextBlock Text="{x:Bind ViewModel.ProtectionSubtext, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,8,0,16" MaxWidth="480" />
-                        <Button x:Uid="ScanNowButton" Content="Scan Now" Style="{StaticResource PrimaryButtonStyle}" Click="ScanNowButton_Click" />
+                        <Button x:Uid="ScanNowButton" helpers:Loc.Uid="ScanNowButton" Content="Scan Now" Style="{StaticResource PrimaryButtonStyle}" Click="ScanNowButton_Click" />
                     </StackPanel>
                     <Image Grid.Column="1" Source="Assets/RobotMascotHero.png" Width="140" Height="140" Margin="16,0,0,0" VerticalAlignment="Center">
                         <Image.RenderTransform>
@@ -58,7 +59,7 @@
                                    FontSize="48" FontWeight="Bold" Foreground="{StaticResource ElectricBlueBrush}"
                                    VerticalAlignment="Center" Margin="0,0,16,0" />
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock x:Uid="SecurityScoreTitle" Text="Security Score" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock x:Uid="SecurityScoreTitle" helpers:Loc.Uid="SecurityScoreTitle" Text="Security Score" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
                             <TextBlock Text="{x:Bind ViewModel.SecurityScoreGrade, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" />
                         </StackPanel>
                     </Grid>
@@ -81,53 +82,53 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Antivirus" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="DashAntivirusLabel" helpers:Loc.Uid="DashAntivirusLabel" Text="Antivirus" Style="{StaticResource LabelStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.DefenderText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Real-Time Protection" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="DashRealTimeLabel" helpers:Loc.Uid="DashRealTimeLabel" Text="Real-Time Protection" Style="{StaticResource LabelStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.RealTimeText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Firewall" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="DashFirewallLabel" helpers:Loc.Uid="DashFirewallLabel" Text="Firewall" Style="{StaticResource LabelStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.FirewallText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Security Intelligence" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="DashSignatureLabel" helpers:Loc.Uid="DashSignatureLabel" Text="Security Intelligence" Style="{StaticResource LabelStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.SignatureText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Device" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="DashDeviceLabel" helpers:Loc.Uid="DashDeviceLabel" Text="Device" Style="{StaticResource LabelStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.DeviceText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Cloud Connection" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="DashCloudLabel" helpers:Loc.Uid="DashCloudLabel" Text="Cloud Connection" Style="{StaticResource LabelStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.CloudText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Last Verified Scan" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="DashLastScanLabel" helpers:Loc.Uid="DashLastScanLabel" Text="Last Verified Scan" Style="{StaticResource LabelStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.LastScanText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Application Version" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="DashAppVersionLabel" helpers:Loc.Uid="DashAppVersionLabel" Text="Application Version" Style="{StaticResource LabelStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}" Style="{StaticResource ValueStyle}" />
                 </StackPanel>
             </Border>
-            <Button Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+            <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
             <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
         </StackPanel>
     </ScrollViewer>

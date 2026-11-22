@@ -42,7 +42,7 @@
   <data name="TitleContact.Text" xml:space="preserve"><value>تواصل مع Becetti</value></data>
 
   <data name="SubtitleDashboard.Text" xml:space="preserve"><value>حالة الأمان الموثقة، مقروءة مباشرة من Windows وMicrosoft Defender.</value></data>
-  <data name="SubtitleScan.Text" xml:space="preserve"><value>تعمل عمليات الفحص عبر Microsoft Defender (MpCmdRun). النتائج هي أحكام Defender نفسه — لا يخمّن BECETTI SECURITY أبدًا.</value></data>
+  <data name="SubtitleScan.Text" xml:space="preserve"><value>فحص محلي مزدوج مدعوم بمحرك YARA الأصلي المدمج (VirusTotal/yara x64) وMicrosoft Defender (MpCmdRun). كل نتيجة حقيقية — لا توجد نتائج وهمية.</value></data>
   <data name="AskAiAboutScanButton.Content" xml:space="preserve"><value>اسأل BECETTI AI لشرح هذا</value></data>
   <data name="SubtitleProtection.Text" xml:space="preserve"><value>حالة Microsoft Defender الموثقة. تُطبق التغييرات عبر Defender وتُتحقق قبل الإبلاغ عن النجاح.</value></data>
   <data name="SubtitleCloud.Text" xml:space="preserve"><value>اتصل بواجهة BECETTI SECURITY السحابية لفحوصات السمعة ومعلومات التحديث ولوحة تحكم متعددة الأجهزة. تُرسل بصمات الملفات فقط — لا تُرسل الملفات أبدًا.</value></data>
@@ -280,4 +280,81 @@
   <data name="TitleGameMode.Text" xml:space="preserve"><value>وضع الألعاب / الأداء</value></data>
   <data name="SubtitleGameMode.Text" xml:space="preserve"><value>يبدّل خطة طاقة ويندوز الحقيقية إلى الأداء العالي ويفعّل وضع الألعاب الخاص بويندوز نفسه أثناء التفعيل — نفس الإعدادات المتوفرة في خيارات الطاقة وتطبيق الإعدادات. لا تُعرض أي أرقام أداء مُختلقة (مثل معدل الإطارات)؛ فويندوز لا يوفر أيًا منها بصدق.</value></data>
   <data name="GameModeStatusLabel.Text" xml:space="preserve"><value>الحالة الحالية</value></data>
+
+  <data name="NavYara.Content" xml:space="preserve"><value>محرك YARA للفيروسات</value></data>
+  <data name="TitleYara.Text" xml:space="preserve"><value>محرك YARA لكشف البرمجيات الخبيثة</value></data>
+  <data name="SubtitleYara.Text" xml:space="preserve"><value>كشف محلي حقيقي للفيروسات والبرمجيات الخبيثة يعمل بمحرك YARA x64 الرسمي مفتوح المصدر (VirusTotal/yara). يتم فحص القواعد وتجميعها محليًا قبل التشغيل — لا توجد نتائج وهمية.</value></data>
+  <data name="YaraScannerSectionLabel.Text" xml:space="preserve"><value>فاحص الملفات والمجلدات المحلي</value></data>
+  <data name="YaraScannerSectionNote.Text" xml:space="preserve"><value>اختر أي ملف أو مجلد لفحصه محليًا بقواعد YARA المجمّعة، أو شغّل فحصًا سريعًا للتنزيلات وسطح المكتب والملفات المؤقتة.</value></data>
+  <data name="YaraBrowseFileButton.Content" xml:space="preserve"><value>استعراض ملف...</value></data>
+  <data name="YaraBrowseFolderButton.Content" xml:space="preserve"><value>استعراض مجلد...</value></data>
+  <data name="YaraStartScanButton.Content" xml:space="preserve"><value>فحص بمحرك YARA</value></data>
+  <data name="YaraQuickLocalScanButton.Content" xml:space="preserve"><value>فحص محلي سريع (YARA)</value></data>
+  <data name="YaraCancelScanButton.Content" xml:space="preserve"><value>إلغاء</value></data>
+  <data name="YaraResultsSectionLabel.Text" xml:space="preserve"><value>تقرير الفحص والقواعد المطابقة</value></data>
+  <data name="YaraSaveJsonButton.Content" xml:space="preserve"><value>حفظ كملف JSON</value></data>
+  <data name="YaraScanErrorsLabel.Text" xml:space="preserve"><value>أخطاء الفحص / الملفات المتخطاة</value></data>
+  <data name="YaraRulesManagementLabel.Text" xml:space="preserve"><value>إدارة قواعد YARA (.yar / .yara)</value></data>
+  <data name="YaraRulesManagementNote.Text" xml:space="preserve"><value>يتم التحقق من كل ملف قواعد بواسطة yarac64 قبل تحميله. يتم عزل القواعد التالفة أو القديمة تلقائيًا حتى لا تعطّل المحرك أبدًا.</value></data>
+  <data name="YaraImportRuleButton.Content" xml:space="preserve"><value>استيراد قاعدة .yar / .yara...</value></data>
+  <data name="YaraRecompileRulesButton.Content" xml:space="preserve"><value>تحقق وأعد تجميع الكل</value></data>
+  <data name="YaraUpdateRepoLabel.Text" xml:space="preserve"><value>تحديث القواعد من مستودعات موثوقة</value></data>
+  <data name="YaraUpdateRepoNote.Text" xml:space="preserve"><value>يتم فحص القواعد المُنزّلة وتجميع كل ملف على حدة عبر yarac64 قبل تفعيلها. أي قاعدة غير صالحة تُرفض بأمان.</value></data>
+  <data name="YaraUpdateFromRepoButton.Content" xml:space="preserve"><value>تحديث القواعد</value></data>
+  <data name="YaraDownloadUrlButton.Content" xml:space="preserve"><value>تنزيل والتحقق من الرابط</value></data>
+  <data name="YaraLicenseTitle.Text" xml:space="preserve"><value>إشعار ترخيص YARA مفتوح المصدر</value></data>
+  <data name="OpenYaraEngineButton.Content" xml:space="preserve"><value>فتح محرك وقواعد YARA</value></data>
+  <data name="ScanYaraQuickTitle.Text" xml:space="preserve"><value>فحص محلي بمحرك YARA الأصلي</value></data>
+  <data name="ScanYaraQuickDesc.Text" xml:space="preserve"><value>يشغّل محرك YARA x64 الرسمي المدمج محليًا على التنزيلات وسطح المكتب والملفات المؤقتة باستخدام قواعد .yar/.yara المجمّعة — يعمل حتى دون إنترنت أو دون Defender.</value></data>
+  <data name="ScanQuickTitle.Text" xml:space="preserve"><value>فحص سريع (Microsoft Defender)</value></data>
+  <data name="ScanQuickDesc.Text" xml:space="preserve"><value>يفحص المواقع الأكثر عرضة للإصابة. يستغرق عادة بضع دقائق.</value></data>
+  <data name="ScanStartQuickButton.Content" xml:space="preserve"><value>بدء الفحص السريع</value></data>
+  <data name="ScanFullTitle.Text" xml:space="preserve"><value>فحص كامل (Microsoft Defender)</value></data>
+  <data name="ScanFullDesc.Text" xml:space="preserve"><value>يفحص جميع الأقراص. قد يستغرق وقتًا طويلاً.</value></data>
+  <data name="ScanStartFullButton.Content" xml:space="preserve"><value>بدء الفحص الكامل</value></data>
+  <data name="ScanCustomTitle.Text" xml:space="preserve"><value>فحص ملف أو مجلد مخصص</value></data>
+  <data name="ScanCustomDesc.Text" xml:space="preserve"><value>اختر ملفًا أو مجلدًا ثم افحصه بمحرك YARA الأصلي أو Microsoft Defender.</value></data>
+  <data name="ScanStartCustomButton.Content" xml:space="preserve"><value>فحص بـ Defender</value></data>
+  <data name="SettingsLanguageTitle.Text" xml:space="preserve"><value>اللغة / Language / Langue</value></data>
+  <data name="SettingsLanguageHint.Text" xml:space="preserve"><value>تُطبَّق تغييرات اللغة فورًا في جميع أنحاء BECETTI SECURITY وتُحفظ تلقائيًا.</value></data>
+  <data name="SettingsLanguageApplied" xml:space="preserve"><value>تم تحديث اللغة فورًا.</value></data>
+  <data name="SettingsSavedMessage" xml:space="preserve"><value>تم حفظ الإعدادات.</value></data>
+  <data name="SettingsCloudApiTitle.Text" xml:space="preserve"><value>رابط واجهة السحابة (Cloud API)</value></data>
+  <data name="SettingsCloudApiHint.Text" xml:space="preserve"><value>اتركه فارغًا لتعطيل الميزات السحابية. لا يخترع التطبيق بيانات سحابية أبدًا.</value></data>
+  <data name="SettingsTelemetryTitle.Text" xml:space="preserve"><value>بيانات القياس (Telemetry)</value></data>
+  <data name="SettingsTelemetryHint.Text" xml:space="preserve"><value>معطّل افتراضيًا. لا يجمع BECETTI SECURITY أي بيانات قياس إلا إذا فعّلتها هنا.</value></data>
+  <data name="SettingsTelemetryToggle.Header" xml:space="preserve"><value>السماح ببيانات القياس</value></data>
+  <data name="SettingsFeedbackTitle.Text" xml:space="preserve"><value>التفاعل والتنبيهات</value></data>
+  <data name="SettingsFeedbackHint.Text" xml:space="preserve"><value>الرسوم المتحركة زخرفية فقط ولا تُستخدم للإيحاء بوجود فحص. تعمل الأصوات فقط عند اكتمال أو فشل إجراء حقيقي.</value></data>
+  <data name="SettingsAiHint.Text" xml:space="preserve"><value>يتصل المساعد الذكي بخادم BECETTI AI أدناه فقط — لا يُخزَّن مفتاح الذكاء الاصطناعي داخل التطبيق أبدًا. مشاركة حالة الجهاز وحفظ المحادثة خياران منفصلان في صفحة BECETTI AI.</value></data>
+  <data name="SettingsContactHint.Text" xml:space="preserve"><value>العنوان المستخدم لتعبئة مسودة الدعم في صفحة تواصل مع Becetti.</value></data>
+  <data name="SettingsSaveButton.Content" xml:space="preserve"><value>حفظ الإعدادات</value></data>
+  <data name="SettingsTestConnectionButton.Content" xml:space="preserve"><value>اختبار الاتصال بالسحابة</value></data>
+  <data name="AiInputBox.PlaceholderText" xml:space="preserve"><value>اسأل BECETTI AI…</value></data>
+  <data name="AiSendButton.Content" xml:space="preserve"><value>إرسال</value></data>
+  <data name="AiClearButton.Content" xml:space="preserve"><value>مسح</value></data>
+  <data name="DashAntivirusLabel.Text" xml:space="preserve"><value>مكافح الفيروسات</value></data>
+  <data name="DashRealTimeLabel.Text" xml:space="preserve"><value>الحماية في الوقت الحقيقي</value></data>
+  <data name="DashFirewallLabel.Text" xml:space="preserve"><value>جدار الحماية</value></data>
+  <data name="DashSignatureLabel.Text" xml:space="preserve"><value>تحديثات الأمان</value></data>
+  <data name="DashDeviceLabel.Text" xml:space="preserve"><value>الجهاز</value></data>
+  <data name="DashCloudLabel.Text" xml:space="preserve"><value>الاتصال بالسحابة</value></data>
+  <data name="DashLastScanLabel.Text" xml:space="preserve"><value>آخر فحص موثّق</value></data>
+  <data name="DashAppVersionLabel.Text" xml:space="preserve"><value>إصدار التطبيق</value></data>
+  <data name="HeaderHelpToolTip" xml:space="preserve"><value>مساعدة</value></data>
+  <data name="CloseButton" xml:space="preserve"><value>إغلاق</value></data>
+  <data name="HelpDialogTitle" xml:space="preserve"><value>BECETTI SECURITY — مساعدة</value></data>
+  <data name="HelpDialogBody" xml:space="preserve"><value>يجمع BECETTI SECURITY بين محرك YARA الأصلي المحلي (VirusTotal/yara x64) وMicrosoft Defender:
+
+• محرك YARA يشغّل قواعد .yar / .yara المجمّعة محليًا على ملفاتك ومجلداتك، ويتحقق من كل قاعدة عبر yarac64 قبل التحميل، ويعزل القواعد التالفة تلقائيًا، ويدعم التحديث من مستودعات موثوقة.
+• الفحص الذكي يشغّل فحص YARA المحلي وفحص Microsoft Defender الحقيقي.
+• الحماية في الوقت الحقيقي والتحديثات وإدارة التهديدات تعمل عبر واجهات Windows الرسمية.
+• BECETTI AI يشرح تقارير الفحص الحقيقية ويوجهك داخل التطبيق.
+
+لا يختلق BECETTI SECURITY أي نتائج وهمية أبدًا.</value></data>
+  <data name="FooterProtected" xml:space="preserve"><value>محمي — Microsoft Defender نشط</value></data>
+  <data name="FooterWarning" xml:space="preserve"><value>يحتاج انتباه — راجع الحماية في الوقت الحقيقي</value></data>
+  <data name="FooterDanger" xml:space="preserve"><value>في خطر — مكافح الفيروسات معطّل</value></data>
+  <data name="FooterYaraReady" xml:space="preserve"><value>محرك YARA المحلي جاهز</value></data>
+  <data name="FooterUnknown" xml:space="preserve"><value>حالة الحماية غير معروفة — تعذّر التحقق</value></data>
 </root>

@@ -31,6 +31,13 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
+      - name: Build & verify official YARA Engine (Windows x64)
+        shell: pwsh
+        run: |
+          ./scripts/build-yara-win64.ps1
+          Get-ChildItem src/Becetti.Security.App/Native/yara/win-x64
+          Get-Content src/Becetti.Security.App/Native/yara/win-x64/yara-build-info.json
+
       - name: Restore
         run: dotnet restore Becetti.Security.sln
 
@@ -82,6 +89,9 @@ jobs:
 
       - name: Test
         shell: pwsh
+        env:
+          BECETTI_YARA_NATIVE_DIR: ${{ github.workspace }}\src\Becetti.Security.App\Native\yara\win-x64
+          BECETTI_YARA_RULES_DIR: ${{ github.workspace }}\src\Becetti.Security.App\Rules\yara
         run: |
           dotnet test Becetti.Security.sln -c Release --no-build -p:Platform=x64 --logger "console;verbosity=detailed" 2>&1 |
             Tee-Object -FilePath test.log
@@ -223,6 +233,13 @@ jobs:
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
+
+      - name: Build & verify official YARA Engine (Windows x64)
+        shell: pwsh
+        run: |
+          ./scripts/build-yara-win64.ps1
+          Get-ChildItem src/Becetti.Security.App/Native/yara/win-x64
+          Get-Content src/Becetti.Security.App/Native/yara/win-x64/yara-build-info.json
 
       - name: Restore (msbuild, not dotnet - required for single-project MSIX packaging targets)
         # RuntimeIdentifier + SelfContained must match the actual build/package step below,
@@ -413,6 +430,22 @@ jobs:
             }
             Write-Host "AppxSignature.p7x present ($($sig.Length) bytes) - the package is genuinely signed."
             Write-Host "AppxManifest.xml present ($($manifest.Length) bytes) - the package is structurally valid."
+
+            # Verify Native YARA x64 engine binaries, rules, and BSD-3-Clause license are packaged inside the MSIX
+            $requiredAssets = @(
+              "Native/yara/win-x64/yara64.exe",
+              "Native/yara/win-x64/yarac64.exe",
+              "Rules/yara/eicar_standard_test.yar",
+              "THIRD-PARTY-LICENSES/YARA-LICENSE.txt"
+            )
+            foreach ($req in $requiredAssets) {
+              $entry = $zip.Entries | Where-Object { $_.FullName -replace '\\','/' -ieq $req }
+              if (-not $entry) {
+                Write-Host "::error::Required YARA asset '$req' is missing from the MSIX package."
+                exit 1
+              }
+              Write-Host "Verified MSIX asset: $($entry.FullName) ($($entry.Length) bytes)"
+            }
           } finally {
             $zip.Dispose()
           }

@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -14,8 +15,8 @@
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleCloud" Text="Cloud Security" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleCloud" Text="Connect to the BECETTI SECURITY cloud API for reputation checks and update information. Only file hashes are sent — never files." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <TextBlock x:Uid="TitleCloud" helpers:Loc.Uid="TitleCloud" Text="Cloud Security" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleCloud" helpers:Loc.Uid="SubtitleCloud" Text="Connect to the BECETTI SECURITY cloud API for reputation checks and update information. Only file hashes are sent — never files." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
             <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
             <Border Style="{StaticResource CardStyle}">
@@ -49,10 +50,10 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" x:Uid="CloudDevicesSectionLabel" Text="Your devices" Style="{StaticResource ValueStyle}" />
-                        <Button Grid.Column="1" x:Uid="CloudRefreshDevicesButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshDevicesCommand}" />
+                        <TextBlock Grid.Column="0" x:Uid="CloudDevicesSectionLabel" helpers:Loc.Uid="CloudDevicesSectionLabel" Text="Your devices" Style="{StaticResource ValueStyle}" />
+                        <Button Grid.Column="1" x:Uid="CloudRefreshDevicesButton" helpers:Loc.Uid="CloudRefreshDevicesButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshDevicesCommand}" />
                     </Grid>
-                    <TextBlock x:Uid="CloudDevicesSectionNote" Text="Every device that has signed in to this cloud account and sent a check-in, including this one. Remove a device if it is lost or no longer in use."
+                    <TextBlock x:Uid="CloudDevicesSectionNote" helpers:Loc.Uid="CloudDevicesSectionNote" Text="Every device that has signed in to this cloud account and sent a check-in, including this one. Remove a device if it is lost or no longer in use."
                                Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <TextBlock Text="{x:Bind ViewModel.DevicesStatusText, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8" TextWrapping="Wrap" />
 
@@ -69,13 +70,13 @@
                                     <StackPanel Grid.Column="0">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                             <TextBlock Text="{x:Bind DeviceName}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" />
-                                            <TextBlock x:Uid="CloudThisDeviceBadge" Text="(this device)" Foreground="{StaticResource AccentGreenBrush}" FontSize="12"
+                                            <TextBlock x:Uid="CloudThisDeviceBadge" helpers:Loc.Uid="CloudThisDeviceBadge" Text="(this device)" Foreground="{StaticResource AccentGreenBrush}" FontSize="12"
                                                        Visibility="{x:Bind IsThisDevice, Converter={StaticResource BoolToVisibility}}" />
                                         </StackPanel>
                                         <TextBlock Text="{x:Bind Platform}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{x:Bind LastSeenAt}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center" />
-                                    <Button Grid.Column="2" x:Uid="CloudRemoveDeviceButton" Content="Remove" Click="RemoveDeviceButton_Click" Tag="{x:Bind}" />
+                                    <Button Grid.Column="2" x:Uid="CloudRemoveDeviceButton" helpers:Loc.Uid="CloudRemoveDeviceButton" Content="Remove" Click="RemoveDeviceButton_Click" Tag="{x:Bind}" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

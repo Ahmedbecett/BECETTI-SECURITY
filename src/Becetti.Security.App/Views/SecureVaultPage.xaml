@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -14,8 +15,8 @@
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleSecureVault" Text="Secure Vault" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleSecureVault"
+            <TextBlock x:Uid="TitleSecureVault" helpers:Loc.Uid="TitleSecureVault" Text="Secure Vault" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleSecureVault" helpers:Loc.Uid="SubtitleSecureVault"
                        Text="A local, encrypted (AES-256) storage area for files you choose to protect. The encryption key is bound to your Windows account on this device with DPAPI — nothing here is ever uploaded anywhere."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
 
@@ -24,33 +25,33 @@
 
             <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.IsInitialized, Mode=OneWay, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
                 <StackPanel>
-                    <TextBlock x:Uid="SecureVaultNotCreatedLabel" Text="No vault exists on this device yet." Style="{StaticResource ValueStyle}" />
-                    <Button x:Uid="SecureVaultCreateButton" Content="Create vault" Command="{x:Bind ViewModel.InitializeVaultCommand}"
+                    <TextBlock x:Uid="SecureVaultNotCreatedLabel" helpers:Loc.Uid="SecureVaultNotCreatedLabel" Text="No vault exists on this device yet." Style="{StaticResource ValueStyle}" />
+                    <Button x:Uid="SecureVaultCreateButton" helpers:Loc.Uid="SecureVaultCreateButton" Content="Create vault" Command="{x:Bind ViewModel.InitializeVaultCommand}"
                             Style="{StaticResource PrimaryButtonStyle}" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.IsInitialized, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel>
-                    <TextBlock x:Uid="SecureVaultAddLabel" Text="Add a file" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="SecureVaultAddLabel" helpers:Loc.Uid="SecureVaultAddLabel" Text="Add a file" Style="{StaticResource ValueStyle}" />
                     <Grid Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" Text="{x:Bind ViewModel.PendingFilePath, Mode=OneWay}" IsReadOnly="True" Margin="0,0,8,0" />
-                        <Button x:Uid="SecureVaultBrowseButton" Grid.Column="1" Content="Browse" Click="BrowseButton_Click" />
+                        <Button x:Uid="SecureVaultBrowseButton" helpers:Loc.Uid="SecureVaultBrowseButton" Grid.Column="1" Content="Browse" Click="BrowseButton_Click" />
                     </Grid>
-                    <CheckBox x:Uid="SecureVaultShredOriginalCheckBox" Content="Securely delete the original file after encrypting it"
+                    <CheckBox x:Uid="SecureVaultShredOriginalCheckBox" helpers:Loc.Uid="SecureVaultShredOriginalCheckBox" Content="Securely delete the original file after encrypting it"
                               IsChecked="{x:Bind ViewModel.ShredOriginalAfterAdd, Mode=TwoWay}" Margin="0,8,0,0" />
-                    <Button x:Uid="SecureVaultAddButton" Content="Add to vault" Command="{x:Bind ViewModel.AddFileCommand}"
+                    <Button x:Uid="SecureVaultAddButton" helpers:Loc.Uid="SecureVaultAddButton" Content="Add to vault" Command="{x:Bind ViewModel.AddFileCommand}"
                             Style="{StaticResource PrimaryButtonStyle}" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.IsInitialized, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel>
-                    <TextBlock x:Uid="SecureVaultItemsLabel" Text="Files in the vault" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="SecureVaultItemsLabel" helpers:Loc.Uid="SecureVaultItemsLabel" Text="Files in the vault" Style="{StaticResource ValueStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.Items}" SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}" MinHeight="160" Margin="0,8,0,0">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:VaultItemInfo">
@@ -64,12 +65,12 @@
                                         <TextBlock Text="{x:Bind OriginalFileName}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
                                         <TextBlock Text="{x:Bind SizeLabel}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
                                     </StackPanel>
-                                    <Button Grid.Column="1" x:Uid="SecureVaultExtractButton" Content="Extract" Margin="8,0" Click="ExtractButton_Click" Tag="{x:Bind}" />
+                                    <Button Grid.Column="1" x:Uid="SecureVaultExtractButton" helpers:Loc.Uid="SecureVaultExtractButton" Content="Extract" Margin="8,0" Click="ExtractButton_Click" Tag="{x:Bind}" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Button x:Uid="SecureVaultDeleteButton" Content="Remove selected" Command="{x:Bind ViewModel.DeleteSelectedCommand}"
+                    <Button x:Uid="SecureVaultDeleteButton" helpers:Loc.Uid="SecureVaultDeleteButton" Content="Remove selected" Command="{x:Bind ViewModel.DeleteSelectedCommand}"
                             IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>

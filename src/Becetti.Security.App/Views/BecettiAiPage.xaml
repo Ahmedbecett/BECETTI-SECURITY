@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     xmlns:vm="using:Becetti.Security.App.ViewModels"
     x:Name="RootPage"
     mc:Ignorable="d">
@@ -47,8 +48,8 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock x:Uid="TitleAi" Text="BECETTI AI" Style="{StaticResource PageTitleStyle}" />
-                    <TextBlock x:Uid="SubtitleAi"
+                    <TextBlock x:Uid="TitleAi" helpers:Loc.Uid="TitleAi" Text="BECETTI AI" Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock x:Uid="SubtitleAi" helpers:Loc.Uid="SubtitleAi"
                                Text="Ask BECETTI AI about your security status. It only answers from real, verified information — it never invents a threat or a fix."
                                Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
                 </StackPanel>
@@ -68,13 +69,13 @@
 
             <Border Style="{StaticResource CardStyle}" Margin="0,12,0,0">
                 <StackPanel>
-                    <ToggleSwitch x:Uid="SettingsAiShareDeviceState"
+                    <ToggleSwitch x:Uid="SettingsAiShareDeviceState" helpers:Loc.Uid="SettingsAiShareDeviceState"
                                   Header="Share real device/Defender status with BECETTI AI for this chat"
                                   IsOn="{x:Bind ViewModel.ShareDeviceState, Mode=TwoWay}" />
-                    <ToggleSwitch x:Uid="SettingsAiSaveHistory"
+                    <ToggleSwitch x:Uid="SettingsAiSaveHistory" helpers:Loc.Uid="SettingsAiSaveHistory"
                                   Header="Save chat history on this device"
                                   IsOn="{x:Bind ViewModel.SaveHistory, Mode=TwoWay}" />
-                    <ToggleSwitch x:Uid="AiVoiceToggle"
+                    <ToggleSwitch x:Uid="AiVoiceToggle" helpers:Loc.Uid="AiVoiceToggle"
                                   Header="Read replies aloud"
                                   IsOn="{x:Bind ViewModel.VoiceRepliesEnabled, Mode=TwoWay}" />
                 </StackPanel>
@@ -87,9 +88,9 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420"
                         Visibility="{x:Bind ViewModel.HasNoMessages, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
                 <Image Source="Assets/RobotMascotHero.png" Width="120" Height="120" HorizontalAlignment="Center" Margin="0,0,0,16" />
-                <TextBlock x:Uid="AiWelcomeMessage" Text="Welcome, you are safe." FontSize="22" FontWeight="SemiBold"
+                <TextBlock x:Uid="AiWelcomeMessage" helpers:Loc.Uid="AiWelcomeMessage" Text="Welcome, you are safe." FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource ElectricBlueBrush}" HorizontalAlignment="Center" TextAlignment="Center" />
-                <TextBlock x:Uid="AiWelcomeSubtitle"
+                <TextBlock x:Uid="AiWelcomeSubtitle" helpers:Loc.Uid="AiWelcomeSubtitle"
                            Text="I'm BECETTI AI. Ask me about any part of your protection and I'll explain exactly what it shows and where to go."
                            Foreground="{StaticResource TextSecondaryBrush}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,8,0,0" />
             </StackPanel>
@@ -115,7 +116,7 @@
                                                    Visibility="{x:Bind IsPending, Converter={StaticResource BoolToVisibility}}" />
                                     </StackPanel>
                                 </Border>
-                                <Button x:Uid="AiSupportTicketButton" Content="Open a support ticket"
+                                <Button x:Uid="AiSupportTicketButton" helpers:Loc.Uid="AiSupportTicketButton" Content="Open a support ticket"
                                         Command="{Binding ElementName=RootPage, Path=ViewModel.CreateSupportTicketCommand}"
                                         Visibility="{x:Bind SuggestsSupportTicket, Converter={StaticResource BoolToVisibility}}"
                                         Margin="0,6,0,0" FontSize="12" Padding="10,4" />
@@ -135,12 +136,14 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBox Grid.Column="0" x:Name="InputBox"
+                     x:Uid="AiInputBox" helpers:Loc.Uid="AiInputBox"
                      PlaceholderText="Ask BECETTI AI…"
                      Text="{x:Bind ViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     KeyDown="InputBox_KeyDown"
                      AcceptsReturn="False" Margin="0,0,8,0" />
-            <Button Grid.Column="1" Content="Send" Command="{x:Bind ViewModel.SendCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" />
-            <Button Grid.Column="2" Content="Clear" Command="{x:Bind ViewModel.ClearCommand}" Margin="0,0,8,0" />
-            <Button Grid.Column="3" x:Uid="AiSupportTicketButton" Content="Open a support ticket" Command="{x:Bind ViewModel.CreateSupportTicketCommand}" FontSize="12" />
+            <Button Grid.Column="1" x:Uid="AiSendButton" helpers:Loc.Uid="AiSendButton" Content="Send" Command="{x:Bind ViewModel.SendCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" />
+            <Button Grid.Column="2" x:Uid="AiClearButton" helpers:Loc.Uid="AiClearButton" Content="Clear" Command="{x:Bind ViewModel.ClearCommand}" Margin="0,0,8,0" />
+            <Button Grid.Column="3" x:Uid="AiSupportTicketButton" helpers:Loc.Uid="AiSupportTicketButton" Content="Open a support ticket" Command="{x:Bind ViewModel.CreateSupportTicketCommand}" FontSize="12" />
         </Grid>
     </Grid>
 </Page>

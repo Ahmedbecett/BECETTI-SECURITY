@@ -102,6 +102,11 @@ public sealed partial class ScanPage : Page
     /// Sends the real last scan outcome to BECETTI AI as a prefilled message — the user
     /// still has to review it and tap Send; nothing is transmitted automatically here.
     /// </summary>
+    private void OpenYaraEngineButton_Click(object sender, RoutedEventArgs e)
+    {
+        App.MainWindow?.NavigateTo("Yara", ViewModel.TargetPath);
+    }
+
     private void AskAiAboutScan_Click(object sender, RoutedEventArgs e)
     {
         var prompt = ViewModel.BuildAiExplainPrompt();

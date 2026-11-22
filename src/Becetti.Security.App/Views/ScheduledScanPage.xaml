@@ -4,12 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleScheduledScan" Text="Scheduled Scan" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleScheduledScan"
+            <TextBlock x:Uid="TitleScheduledScan" helpers:Loc.Uid="TitleScheduledScan" Text="Scheduled Scan" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleScheduledScan" helpers:Loc.Uid="SubtitleScheduledScan"
                        Text="Registers a real Windows Scheduled Task (visible and editable in Task Scheduler) that runs a genuine Microsoft Defender scan daily — even while BECETTI SECURITY is closed. Creating or removing it requires an administrator."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
@@ -23,14 +24,14 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="ScheduleNewScanLabel" Text="Schedule a daily scan" Style="{StaticResource ValueStyle}" />
-                    <ToggleSwitch x:Uid="FullScanToggle" Header="Full scan (otherwise Quick scan)" IsOn="{x:Bind ViewModel.FullScan, Mode=TwoWay}" Margin="0,8,0,0" />
-                    <TextBlock x:Uid="ScheduleHourLabel" Text="Hour of day (0-23, local time)" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,4" />
+                    <TextBlock x:Uid="ScheduleNewScanLabel" helpers:Loc.Uid="ScheduleNewScanLabel" Text="Schedule a daily scan" Style="{StaticResource ValueStyle}" />
+                    <ToggleSwitch x:Uid="FullScanToggle" helpers:Loc.Uid="FullScanToggle" Header="Full scan (otherwise Quick scan)" IsOn="{x:Bind ViewModel.FullScan, Mode=TwoWay}" Margin="0,8,0,0" />
+                    <TextBlock x:Uid="ScheduleHourLabel" helpers:Loc.Uid="ScheduleHourLabel" Text="Hour of day (0-23, local time)" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,4" />
                     <NumberBox Value="{x:Bind ViewModel.SelectedHour, Mode=TwoWay}" SpinButtonPlacementMode="Inline" Minimum="0" Maximum="23" SmallChange="1" Width="160" HorizontalAlignment="Left" />
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
-                        <Button x:Uid="ScheduleScanButton" Content="Schedule" Command="{x:Bind ViewModel.ScheduleCommand}" Style="{StaticResource PrimaryButtonStyle}" />
-                        <Button x:Uid="RemoveScheduleButton" Content="Remove Scheduled Scan" Command="{x:Bind ViewModel.RemoveCommand}" />
-                        <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" />
+                        <Button x:Uid="ScheduleScanButton" helpers:Loc.Uid="ScheduleScanButton" Content="Schedule" Command="{x:Bind ViewModel.ScheduleCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="RemoveScheduleButton" helpers:Loc.Uid="RemoveScheduleButton" Content="Remove Scheduled Scan" Command="{x:Bind ViewModel.RemoveCommand}" />
+                        <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

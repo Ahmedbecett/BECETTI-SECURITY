@@ -21,6 +21,7 @@ public sealed class BecettiAiViewModel : ViewModelBase
 
     private readonly IBecettiAiService _ai;
     private readonly IDefenderService _defender;
+    private readonly IYaraEngineService _yara;
     private readonly ISystemInfoService _system;
     private readonly ISettingsService _settings;
     private readonly SpeechService _speech;
@@ -33,10 +34,11 @@ public sealed class BecettiAiViewModel : ViewModelBase
     private bool _isSpeaking;
     private string _lastDetectedLanguage = "en-US";
 
-    public BecettiAiViewModel(IBecettiAiService ai, IDefenderService defender, ISystemInfoService system, ISettingsService settings, SpeechService speech)
+    public BecettiAiViewModel(IBecettiAiService ai, IDefenderService defender, IYaraEngineService yara, ISystemInfoService system, ISettingsService settings, SpeechService speech)
     {
         _ai = ai;
         _defender = defender;
+        _yara = yara;
         _system = system;
         _settings = settings;
         _speech = speech;
@@ -244,36 +246,83 @@ public sealed class BecettiAiViewModel : ViewModelBase
 
         // Real, live device-state context, only ever attached with the user's
         // explicit, persisted consent (ShareDeviceState) — never silently.
+        string? contextPrefix = null;
         if (ShareDeviceState)
+            contextPrefix = await BuildDeviceStateContextAsync();
+
+        // Never send pending placeholders or past technical error bubbles as
+        // conversation history to Gemini.
+        foreach (var m in Messages.Where(m => !m.IsPending && !m.IsError && !string.IsNullOrWhiteSpace(m.Text)))
         {
-            var contextLine = await BuildDeviceStateContextAsync();
-            if (!string.IsNullOrWhiteSpace(contextLine))
-                turns.Add(new AiChatTurn { Role = "user", Content = contextLine });
+            var role = m.IsFromUser ? "user" : "assistant";
+            var content = m.Text;
+
+            if (contextPrefix is not null && m.IsFromUser)
+            {
+                content = contextPrefix + "\n\n" + content;
+                contextPrefix = null;
+            }
+
+            if (turns.Count > 0 && string.Equals(turns[^1].Role, role, StringComparison.Ordinal))
+            {
+                turns[^1] = new AiChatTurn { Role = role, Content = turns[^1].Content + "\n\n" + content };
+            }
+            else
+            {
+                turns.Add(new AiChatTurn { Role = role, Content = content });
+            }
         }
 
-        foreach (var m in Messages.Where(m => !m.IsPending))
-            turns.Add(new AiChatTurn { Role = m.IsFromUser ? "user" : "assistant", Content = m.Text });
+        if (contextPrefix is not null)
+            turns.Insert(0, new AiChatTurn { Role = "user", Content = contextPrefix });
 
         return turns;
     }
 
     private async Task<string?> BuildDeviceStateContextAsync()
     {
+        var parts = new List<string>();
         try
         {
-            var status = await _defender.GetStatusAsync();
-            if (!status.Success || status.Value is null)
-                return "[Real device context] Microsoft Defender status could not be read right now.";
-
-            var s = status.Value;
-            return "[Real device context, read just now from Microsoft Defender — treat as ground truth, do not contradict it] "
-                + $"Antivirus enabled: {s.AntivirusEnabled}. Real-time protection: {s.RealTimeProtectionEnabled}. "
-                + $"Tamper protection: {s.TamperProtectionEnabled}. Cloud protection level: {s.CloudProtectionLevel}.";
+            var yara = await _yara.GetEngineInfoAsync();
+            if (yara.Success && yara.Value is not null && yara.Value.IsAvailable)
+            {
+                parts.Add($"Native YARA Engine: v{yara.Value.Version} ({yara.Value.Architecture}), " +
+                          $"{yara.Value.ValidRuleFiles} valid rule file(s) ({yara.Value.ActiveRuleCount} active rules).");
+            }
+            else
+            {
+                parts.Add($"Native YARA Engine: unavailable ({yara.Message}).");
+            }
         }
         catch
         {
-            return null;
+            // Optional context segment
         }
+
+        try
+        {
+            var status = await _defender.GetStatusAsync();
+            if (status.Success && status.Value is not null)
+            {
+                var s = status.Value;
+                parts.Add($"Microsoft Defender — Antivirus enabled: {s.AntivirusEnabled}. Real-time protection: {s.RealTimeProtectionEnabled}. " +
+                          $"Tamper protection: {s.TamperProtectionEnabled}. Cloud protection level: {s.CloudProtectionLevel}.");
+            }
+            else
+            {
+                parts.Add("Microsoft Defender status could not be read right now.");
+            }
+        }
+        catch
+        {
+            // Optional context segment
+        }
+
+        if (parts.Count == 0)
+            return null;
+
+        return "[Real device context, read live just now — treat as ground truth, do not contradict it] " + string.Join(" ", parts);
     }
 
     /// <summary>

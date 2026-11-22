@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -14,8 +15,8 @@
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleNetwork" Text="Network Monitor" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleNetwork"
+            <TextBlock x:Uid="TitleNetwork" helpers:Loc.Uid="TitleNetwork" Text="Network Monitor" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleNetwork" helpers:Loc.Uid="SubtitleNetwork"
                        Text="Real network adapters and active TCP connections, read from Windows' own NetworkInterface API and Get-NetTCPConnection (the same source Resource Monitor uses). BECETTI SECURITY draws no conclusion about any connection — it shows Windows' own verified list."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
@@ -23,14 +24,14 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="FirewallProfilesLabel" Text="Firewall Profiles" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="FirewallProfilesLabel" helpers:Loc.Uid="FirewallProfilesLabel" Text="Firewall Profiles" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.FirewallText, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="NetworkAdaptersLabel" Text="Network Adapters" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="NetworkAdaptersLabel" helpers:Loc.Uid="NetworkAdaptersLabel" Text="Network Adapters" Style="{StaticResource ValueStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.Adapters, Mode=OneWay}" MinHeight="120" Margin="0,8,0,0">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:NetworkAdapterInfo">
@@ -55,7 +56,7 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="ActiveConnectionsLabel" Text="Active Connections &amp; Listening Ports" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="ActiveConnectionsLabel" helpers:Loc.Uid="ActiveConnectionsLabel" Text="Active Connections &amp; Listening Ports" Style="{StaticResource ValueStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.Connections, Mode=OneWay}" MinHeight="260" Margin="0,8,0,0">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:NetworkConnectionInfo">
@@ -72,7 +73,7 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                    <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
                 </StackPanel>
             </Border>
 

@@ -5,16 +5,17 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitlePrivacy" Text="Privacy &amp; Network" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitlePrivacy" Text="Measured network, TLS and configuration checks. Recommendations come from the measured values only." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <TextBlock x:Uid="TitlePrivacy" helpers:Loc.Uid="TitlePrivacy" Text="Privacy &amp; Network" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitlePrivacy" helpers:Loc.Uid="SubtitlePrivacy" Text="Measured network, TLS and configuration checks. Recommendations come from the measured values only." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
             <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="PrivacyPermissionsLabel" Text="App permissions (device-wide)" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="PrivacyPermissionsLabel" helpers:Loc.Uid="PrivacyPermissionsLabel" Text="App permissions (device-wide)" Style="{StaticResource LabelStyle}" />
                     <ItemsControl ItemsSource="{x:Bind ViewModel.Permissions, Mode=OneWay}" Margin="0,4,0,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="models:PrivacyPermissionInfo">

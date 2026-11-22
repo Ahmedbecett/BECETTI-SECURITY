@@ -5,12 +5,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleBrowser" Text="Browser Security" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleBrowser"
+            <TextBlock x:Uid="TitleBrowser" helpers:Loc.Uid="TitleBrowser" Text="Browser Security" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleBrowser" helpers:Loc.Uid="SubtitleBrowser"
                        Text="Real installed browsers (from the same installed-apps inventory Software Manager reads) and Windows' own SmartScreen policy, read from the registry."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
@@ -18,14 +19,14 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="SmartScreenLabel" Text="SmartScreen" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="SmartScreenLabel" helpers:Loc.Uid="SmartScreenLabel" Text="SmartScreen" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.SmartScreenSummary, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="InstalledBrowsersLabel" Text="Installed Browsers" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="InstalledBrowsersLabel" helpers:Loc.Uid="InstalledBrowsersLabel" Text="Installed Browsers" Style="{StaticResource ValueStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.Browsers, Mode=OneWay}" MinHeight="140" Margin="0,8,0,0">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:BrowserInfo">
@@ -37,7 +38,7 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                    <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
                 </StackPanel>
             </Border>
 

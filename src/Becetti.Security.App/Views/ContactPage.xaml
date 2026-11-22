@@ -4,11 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleContact" Text="Contact Becetti" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleContact"
+            <TextBlock x:Uid="TitleContact" helpers:Loc.Uid="TitleContact" Text="Contact Becetti" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleContact" helpers:Loc.Uid="SubtitleContact"
                        Text="Nothing is sent automatically. This prepares a draft in your own email app — you review and press Send yourself."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
 
@@ -17,9 +18,9 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="SupportWhatsAppLabel" Text="WhatsApp" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="SupportWhatsAppLabel" helpers:Loc.Uid="SupportWhatsAppLabel" Text="WhatsApp" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.SupportWhatsAppDisplay, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8" />
-                    <Button x:Uid="OpenWhatsAppButton" Content="Open WhatsApp" Command="{x:Bind ViewModel.OpenWhatsAppCommand}" Margin="0,0,0,16" />
+                    <Button x:Uid="OpenWhatsAppButton" helpers:Loc.Uid="OpenWhatsAppButton" Content="Open WhatsApp" Command="{x:Bind ViewModel.OpenWhatsAppCommand}" Margin="0,0,0,16" />
 
                     <TextBlock Text="Support address" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.SupportEmail, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" />

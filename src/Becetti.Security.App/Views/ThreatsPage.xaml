@@ -5,11 +5,12 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleThreats" Text="Threat Management" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleThreats" Text="Real detections reported by Microsoft Defender. Removal runs through Defender and is verified before success is shown." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <TextBlock x:Uid="TitleThreats" helpers:Loc.Uid="TitleThreats" Text="Threat Management" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleThreats" helpers:Loc.Uid="SubtitleThreats" Text="Real detections reported by Microsoft Defender. Removal runs through Defender and is verified before success is shown." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
             <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
             <Border Style="{StaticResource CardStyle}">
@@ -29,7 +30,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
                         <Button Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                         <Button Content="Remove Selected Threat" Command="{x:Bind ViewModel.RemoveSelectedCommand}" />
-                        <Button x:Uid="AskAiAboutThreatButton" Content="Ask BECETTI AI to explain this"
+                        <Button x:Uid="AskAiAboutThreatButton" helpers:Loc.Uid="AskAiAboutThreatButton" Content="Ask BECETTI AI to explain this"
                                 Click="AskAiAboutThreat_Click" />
                     </StackPanel>
                 </StackPanel>

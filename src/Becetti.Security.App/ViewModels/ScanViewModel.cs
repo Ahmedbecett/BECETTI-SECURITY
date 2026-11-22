@@ -6,30 +6,30 @@ namespace Becetti.Security.App.ViewModels;
 
 /// <summary>
 /// Visual state of the robot mascot on the Scan page. Every value here is
-/// driven directly by a real Defender scan state (IsScanning / the real
-/// MpCmdRun exit code) - never decorative or guessed, matching this app's
-/// standing rule that nothing ever fakes activity that isn't happening.
+/// driven directly by a real scan state (IsScanning / real Defender or native YARA
+/// verdict) — never decorative or guessed.
 /// </summary>
 public enum ScanMascotMood
 {
     /// <summary>No scan is running and the last one (if any) is not being shown.</summary>
     Idle,
-    /// <summary>A real Defender scan is currently in progress.</summary>
+    /// <summary>A real Defender or native YARA scan is currently in progress.</summary>
     Scanning,
-    /// <summary>The last real scan completed with no threat found (MpCmdRun exit code 0).</summary>
+    /// <summary>The last real scan completed with no threat found.</summary>
     Clean,
-    /// <summary>The last real scan found a threat (MpCmdRun exit code 2).</summary>
+    /// <summary>The last real scan found a real threat or YARA rule match.</summary>
     Alert
 }
 
 /// <summary>
-/// Smart Scan page. Scans run through Microsoft Defender (MpCmdRun.exe).
-/// Results come from Defender's exit codes — BECETTI SECURITY never declares
-/// a file infected on its own.
+/// Smart Scan page: combines the local native YARA malware-detection engine
+/// (VirusTotal/yara x64) with Microsoft Defender (MpCmdRun.exe). Every result
+/// is real and verified locally — BECETTI SECURITY never simulates detections.
 /// </summary>
 public sealed class ScanViewModel : ViewModelBase
 {
     private readonly IDefenderService _defender;
+    private readonly IYaraEngineService _yara;
     private readonly IEventLogService _events;
     private readonly ISettingsService _settings;
     private readonly SoundService _sound;
@@ -43,23 +43,36 @@ public sealed class ScanViewModel : ViewModelBase
     private string _mascotStatusText = "Resting — no scan running right now.";
     private string _elapsedText = string.Empty;
     private ScanOutcome? _lastOutcome;
+    private YaraScanReport? _lastYaraReport;
     private DefenderScanType _lastScanType;
 
-    public ScanViewModel(IDefenderService defender, IEventLogService events, ISettingsService settings, SoundService sound, NotificationService notifications)
+    public ScanViewModel(
+        IDefenderService defender,
+        IYaraEngineService yara,
+        IEventLogService events,
+        ISettingsService settings,
+        SoundService sound,
+        NotificationService notifications)
     {
         _defender = defender;
+        _yara = yara;
         _events = events;
         _settings = settings;
         _sound = sound;
         _notifications = notifications;
+
         QuickScanCommand = new RelayCommand(() => RunScanAsync(DefenderScanType.Quick));
         FullScanCommand = new RelayCommand(() => RunScanAsync(DefenderScanType.Full));
         CustomScanCommand = new RelayCommand(() => RunScanAsync(DefenderScanType.Custom, TargetPath));
+        YaraCustomScanCommand = new RelayCommand(() => RunYaraScanAsync(TargetPath));
+        YaraQuickScanCommand = new RelayCommand(RunYaraQuickScanAsync);
     }
 
     public RelayCommand QuickScanCommand { get; }
     public RelayCommand FullScanCommand { get; }
     public RelayCommand CustomScanCommand { get; }
+    public RelayCommand YaraCustomScanCommand { get; }
+    public RelayCommand YaraQuickScanCommand { get; }
 
     public string TargetPath { get => _targetPath; set => SetProperty(ref _targetPath, value); }
     public string ScanOutput { get => _scanOutput; set => SetProperty(ref _scanOutput, value); }
@@ -71,24 +84,124 @@ public sealed class ScanViewModel : ViewModelBase
         set => SetProperty(ref _isScanning, value);
     }
 
-    /// <summary>
-    /// Real elapsed time since the running scan started, ticking once a second.
-    /// MpCmdRun.exe reports no percentage-complete while it runs, so a fabricated
-    /// progress bar would be a fake number — elapsed time is the only "progress"
-    /// BECETTI SECURITY can show honestly while Defender is still working.
-    /// </summary>
     public string ElapsedText { get => _elapsedText; set => SetProperty(ref _elapsedText, value); }
 
-    /// <summary>True once a scan has actually completed (clean or threat found) and can be explained.</summary>
-    public bool HasExplainableResult => _lastOutcome is not null;
+    public bool HasExplainableResult => _lastOutcome is not null || _lastYaraReport is not null;
 
-    /// <summary>Drives the robot mascot's glow color and pulse animation on the Scan page.</summary>
     public ScanMascotMood MascotMood { get => _mascotMood; set => SetProperty(ref _mascotMood, value); }
 
-    /// <summary>Human-readable text shown next to the mascot, matching <see cref="MascotMood"/>.</summary>
     public string MascotStatusText { get => _mascotStatusText; set => SetProperty(ref _mascotStatusText, value); }
 
     public bool IsAdministrator => _defender.IsElevated();
+
+    public async Task RunYaraQuickScanAsync()
+    {
+        var targets = new List<string>();
+        var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var downloads = Path.Combine(userProfile, "Downloads");
+        var desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        var temp = Path.GetTempPath();
+        if (Directory.Exists(downloads)) targets.Add(downloads);
+        if (Directory.Exists(desktop)) targets.Add(desktop);
+        if (Directory.Exists(temp)) targets.Add(temp);
+
+        await RunYaraTargetsAsync(targets, "Quick Local YARA Scan (Downloads, Desktop, Temp)");
+    }
+
+    public async Task RunYaraScanAsync(string? targetPath)
+    {
+        if (string.IsNullOrWhiteSpace(targetPath))
+        {
+            ErrorMessage = "Choose a file or folder first to scan with the native YARA engine.";
+            return;
+        }
+
+        await RunYaraTargetsAsync(new[] { targetPath.Trim() }, targetPath.Trim());
+    }
+
+    private async Task RunYaraTargetsAsync(IReadOnlyList<string> targets, string label)
+    {
+        if (IsScanning)
+            return;
+
+        IsScanning = true;
+        ClearMessages();
+        ScanOutput = string.Empty;
+        ScanResultText = $"Running native YARA scan on {label}...";
+        StatusMessage = "Local YARA engine scan in progress (real compiled .yar/.yara rules).";
+        MascotMood = ScanMascotMood.Scanning;
+        MascotStatusText = "Scanning now with the local native YARA engine...";
+        _lastOutcome = null;
+        _lastYaraReport = null;
+        OnPropertyChanged(nameof(HasExplainableResult));
+
+        using var elapsedCts = new CancellationTokenSource();
+        var elapsedTask = TickElapsedAsync(elapsedCts.Token);
+
+        try
+        {
+            var progress = new Progress<YaraScanProgress>(p =>
+            {
+                ScanResultText = $"YARA scanning: {p.FilesScanned} / {p.TotalFiles} file(s) · {p.MatchesFound} match(es)";
+            });
+
+            var result = await _yara.ScanTargetsAsync(targets, label, progress);
+            if (!result.Success || result.Value is null)
+            {
+                ScanResultText = "YARA scan could not run.";
+                ErrorMessage = result.Message;
+                MascotMood = ScanMascotMood.Idle;
+                MascotStatusText = "Resting — the YARA scan could not run.";
+                await _events.RecordAsync("yara.scan.failed", result.Message, false, label);
+                return;
+            }
+
+            var report = result.Value;
+            _lastYaraReport = report;
+            OnPropertyChanged(nameof(HasExplainableResult));
+            ScanOutput = _yara.FormatReportAsText(report);
+            ScanResultText = result.Message;
+
+            if (report.ThreatFound)
+            {
+                MascotMood = ScanMascotMood.Alert;
+                MascotStatusText = $"YARA detected {report.Matches.Count} match(es) — review the matched rules below.";
+            }
+            else
+            {
+                MascotMood = ScanMascotMood.Clean;
+                MascotStatusText = $"All clear — Native YARA {report.EngineVersion} found 0 matches across {report.FilesScanned} file(s).";
+            }
+
+            _settings.Current.LastVerifiedScan = report.EndedAt;
+            _settings.Current.LastScanSummary = report.ThreatFound
+                ? $"YARA scan — {report.Matches.Count} rule match(es) found"
+                : $"YARA scan — clean ({report.FilesScanned} files)";
+            await _settings.SaveAsync();
+
+            _sound.Play(report.ThreatFound ? SoundCue.Critical : SoundCue.ScanCompleted);
+
+            if (report.ThreatFound)
+            {
+                await _notifications.NotifyCriticalAsync(
+                    "BECETTI SECURITY — YARA threat found",
+                    $"Native YARA matched rule '{report.Matches[0].RuleName}' ({report.Matches.Count} total match(es)).");
+            }
+
+            await _events.RecordAsync(
+                report.ThreatFound ? "yara.scan.threat" : "yara.scan.completed",
+                result.Message,
+                true,
+                $"YARA {report.EngineVersion}, Files={report.FilesScanned}, Matches={report.Matches.Count}");
+        }
+        finally
+        {
+            IsScanning = false;
+            elapsedCts.Cancel();
+            try { await elapsedTask; } catch (OperationCanceledException) { /* expected */ }
+            ElapsedText = string.Empty;
+        }
+    }
 
     public async Task RunScanAsync(DefenderScanType scanType, string? targetPath = null)
     {
@@ -103,6 +216,7 @@ public sealed class ScanViewModel : ViewModelBase
         MascotMood = ScanMascotMood.Scanning;
         MascotStatusText = $"Scanning now ({scanType}) — this is a real Defender scan in progress.";
         _lastOutcome = null;
+        _lastYaraReport = null;
         _lastScanType = scanType;
         OnPropertyChanged(nameof(HasExplainableResult));
 
@@ -114,10 +228,10 @@ public sealed class ScanViewModel : ViewModelBase
             var result = await _defender.RunScanAsync(scanType, targetPath);
             if (!result.Success || result.Value is null)
             {
-                ScanResultText = "Scan could not run.";
+                ScanResultText = "Defender scan could not run. You can still scan locally using the Native YARA Engine above.";
                 ErrorMessage = result.Message;
                 MascotMood = ScanMascotMood.Idle;
-                MascotStatusText = "Resting — the last scan could not run.";
+                MascotStatusText = "Resting — Defender scan could not run (Native YARA Engine is available).";
                 await _events.RecordAsync("scan.failed", $"{scanType} scan failed", false, result.Message);
                 return;
             }
@@ -177,7 +291,6 @@ public sealed class ScanViewModel : ViewModelBase
         }
     }
 
-    /// <summary>Ticks ElapsedText once a second while a scan is running. Real wall-clock time only.</summary>
     private async Task TickElapsedAsync(CancellationToken ct)
     {
         var startedAt = DateTimeOffset.Now;
@@ -194,17 +307,28 @@ public sealed class ScanViewModel : ViewModelBase
         }
         catch (OperationCanceledException)
         {
-            // Expected when the scan finishes; ElapsedText is cleared by the caller.
+            // Expected when the scan finishes
         }
     }
 
-    /// <summary>
-    /// Builds a plain-text prompt from the last real scan outcome for BECETTI AI to
-    /// explain — every field comes straight from Defender's own MpCmdRun result, never
-    /// invented. Returns null until a scan has actually completed.
-    /// </summary>
     public string? BuildAiExplainPrompt()
     {
+        if (_lastYaraReport is not null)
+        {
+            var r = _lastYaraReport;
+            var lines = new List<string>
+            {
+                "Please explain this real local Native YARA Engine scan result from BECETTI SECURITY in plain language, and tell me if I need to do anything next:",
+                $"- Engine: YARA {r.EngineVersion} (local Windows x64 engine)",
+                $"- Target: {r.TargetPath}",
+                $"- Files scanned: {r.FilesScanned}, Active rules: {r.TotalRulesLoaded}",
+                $"- Matches found: {r.Matches.Count}"
+            };
+            foreach (var m in r.Matches.Take(8))
+                lines.Add($"  * {m.RuleName} ({m.Severity}) on {m.FilePath}: {m.Description}");
+            return string.Join("\n", lines);
+        }
+
         if (_lastOutcome is null)
             return null;
 

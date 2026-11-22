@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -14,12 +15,12 @@
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleParentalControl" Text="Parental Controls" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleParentalControl"
+            <TextBlock x:Uid="TitleParentalControl" helpers:Loc.Uid="TitleParentalControl" Text="Parental Controls" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleParentalControl" helpers:Loc.Uid="SubtitleParentalControl"
                        Text="Blocks websites on this device using the real Windows hosts file — the same mechanism Windows itself uses to resolve names. Changing it requires Administrator."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
 
-            <InfoBar x:Uid="ParentalControlElevationBar" Title="Administrator required" Message="Blocking or unblocking a website requires Administrator. Restart BECETTI SECURITY as administrator from Settings."
+            <InfoBar x:Uid="ParentalControlElevationBar" helpers:Loc.Uid="ParentalControlElevationBar" Title="Administrator required" Message="Blocking or unblocking a website requires Administrator. Restart BECETTI SECURITY as administrator from Settings."
                      Severity="Warning" IsOpen="{x:Bind ViewModel.CannotManageBlocklist, Mode=OneWay}"
                      IsClosable="False" Margin="0,0,0,16" />
 
@@ -28,7 +29,7 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="ParentalControlAddLabel" Text="Block a website" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="ParentalControlAddLabel" helpers:Loc.Uid="ParentalControlAddLabel" Text="Block a website" Style="{StaticResource ValueStyle}" />
                     <Grid Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -36,7 +37,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" Text="{x:Bind ViewModel.DomainInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  PlaceholderText="example.com" Margin="0,0,8,0" IsEnabled="{x:Bind ViewModel.CanManageBlocklist, Mode=OneWay}" />
-                        <Button x:Uid="ParentalControlBlockButton" Grid.Column="1" Content="Block" Command="{x:Bind ViewModel.BlockCommand}"
+                        <Button x:Uid="ParentalControlBlockButton" helpers:Loc.Uid="ParentalControlBlockButton" Grid.Column="1" Content="Block" Command="{x:Bind ViewModel.BlockCommand}"
                                 Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{x:Bind ViewModel.CanManageBlocklist, Mode=OneWay}" />
                     </Grid>
                 </StackPanel>
@@ -44,7 +45,7 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="ParentalControlListLabel" Text="Blocked websites" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="ParentalControlListLabel" helpers:Loc.Uid="ParentalControlListLabel" Text="Blocked websites" Style="{StaticResource ValueStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.BlockedDomains}" MinHeight="160" Margin="0,8,0,0">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:BlockedDomainInfo">
@@ -54,12 +55,12 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{x:Bind Domain}" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" />
-                                    <Button Grid.Column="1" x:Uid="ParentalControlUnblockButton" Content="Unblock" Tag="{x:Bind Domain}" Click="UnblockButton_Click" />
+                                    <Button Grid.Column="1" x:Uid="ParentalControlUnblockButton" helpers:Loc.Uid="ParentalControlUnblockButton" Content="Unblock" Tag="{x:Bind Domain}" Click="UnblockButton_Click" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Margin="0,12,0,0" />
+                    <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
 

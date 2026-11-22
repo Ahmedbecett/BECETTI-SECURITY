@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -13,8 +14,8 @@
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleFileShredder" Text="Secure File Shredder" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleFileShredder"
+            <TextBlock x:Uid="TitleFileShredder" helpers:Loc.Uid="TitleFileShredder" Text="Secure File Shredder" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleFileShredder" helpers:Loc.Uid="SubtitleFileShredder"
                        Text="A normal delete only removes a file's entry from the folder — the bytes usually remain on disk until something else happens to overwrite them. This overwrites the file's real content with random data first, then deletes it, for files you choose to permanently destroy."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
 
@@ -23,24 +24,24 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="FileShredderPickLabel" Text="File to destroy" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="FileShredderPickLabel" helpers:Loc.Uid="FileShredderPickLabel" Text="File to destroy" Style="{StaticResource ValueStyle}" />
                     <Grid Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" Text="{x:Bind ViewModel.SelectedFilePath, Mode=OneWay}" IsReadOnly="True" Margin="0,0,8,0" />
-                        <Button x:Uid="FileShredderBrowseButton" Grid.Column="1" Content="Browse" Click="BrowseButton_Click" />
+                        <Button x:Uid="FileShredderBrowseButton" helpers:Loc.Uid="FileShredderBrowseButton" Grid.Column="1" Content="Browse" Click="BrowseButton_Click" />
                     </Grid>
 
-                    <TextBlock x:Uid="FileShredderPassesLabel" Text="Overwrite passes" Style="{StaticResource ValueStyle}" Margin="0,16,0,0" />
+                    <TextBlock x:Uid="FileShredderPassesLabel" helpers:Loc.Uid="FileShredderPassesLabel" Text="Overwrite passes" Style="{StaticResource ValueStyle}" Margin="0,16,0,0" />
                     <Slider Minimum="1" Maximum="7" StepFrequency="1" TickFrequency="1" TickPlacement="BottomRight"
                             Value="{x:Bind ViewModel.Passes, Mode=TwoWay}" Width="240" HorizontalAlignment="Left" />
 
-                    <InfoBar x:Uid="FileShredderWarningBar" Title="This cannot be undone" Message="The file will be permanently destroyed. There is no recycle bin and no recovery."
+                    <InfoBar x:Uid="FileShredderWarningBar" helpers:Loc.Uid="FileShredderWarningBar" Title="This cannot be undone" Message="The file will be permanently destroyed. There is no recycle bin and no recovery."
                              Severity="Warning" IsOpen="True" IsClosable="False" Margin="0,16,0,0" />
 
-                    <Button x:Uid="FileShredderShredButton" Content="Shred permanently" Command="{x:Bind ViewModel.ShredCommand}"
+                    <Button x:Uid="FileShredderShredButton" helpers:Loc.Uid="FileShredderShredButton" Content="Shred permanently" Command="{x:Bind ViewModel.ShredCommand}"
                             Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
                     <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
                 </StackPanel>
@@ -48,7 +49,7 @@
 
             <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.SessionLog.Count, Mode=OneWay, Converter={StaticResource NotEmptyToVisibility}}">
                 <StackPanel>
-                    <TextBlock x:Uid="FileShredderSessionLogLabel" Text="Shredded this session" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="FileShredderSessionLogLabel" helpers:Loc.Uid="FileShredderSessionLogLabel" Text="Shredded this session" Style="{StaticResource ValueStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.SessionLog}" MinHeight="40" Margin="0,8,0,0">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="x:String">

@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -16,12 +17,12 @@
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleIpReputation" Text="IP Reputation" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleIpReputation"
+            <TextBlock x:Uid="TitleIpReputation" helpers:Loc.Uid="TitleIpReputation" Text="IP Reputation" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleIpReputation" helpers:Loc.Uid="SubtitleIpReputation"
                        Text="An optional second opinion on a single IP address you choose to check — for example, an unfamiliar connection you noticed in Network Monitor. Powered by AbuseIPDB's community abuse reports. This never replaces BECETTI SECURITY's own local protection."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
 
-            <InfoBar x:Uid="IpReputationNotConfiguredBar" Title="Not configured" Message="The IP reputation server is not configured. Open Settings and set the BECETTI server URL."
+            <InfoBar x:Uid="IpReputationNotConfiguredBar" helpers:Loc.Uid="IpReputationNotConfiguredBar" Title="Not configured" Message="The IP reputation server is not configured. Open Settings and set the BECETTI server URL."
                      Severity="Warning" IsOpen="{x:Bind ViewModel.IsNotConfigured, Mode=OneWay}"
                      IsClosable="False" Margin="0,0,0,16" />
 
@@ -31,15 +32,15 @@
             <!-- IP check -->
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="IpReputationSectionLabel" Text="Check an IP address" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="IpReputationSectionLabel" helpers:Loc.Uid="IpReputationSectionLabel" Text="Check an IP address" Style="{StaticResource ValueStyle}" />
                     <Grid Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Uid="IpReputationTextBox" Grid.Column="0" Text="{x:Bind ViewModel.IpInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox x:Uid="IpReputationTextBox" helpers:Loc.Uid="IpReputationTextBox" Grid.Column="0" Text="{x:Bind ViewModel.IpInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  PlaceholderText="203.0.113.42" Margin="0,0,8,0" />
-                        <Button x:Uid="IpReputationCheckButton" Grid.Column="1" Content="Check IP" Command="{x:Bind ViewModel.CheckIpCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="IpReputationCheckButton" helpers:Loc.Uid="IpReputationCheckButton" Grid.Column="1" Content="Check IP" Command="{x:Bind ViewModel.CheckIpCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                     </Grid>
 
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0" Visibility="{x:Bind ViewModel.HasReport, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
@@ -49,19 +50,19 @@
 
                     <StackPanel Visibility="{x:Bind ViewModel.HasReport, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" Margin="0,12,0,0" Spacing="4">
                         <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock x:Uid="IpReputationScoreLabel" Text="Abuse confidence score:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                            <TextBlock x:Uid="IpReputationScoreLabel" helpers:Loc.Uid="IpReputationScoreLabel" Text="Abuse confidence score:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
                             <TextBlock Text="{x:Bind ViewModel.CurrentReport.AbuseConfidenceScore, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" FontWeight="SemiBold" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock x:Uid="IpReputationReportsLabel" Text="Total reports:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                            <TextBlock x:Uid="IpReputationReportsLabel" helpers:Loc.Uid="IpReputationReportsLabel" Text="Total reports:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
                             <TextBlock Text="{x:Bind ViewModel.CurrentReport.TotalReports, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" FontWeight="SemiBold" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{x:Bind ViewModel.CurrentReport.Isp, Mode=OneWay, Converter={StaticResource NotEmptyToVisibility}}">
-                            <TextBlock x:Uid="IpReputationIspLabel" Text="ISP:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                            <TextBlock x:Uid="IpReputationIspLabel" helpers:Loc.Uid="IpReputationIspLabel" Text="ISP:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
                             <TextBlock Text="{x:Bind ViewModel.CurrentReport.Isp, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" FontWeight="SemiBold" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{x:Bind ViewModel.CurrentReport.CountryName, Mode=OneWay, Converter={StaticResource NotEmptyToVisibility}}">
-                            <TextBlock x:Uid="IpReputationCountryLabel" Text="Country:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                            <TextBlock x:Uid="IpReputationCountryLabel" helpers:Loc.Uid="IpReputationCountryLabel" Text="Country:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
                             <TextBlock Text="{x:Bind ViewModel.CurrentReport.CountryName, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" FontWeight="SemiBold" />
                         </StackPanel>
                     </StackPanel>
@@ -71,7 +72,7 @@
             <!-- History -->
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="IpReputationHistoryLabel" Text="Previous checks" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="IpReputationHistoryLabel" helpers:Loc.Uid="IpReputationHistoryLabel" Text="Previous checks" Style="{StaticResource ValueStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.History}" MinHeight="120" Margin="0,8,0,0">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:IpReputationCheckRecord">
@@ -88,7 +89,7 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshHistoryCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                    <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshHistoryCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
                 </StackPanel>
             </Border>
         </StackPanel>

@@ -6,14 +6,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
     <Page.Resources>
         <converters:BoolToStatusBrushConverter x:Key="BoolToStatusBrush" />
     </Page.Resources>
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleDrivers" Text="Driver Monitor" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleDrivers"
+            <TextBlock x:Uid="TitleDrivers" helpers:Loc.Uid="TitleDrivers" Text="Driver Monitor" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleDrivers" helpers:Loc.Uid="SubtitleDrivers"
                        Text="Real installed device drivers from Windows (WMI), the same inventory Device Manager uses. BECETTI SECURITY has no driver issue database of its own — check Windows Update or the manufacturer's site for updates."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
@@ -40,7 +41,7 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                    <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
                 </StackPanel>
             </Border>
 

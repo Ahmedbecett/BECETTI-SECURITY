@@ -5,14 +5,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
     </Page.Resources>
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleEmergency" Text="Emergency Center" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleEmergency"
+            <TextBlock x:Uid="TitleEmergency" helpers:Loc.Uid="TitleEmergency" Text="Emergency Center" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleEmergency" helpers:Loc.Uid="SubtitleEmergency"
                        Text="A single place for 'something feels wrong' moments — real status, quick access to Windows' own tools, and BECETTI AI for help."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
@@ -26,29 +27,29 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="QuickActionsLabel" Text="Quick actions" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="QuickActionsLabel" helpers:Loc.Uid="QuickActionsLabel" Text="Quick actions" Style="{StaticResource LabelStyle}" />
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
-                        <Button x:Uid="OpenThreatsButton" Content="View Threats" Click="OpenThreats_Click" Style="{StaticResource PrimaryButtonStyle}" />
-                        <Button x:Uid="OpenWindowsSecurityButton" Content="Open Windows Security" Command="{x:Bind ViewModel.OpenWindowsSecurityCommand}" />
-                        <Button x:Uid="OpenBackupSettingsButton" Content="Backup &amp; Recovery" Command="{x:Bind ViewModel.OpenBackupSettingsCommand}" />
-                        <Button x:Uid="AskBecettiAiButton" Content="Ask BECETTI AI" Click="AskBecettiAi_Click" />
+                        <Button x:Uid="OpenThreatsButton" helpers:Loc.Uid="OpenThreatsButton" Content="View Threats" Click="OpenThreats_Click" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="OpenWindowsSecurityButton" helpers:Loc.Uid="OpenWindowsSecurityButton" Content="Open Windows Security" Command="{x:Bind ViewModel.OpenWindowsSecurityCommand}" />
+                        <Button x:Uid="OpenBackupSettingsButton" helpers:Loc.Uid="OpenBackupSettingsButton" Content="Backup &amp; Recovery" Command="{x:Bind ViewModel.OpenBackupSettingsCommand}" />
+                        <Button x:Uid="AskBecettiAiButton" helpers:Loc.Uid="AskBecettiAiButton" Content="Ask BECETTI AI" Click="AskBecettiAi_Click" />
                     </StackPanel>
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="DiagnosticSummaryLabel" Text="Diagnostic summary" Style="{StaticResource LabelStyle}" />
-                    <TextBlock x:Uid="DiagnosticSummaryHint"
+                    <TextBlock x:Uid="DiagnosticSummaryLabel" helpers:Loc.Uid="DiagnosticSummaryLabel" Text="Diagnostic summary" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Uid="DiagnosticSummaryHint" helpers:Loc.Uid="DiagnosticSummaryHint"
                                Text="Builds a plain-text snapshot of your current protection, firewall and PC health state for you to copy — nothing is sent anywhere automatically."
                                Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button x:Uid="GenerateSummaryButton" Content="Generate Summary" Command="{x:Bind ViewModel.GenerateDiagnosticSummaryCommand}" Margin="0,0,0,12" />
+                    <Button x:Uid="GenerateSummaryButton" helpers:Loc.Uid="GenerateSummaryButton" Content="Generate Summary" Command="{x:Bind ViewModel.GenerateDiagnosticSummaryCommand}" Margin="0,0,0,12" />
                     <TextBox Text="{x:Bind ViewModel.DiagnosticSummary, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
                              Height="200" Visibility="{x:Bind ViewModel.HasDiagnosticSummary, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
                 </StackPanel>
             </Border>
 
-            <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" />
+            <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" />
             <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
         </StackPanel>
     </ScrollViewer>

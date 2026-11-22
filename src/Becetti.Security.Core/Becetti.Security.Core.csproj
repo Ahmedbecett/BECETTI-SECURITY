@@ -26,4 +26,17 @@
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Becetti.Security.Core.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Single source of truth for UI strings across en-US, ar-SA, and fr-FR.
+         Embedded directly in Core so LocalizationService resolves live language switches
+         instantly without requiring an app restart or relying on UWP PrimaryLanguageOverride. -->
+    <EmbeddedResource Include="..\Becetti.Security.App\Strings\en-US\Resources.resw" LogicalName="Becetti.Security.Core.Strings.en-US.resw" />
+    <EmbeddedResource Include="..\Becetti.Security.App\Strings\ar-SA\Resources.resw" LogicalName="Becetti.Security.Core.Strings.ar-SA.resw" />
+    <EmbeddedResource Include="..\Becetti.Security.App\Strings\fr-FR\Resources.resw" LogicalName="Becetti.Security.Core.Strings.fr-FR.resw" />
+  </ItemGroup>
+
 </Project>

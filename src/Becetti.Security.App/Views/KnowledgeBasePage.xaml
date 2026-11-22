@@ -5,18 +5,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleKnowledge" Text="Knowledge Base" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleKnowledge"
+            <TextBlock x:Uid="TitleKnowledge" helpers:Loc.Uid="TitleKnowledge" Text="Knowledge Base" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleKnowledge" helpers:Loc.Uid="SubtitleKnowledge"
                        Text="Locally-authored articles explaining the real security features BECETTI SECURITY exposes and general safe-use practices. No network call is made to show this content."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
 
             <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
-                <TextBox x:Uid="KnowledgeSearchBox" PlaceholderText="Search articles..." Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" Width="320" />
-                <Button x:Uid="SearchButton" Content="Search" Command="{x:Bind ViewModel.SearchCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                <TextBox x:Uid="KnowledgeSearchBox" helpers:Loc.Uid="KnowledgeSearchBox" PlaceholderText="Search articles..." Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" Width="320" />
+                <Button x:Uid="SearchButton" helpers:Loc.Uid="SearchButton" Content="Search" Command="{x:Bind ViewModel.SearchCommand}" Style="{StaticResource PrimaryButtonStyle}" />
             </StackPanel>
 
             <ItemsControl ItemsSource="{x:Bind ViewModel.Articles, Mode=OneWay}">

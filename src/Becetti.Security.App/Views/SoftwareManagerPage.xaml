@@ -5,11 +5,12 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleSoftware" Text="Software Manager" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleSoftware"
+            <TextBlock x:Uid="TitleSoftware" helpers:Loc.Uid="TitleSoftware" Text="Software Manager" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleSoftware" helpers:Loc.Uid="SubtitleSoftware"
                        Text="Real installed applications from the Windows registry — the same list Settings &gt; Apps shows. Uninstalling only launches the application's own real uninstaller; nothing is removed directly."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
@@ -29,8 +30,8 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
-                        <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
-                        <Button x:Uid="UninstallButton" Content="Uninstall" Command="{x:Bind ViewModel.UninstallCommand}" IsEnabled="{x:Bind ViewModel.CanUninstallSelected, Mode=OneWay}" />
+                        <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="UninstallButton" helpers:Loc.Uid="UninstallButton" Content="Uninstall" Command="{x:Bind ViewModel.UninstallCommand}" IsEnabled="{x:Bind ViewModel.CanUninstallSelected, Mode=OneWay}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

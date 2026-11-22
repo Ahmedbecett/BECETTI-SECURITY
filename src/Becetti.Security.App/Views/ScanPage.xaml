@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -14,14 +15,14 @@
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleScan" Text="Smart Scan" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleScan" Text="Scans run through Microsoft Defender (MpCmdRun). Results are Defender's own verdicts — BECETTI SECURITY never guesses." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <TextBlock x:Uid="TitleScan" helpers:Loc.Uid="TitleScan" Text="Smart Scan" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleScan" helpers:Loc.Uid="SubtitleScan"
+                       Text="Dual local scanning powered by the built-in Native YARA Engine (VirusTotal/yara x64) and Microsoft Defender (MpCmdRun). Every result is real — never simulated."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
             <ProgressRing IsActive="{x:Bind ViewModel.IsScanning, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
 
-            <!-- Robot mascot, reacting only to the real scan state: idle, actively
-                 scanning (pulsing glow), a verified clean result, or a verified
-                 threat. Never animated to suggest activity that isn't real. -->
+            <!-- Robot mascot reacting only to real scan state -->
             <Border Style="{StaticResource GlassHeroCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -36,43 +37,63 @@
                     </Border>
                 </Grid>
             </Border>
+
+            <!-- Native YARA Engine Quick Scan Card -->
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Quick Scan" Style="{StaticResource ValueStyle}" />
-                    <TextBlock Text="Scans common infection locations. Usually a few minutes." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
-                    <Button Content="Start Quick Scan" Command="{x:Bind ViewModel.QuickScanCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    <TextBlock x:Uid="ScanYaraQuickTitle" helpers:Loc.Uid="ScanYaraQuickTitle" Text="Native YARA Local Scan" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="ScanYaraQuickDesc" helpers:Loc.Uid="ScanYaraQuickDesc"
+                               Text="Runs the built-in official YARA x64 malware engine locally on Downloads, Desktop and Temp using compiled .yar/.yara rules — works even offline or without Defender."
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Uid="YaraQuickLocalScanButton" helpers:Loc.Uid="YaraQuickLocalScanButton"
+                                Content="Quick Local YARA Scan" Command="{x:Bind ViewModel.YaraQuickScanCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="OpenYaraEngineButton" helpers:Loc.Uid="OpenYaraEngineButton"
+                                Content="Open YARA Rules &amp; Engine" Click="OpenYaraEngineButton_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="ScanQuickTitle" helpers:Loc.Uid="ScanQuickTitle" Text="Quick Scan (Microsoft Defender)" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="ScanQuickDesc" helpers:Loc.Uid="ScanQuickDesc" Text="Scans common infection locations. Usually a few minutes." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <Button x:Uid="ScanStartQuickButton" helpers:Loc.Uid="ScanStartQuickButton" Content="Start Quick Scan" Command="{x:Bind ViewModel.QuickScanCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Full Scan" Style="{StaticResource ValueStyle}" />
-                    <TextBlock Text="Scans every drive. Can take a long time." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
-                    <Button Content="Start Full Scan" Command="{x:Bind ViewModel.FullScanCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    <TextBlock x:Uid="ScanFullTitle" helpers:Loc.Uid="ScanFullTitle" Text="Full Scan (Microsoft Defender)" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="ScanFullDesc" helpers:Loc.Uid="ScanFullDesc" Text="Scans every drive. Can take a long time." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <Button x:Uid="ScanStartFullButton" helpers:Loc.Uid="ScanStartFullButton" Content="Start Full Scan" Command="{x:Bind ViewModel.FullScanCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Custom File or Folder Scan" Style="{StaticResource ValueStyle}" />
-                    <TextBlock Text="Choose a file or folder, then scan it with Defender." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <TextBlock x:Uid="ScanCustomTitle" helpers:Loc.Uid="ScanCustomTitle" Text="Custom File or Folder Scan" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="ScanCustomDesc" helpers:Loc.Uid="ScanCustomDesc" Text="Choose a file or folder, then scan it with the Native YARA Engine or Microsoft Defender." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" Text="{x:Bind ViewModel.TargetPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="C:\path\to\file-or-folder" />
-                        <Button Grid.Column="1" Content="Browse..." Click="BrowseButton_Click" />
+                        <Button Grid.Column="1" x:Uid="YaraBrowseFileButton" helpers:Loc.Uid="YaraBrowseFileButton" Content="Browse..." Click="BrowseButton_Click" />
                     </Grid>
-                    <Button Content="Start Custom Scan" Command="{x:Bind ViewModel.CustomScanCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,12,0,0" />
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,12,0,0">
+                        <Button x:Uid="YaraStartScanButton" helpers:Loc.Uid="YaraStartScanButton" Content="Scan with YARA" Command="{x:Bind ViewModel.YaraCustomScanCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="ScanStartCustomButton" helpers:Loc.Uid="ScanStartCustomButton" Content="Scan with Defender" Command="{x:Bind ViewModel.CustomScanCommand}" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Result" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="ThreatIntelResultLabel" helpers:Loc.Uid="ThreatIntelResultLabel" Text="Result" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.ElapsedText, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}"
                                Visibility="{x:Bind ViewModel.IsScanning, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8" />
                     <TextBlock Text="{x:Bind ViewModel.ScanResultText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
-                    <TextBox Text="{x:Bind ViewModel.ScanOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="160" PlaceholderText="Defender output will appear here." />
-                    <Button x:Uid="AskAiAboutScanButton" Content="Ask BECETTI AI to explain this"
+                    <TextBox Text="{x:Bind ViewModel.ScanOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="160" PlaceholderText="Scan output will appear here." />
+                    <Button x:Uid="AskAiAboutScanButton" helpers:Loc.Uid="AskAiAboutScanButton" Content="Ask BECETTI AI to explain this"
                             Click="AskAiAboutScan_Click" Margin="0,12,0,0"
                             Visibility="{x:Bind ViewModel.HasExplainableResult, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
                 </StackPanel>

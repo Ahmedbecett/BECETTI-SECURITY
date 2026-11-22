@@ -4,12 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleGameMode" Text="Game / Performance Mode" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleGameMode"
+            <TextBlock x:Uid="TitleGameMode" helpers:Loc.Uid="TitleGameMode" Text="Game / Performance Mode" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleGameMode" helpers:Loc.Uid="SubtitleGameMode"
                        Text="Switches the real Windows power plan to High performance and turns on Windows' own Game Mode setting while active — the same settings available in Power Options and the Settings app. No invented FPS or performance numbers are shown; Windows exposes none honestly."
                        Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
 
@@ -18,12 +19,12 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="GameModeStatusLabel" Text="Current status" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="GameModeStatusLabel" helpers:Loc.Uid="GameModeStatusLabel" Text="Current status" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.Status.CurrentPowerPlanName, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,0" />
                     <Button Content="{x:Bind ViewModel.ToggleButtonLabel, Mode=OneWay}" Command="{x:Bind ViewModel.ToggleCommand}"
                             Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
                     <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
-                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Margin="0,12,0,0" />
+                    <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
         </StackPanel>

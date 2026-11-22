@@ -42,7 +42,7 @@
   <data name="TitleContact.Text" xml:space="preserve"><value>Contacter Becetti</value></data>
 
   <data name="SubtitleDashboard.Text" xml:space="preserve"><value>État de sécurité vérifié, lu en direct depuis Windows et Microsoft Defender.</value></data>
-  <data name="SubtitleScan.Text" xml:space="preserve"><value>Les analyses s'exécutent via Microsoft Defender (MpCmdRun). Les résultats sont les verdicts de Defender lui-même — BECETTI SECURITY ne devine jamais.</value></data>
+  <data name="SubtitleScan.Text" xml:space="preserve"><value>Double analyse locale propulsée par le moteur YARA natif intégré (VirusTotal/yara x64) et Microsoft Defender (MpCmdRun). Chaque résultat est réel — jamais simulé.</value></data>
   <data name="AskAiAboutScanButton.Content" xml:space="preserve"><value>Demander à BECETTI AI d'expliquer ceci</value></data>
   <data name="SubtitleProtection.Text" xml:space="preserve"><value>État vérifié de Microsoft Defender. Les modifications sont appliquées via Defender et revérifiées avant de signaler un succès.</value></data>
   <data name="SubtitleCloud.Text" xml:space="preserve"><value>Connectez-vous à l'API cloud BECETTI SECURITY pour les vérifications de réputation, les informations de mise à jour et un tableau de bord multi-appareils. Seuls les empreintes de fichiers sont envoyées — jamais les fichiers.</value></data>
@@ -280,4 +280,80 @@
   <data name="TitleGameMode.Text" xml:space="preserve"><value>Mode Jeu / Performance</value></data>
   <data name="SubtitleGameMode.Text" xml:space="preserve"><value>Bascule le véritable plan d'alimentation Windows sur Performances élevées et active le mode Jeu natif de Windows pendant qu'il est actif — les mêmes réglages disponibles dans les Options d'alimentation et l'application Paramètres. Aucun chiffre de performance inventé (FPS, etc.) n'est jamais affiché ; Windows n'en expose aucun de façon honnête.</value></data>
   <data name="GameModeStatusLabel.Text" xml:space="preserve"><value>État actuel</value></data>
+
+  <data name="NavYara.Content" xml:space="preserve"><value>Moteur YARA</value></data>
+  <data name="TitleYara.Text" xml:space="preserve"><value>Moteur anti-malware YARA</value></data>
+  <data name="SubtitleYara.Text" xml:space="preserve"><value>Détection locale réelle propulsée par le moteur officiel open-source YARA x64 (VirusTotal/yara). Les règles sont validées et compilées localement avant l'analyse — jamais simulées.</value></data>
+  <data name="YaraScannerSectionLabel.Text" xml:space="preserve"><value>Analyseur local de fichiers et dossiers</value></data>
+  <data name="YaraScannerSectionNote.Text" xml:space="preserve"><value>Choisissez un fichier ou dossier à analyser localement avec les règles YARA compilées, ou lancez une analyse rapide de Téléchargements, Bureau et Temp.</value></data>
+  <data name="YaraBrowseFileButton.Content" xml:space="preserve"><value>Parcourir un fichier...</value></data>
+  <data name="YaraBrowseFolderButton.Content" xml:space="preserve"><value>Parcourir un dossier...</value></data>
+  <data name="YaraStartScanButton.Content" xml:space="preserve"><value>Analyser avec YARA</value></data>
+  <data name="YaraQuickLocalScanButton.Content" xml:space="preserve"><value>Analyse locale rapide (YARA)</value></data>
+  <data name="YaraCancelScanButton.Content" xml:space="preserve"><value>Annuler</value></data>
+  <data name="YaraResultsSectionLabel.Text" xml:space="preserve"><value>Rapport d'analyse et règles détectées</value></data>
+  <data name="YaraSaveJsonButton.Content" xml:space="preserve"><value>Enregistrer en JSON</value></data>
+  <data name="YaraScanErrorsLabel.Text" xml:space="preserve"><value>Erreurs d'analyse / Fichiers ignorés</value></data>
+  <data name="YaraRulesManagementLabel.Text" xml:space="preserve"><value>Gestion des règles YARA (.yar / .yara)</value></data>
+  <data name="YaraRulesManagementNote.Text" xml:space="preserve"><value>Chaque fichier de règles est validé avec yarac64 avant chargement. Les règles invalides ou obsolètes sont isolées automatiquement sans jamais casser l'analyseur.</value></data>
+  <data name="YaraImportRuleButton.Content" xml:space="preserve"><value>Importer une règle .yar / .yara...</value></data>
+  <data name="YaraRecompileRulesButton.Content" xml:space="preserve"><value>Valider et recompiler tout</value></data>
+  <data name="YaraUpdateRepoLabel.Text" xml:space="preserve"><value>Mettre à jour depuis des dépôts de confiance</value></data>
+  <data name="YaraUpdateRepoNote.Text" xml:space="preserve"><value>Les règles téléchargées sont vérifiées et compilées une par une avec yarac64 avant activation. Toute règle invalide est rejetée en toute sécurité.</value></data>
+  <data name="YaraUpdateFromRepoButton.Content" xml:space="preserve"><value>Mettre à jour</value></data>
+  <data name="YaraDownloadUrlButton.Content" xml:space="preserve"><value>Télécharger et valider</value></data>
+  <data name="YaraLicenseTitle.Text" xml:space="preserve"><value>Licence open-source YARA (BSD-3-Clause)</value></data>
+  <data name="OpenYaraEngineButton.Content" xml:space="preserve"><value>Ouvrir le moteur et les règles YARA</value></data>
+  <data name="ScanYaraQuickTitle.Text" xml:space="preserve"><value>Analyse locale par le moteur YARA natif</value></data>
+  <data name="ScanYaraQuickDesc.Text" xml:space="preserve"><value>Exécute le moteur YARA x64 officiel intégré localement sur Téléchargements, Bureau et Temp — fonctionne même hors ligne ou sans Defender.</value></data>
+  <data name="ScanQuickTitle.Text" xml:space="preserve"><value>Analyse rapide (Microsoft Defender)</value></data>
+  <data name="ScanQuickDesc.Text" xml:space="preserve"><value>Analyse les emplacements d'infection courants. Dure généralement quelques minutes.</value></data>
+  <data name="ScanStartQuickButton.Content" xml:space="preserve"><value>Démarrer l'analyse rapide</value></data>
+  <data name="ScanFullTitle.Text" xml:space="preserve"><value>Analyse complète (Microsoft Defender)</value></data>
+  <data name="ScanFullDesc.Text" xml:space="preserve"><value>Analyse tous les lecteurs. Peut prendre beaucoup de temps.</value></data>
+  <data name="ScanStartFullButton.Content" xml:space="preserve"><value>Démarrer l'analyse complète</value></data>
+  <data name="ScanCustomTitle.Text" xml:space="preserve"><value>Analyse personnalisée d'un fichier ou dossier</value></data>
+  <data name="ScanCustomDesc.Text" xml:space="preserve"><value>Choisissez un fichier ou dossier, puis analysez-le avec le moteur YARA natif ou Microsoft Defender.</value></data>
+  <data name="ScanStartCustomButton.Content" xml:space="preserve"><value>Analyser avec Defender</value></data>
+  <data name="SettingsLanguageTitle.Text" xml:space="preserve"><value>Langue / Language / اللغة</value></data>
+  <data name="SettingsLanguageHint.Text" xml:space="preserve"><value>Les changements de langue s'appliquent immédiatement dans BECETTI SECURITY et sont enregistrés automatiquement.</value></data>
+  <data name="SettingsLanguageApplied" xml:space="preserve"><value>Langue mise à jour immédiatement.</value></data>
+  <data name="SettingsSavedMessage" xml:space="preserve"><value>Paramètres enregistrés.</value></data>
+  <data name="SettingsCloudApiTitle.Text" xml:space="preserve"><value>URL de l'API Cloud</value></data>
+  <data name="SettingsCloudApiHint.Text" xml:space="preserve"><value>Laissez vide pour désactiver le cloud. L'application n'invente jamais de données cloud.</value></data>
+  <data name="SettingsTelemetryTitle.Text" xml:space="preserve"><value>Télémétrie</value></data>
+  <data name="SettingsTelemetryHint.Text" xml:space="preserve"><value>Désactivée par défaut. BECETTI SECURITY ne collecte aucune télémétrie sans votre accord.</value></data>
+  <data name="SettingsTelemetryToggle.Header" xml:space="preserve"><value>Autoriser la télémétrie</value></data>
+  <data name="SettingsFeedbackTitle.Text" xml:space="preserve"><value>Retours et alertes</value></data>
+  <data name="SettingsFeedbackHint.Text" xml:space="preserve"><value>Les animations sont purement décoratives. Les sons ne jouent que lors d'actions réellement terminées ou échouées.</value></data>
+  <data name="SettingsAiHint.Text" xml:space="preserve"><value>L'assistant IA communique uniquement avec le serveur BECETTI AI ci-dessous — la clé API n'est jamais stockée dans l'application.</value></data>
+  <data name="SettingsContactHint.Text" xml:space="preserve"><value>Adresse utilisée pour préremplir le brouillon d'assistance dans la page Contacter Becetti.</value></data>
+  <data name="SettingsSaveButton.Content" xml:space="preserve"><value>Enregistrer les paramètres</value></data>
+  <data name="SettingsTestConnectionButton.Content" xml:space="preserve"><value>Tester la connexion Cloud</value></data>
+  <data name="AiInputBox.PlaceholderText" xml:space="preserve"><value>Demandez à BECETTI AI…</value></data>
+  <data name="AiSendButton.Content" xml:space="preserve"><value>Envoyer</value></data>
+  <data name="AiClearButton.Content" xml:space="preserve"><value>Effacer</value></data>
+  <data name="DashAntivirusLabel.Text" xml:space="preserve"><value>Antivirus</value></data>
+  <data name="DashRealTimeLabel.Text" xml:space="preserve"><value>Protection en temps réel</value></data>
+  <data name="DashFirewallLabel.Text" xml:space="preserve"><value>Pare-feu</value></data>
+  <data name="DashSignatureLabel.Text" xml:space="preserve"><value>Intelligence de sécurité</value></data>
+  <data name="DashDeviceLabel.Text" xml:space="preserve"><value>Appareil</value></data>
+  <data name="DashCloudLabel.Text" xml:space="preserve"><value>Connexion Cloud</value></data>
+  <data name="DashLastScanLabel.Text" xml:space="preserve"><value>Dernière analyse vérifiée</value></data>
+  <data name="DashAppVersionLabel.Text" xml:space="preserve"><value>Version de l'application</value></data>
+  <data name="HeaderHelpToolTip" xml:space="preserve"><value>Aide</value></data>
+  <data name="CloseButton" xml:space="preserve"><value>Fermer</value></data>
+  <data name="HelpDialogTitle" xml:space="preserve"><value>BECETTI SECURITY — Aide</value></data>
+  <data name="HelpDialogBody" xml:space="preserve"><value>BECETTI SECURITY combine le moteur local natif YARA (VirusTotal/yara x64) et Microsoft Defender :
+
+• Le moteur YARA exécute des règles .yar / .yara compilées localement, valide chaque règle via yarac64 avant chargement, isole les règles invalides et prend en charge les mises à jour depuis des dépôts fiables.
+• L'analyse intelligente combine YARA local et Microsoft Defender (MpCmdRun.exe).
+• BECETTI AI explique les rapports d'analyse réels et vous guide dans l'application.
+
+BECETTI SECURITY ne simule jamais de détections.</value></data>
+  <data name="FooterProtected" xml:space="preserve"><value>Protégé — Microsoft Defender actif</value></data>
+  <data name="FooterWarning" xml:space="preserve"><value>Attention requise — voir Protection en temps réel</value></data>
+  <data name="FooterDanger" xml:space="preserve"><value>À risque — l'antivirus Defender est désactivé</value></data>
+  <data name="FooterYaraReady" xml:space="preserve"><value>Moteur YARA natif prêt</value></data>
+  <data name="FooterUnknown" xml:space="preserve"><value>État de protection inconnu — impossible à vérifier</value></data>
 </root>

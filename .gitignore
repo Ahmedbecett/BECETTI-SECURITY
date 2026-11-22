@@ -44,3 +44,8 @@ logs/
 __pycache__/
 *.pyc
 *.pyo
+
+# Native YARA binaries built by scripts/build-yara-win64.ps1 (reproduced in CI)
+src/Becetti.Security.App/Native/yara/win-x64/*.exe
+src/Becetti.Security.App/Native/yara/win-x64/yara-build-info.json
+src/Becetti.Security.App/Native/yara/win-x64/COPYING
