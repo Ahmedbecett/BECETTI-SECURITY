@@ -6,7 +6,7 @@ namespace Becetti.Security.Core.Services;
 
 public interface IPasswordBreachService
 {
-    Task<OperationResult<PasswordBreachReport>> CheckPasswordAsync(string password, bool queryHibp = true, CancellationToken ct = default);
+    Task<OperationResult<PasswordStrengthBreachResult>> CheckPasswordAsync(string password, bool queryHibp = true, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -24,10 +24,10 @@ public sealed class PasswordBreachService : IPasswordBreachService
         _http = http;
     }
 
-    public async Task<OperationResult<PasswordBreachReport>> CheckPasswordAsync(string password, bool queryHibp = true, CancellationToken ct = default)
+    public async Task<OperationResult<PasswordStrengthBreachResult>> CheckPasswordAsync(string password, bool queryHibp = true, CancellationToken ct = default)
     {
         if (string.IsNullOrEmpty(password))
-            return OperationResult<PasswordBreachReport>.Fail("Enter a password to evaluate.", "EMPTY_PASSWORD");
+            return OperationResult<PasswordStrengthBreachResult>.Fail("Enter a password to evaluate.", "EMPTY_PASSWORD");
 
         double entropy = ComputeEntropyBits(password);
         string rating = entropy switch
@@ -91,7 +91,7 @@ public sealed class PasswordBreachService : IPasswordBreachService
             advice = $"Local strength: {rating} ({entropy:F1} bits). Online breach lookup was offline/unavailable.";
         }
 
-        var report = new PasswordBreachReport
+        var report = new PasswordStrengthBreachResult
         {
             Length = password.Length,
             EntropyBits = Math.Round(entropy, 1),
@@ -103,7 +103,7 @@ public sealed class PasswordBreachService : IPasswordBreachService
             Advice = advice
         };
 
-        return OperationResult<PasswordBreachReport>.Ok(report, advice);
+        return OperationResult<PasswordStrengthBreachResult>.Ok(report, advice);
     }
 
     internal static double ComputeEntropyBits(string password)

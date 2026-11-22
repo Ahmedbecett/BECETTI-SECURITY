@@ -53,7 +53,7 @@ public sealed class SoftwareUpdateAuditReport
 
 // ── Feature #4: Wi-Fi Security & ARP Spoofing / MITM Detector ────────────────────
 
-public sealed class WifiSecurityInfo
+public sealed class WifiArpConnectionInfo
 {
     public bool IsConnected { get; init; }
     public string InterfaceName { get; init; } = string.Empty;
@@ -81,7 +81,7 @@ public sealed class ArpEntryInfo
 public sealed class WifiArpAuditReport
 {
     public DateTimeOffset AuditedAt { get; init; } = DateTimeOffset.UtcNow;
-    public WifiSecurityInfo Wifi { get; init; } = new();
+    public WifiArpConnectionInfo Wifi { get; init; } = new();
     public string DefaultGatewayIp { get; init; } = string.Empty;
     public string DefaultGatewayMac { get; init; } = string.Empty;
     public bool ArpSpoofingSuspected { get; init; }
@@ -130,7 +130,7 @@ public sealed class FileShredReport
 
 // ── Feature #7: k-Anonymity Password Breach & Strength Checker ───────────────────
 
-public sealed class PasswordBreachReport
+public sealed class PasswordStrengthBreachResult
 {
     public int Length { get; init; }
     public double EntropyBits { get; init; }

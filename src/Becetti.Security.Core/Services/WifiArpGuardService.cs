@@ -76,10 +76,10 @@ public sealed class WifiArpGuardService : IWifiArpGuardService
         return OperationResult<WifiArpAuditReport>.Ok(report, msg);
     }
 
-    internal static WifiSecurityInfo ParseWlanInterfacesOutput(string output)
+    internal static WifiArpConnectionInfo ParseWlanInterfacesOutput(string output)
     {
         if (string.IsNullOrWhiteSpace(output))
-            return new WifiSecurityInfo { IsConnected = false, RiskLevel = "Low", RiskReason = "No active Wi-Fi interface detected." };
+            return new WifiArpConnectionInfo { IsConnected = false, RiskLevel = "Low", RiskReason = "No active Wi-Fi interface detected." };
 
         string GetField(string prefix)
         {
@@ -99,7 +99,7 @@ public sealed class WifiArpGuardService : IWifiArpGuardService
         var state = GetField("State");
         bool connected = state.Equals("connected", StringComparison.OrdinalIgnoreCase);
         if (!connected)
-            return new WifiSecurityInfo { IsConnected = false, RiskLevel = "Low", RiskReason = "Not connected to a Wi-Fi network (wired Ethernet or Wi-Fi off)." };
+            return new WifiArpConnectionInfo { IsConnected = false, RiskLevel = "Low", RiskReason = "Not connected to a Wi-Fi network (wired Ethernet or Wi-Fi off)." };
 
         var iface = GetField("Name");
         var ssid = GetField("SSID");
@@ -135,7 +135,7 @@ public sealed class WifiArpGuardService : IWifiArpGuardService
             reason = "Strong modern WPA3 wireless encryption active.";
         }
 
-        return new WifiSecurityInfo
+        return new WifiArpConnectionInfo
         {
             IsConnected = true,
             InterfaceName = iface,
@@ -242,7 +242,7 @@ public sealed class WifiArpGuardService : IWifiArpGuardService
         return string.Empty;
     }
 
-    private static async Task<WifiSecurityInfo> ReadWifiSecurityAsync(CancellationToken ct)
+    private static async Task<WifiArpConnectionInfo> ReadWifiSecurityAsync(CancellationToken ct)
     {
         try
         {
@@ -251,7 +251,7 @@ public sealed class WifiArpGuardService : IWifiArpGuardService
         }
         catch
         {
-            return new WifiSecurityInfo { IsConnected = false, RiskLevel = "Low", RiskReason = "WLAN service not running or no Wi-Fi adapter." };
+            return new WifiArpConnectionInfo { IsConnected = false, RiskLevel = "Low", RiskReason = "WLAN service not running or no Wi-Fi adapter." };
         }
     }
 
