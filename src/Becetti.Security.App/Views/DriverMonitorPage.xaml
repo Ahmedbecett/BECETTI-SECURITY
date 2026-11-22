@@ -1,0 +1,50 @@
+<Page
+    x:Class="Becetti.Security.App.Views.DriverMonitorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:converters="using:Becetti.Security.App.Converters"
+    mc:Ignorable="d">
+    <Page.Resources>
+        <converters:BoolToStatusBrushConverter x:Key="BoolToStatusBrush" />
+    </Page.Resources>
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleDrivers" Text="Driver Monitor" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleDrivers"
+                       Text="Real installed device drivers from Windows (WMI), the same inventory Device Manager uses. BECETTI SECURITY has no driver issue database of its own — check Windows Update or the manufacturer's site for updates."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <ListView ItemsSource="{x:Bind ViewModel.Drivers, Mode=OneWay}" MinHeight="280">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:DriverInfo">
+                                <Grid Margin="0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Ellipse Grid.Column="0" Width="10" Height="10" Margin="0,4,12,0" VerticalAlignment="Top"
+                                             Fill="{x:Bind IsSigned, Converter={StaticResource BoolToStatusBrush}}" />
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{x:Bind DeviceName}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                                        <TextBlock Text="{x:Bind Manufacturer}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                                        <TextBlock Text="{x:Bind DriverVersion}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

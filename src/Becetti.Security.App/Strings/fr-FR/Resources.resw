@@ -65,6 +65,9 @@
 
   <data name="NavRansomware.Content" xml:space="preserve"><value>Protection anti-rançongiciel</value></data>
   <data name="NavPcHealth.Content" xml:space="preserve"><value>Santé intelligente du PC</value></data>
+  <data name="NavStartup.Content" xml:space="preserve"><value>Gestionnaire de démarrage</value></data>
+  <data name="NavSoftware.Content" xml:space="preserve"><value>Gestionnaire de logiciels</value></data>
+  <data name="NavDrivers.Content" xml:space="preserve"><value>Surveillance des pilotes</value></data>
 
   <data name="TitleRansomware.Text" xml:space="preserve"><value>Protection anti-rançongiciel</value></data>
   <data name="SubtitleRansomware.Text" xml:space="preserve"><value>La fonction Accès contrôlé aux dossiers (Exploit Guard) de Microsoft Defender lui-même. BECETTI SECURITY ne fait que lire et expliquer cette fonctionnalité Windows réelle — il n'exécute jamais son propre moteur anti-rançongiciel.</value></data>
@@ -84,4 +87,18 @@
   <data name="EssentialServicesLabel.Text" xml:space="preserve"><value>Services essentiels</value></data>
 
   <data name="SecurityScoreTitle.Text" xml:space="preserve"><value>Score de sécurité</value></data>
+
+  <data name="RefreshButton.Content" xml:space="preserve"><value>Actualiser</value></data>
+  <data name="UninstallButton.Content" xml:space="preserve"><value>Désinstaller</value></data>
+  <data name="AdminRequiredInfoBar.Title" xml:space="preserve"><value>Droits administrateur requis</value></data>
+  <data name="AdminRequiredInfoBar.Message" xml:space="preserve"><value>La modification de cet élément de démarrage nécessite des droits administrateur. Redémarrez BECETTI SECURITY en tant qu'administrateur depuis les paramètres.</value></data>
+
+  <data name="TitleStartup.Text" xml:space="preserve"><value>Gestionnaire de démarrage</value></data>
+  <data name="SubtitleStartup.Text" xml:space="preserve"><value>Éléments de démarrage réels issus du registre — la même clé Run et la même convention que le Gestionnaire des tâches de Windows. Aucun score d'impact sur les performances n'est inventé : Windows n'en expose aucun via une API publique stable.</value></data>
+
+  <data name="TitleSoftware.Text" xml:space="preserve"><value>Gestionnaire de logiciels</value></data>
+  <data name="SubtitleSoftware.Text" xml:space="preserve"><value>Applications réellement installées, lues depuis le registre Windows — la même liste que Paramètres &gt; Applications. La désinstallation se contente de lancer le propre désinstallateur de l'application ; rien n'est supprimé directement.</value></data>
+
+  <data name="TitleDrivers.Text" xml:space="preserve"><value>Surveillance des pilotes</value></data>
+  <data name="SubtitleDrivers.Text" xml:space="preserve"><value>Pilotes de périphériques réellement installés, lus depuis Windows (WMI) — le même inventaire que le Gestionnaire de périphériques. BECETTI SECURITY ne dispose d'aucune base de données de problèmes de pilotes ; consultez Windows Update ou le site du fabricant pour les mises à jour.</value></data>
 </root>

@@ -20,6 +20,10 @@
          Guarded at runtime with OperatingSystem.IsWindows(); this project targets plain
          net8.0 so the type is not part of the default reference assemblies. -->
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
+    <!-- Real device driver inventory (Win32_PnPSignedDriver) for Driver Monitor, via the
+         official WMI client API. Guarded with OperatingSystem.IsWindows(); this project
+         targets plain net8.0 so the type is not part of the default reference assemblies. -->
+    <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
 </Project>

@@ -65,6 +65,9 @@
 
   <data name="NavRansomware.Content" xml:space="preserve"><value>Ransomware Defense</value></data>
   <data name="NavPcHealth.Content" xml:space="preserve"><value>Smart PC Health</value></data>
+  <data name="NavStartup.Content" xml:space="preserve"><value>Startup Manager</value></data>
+  <data name="NavSoftware.Content" xml:space="preserve"><value>Software Manager</value></data>
+  <data name="NavDrivers.Content" xml:space="preserve"><value>Driver Monitor</value></data>
 
   <data name="TitleRansomware.Text" xml:space="preserve"><value>Ransomware Defense</value></data>
   <data name="SubtitleRansomware.Text" xml:space="preserve"><value>Microsoft Defender's own Controlled Folder Access (Exploit Guard). BECETTI SECURITY only reads and explains this real Windows feature — it never runs its own ransomware engine.</value></data>
@@ -84,4 +87,18 @@
   <data name="EssentialServicesLabel.Text" xml:space="preserve"><value>Essential services</value></data>
 
   <data name="SecurityScoreTitle.Text" xml:space="preserve"><value>Security Score</value></data>
+
+  <data name="RefreshButton.Content" xml:space="preserve"><value>Refresh</value></data>
+  <data name="UninstallButton.Content" xml:space="preserve"><value>Uninstall</value></data>
+  <data name="AdminRequiredInfoBar.Title" xml:space="preserve"><value>Administrator required</value></data>
+  <data name="AdminRequiredInfoBar.Message" xml:space="preserve"><value>Changing this startup item requires an administrator. Restart BECETTI SECURITY as administrator from Settings.</value></data>
+
+  <data name="TitleStartup.Text" xml:space="preserve"><value>Startup Manager</value></data>
+  <data name="SubtitleStartup.Text" xml:space="preserve"><value>Real registry startup entries — the same Run-key and Task Manager convention Windows itself uses. No performance impact score is invented: Windows does not expose one through any stable API.</value></data>
+
+  <data name="TitleSoftware.Text" xml:space="preserve"><value>Software Manager</value></data>
+  <data name="SubtitleSoftware.Text" xml:space="preserve"><value>Real installed applications from the Windows registry — the same list Settings &gt; Apps shows. Uninstalling only launches the application's own real uninstaller; nothing is removed directly.</value></data>
+
+  <data name="TitleDrivers.Text" xml:space="preserve"><value>Driver Monitor</value></data>
+  <data name="SubtitleDrivers.Text" xml:space="preserve"><value>Real installed device drivers from Windows (WMI), the same inventory Device Manager uses. BECETTI SECURITY has no driver issue database of its own — check Windows Update or the manufacturer's site for updates.</value></data>
 </root>

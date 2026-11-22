@@ -1,0 +1,41 @@
+<Page
+    x:Class="Becetti.Security.App.Views.SoftwareManagerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    mc:Ignorable="d">
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleSoftware" Text="Software Manager" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleSoftware"
+                       Text="Real installed applications from the Windows registry — the same list Settings &gt; Apps shows. Uninstalling only launches the application's own real uninstaller; nothing is removed directly."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <ListView ItemsSource="{x:Bind ViewModel.Apps, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedApp, Mode=TwoWay}" MinHeight="240">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:InstalledAppInfo">
+                                <StackPanel Margin="0,8">
+                                    <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                                    <TextBlock Text="{x:Bind Version}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                                    <TextBlock Text="{x:Bind Publisher}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
+                        <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="UninstallButton" Content="Uninstall" Command="{x:Bind ViewModel.UninstallCommand}" IsEnabled="{x:Bind ViewModel.CanUninstallSelected, Mode=OneWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

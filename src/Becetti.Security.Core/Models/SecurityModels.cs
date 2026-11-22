@@ -290,3 +290,56 @@ public sealed class UpdateCheckResult
     public string? ReleaseNotes { get; init; }
     public string? StoreUrl { get; init; }
 }
+
+/// <summary>
+/// One real registry-based startup entry — the same Run-key + StartupApproved
+/// model Windows Task Manager's own "Startup apps" tab reads and writes.
+/// BECETTI SECURITY does not invent a "performance impact" score here: Windows
+/// does not expose that through any stable public API outside Task Manager's
+/// own ETW boot trace, so this only ever reports what can be verified (name,
+/// command, location, and real enabled/disabled state).
+/// </summary>
+public sealed class StartupItemInfo
+{
+    public string Name { get; init; } = string.Empty;
+    public string Command { get; init; } = string.Empty;
+    /// <summary>Human-readable origin, e.g. "This user" or "All users".</summary>
+    public string LocationDisplay { get; init; } = string.Empty;
+    /// <summary>Internal routing key ("HKCU", "HKLM", "HKLM32") used only to resolve the registry path when toggling — not meant for display.</summary>
+    public string LocationKey { get; init; } = string.Empty;
+    public bool IsEnabled { get; init; }
+    /// <summary>True for HKLM-based entries, which need an administrator to change.</summary>
+    public bool RequiresElevationToChange { get; init; }
+}
+
+/// <summary>
+/// One application from the real Windows "installed programs" registry
+/// inventory (the same source Settings &gt; Apps reads). Uninstalling always
+/// launches the program's own real uninstaller — BECETTI SECURITY never
+/// removes files itself or bypasses that confirmation step.
+/// </summary>
+public sealed class InstalledAppInfo
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Version { get; init; }
+    public string? Publisher { get; init; }
+    public DateTimeOffset? InstallDate { get; init; }
+    public string? UninstallCommand { get; init; }
+    public bool CanUninstall => !string.IsNullOrWhiteSpace(UninstallCommand);
+}
+
+/// <summary>
+/// One installed device driver from WMI's real Win32_PnPSignedDriver class —
+/// the same inventory Device Manager is built on. No "known issue" database
+/// is attached: BECETTI SECURITY has none of its own, so it only ever points
+/// the user to Windows Update / the manufacturer as the official source.
+/// </summary>
+public sealed class DriverInfo
+{
+    public string DeviceName { get; init; } = string.Empty;
+    public string? DeviceClass { get; init; }
+    public string? Manufacturer { get; init; }
+    public string? DriverVersion { get; init; }
+    public DateTimeOffset? DriverDate { get; init; }
+    public bool IsSigned { get; init; }
+}

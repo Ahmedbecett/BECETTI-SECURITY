@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Globalization;
-using System.Security.Principal;
 using System.Text.Json;
 using Becetti.Security.Core.Models;
 
@@ -99,15 +98,7 @@ public sealed class DefenderService : IDefenderService
         return Version.TryParse(versionPart, out var version) ? version : new Version(0, 0, 0, 0);
     }
 
-    public bool IsElevated()
-    {
-        if (!OperatingSystem.IsWindows())
-            return false;
-
-        using var identity = WindowsIdentity.GetCurrent();
-        var principal = new WindowsPrincipal(identity);
-        return principal.IsInRole(WindowsBuiltInRole.Administrator);
-    }
+    public bool IsElevated() => ElevationHelper.IsElevated();
 
     public OperationResult RestartElevated()
     {

@@ -30,6 +30,9 @@ public partial class App : Application
         services.AddSingleton<IDefenderService, DefenderService>();
         services.AddSingleton<ISystemInfoService, SystemInfoService>();
         services.AddSingleton<IPcHealthService, PcHealthService>();
+        services.AddSingleton<IStartupManagerService, StartupManagerService>();
+        services.AddSingleton<ISoftwareManagerService, SoftwareManagerService>();
+        services.AddSingleton<IDriverMonitorService, DriverMonitorService>();
         services.AddSingleton<IEventLogService, EventLogService>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
@@ -51,6 +54,9 @@ public partial class App : Application
         services.AddTransient<ContactViewModel>();
         services.AddTransient<RansomwareViewModel>();
         services.AddTransient<PcHealthViewModel>();
+        services.AddTransient<StartupManagerViewModel>();
+        services.AddTransient<SoftwareManagerViewModel>();
+        services.AddTransient<DriverMonitorViewModel>();
 
         Services = services.BuildServiceProvider();
 

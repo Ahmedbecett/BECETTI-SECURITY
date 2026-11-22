@@ -65,6 +65,9 @@
 
   <data name="NavRansomware.Content" xml:space="preserve"><value>حماية الفدية</value></data>
   <data name="NavPcHealth.Content" xml:space="preserve"><value>صحة الجهاز الذكية</value></data>
+  <data name="NavStartup.Content" xml:space="preserve"><value>إدارة بدء التشغيل</value></data>
+  <data name="NavSoftware.Content" xml:space="preserve"><value>إدارة البرامج</value></data>
+  <data name="NavDrivers.Content" xml:space="preserve"><value>مراقبة التعريفات</value></data>
 
   <data name="TitleRansomware.Text" xml:space="preserve"><value>حماية الفدية</value></data>
   <data name="SubtitleRansomware.Text" xml:space="preserve"><value>ميزة Controlled Folder Access (Exploit Guard) الخاصة بـ Microsoft Defender نفسه. يقرأ BECETTI SECURITY ويشرح هذه الميزة الحقيقية فقط — ولا يشغّل محرك حماية فدية خاصًا به أبدًا.</value></data>
@@ -84,4 +87,18 @@
   <data name="EssentialServicesLabel.Text" xml:space="preserve"><value>الخدمات الأساسية</value></data>
 
   <data name="SecurityScoreTitle.Text" xml:space="preserve"><value>تقييم الأمان</value></data>
+
+  <data name="RefreshButton.Content" xml:space="preserve"><value>تحديث</value></data>
+  <data name="UninstallButton.Content" xml:space="preserve"><value>إلغاء التثبيت</value></data>
+  <data name="AdminRequiredInfoBar.Title" xml:space="preserve"><value>مطلوب صلاحية المسؤول</value></data>
+  <data name="AdminRequiredInfoBar.Message" xml:space="preserve"><value>تغيير عنصر بدء التشغيل هذا يتطلب صلاحية المسؤول. أعد تشغيل BECETTI SECURITY كمسؤول من الإعدادات.</value></data>
+
+  <data name="TitleStartup.Text" xml:space="preserve"><value>إدارة بدء التشغيل</value></data>
+  <data name="SubtitleStartup.Text" xml:space="preserve"><value>عناصر بدء تشغيل حقيقية من السجل — نفس مفتاح Run وآلية مدير المهام التي يستخدمها Windows نفسه. لا يتم اختراع أي تقييم لتأثير الأداء، لأن Windows لا يوفر ذلك عبر أي واجهة برمجية ثابتة.</value></data>
+
+  <data name="TitleSoftware.Text" xml:space="preserve"><value>إدارة البرامج</value></data>
+  <data name="SubtitleSoftware.Text" xml:space="preserve"><value>تطبيقات مثبتة حقيقية من سجل Windows — نفس القائمة التي تعرضها الإعدادات &gt; التطبيقات. إلغاء التثبيت يكتفي بتشغيل أداة إلغاء التثبيت الخاصة بالتطبيق نفسه؛ لا يتم حذف أي شيء مباشرة.</value></data>
+
+  <data name="TitleDrivers.Text" xml:space="preserve"><value>مراقبة التعريفات</value></data>
+  <data name="SubtitleDrivers.Text" xml:space="preserve"><value>تعريفات أجهزة حقيقية مثبتة من Windows (WMI)، نفس القائمة التي يعتمد عليها إدارة الأجهزة. لا تملك BECETTI SECURITY قاعدة بيانات لمشاكل التعريفات — تحقق من Windows Update أو موقع الشركة المصنّعة للحصول على التحديثات.</value></data>
 </root>
