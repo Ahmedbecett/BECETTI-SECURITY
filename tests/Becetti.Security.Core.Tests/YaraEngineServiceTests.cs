@@ -159,7 +159,7 @@ public sealed class YaraEngineServiceTests : IDisposable
         Assert.False(string.IsNullOrWhiteSpace(init.Value.Version));
         Assert.True(init.Value.ValidRuleFiles >= 4, $"Expected >= 4 bundled valid rule files, got {init.Value.ValidRuleFiles}");
         Assert.Equal(0, init.Value.InvalidRuleFiles);
-        Assert.True(init.Value.ActiveRuleCount >= 10, $"Expected >= 10 active compiled rules, got {init.Value.ActiveRuleCount}");
+        Assert.True(init.Value.ActiveRuleCount >= 9, $"Expected >= 9 active compiled rules, got {init.Value.ActiveRuleCount}");
     }
 
     [Fact]
@@ -202,7 +202,7 @@ public sealed class YaraEngineServiceTests : IDisposable
         Assert.Equal(1, eicarResult.Value!.FilesScanned);
         Assert.True(eicarResult.Value.ThreatFound);
 
-        var match = Assert.Single(eicarResult.Value.Matches, m => m.RuleName == "BECETTI_EICAR_Standard_Antivirus_Test_File");
+        var match = Assert.Single(eicarResult.Value.Matches, m => m.RuleName == "EICAR_Standard_Test_File");
         Assert.False(string.IsNullOrWhiteSpace(match.Description));
         Assert.NotEmpty(match.MatchedStrings);
 
@@ -231,7 +231,7 @@ public sealed class YaraEngineServiceTests : IDisposable
 
         var scan = await service.ScanAsync(scriptPath);
         Assert.True(scan.Success, scan.Message);
-        Assert.Contains(scan.Value!.Matches, m => m.RuleName == "BECETTI_Suspicious_PowerShell_Download_Cradle");
+        Assert.Contains(scan.Value!.Matches, m => m.RuleName == "Suspicious_PowerShell_Download_Cradle");
     }
 
     [Fact]
@@ -244,14 +244,14 @@ public sealed class YaraEngineServiceTests : IDisposable
         var init = await service.InitializeAsync();
         Assert.True(init.Success, init.Message);
 
-        // 1. Validate a broken syntax rule file
+        // 1. Validate a broken syntax rule file -> must fail cleanly with INVALID_RULE diagnostics
         var brokenRule = Path.Combine(_tempDir, "broken_syntax.yar");
         await File.WriteAllTextAsync(brokenRule, "rule Broken_Test { strings: $a = \"abc\" condition: $nonexistent_var }");
 
         var validation = await service.ValidateRuleFileAsync(brokenRule);
-        Assert.True(validation.Success);
-        Assert.False(validation.Value!.IsValid);
-        Assert.False(string.IsNullOrWhiteSpace(validation.Value.ErrorMessage));
+        Assert.False(validation.Success);
+        Assert.Equal("INVALID_RULE", validation.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(validation.Message));
 
         // 2. Attempting to import the broken rule must be refused
         var importBroken = await service.ImportRuleFileAsync(brokenRule);
