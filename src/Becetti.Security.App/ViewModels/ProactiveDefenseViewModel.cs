@@ -326,7 +326,7 @@ public sealed class ProactiveDefenseViewModel : ViewModelBase
         NotifyCommandStates();
         try
         {
-            var res = await _yara.ScanAsync(SelectedDll.FilePath, recursive: false);
+            var res = await _yara.ScanAsync(SelectedDll.FilePath);
             if (!res.Success || res.Value is null) { ErrorMessage = res.Message; return; }
             StatusMessage = res.Value.Matches.Count == 0
                 ? $"YARA Scan Clean: 0 rule matches in {SelectedDll.ModuleName}."

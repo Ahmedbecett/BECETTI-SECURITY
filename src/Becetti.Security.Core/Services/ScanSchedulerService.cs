@@ -119,7 +119,7 @@ public sealed class ScanSchedulerService : IScanSchedulerService
             var downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
             if (Directory.Exists(downloads))
             {
-                var yaraRes = await _yara.ScanAsync(downloads, recursive: false, ct: ct).ConfigureAwait(false);
+                var yaraRes = await _yara.ScanAsync(downloads, progress: null, ct: ct).ConfigureAwait(false);
                 if (yaraRes.Success && yaraRes.Value is not null)
                     yaraThreats = yaraRes.Value.Matches.Count;
             }
@@ -178,8 +178,6 @@ public sealed class ScanSchedulerService : IScanSchedulerService
                 MinimizeToTrayOnClose = s.MinimizeToTrayOnClose,
                 ScheduledScanEnabled = s.ScheduledScanEnabled,
                 ScheduledScanIntervalHours = s.ScheduledScanIntervalHours,
-                YaraAutoUpdateEnabled = s.YaraAutoUpdateEnabled,
-                YaraAutoUpdateIntervalHours = s.YaraAutoUpdateIntervalHours,
                 CriticalAlertNotificationsEnabled = s.CriticalAlertNotificationsEnabled
             };
 
@@ -217,8 +215,6 @@ public sealed class ScanSchedulerService : IScanSchedulerService
             s.MinimizeToTrayOnClose = policy.MinimizeToTrayOnClose;
             s.ScheduledScanEnabled = policy.ScheduledScanEnabled;
             s.ScheduledScanIntervalHours = Math.Clamp(policy.ScheduledScanIntervalHours, 1, 720);
-            s.YaraAutoUpdateEnabled = policy.YaraAutoUpdateEnabled;
-            s.YaraAutoUpdateIntervalHours = Math.Clamp(policy.YaraAutoUpdateIntervalHours, 1, 168);
             s.CriticalAlertNotificationsEnabled = policy.CriticalAlertNotificationsEnabled;
 
             await _settings.SaveAsync(ct).ConfigureAwait(false);
@@ -248,8 +244,6 @@ public sealed class ScanSchedulerService : IScanSchedulerService
         public bool MinimizeToTrayOnClose { get; set; }
         public bool ScheduledScanEnabled { get; set; }
         public int ScheduledScanIntervalHours { get; set; } = 24;
-        public bool YaraAutoUpdateEnabled { get; set; }
-        public int YaraAutoUpdateIntervalHours { get; set; } = 24;
         public bool CriticalAlertNotificationsEnabled { get; set; } = true;
     }
 }
