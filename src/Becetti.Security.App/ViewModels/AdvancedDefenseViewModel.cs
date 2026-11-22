@@ -85,15 +85,15 @@ public sealed class AdvancedDefenseViewModel : ViewModelBase
         RefreshQuarantineCommand = new RelayCommand(RefreshQuarantineAsync);
         ScanAllProcessesCommand = new RelayCommand(ScanAllProcessesAsync, () => !IsScanningProcesses);
         ScanSinglePidCommand = new RelayCommand(ScanSinglePidAsync, () => !IsScanningProcesses && int.TryParse(TargetPidText.Trim(), out var pid) && pid > 4);
-        CancelProcessScanCommand = new RelayCommand(CancelProcessScan, () => IsScanningProcesses);
+        CancelProcessScanCommand = new RelayCommand(() => { CancelProcessScan(); return Task.CompletedTask; }, () => IsScanningProcesses);
         AnalyzeForensicsCommand = new RelayCommand(AnalyzeForensicsAsync, () => !string.IsNullOrWhiteSpace(ForensicsFilePath));
-        InvestigateForensicsWithAiCommand = new RelayCommand(InvestigateForensicsWithAi, () => CurrentForensics is not null);
+        InvestigateForensicsWithAiCommand = new RelayCommand(() => { InvestigateForensicsWithAi(); return Task.CompletedTask; }, () => CurrentForensics is not null);
         VerifyCanariesCommand = new RelayCommand(VerifyCanariesAsync);
         ScanUsbNowCommand = new RelayCommand(ScanUsbNowAsync);
         SaveScheduleCommand = new RelayCommand(SaveScheduleAsync);
         RunScheduledUpdateNowCommand = new RelayCommand(RunScheduledUpdateNowAsync);
-        RegisterContextMenuCommand = new RelayCommand(RegisterContextMenu);
-        UnregisterContextMenuCommand = new RelayCommand(UnregisterContextMenu);
+        RegisterContextMenuCommand = new RelayCommand(() => { RegisterContextMenu(); return Task.CompletedTask; });
+        UnregisterContextMenuCommand = new RelayCommand(() => { UnregisterContextMenu(); return Task.CompletedTask; });
     }
 
     public ObservableCollection<string> MonitoredFolders { get; } = new();

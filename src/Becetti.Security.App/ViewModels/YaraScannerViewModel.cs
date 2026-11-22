@@ -607,13 +607,7 @@ public sealed class YaraScannerViewModel : ViewModelBase
         if (res.Success)
         {
             StatusMessage = res.Message;
-            await _events.AppendAsync(new SecurityEvent
-            {
-                Category = "Quarantine",
-                Action = "Quarantined YARA match",
-                Outcome = "Success",
-                Detail = $"{match.RuleName} -> {match.FilePath}"
-            });
+            await _events.RecordAsync("quarantine.added", $"Quarantined YARA match: {match.RuleName}", true, match.FilePath);
         }
         else
         {
