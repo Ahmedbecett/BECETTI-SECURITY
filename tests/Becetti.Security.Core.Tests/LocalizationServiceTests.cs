@@ -56,19 +56,19 @@ public sealed class LocalizationServiceTests : IDisposable
         var loc = new LocalizationService(settings);
 
         var events = new List<AppLanguage>();
-        loc.LanguageChanged += (_, lang) => events.Add(lang);
+        loc.LanguageChanged += (_, _) => events.Add(loc.Current);
 
         // Start in English
         await loc.SetLanguageAsync(AppLanguage.English);
         Assert.False(loc.IsRtl);
-        Assert.Equal("en-US", loc.CultureName);
+        Assert.Equal("en-US", loc.Bcp47Tag);
         Assert.Equal("Settings", loc.Get("TitleSettings.Text"));
         Assert.Equal("YARA Engine", loc.Get("NavYara.Content"));
 
         // Switch live to Arabic -> RTL = true & Arabic strings returned immediately
         await loc.SetLanguageAsync(AppLanguage.Arabic);
         Assert.True(loc.IsRtl);
-        Assert.Equal("ar-SA", loc.CultureName);
+        Assert.Equal("ar-SA", loc.Bcp47Tag);
         Assert.Equal("ar", settings.Current.Language);
         Assert.Equal("الإعدادات", loc.Get("TitleSettings.Text"));
         Assert.NotEqual("YARA Engine", loc.Get("NavYara.Content"));
@@ -76,7 +76,7 @@ public sealed class LocalizationServiceTests : IDisposable
         // Switch live to French -> RTL = false & French strings returned immediately
         await loc.SetLanguageAsync(AppLanguage.French);
         Assert.False(loc.IsRtl);
-        Assert.Equal("fr-FR", loc.CultureName);
+        Assert.Equal("fr-FR", loc.Bcp47Tag);
         Assert.Equal("fr", settings.Current.Language);
         Assert.Equal("Paramètres", loc.Get("TitleSettings.Text"));
         Assert.Equal("Moteur YARA", loc.Get("NavYara.Content"));

@@ -93,7 +93,7 @@ public sealed class BecettiAiServiceTests
 
         Assert.True(result.Success, result.Message);
         Assert.Equal(2, handler.CallCount);
-        Assert.Equal("Your YARA scan is clean.", result.Value!.Reply);
+        Assert.Equal("Your YARA scan is clean.", result.Value);
     }
 
     [Fact]
