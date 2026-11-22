@@ -9,15 +9,15 @@ namespace Becetti.Security.Core.Services;
 
 /// <summary>
 /// HTTPS client for the BECETTI AI backend (a small server-side proxy that
-/// holds the real OpenAI key; see /backend/becetti-ai in the repo). This
-/// class never talks to OpenAI directly and never contains a key — only the
+/// holds the real Gemini key; see /backend/becetti-ai in the repo). This
+/// class never talks to Gemini directly and never contains a key — only the
 /// backend's own public URL, which is itself just a relay.
 /// </summary>
 public sealed class BecettiAiService : IBecettiAiService
 {
     // Reduced from 45s: with one automatic retry below (see SendAsync), 45s per attempt
     // meant a genuinely unreachable server could take up to ~90 seconds to finally report
-    // a failure. 30s is still generous for a gpt-4o-mini reply (max 700 tokens).
+    // a failure. 30s is still generous for a gemini-2.5-flash reply (max 700 tokens).
     private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(30);
 
     private readonly HttpClient _http;

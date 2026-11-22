@@ -1,8 +1,8 @@
 // BECETTI AI — chat proxy.
 //
 // This runs on Vercel (server side), never inside the Windows app. The
-// OpenAI API key lives only in this project's Vercel environment variables
-// (OPENAI_API_KEY) and is never shipped inside BECETTI SECURITY or committed
+// Gemini API key lives only in this project's Vercel environment variables
+// (GEMINI_API_KEY) and is never shipped inside BECETTI SECURITY or committed
 // to source control.
 //
 // Honesty rules enforced here (mirrors the product's "never fake a result"
@@ -54,11 +54,11 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     res.status(503).json({
       error: "NOT_CONFIGURED",
-      message: "BECETTI AI is not configured on the server yet. The administrator needs to set OPENAI_API_KEY."
+      message: "BECETTI AI is not configured on the server yet. The administrator needs to set GEMINI_API_KEY."
     });
     return;
   }
@@ -89,40 +89,62 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Gemini has no "system" role: the system prompt goes in system_instruction,
+  // and conversation turns use "user" / "model" (not "assistant").
+  const contents = messages.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }]
+  }));
+
   const payload = {
-    model: "gpt-4o-mini",
-    messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
-    temperature: 0.4,
-    max_tokens: 700
+    system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    contents,
+    generationConfig: {
+      temperature: 0.4,
+      maxOutputTokens: 700
+    }
   };
 
+  const GEMINI_MODEL = "gemini-2.5-flash";
+
   try {
-    const upstream = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(payload)
-    });
+    const upstream = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey
+        },
+        body: JSON.stringify(payload)
+      }
+    );
 
     const data = await upstream.json().catch(() => null);
 
     if (!upstream.ok) {
       res.status(502).json({
         error: "UPSTREAM_ERROR",
-        message: (data && data.error && data.error.message) || `OpenAI returned HTTP ${upstream.status}.`
+        message: (data && data.error && data.error.message) || `Gemini returned HTTP ${upstream.status}.`
       });
       return;
     }
 
-    const reply = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    const candidate = data && data.candidates && data.candidates[0];
+    const blockReason = data && data.promptFeedback && data.promptFeedback.blockReason;
+    if (blockReason) {
+      res.status(502).json({ error: "BLOCKED", message: `Gemini blocked this request: ${blockReason}.` });
+      return;
+    }
+
+    const parts = candidate && candidate.content && candidate.content.parts;
+    const reply = Array.isArray(parts) ? parts.map((p) => p && p.text).filter(Boolean).join("") : "";
     if (!reply) {
       res.status(502).json({ error: "EMPTY_REPLY", message: "The model returned no content." });
       return;
     }
 
-    res.status(200).json({ reply, model: data.model, usage: data.usage || null });
+    res.status(200).json({ reply, model: GEMINI_MODEL, usage: data.usageMetadata || null });
   } catch (err) {
     res.status(502).json({ error: "NETWORK_ERROR", message: String((err && err.message) || err) });
   }
