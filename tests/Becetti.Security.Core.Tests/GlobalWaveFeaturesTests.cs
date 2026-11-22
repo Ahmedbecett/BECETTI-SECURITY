@@ -95,7 +95,7 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
         var p = new PersistenceEntry { Category = "Scheduled Task" };
         Assert.Equal("T1053.005", p.MitreTechniqueId);
 
-        var s = new SuspiciousScriptEvent { ProcessName = "powershell.exe", CommandLine = "powershell -enc AAA" };
+        var s = new SuspiciousScriptEvent { ProcessOrHost = "powershell.exe", RawCommand = "powershell -enc AAA" };
         Assert.Equal("T1059.001", s.MitreTechniqueId);
 
         var d = new ProcessDllInfo { RiskReason = "Unsigned module in temp directory" };
