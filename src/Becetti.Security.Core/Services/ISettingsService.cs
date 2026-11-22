@@ -55,7 +55,10 @@ public sealed class AppSettings
     public bool AiVoiceRepliesEnabled { get; set; } = true;
 
     /// <summary>Destination address for the "Contact Becetti" feature's prefilled email. Editable in Settings.</summary>
-    public string SupportEmail { get; set; } = "ahmedbecetti35@gmail.com";
+    public string SupportEmail { get; set; } = "ahmedbecetti41@gmail.com";
+
+    /// <summary>WhatsApp number (E.164, no "+") for the "Contact Becetti" feature's WhatsApp option.</summary>
+    public string SupportWhatsAppNumber { get; set; } = "213784302071";
 }
 
 public interface ISettingsService

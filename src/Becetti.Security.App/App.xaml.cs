@@ -57,6 +57,7 @@ public partial class App : Application
         services.AddTransient<StartupManagerViewModel>();
         services.AddTransient<SoftwareManagerViewModel>();
         services.AddTransient<DriverMonitorViewModel>();
+        services.AddTransient<EmergencyCenterViewModel>();
 
         Services = services.BuildServiceProvider();
 

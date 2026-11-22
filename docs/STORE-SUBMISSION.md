@@ -78,7 +78,7 @@ none of these can be fabricated or completed from inside a sandboxed CI
 environment, they need a human with a Partner Center account and/or a real
 Windows machine:
 - [x] **Support email** - `store/privacy-policy.md` now lists
-      `ahmedbecetti35@gmail.com` (confirmed by the user) instead of the
+      `ahmedbecetti41@gmail.com` (confirmed by the user) instead of the
       `support@becetti.example` placeholder.
 - [x] **Privacy policy hosted at a public HTTPS URL** - live now at:
       `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/arena/1590a9fd-becetti-security/store/privacy-policy.md`

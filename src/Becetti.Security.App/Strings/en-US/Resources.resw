@@ -33,6 +33,7 @@
   <data name="TitleCloud.Text" xml:space="preserve"><value>Cloud Security</value></data>
   <data name="TitleThreats.Text" xml:space="preserve"><value>Threat Management</value></data>
   <data name="TitlePrivacy.Text" xml:space="preserve"><value>Privacy &amp; Network</value></data>
+  <data name="PrivacyPermissionsLabel.Text" xml:space="preserve"><value>App permissions (device-wide)</value></data>
   <data name="TitleHistory.Text" xml:space="preserve"><value>Security History</value></data>
   <data name="TitleUpdates.Text" xml:space="preserve"><value>Updates</value></data>
   <data name="TitleSettings.Text" xml:space="preserve"><value>Settings</value></data>
@@ -52,6 +53,8 @@
   <data name="SubtitleAbout.Text" xml:space="preserve"><value>Your Digital Protection Center</value></data>
   <data name="SubtitleAi.Text" xml:space="preserve"><value>Ask BECETTI AI about your security status. It only answers from real, verified information — it never invents a threat or a fix.</value></data>
   <data name="SubtitleContact.Text" xml:space="preserve"><value>Nothing is sent automatically. This prepares a draft in your own email app — you review and press Send yourself.</value></data>
+  <data name="SupportWhatsAppLabel.Text" xml:space="preserve"><value>WhatsApp</value></data>
+  <data name="OpenWhatsAppButton.Content" xml:space="preserve"><value>Open WhatsApp</value></data>
 
   <data name="SettingsAiShareDeviceState.Header" xml:space="preserve"><value>Share real device/Defender status with BECETTI AI for this chat</value></data>
   <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>Save chat history on this device</value></data>
@@ -68,6 +71,7 @@
   <data name="NavStartup.Content" xml:space="preserve"><value>Startup Manager</value></data>
   <data name="NavSoftware.Content" xml:space="preserve"><value>Software Manager</value></data>
   <data name="NavDrivers.Content" xml:space="preserve"><value>Driver Monitor</value></data>
+  <data name="NavEmergency.Content" xml:space="preserve"><value>Emergency Center</value></data>
 
   <data name="TitleRansomware.Text" xml:space="preserve"><value>Ransomware Defense</value></data>
   <data name="SubtitleRansomware.Text" xml:space="preserve"><value>Microsoft Defender's own Controlled Folder Access (Exploit Guard). BECETTI SECURITY only reads and explains this real Windows feature — it never runs its own ransomware engine.</value></data>
@@ -101,4 +105,15 @@
 
   <data name="TitleDrivers.Text" xml:space="preserve"><value>Driver Monitor</value></data>
   <data name="SubtitleDrivers.Text" xml:space="preserve"><value>Real installed device drivers from Windows (WMI), the same inventory Device Manager uses. BECETTI SECURITY has no driver issue database of its own — check Windows Update or the manufacturer's site for updates.</value></data>
+
+  <data name="TitleEmergency.Text" xml:space="preserve"><value>Emergency Center</value></data>
+  <data name="SubtitleEmergency.Text" xml:space="preserve"><value>A single place for 'something feels wrong' moments — real status, quick access to Windows' own tools, and BECETTI AI for help.</value></data>
+  <data name="QuickActionsLabel.Text" xml:space="preserve"><value>Quick actions</value></data>
+  <data name="OpenThreatsButton.Content" xml:space="preserve"><value>View Threats</value></data>
+  <data name="OpenWindowsSecurityButton.Content" xml:space="preserve"><value>Open Windows Security</value></data>
+  <data name="OpenBackupSettingsButton.Content" xml:space="preserve"><value>Backup &amp; Recovery</value></data>
+  <data name="AskBecettiAiButton.Content" xml:space="preserve"><value>Ask BECETTI AI</value></data>
+  <data name="DiagnosticSummaryLabel.Text" xml:space="preserve"><value>Diagnostic summary</value></data>
+  <data name="DiagnosticSummaryHint.Text" xml:space="preserve"><value>Builds a plain-text snapshot of your current protection, firewall and PC health state for you to copy — nothing is sent anywhere automatically.</value></data>
+  <data name="GenerateSummaryButton.Content" xml:space="preserve"><value>Generate Summary</value></data>
 </root>

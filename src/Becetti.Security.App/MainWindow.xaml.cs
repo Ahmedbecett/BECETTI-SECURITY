@@ -23,6 +23,7 @@ public sealed partial class MainWindow : Window
         ["Startup"] = typeof(StartupManagerPage),
         ["Software"] = typeof(SoftwareManagerPage),
         ["Drivers"] = typeof(DriverMonitorPage),
+        ["Emergency"] = typeof(EmergencyCenterPage),
         ["Privacy"] = typeof(PrivacyPage),
         ["History"] = typeof(HistoryPage),
         ["Updates"] = typeof(UpdatesPage),

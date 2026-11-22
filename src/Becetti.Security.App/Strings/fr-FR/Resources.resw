@@ -33,6 +33,7 @@
   <data name="TitleCloud.Text" xml:space="preserve"><value>Sécurité cloud</value></data>
   <data name="TitleThreats.Text" xml:space="preserve"><value>Gestion des menaces</value></data>
   <data name="TitlePrivacy.Text" xml:space="preserve"><value>Confidentialité et réseau</value></data>
+  <data name="PrivacyPermissionsLabel.Text" xml:space="preserve"><value>Autorisations des applications (à l'échelle de l'appareil)</value></data>
   <data name="TitleHistory.Text" xml:space="preserve"><value>Historique de sécurité</value></data>
   <data name="TitleUpdates.Text" xml:space="preserve"><value>Mises à jour</value></data>
   <data name="TitleSettings.Text" xml:space="preserve"><value>Paramètres</value></data>
@@ -52,6 +53,8 @@
   <data name="SubtitleAbout.Text" xml:space="preserve"><value>Votre centre de protection numérique</value></data>
   <data name="SubtitleAi.Text" xml:space="preserve"><value>Posez vos questions à BECETTI AI sur votre état de sécurité. Il ne répond qu'à partir d'informations réelles et vérifiées — il n'invente jamais une menace ou une solution.</value></data>
   <data name="SubtitleContact.Text" xml:space="preserve"><value>Rien n'est envoyé automatiquement. Ceci prépare un brouillon dans votre propre application de messagerie — vous le relisez et appuyez vous-même sur Envoyer.</value></data>
+  <data name="SupportWhatsAppLabel.Text" xml:space="preserve"><value>WhatsApp</value></data>
+  <data name="OpenWhatsAppButton.Content" xml:space="preserve"><value>Ouvrir WhatsApp</value></data>
 
   <data name="SettingsAiShareDeviceState.Header" xml:space="preserve"><value>Partager l'état réel de l'appareil/Defender avec BECETTI AI pour cette discussion</value></data>
   <data name="SettingsAiSaveHistory.Header" xml:space="preserve"><value>Enregistrer l'historique de la discussion sur cet appareil</value></data>
@@ -68,6 +71,7 @@
   <data name="NavStartup.Content" xml:space="preserve"><value>Gestionnaire de démarrage</value></data>
   <data name="NavSoftware.Content" xml:space="preserve"><value>Gestionnaire de logiciels</value></data>
   <data name="NavDrivers.Content" xml:space="preserve"><value>Surveillance des pilotes</value></data>
+  <data name="NavEmergency.Content" xml:space="preserve"><value>Centre d'urgence</value></data>
 
   <data name="TitleRansomware.Text" xml:space="preserve"><value>Protection anti-rançongiciel</value></data>
   <data name="SubtitleRansomware.Text" xml:space="preserve"><value>La fonction Accès contrôlé aux dossiers (Exploit Guard) de Microsoft Defender lui-même. BECETTI SECURITY ne fait que lire et expliquer cette fonctionnalité Windows réelle — il n'exécute jamais son propre moteur anti-rançongiciel.</value></data>
@@ -101,4 +105,15 @@
 
   <data name="TitleDrivers.Text" xml:space="preserve"><value>Surveillance des pilotes</value></data>
   <data name="SubtitleDrivers.Text" xml:space="preserve"><value>Pilotes de périphériques réellement installés, lus depuis Windows (WMI) — le même inventaire que le Gestionnaire de périphériques. BECETTI SECURITY ne dispose d'aucune base de données de problèmes de pilotes ; consultez Windows Update ou le site du fabricant pour les mises à jour.</value></data>
+
+  <data name="TitleEmergency.Text" xml:space="preserve"><value>Centre d'urgence</value></data>
+  <data name="SubtitleEmergency.Text" xml:space="preserve"><value>Un seul endroit pour les moments « quelque chose ne va pas » — état réel, accès rapide aux outils Windows eux-mêmes, et BECETTI AI pour obtenir de l'aide.</value></data>
+  <data name="QuickActionsLabel.Text" xml:space="preserve"><value>Actions rapides</value></data>
+  <data name="OpenThreatsButton.Content" xml:space="preserve"><value>Voir les menaces</value></data>
+  <data name="OpenWindowsSecurityButton.Content" xml:space="preserve"><value>Ouvrir la sécurité Windows</value></data>
+  <data name="OpenBackupSettingsButton.Content" xml:space="preserve"><value>Sauvegarde et récupération</value></data>
+  <data name="AskBecettiAiButton.Content" xml:space="preserve"><value>Demander à BECETTI AI</value></data>
+  <data name="DiagnosticSummaryLabel.Text" xml:space="preserve"><value>Résumé de diagnostic</value></data>
+  <data name="DiagnosticSummaryHint.Text" xml:space="preserve"><value>Génère un instantané texte de votre protection, pare-feu et état de santé du PC actuels à copier — rien n'est envoyé automatiquement.</value></data>
+  <data name="GenerateSummaryButton.Content" xml:space="preserve"><value>Générer le résumé</value></data>
 </root>

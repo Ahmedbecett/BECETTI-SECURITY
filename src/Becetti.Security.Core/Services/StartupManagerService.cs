@@ -20,13 +20,21 @@ public sealed class StartupManagerService : IStartupManagerService
     private const string ApprovedRunPath = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
     private const string ApprovedRun32Path = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32";
 
+    // Registry.CurrentUser/LocalMachine are safe to reference on any OS (they just return a
+    // handle wrapper); only the OpenSubKey/CreateSubKey calls below ever touch the real
+    // registry, and those are reached only after the OperatingSystem.IsWindows() guard in
+    // each public method. This pragma only silences the platform-compatibility analyzer
+    // (CA1416) for that known-safe field initializer, not an actual behavior change.
+#pragma warning disable CA1416
     private static readonly LocationDescriptor[] Locations =
     {
         new("HKCU", "This user", Registry.CurrentUser, RunKeyPath, ApprovedRunPath, RequiresElevation: false),
         new("HKLM", "All users", Registry.LocalMachine, RunKeyPath, ApprovedRunPath, RequiresElevation: true),
         new("HKLM32", "All users (32-bit)", Registry.LocalMachine, Wow64RunKeyPath, ApprovedRun32Path, RequiresElevation: true),
     };
+#pragma warning restore CA1416
 
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public Task<OperationResult<IReadOnlyList<StartupItemInfo>>> GetStartupItemsAsync()
     {
         if (!OperatingSystem.IsWindows())
@@ -74,6 +82,7 @@ public sealed class StartupManagerService : IStartupManagerService
             "Startup items read from the Windows registry."));
     }
 
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public Task<OperationResult> SetEnabledAsync(StartupItemInfo item, bool enabled)
     {
         if (!OperatingSystem.IsWindows())

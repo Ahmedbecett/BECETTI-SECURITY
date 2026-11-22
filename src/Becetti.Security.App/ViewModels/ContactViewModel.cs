@@ -28,11 +28,14 @@ public sealed class ContactViewModel : ViewModelBase
         _system = system;
         _defender = defender;
         PrepareEmailCommand = new RelayCommand(PrepareEmailAsync, () => !IsBusy && !string.IsNullOrWhiteSpace(Message));
+        OpenWhatsAppCommand = new RelayCommand(OpenWhatsAppAsync);
     }
 
     public RelayCommand PrepareEmailCommand { get; }
+    public RelayCommand OpenWhatsAppCommand { get; }
 
     public string SupportEmail => _settings.Current.SupportEmail;
+    public string SupportWhatsAppDisplay => $"+{_settings.Current.SupportWhatsAppNumber}";
 
     public string Subject
     {
@@ -102,6 +105,40 @@ public sealed class ContactViewModel : ViewModelBase
         {
             IsBusy = false;
         }
+    }
+
+    /// <summary>
+    /// Opens a WhatsApp chat with BECETTI SECURITY's real support number via the
+    /// official wa.me link. Exactly the same consent model as the email draft:
+    /// this only opens the chat window pre-addressed — nothing is sent until the
+    /// user types their own message and presses Send inside WhatsApp itself.
+    /// </summary>
+    private Task OpenWhatsAppAsync()
+    {
+        ClearMessages();
+        try
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                ErrorMessage = "Opening WhatsApp is only supported on Windows.";
+                return Task.CompletedTask;
+            }
+
+            var url = $"https://wa.me/{_settings.Current.SupportWhatsAppNumber}";
+            var startInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(startInfo);
+            StatusMessage = "Opening WhatsApp… nothing is sent until you type your own message and press Send there.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Could not open WhatsApp: {ex.Message}";
+        }
+
+        return Task.CompletedTask;
     }
 
     private async Task<string> BuildDiagnosticsAsync()

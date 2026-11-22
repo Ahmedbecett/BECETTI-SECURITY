@@ -27,6 +27,11 @@
                         <FontIcon Glyph="&#xE80F;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavEmergency" Content="Emergency Center" Tag="Emergency">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7BA;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavScan" Content="Smart Scan" Tag="Scan">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE721;" />

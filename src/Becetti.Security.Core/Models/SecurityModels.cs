@@ -329,7 +329,26 @@ public sealed class InstalledAppInfo
 }
 
 /// <summary>
-/// One installed device driver from WMI's real Win32_PnPSignedDriver class —
+/// One global Windows privacy permission switch (Camera, Microphone,
+/// Location), read from the real CapabilityAccessManager ConsentStore
+/// registry key that Settings &gt; Privacy &amp; security itself reads and
+/// writes. This is the device-wide master switch, not a per-app grant list —
+/// BECETTI SECURITY only reports what it can verify.
+/// </summary>
+public sealed class PrivacyPermissionInfo
+{
+    public string Name { get; init; } = string.Empty;
+    /// <summary>true = allowed, false = blocked, null = could not be determined.</summary>
+    public bool? Allowed { get; init; }
+    public string StateText => Allowed switch
+    {
+        true => "Allowed",
+        false => "Blocked",
+        null => "Unknown"
+    };
+}
+
+/// <summary>One installed device driver from WMI's real Win32_PnPSignedDriver class —
 /// the same inventory Device Manager is built on. No "known issue" database
 /// is attached: BECETTI SECURITY has none of its own, so it only ever points
 /// the user to Windows Update / the manufacturer as the official source.

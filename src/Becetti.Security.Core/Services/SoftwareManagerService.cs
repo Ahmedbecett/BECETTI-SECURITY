@@ -14,13 +14,21 @@ namespace Becetti.Security.Core.Services;
 /// </summary>
 public sealed class SoftwareManagerService : ISoftwareManagerService
 {
+    // Registry.LocalMachine/CurrentUser are safe to reference on any OS (they just return a
+    // handle wrapper); only OpenSubKey/GetSubKeyNames/GetValue below ever touch the real
+    // registry, reached only after the OperatingSystem.IsWindows() guard in
+    // GetInstalledAppsAsync. This pragma only silences the platform-compatibility analyzer
+    // (CA1416) for that known-safe field initializer, not an actual behavior change.
+#pragma warning disable CA1416
     private static readonly (RegistryKey Hive, string Path)[] UninstallKeys =
     {
         (Registry.LocalMachine, @"Software\Microsoft\Windows\CurrentVersion\Uninstall"),
         (Registry.LocalMachine, @"Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"),
         (Registry.CurrentUser, @"Software\Microsoft\Windows\CurrentVersion\Uninstall"),
     };
+#pragma warning restore CA1416
 
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public Task<OperationResult<IReadOnlyList<InstalledAppInfo>>> GetInstalledAppsAsync()
     {
         if (!OperatingSystem.IsWindows())
@@ -97,6 +105,9 @@ public sealed class SoftwareManagerService : ISoftwareManagerService
         }
     }
 
+    // Only ever called from GetInstalledAppsAsync, which already guards on
+    // OperatingSystem.IsWindows() before reaching here.
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     private static InstalledAppInfo? ReadEntry(RegistryKey? entry)
     {
         if (entry is null)

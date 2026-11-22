@@ -13,6 +13,10 @@ public sealed class DriverMonitorService : IDriverMonitorService
     public Task<OperationResult<IReadOnlyList<DriverInfo>>> GetDriversAsync() =>
         Task.Run(() => GetDrivers());
 
+    // GetDriversAsync already refuses to call this at all on any other OS via its own
+    // OperatingSystem.IsWindows() guard below; this attribute only documents that fact
+    // for the platform-compatibility analyzer (CA1416) rather than changing behavior.
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     private static OperationResult<IReadOnlyList<DriverInfo>> GetDrivers()
     {
         if (!OperatingSystem.IsWindows())
@@ -63,7 +67,12 @@ public sealed class DriverMonitorService : IDriverMonitorService
 
         try
         {
+            // ManagementDateTimeConverter.ToDateTime is a pure string parser with no actual
+            // OS call despite being attributed Windows-only by System.Management; it is safe
+            // to use from this otherwise platform-neutral, directly unit-tested method.
+#pragma warning disable CA1416
             return new DateTimeOffset(ManagementDateTimeConverter.ToDateTime(wmiDate));
+#pragma warning restore CA1416
         }
         catch
         {

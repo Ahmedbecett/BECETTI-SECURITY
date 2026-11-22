@@ -17,6 +17,10 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
+                    <TextBlock x:Uid="SupportWhatsAppLabel" Text="WhatsApp" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.SupportWhatsAppDisplay, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8" />
+                    <Button x:Uid="OpenWhatsAppButton" Content="Open WhatsApp" Command="{x:Bind ViewModel.OpenWhatsAppCommand}" Margin="0,0,0,16" />
+
                     <TextBlock Text="Support address" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.SupportEmail, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" />
 

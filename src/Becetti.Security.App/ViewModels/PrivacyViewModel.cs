@@ -28,6 +28,7 @@ public sealed class PrivacyViewModel : ViewModelBase
     }
 
     public ObservableCollection<string> Recommendations { get; } = new();
+    public ObservableCollection<PrivacyPermissionInfo> Permissions { get; } = new();
 
     public RelayCommand RunChecksCommand { get; }
 
@@ -43,8 +44,16 @@ public sealed class PrivacyViewModel : ViewModelBase
         IsBusy = true;
         ClearMessages();
         Recommendations.Clear();
+        Permissions.Clear();
         try
         {
+            var permissions = await _system.GetPrivacyPermissionsAsync();
+            if (permissions.Success && permissions.Value is not null)
+            {
+                foreach (var permission in permissions.Value)
+                    Permissions.Add(permission);
+            }
+
             var network = await _system.CheckNetworkAsync(_settings.Current.ApiBaseUrl);
             if (network.Success && network.Value is not null)
             {

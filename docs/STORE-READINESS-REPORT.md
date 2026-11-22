@@ -102,7 +102,7 @@ from training-data memory, since Store policy details change over time):
 
 ## 6. Support email and privacy policy hosting — DONE (with one caveat)
 
-- `store/privacy-policy.md` now lists `ahmedbecetti35@gmail.com` (you
+- `store/privacy-policy.md` now lists `ahmedbecetti41@gmail.com` (you
   confirmed this is the address to use), replacing the
   `support@becetti.example` placeholder. Verified by re-reading the file.
 - **Hosting attempted on Vercel first, and it failed** - not from lack of
@@ -157,7 +157,7 @@ from training-data memory, since Store policy details change over time):
 - Self-signed test-cert path kept fully separate from the Store path
   (confirmed: `package-msix.ps1`/CI test cert is never referenced by
   `package-store.ps1` or the `.wapproj`'s Store publish settings).
-- Real support email in place (`ahmedbecetti35@gmail.com`), confirmed by you.
+- Real support email in place (`ahmedbecetti41@gmail.com`), confirmed by you.
 - Privacy policy live at a real, verified-reachable public HTTPS URL
   (GitHub-rendered Markdown - see §6; Vercel and GitHub Pages were both
   attempted and genuinely failed for reasons outside this session's
