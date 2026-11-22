@@ -585,8 +585,7 @@ public sealed partial class MainWindow : Window
         if (sender is not Button btn || btn.Tag is not string code) return;
         _settings.Current.Language = code;
         App.ApplyLanguageOverride(code);
-        _localization.SetLanguage(LocalizationService.ParseCode(code));
-        await _settings.SaveAsync();
+        await _localization.SetLanguageAsync(LocalizationService.ParseLanguageCode(code));
     }
 
     private void OnboardingBack_Click(object sender, RoutedEventArgs e)

