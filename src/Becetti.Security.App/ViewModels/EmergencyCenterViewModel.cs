@@ -15,25 +15,56 @@ public sealed class EmergencyCenterViewModel : ViewModelBase
 {
     private readonly IDefenderService _defender;
     private readonly IPcHealthService _pcHealth;
+    private readonly INetworkKillSwitchService _killSwitch;
+    private readonly IIncidentEvidenceService _evidence;
+    private readonly IEventLogService _events;
 
     private ProtectionLevel _protectionLevel = ProtectionLevel.Unknown;
     private int _threatCount;
     private string _diagnosticSummary = string.Empty;
+    private bool _isNetworkIsolated;
+    private string _isolationStatusText = "Checking network isolation status…";
 
-    public EmergencyCenterViewModel(IDefenderService defender, IPcHealthService pcHealth)
+    public EmergencyCenterViewModel(
+        IDefenderService defender,
+        IPcHealthService pcHealth,
+        INetworkKillSwitchService killSwitch,
+        IIncidentEvidenceService evidence,
+        IEventLogService events)
     {
         _defender = defender;
         _pcHealth = pcHealth;
+        _killSwitch = killSwitch;
+        _evidence = evidence;
+        _events = events;
         RefreshCommand = new RelayCommand(LoadAsync);
         OpenWindowsSecurityCommand = new RelayCommand(OpenWindowsSecurity);
         OpenBackupSettingsCommand = new RelayCommand(OpenBackupSettings);
         GenerateDiagnosticSummaryCommand = new RelayCommand(GenerateDiagnosticSummaryAsync);
+        IsolateNetworkCommand = new RelayCommand(IsolateNetworkAsync);
+        RestoreNetworkCommand = new RelayCommand(RestoreNetworkAsync);
+        ExportForensicBundleCommand = new RelayCommand(ExportForensicBundleAsync);
     }
 
     public RelayCommand RefreshCommand { get; }
     public RelayCommand OpenWindowsSecurityCommand { get; }
     public RelayCommand OpenBackupSettingsCommand { get; }
     public RelayCommand GenerateDiagnosticSummaryCommand { get; }
+    public RelayCommand IsolateNetworkCommand { get; }
+    public RelayCommand RestoreNetworkCommand { get; }
+    public RelayCommand ExportForensicBundleCommand { get; }
+
+    public bool IsNetworkIsolated
+    {
+        get => _isNetworkIsolated;
+        private set => SetProperty(ref _isNetworkIsolated, value);
+    }
+
+    public string IsolationStatusText
+    {
+        get => _isolationStatusText;
+        private set => SetProperty(ref _isolationStatusText, value);
+    }
 
     public ProtectionLevel ProtectionLevel
     {
@@ -89,12 +120,83 @@ public sealed class EmergencyCenterViewModel : ViewModelBase
             var threats = await _defender.GetThreatsAsync();
             ThreatCount = threats.Success && threats.Value is not null ? threats.Value.Count : 0;
 
-            StatusMessage = "Emergency Center refreshed from live Defender data.";
+            var iso = await _killSwitch.GetStatusAsync();
+            if (iso.Success && iso.Value is not null)
+            {
+                IsNetworkIsolated = iso.Value.IsIsolated;
+                IsolationStatusText = iso.Value.Summary;
+            }
+
+            StatusMessage = "Emergency Center refreshed from live Defender & Firewall data.";
         }
         finally
         {
             IsBusy = false;
         }
+    }
+
+    private async Task IsolateNetworkAsync()
+    {
+        ClearMessages();
+        IsBusy = true;
+        try
+        {
+            var res = await _killSwitch.IsolateHostAsync();
+            if (res.Success && res.Value is not null)
+            {
+                IsNetworkIsolated = res.Value.IsIsolated;
+                IsolationStatusText = res.Value.Summary;
+                StatusMessage = res.Value.Summary;
+                await _events.RecordAsync("emergency.killswitch.engaged", res.Value.Summary, true);
+            }
+            else
+            {
+                ErrorMessage = res.Message;
+            }
+        }
+        finally { IsBusy = false; }
+    }
+
+    private async Task RestoreNetworkAsync()
+    {
+        ClearMessages();
+        IsBusy = true;
+        try
+        {
+            var res = await _killSwitch.RestoreNetworkAsync();
+            if (res.Success && res.Value is not null)
+            {
+                IsNetworkIsolated = res.Value.IsIsolated;
+                IsolationStatusText = res.Value.Summary;
+                StatusMessage = res.Value.Summary;
+                await _events.RecordAsync("emergency.killswitch.restored", res.Value.Summary, true);
+            }
+            else
+            {
+                ErrorMessage = res.Message;
+            }
+        }
+        finally { IsBusy = false; }
+    }
+
+    private async Task ExportForensicBundleAsync()
+    {
+        ClearMessages();
+        IsBusy = true;
+        try
+        {
+            var res = await _evidence.ExportForensicBundleAsync();
+            if (res.Success && res.Value is not null)
+            {
+                StatusMessage = $"{res.Message} (SHA-256: {res.Value.Sha256[..16]}...)";
+                await _events.RecordAsync("emergency.evidence.exported", res.Message, true, res.Value.BundleZipPath);
+            }
+            else
+            {
+                ErrorMessage = res.Message;
+            }
+        }
+        finally { IsBusy = false; }
     }
 
     private Task OpenWindowsSecurity()

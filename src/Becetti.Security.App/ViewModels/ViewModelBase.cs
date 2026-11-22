@@ -20,8 +20,14 @@ public abstract class ViewModelBase : INotifyPropertyChanged
     public string StatusMessage
     {
         get => _statusMessage;
-        set => SetProperty(ref _statusMessage, value);
+        set
+        {
+            if (SetProperty(ref _statusMessage, value))
+                OnPropertyChanged(nameof(HasStatus));
+        }
     }
+
+    public bool HasStatus => !string.IsNullOrWhiteSpace(_statusMessage);
 
     public string ErrorMessage
     {

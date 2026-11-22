@@ -22,6 +22,7 @@ public sealed class SettingsViewModel : ViewModelBase
     private string _supportEmail = string.Empty;
     private bool _criticalAlertNotificationsEnabled = true;
     private string _criticalAlertWebhookUrl = string.Empty;
+    private bool _minimizeToTrayOnClose = true;
 
     public SettingsViewModel(ISettingsService settings, LocalizationService localization, ICloudService cloud)
     {
@@ -75,6 +76,9 @@ public sealed class SettingsViewModel : ViewModelBase
     /// <summary>Optional webhook URL (Slack/Discord/generic) critical alerts are also POSTed to. Empty = disabled.</summary>
     public string CriticalAlertWebhookUrl { get => _criticalAlertWebhookUrl; set => SetProperty(ref _criticalAlertWebhookUrl, value); }
 
+    /// <summary>When true, closing the main window hides BECETTI SECURITY to the Windows System Tray so background shields stay active.</summary>
+    public bool MinimizeToTrayOnClose { get => _minimizeToTrayOnClose; set => SetProperty(ref _minimizeToTrayOnClose, value); }
+
     private void LoadFromSettings()
     {
         _isLoading = true;
@@ -91,6 +95,7 @@ public sealed class SettingsViewModel : ViewModelBase
             SupportEmail = _settings.Current.SupportEmail;
             CriticalAlertNotificationsEnabled = _settings.Current.CriticalAlertNotificationsEnabled;
             CriticalAlertWebhookUrl = _settings.Current.CriticalAlertWebhookUrl;
+            MinimizeToTrayOnClose = _settings.Current.MinimizeToTrayOnClose;
         }
         finally
         {
@@ -136,6 +141,7 @@ public sealed class SettingsViewModel : ViewModelBase
             _settings.Current.SupportEmail = SupportEmail.Trim();
             _settings.Current.CriticalAlertNotificationsEnabled = CriticalAlertNotificationsEnabled;
             _settings.Current.CriticalAlertWebhookUrl = CriticalAlertWebhookUrl.Trim();
+            _settings.Current.MinimizeToTrayOnClose = MinimizeToTrayOnClose;
             await _settings.SaveAsync();
 
             var language = LocalizationService.ParseLanguageCode(Language);

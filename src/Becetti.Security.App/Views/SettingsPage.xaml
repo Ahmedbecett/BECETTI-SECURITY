@@ -44,6 +44,7 @@
                     <TextBlock x:Uid="SettingsFeedbackHint" helpers:Loc.Uid="SettingsFeedbackHint" Text="Animations are purely decorative and never used to imply a scan or update is running. Sounds play only on genuine completed/failed actions." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
                     <ToggleSwitch x:Uid="SettingsAnimations" helpers:Loc.Uid="SettingsAnimations" Header="Enable decorative animations" IsOn="{x:Bind ViewModel.EnableAnimations, Mode=TwoWay}" />
                     <ToggleSwitch x:Uid="SettingsSounds" helpers:Loc.Uid="SettingsSounds" Header="Enable sound cues" IsOn="{x:Bind ViewModel.EnableSounds, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsMinimizeToTray" helpers:Loc.Uid="SettingsMinimizeToTray" Header="Keep running silently in Windows System Tray when window is closed" IsOn="{x:Bind ViewModel.MinimizeToTrayOnClose, Mode=TwoWay}" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">

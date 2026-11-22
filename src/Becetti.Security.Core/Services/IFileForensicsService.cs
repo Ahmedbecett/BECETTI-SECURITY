@@ -9,4 +9,5 @@ namespace Becetti.Security.Core.Services;
 public interface IFileForensicsService
 {
     Task<OperationResult<FileForensicsReport>> AnalyzeFileAsync(string filePath, CancellationToken ct = default);
+    AuthenticodeInfo VerifyAuthenticode(string filePath);
 }

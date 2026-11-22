@@ -275,7 +275,9 @@ public sealed class FileForensicsService : IFileForensicsService
         return true;
     }
 
-    private static AuthenticodeInfo VerifyAuthenticode(string filePath)
+    public AuthenticodeInfo VerifyAuthenticode(string filePath) => VerifyAuthenticodeCore(filePath);
+
+    private static AuthenticodeInfo VerifyAuthenticodeCore(string filePath)
     {
         if (!OperatingSystem.IsWindows())
             return new AuthenticodeInfo { IsSigned = false, IsTrusted = false, Status = "Windows Authenticode verification requires Windows." };

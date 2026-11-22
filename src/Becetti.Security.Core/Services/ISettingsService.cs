@@ -106,6 +106,15 @@ public sealed class AppSettings
 
     /// <summary>When true, newly inserted USB removable drives are scanned automatically by Native YARA Engine.</summary>
     public bool UsbAutoScanEnabled { get; set; }
+
+    /// <summary>When true, closing the window minimizes BECETTI SECURITY to the Windows System Tray so active shields continue running.</summary>
+    public bool MinimizeToTrayOnClose { get; set; } = true;
+
+    /// <summary>When true, Hosts & DNS Hijack Guard watches System32\drivers\etc\hosts in real time.</summary>
+    public bool HostsGuardEnabled { get; set; } = true;
+
+    /// <summary>When true, File Integrity Monitor (FIM) watches tracked files for unexpected byte modifications.</summary>
+    public bool FimAutoWatchEnabled { get; set; }
 }
 
 public interface ISettingsService

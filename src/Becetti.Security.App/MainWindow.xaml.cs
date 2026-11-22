@@ -1,22 +1,44 @@
+using System.Collections.ObjectModel;
 using Becetti.Security.App.Helpers;
+using Becetti.Security.App.Services;
 using Becetti.Security.App.Views;
 using Becetti.Security.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Windows.System;
 using Windows.UI;
 
 namespace Becetti.Security.App;
 
-/// <summary>Main window: navigation shell hosting the product pages with instant live localization.</summary>
+public sealed class CommandPaletteItem
+{
+    public string Title { get; init; } = string.Empty;
+    public string Subtitle { get; init; } = string.Empty;
+    public string Category { get; init; } = "Navigate";
+    public string TargetTag { get; init; } = string.Empty;
+    public object? Parameter { get; init; }
+}
+
+/// <summary>
+/// Main window: enterprise grouped navigation shell, Ctrl+K Command Palette,
+/// custom Obsidian Windows TitleBar, System Tray minimize-to-tray host, and live localization.
+/// </summary>
 public sealed partial class MainWindow : Window
 {
     private readonly LocalizationService _localization;
+    private readonly ISettingsService _settings;
+    private readonly SystemTrayService _tray;
+    private bool _allowFullExit;
     private ProtectionLevel _lastProtectionLevel = ProtectionLevel.Unknown;
     private string? _lastYaraVersion;
     private int _lastYaraRuleCount;
+
+    private readonly List<CommandPaletteItem> _allPaletteItems = new();
+    private readonly ObservableCollection<CommandPaletteItem> _filteredPaletteItems = new();
 
     private readonly Dictionary<string, Type> _pages = new()
     {
@@ -24,6 +46,7 @@ public sealed partial class MainWindow : Window
         ["Scan"] = typeof(ScanPage),
         ["Yara"] = typeof(YaraScannerPage),
         ["AdvancedDefense"] = typeof(AdvancedDefensePage),
+        ["EdrCenter"] = typeof(EdrCenterPage),
         ["Protection"] = typeof(ProtectionPage),
         ["Cloud"] = typeof(CloudPage),
         ["Ai"] = typeof(BecettiAiPage),
@@ -67,6 +90,12 @@ public sealed partial class MainWindow : Window
         NavView.ItemInvoked += OnNavigationInvoked;
 
         _localization = App.Services.GetRequiredService<LocalizationService>();
+        _settings = App.Services.GetRequiredService<ISettingsService>();
+        _tray = App.Services.GetRequiredService<SystemTrayService>();
+
+        CommandPaletteList.ItemsSource = _filteredPaletteItems;
+        ConfigureSystemTray();
+
         ApplyShellLocalization();
         _localization.LanguageChanged += (_, _) =>
         {
@@ -74,7 +103,6 @@ public sealed partial class MainWindow : Window
         };
 
         ContentFrame.Navigate(typeof(DashboardPage));
-
         _ = LoadFooterStatusAsync();
     }
 
@@ -100,10 +128,55 @@ public sealed partial class MainWindow : Window
             titleBar.ButtonInactiveBackgroundColor = Color.FromArgb(0xFF, 0x09, 0x0C, 0x12);
             titleBar.ButtonInactiveForegroundColor = Color.FromArgb(0xFF, 0x64, 0x74, 0x8B);
         }
-        catch
+        catch { }
+    }
+
+    private void ConfigureSystemTray()
+    {
+        try
         {
-            // Keep default Windows title bar if host environment does not support customization.
+            _tray.Initialize("BECETTI SECURITY — Active Protection");
+            _tray.OpenRequested += () => DispatcherQueue.TryEnqueue(RestoreFromTray);
+            _tray.NavigateRequested += tag => DispatcherQueue.TryEnqueue(() =>
+            {
+                RestoreFromTray();
+                NavigateTo(tag, null);
+            });
+            _tray.ExitRequested += () => DispatcherQueue.TryEnqueue(ExitApplicationCompletely);
+
+            AppWindow.Closing += OnAppWindowClosing;
         }
+        catch { }
+    }
+
+    private void OnAppWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        if (!_allowFullExit && _settings.Current.MinimizeToTrayOnClose)
+        {
+            args.Cancel = true;
+            try { sender.Hide(); } catch { }
+        }
+        else
+        {
+            _tray.Dispose();
+        }
+    }
+
+    public void RestoreFromTray()
+    {
+        try
+        {
+            AppWindow.Show();
+            Activate();
+        }
+        catch { }
+    }
+
+    public void ExitApplicationCompletely()
+    {
+        _allowFullExit = true;
+        _tray.Dispose();
+        Close();
     }
 
     private void ApplyShellLocalization()
@@ -111,20 +184,191 @@ public sealed partial class MainWindow : Window
         if (Content is FrameworkElement root)
             root.FlowDirection = _localization.IsRtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 
-        // Immediately refresh every NavigationViewItem label (including off-screen items)
-        foreach (var item in NavView.MenuItems.OfType<NavigationViewItem>())
-        {
-            var uid = Loc.GetUid(item);
-            if (!string.IsNullOrWhiteSpace(uid))
-                Loc.Apply(item, uid);
-        }
+        LocalizeNavItems(NavView.MenuItems);
 
         ToolTipService.SetToolTip(HelpButton, _localization.Get("HeaderHelpToolTip", "Help"));
         ToolTipService.SetToolTip(AboutButton, _localization.Get("NavAbout.Content", "About"));
         ToolTipService.SetToolTip(SettingsButton, _localization.Get("NavSettings.Content", "Settings"));
 
+        RebuildCommandPaletteIndex();
         RenderFooterStatus();
     }
+
+    private static void LocalizeNavItems(IList<object> items)
+    {
+        foreach (var item in items.OfType<NavigationViewItem>())
+        {
+            var uid = Loc.GetUid(item);
+            if (!string.IsNullOrWhiteSpace(uid))
+                Loc.Apply(item, uid);
+
+            if (item.MenuItems.Count > 0)
+                LocalizeNavItems(item.MenuItems);
+        }
+    }
+
+    private void RebuildCommandPaletteIndex()
+    {
+        _allPaletteItems.Clear();
+
+        // Quick High-Value Security Actions
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Run Native YARA Scan",
+            Subtitle = "Open YARA v4.6.0 Engine to scan files, folders, or generate AI rules",
+            Category = "Action",
+            TargetTag = "Yara"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Audit Windows Hardening & Persistence (EDR)",
+            Subtitle = "Check Secure Boot, HVCI, BitLocker, SMBv1, Autoruns, Hosts/DNS & Camera/Mic",
+            Category = "Action",
+            TargetTag = "EdrCenter"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Live Process Memory Scan & AES-256 Quarantine",
+            Subtitle = "Scan live RAM processes with YARA, inspect PE/Entropy, manage Quarantine",
+            Category = "Action",
+            TargetTag = "AdvancedDefense"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Emergency Network Kill-Switch & Forensic ZIP",
+            Subtitle = "Isolate host firewall immediately or export incident evidence bundle",
+            Category = "Emergency",
+            TargetTag = "Emergency"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Ask BECETTI AI Security Assistant",
+            Subtitle = "Investigate alerts, decode scripts, or explain system status",
+            Category = "AI",
+            TargetTag = "Ai"
+        });
+
+        // Index every leaf navigation page automatically
+        CollectNavPaletteItems(NavView.MenuItems, "Navigate");
+        FilterCommandPalette(CommandPaletteInput?.Text ?? string.Empty);
+    }
+
+    private void CollectNavPaletteItems(IList<object> items, string groupLabel)
+    {
+        foreach (var item in items.OfType<NavigationViewItem>())
+        {
+            var label = item.Content?.ToString() ?? string.Empty;
+            if (item.MenuItems.Count > 0)
+            {
+                CollectNavPaletteItems(item.MenuItems, string.IsNullOrWhiteSpace(label) ? groupLabel : label);
+            }
+            else if (item.Tag is string tag && !string.IsNullOrWhiteSpace(label))
+            {
+                _allPaletteItems.Add(new CommandPaletteItem
+                {
+                    Title = label,
+                    Subtitle = $"Open {label}",
+                    Category = groupLabel,
+                    TargetTag = tag
+                });
+            }
+        }
+    }
+
+    public void OpenCommandPalette()
+    {
+        CommandPaletteOverlay.Visibility = Visibility.Visible;
+        CommandPaletteInput.Text = string.Empty;
+        FilterCommandPalette(string.Empty);
+        CommandPaletteInput.Focus(FocusState.Programmatic);
+    }
+
+    public void CloseCommandPalette()
+    {
+        CommandPaletteOverlay.Visibility = Visibility.Collapsed;
+    }
+
+    private void FilterCommandPalette(string query)
+    {
+        _filteredPaletteItems.Clear();
+        var q = query.Trim();
+
+        IEnumerable<CommandPaletteItem> matches = string.IsNullOrWhiteSpace(q)
+            ? _allPaletteItems
+            : _allPaletteItems.Where(i =>
+                i.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                i.Subtitle.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                i.Category.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                i.TargetTag.Contains(q, StringComparison.OrdinalIgnoreCase));
+
+        foreach (var m in matches.Take(18))
+            _filteredPaletteItems.Add(m);
+
+        if (_filteredPaletteItems.Count > 0 && CommandPaletteList is not null)
+            CommandPaletteList.SelectedIndex = 0;
+    }
+
+    private void ExecutePaletteItem(CommandPaletteItem? item)
+    {
+        if (item is null) return;
+        CloseCommandPalette();
+        NavigateTo(item.TargetTag, item.Parameter);
+    }
+
+    private void CommandPaletteAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        if (CommandPaletteOverlay.Visibility == Visibility.Visible)
+            CloseCommandPalette();
+        else
+            OpenCommandPalette();
+    }
+
+    private void EscapeAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (CommandPaletteOverlay.Visibility == Visibility.Visible)
+        {
+            args.Handled = true;
+            CloseCommandPalette();
+        }
+    }
+
+    private void CommandPaletteButton_Click(object sender, RoutedEventArgs e) => OpenCommandPalette();
+    private void CloseCommandPalette_Click(object sender, RoutedEventArgs e) => CloseCommandPalette();
+    private void CommandPaletteBackdrop_PointerPressed(object sender, PointerRoutedEventArgs e) => CloseCommandPalette();
+    private void CommandPaletteCard_PointerPressed(object sender, PointerRoutedEventArgs e) => e.Handled = true;
+
+    private void CommandPaletteInput_TextChanged(object sender, TextChangedEventArgs e) =>
+        FilterCommandPalette(CommandPaletteInput.Text);
+
+    private void CommandPaletteInput_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.Enter)
+        {
+            e.Handled = true;
+            ExecutePaletteItem(CommandPaletteList.SelectedItem as CommandPaletteItem ?? _filteredPaletteItems.FirstOrDefault());
+        }
+        else if (e.Key == VirtualKey.Down && _filteredPaletteItems.Count > 0)
+        {
+            e.Handled = true;
+            CommandPaletteList.SelectedIndex = Math.Min(CommandPaletteList.SelectedIndex + 1, _filteredPaletteItems.Count - 1);
+            CommandPaletteList.ScrollIntoView(CommandPaletteList.SelectedItem);
+        }
+        else if (e.Key == VirtualKey.Up && _filteredPaletteItems.Count > 0)
+        {
+            e.Handled = true;
+            CommandPaletteList.SelectedIndex = Math.Max(CommandPaletteList.SelectedIndex - 1, 0);
+            CommandPaletteList.ScrollIntoView(CommandPaletteList.SelectedItem);
+        }
+        else if (e.Key == VirtualKey.Escape)
+        {
+            e.Handled = true;
+            CloseCommandPalette();
+        }
+    }
+
+    private void CommandPaletteList_ItemClick(object sender, ItemClickEventArgs e) =>
+        ExecutePaletteItem(e.ClickedItem as CommandPaletteItem);
 
     private void OnNavigationInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
@@ -135,9 +379,7 @@ public sealed partial class MainWindow : Window
     }
 
     private void AiLauncherButton_Click(object sender, RoutedEventArgs e) => NavigateTo("Ai");
-
     private void SettingsButton_Click(object sender, RoutedEventArgs e) => NavigateTo("Settings");
-
     private void AboutButton_Click(object sender, RoutedEventArgs e) => NavigateTo("About");
 
     private async void HelpButton_Click(object sender, RoutedEventArgs e)
@@ -152,11 +394,11 @@ public sealed partial class MainWindow : Window
                 TextWrapping = TextWrapping.Wrap,
                 Text = _localization.Get(
                     "HelpDialogBody",
-                    "BECETTI SECURITY combines the official local Native YARA Engine (VirusTotal/yara x64) with Microsoft Defender:\n\n" +
-                    "• YARA Engine runs real compiled .yar / .yara rules locally on your files and folders, validates every rule with yarac64 before loading, isolates invalid rules, and supports trusted rule repository updates.\n" +
-                    "• Smart Scan lets you run both Native YARA local scans and real Microsoft Defender scans (MpCmdRun.exe).\n" +
-                    "• Real-Time Protection, Updates, and Threat Management read and manage Microsoft Defender through supported Windows interfaces.\n" +
-                    "• BECETTI AI explains real scan reports and guides you inside the app.\n\n" +
+                    "BECETTI SECURITY combines the official local Native YARA Engine (VirusTotal/yara x64), EDR & Windows Hardening tools, and Microsoft Defender:\n\n" +
+                    "• Press Ctrl+K anytime to open the instant Command Palette.\n" +
+                    "• YARA Engine runs real compiled .yar/.yara rules locally, validates every rule with yarac64, and includes AI YARA Rule Studio.\n" +
+                    "• Advanced Defense provides Real-Time YARA Folder Guard, AES-256-GCM Quarantine, Live Process Memory YARA Scan, PE/Entropy/Authenticode Forensics, Ransomware Canaries, Clipboard Guard, and USB Auto-Scan.\n" +
+                    "• EDR & Hardening provides Deep Persistence Hunter, Hosts/DNS Hijack Guard, Camera/Mic Privacy Auditor, PowerShell/LOLBins Decoder, URL Phishing Inspector, SHA-256 FIM, Windows Hardening Auditor, and Forensic ZIP Bundle export.\n\n" +
                     "BECETTI SECURITY never simulates or fabricates detections.")
             }
         };
@@ -171,21 +413,28 @@ public sealed partial class MainWindow : Window
         if (_pages.TryGetValue(tag, out var pageType))
         {
             ContentFrame.Navigate(pageType, parameter);
-            foreach (var item in NavView.MenuItems.OfType<NavigationViewItem>())
-            {
-                if (item.Tag as string == tag)
-                {
-                    NavView.SelectedItem = item;
-                    break;
-                }
-            }
+            TrySelectNavItem(NavView.MenuItems, tag);
         }
     }
 
-    /// <summary>
-    /// Reads real Native YARA Engine + Microsoft Defender state once at startup to populate
-    /// the footer status bar. Never fabricated.
-    /// </summary>
+    private bool TrySelectNavItem(IList<object> items, string tag)
+    {
+        foreach (var item in items.OfType<NavigationViewItem>())
+        {
+            if (item.Tag as string == tag)
+            {
+                NavView.SelectedItem = item;
+                return true;
+            }
+            if (item.MenuItems.Count > 0 && TrySelectNavItem(item.MenuItems, tag))
+            {
+                item.IsExpanded = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
     private async Task LoadFooterStatusAsync()
     {
         try
@@ -198,10 +447,7 @@ public sealed partial class MainWindow : Window
                 _lastYaraRuleCount = yaraInit.Value.ActiveRuleCount;
             }
         }
-        catch
-        {
-            // Keep YARA status unknown if initialization fails
-        }
+        catch { }
 
         try
         {
@@ -233,7 +479,10 @@ public sealed partial class MainWindow : Window
                 : ("FooterUnknown", "Protection status unknown — could not verify", "TextSecondaryBrush")
         };
 
-        FooterReadinessText.Text = _localization.Get(key, fallback) + yaraSuffix;
+        var label = _localization.Get(key, fallback) + yaraSuffix;
+        FooterReadinessText.Text = label;
+        _tray.UpdateTooltip($"BECETTI SECURITY — {label}");
+
         if (Application.Current.Resources.TryGetValue(brushKey, out var brush) && brush is Brush b)
         {
             FooterReadinessText.Foreground = b;

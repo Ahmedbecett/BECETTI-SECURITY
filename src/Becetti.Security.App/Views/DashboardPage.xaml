@@ -15,121 +15,221 @@
     </Page.Resources>
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
-        <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleDashboard" helpers:Loc.Uid="TitleDashboard" Text="Dashboard" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleDashboard" helpers:Loc.Uid="SubtitleDashboard" Text="Verified security status, read live from Windows and Microsoft Defender." Style="{StaticResource SectionSubtitleStyle}" />
-            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
-            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+        <StackPanel Padding="32" MaxWidth="1060" Spacing="16">
 
-            <!-- Hero: aggregate protection status + robot mascot + Scan Now. Color/text are
-                 derived only from the verified DefenderStatus just read — never decorative. -->
-            <Border Style="{StaticResource GlassHeroCardStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <FontIcon x:Name="HeroShieldIcon" Glyph="&#xE7EF;" FontSize="32"
-                                      Foreground="{x:Bind ViewModel.ProtectionLevel, Mode=OneWay, Converter={StaticResource LevelToBrushConverter}}" />
-                            <TextBlock Text="{x:Bind ViewModel.ProtectionHeadline, Mode=OneWay}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <TextBlock Text="{x:Bind ViewModel.ProtectionSubtext, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,8,0,16" MaxWidth="480" />
-                        <Button x:Uid="ScanNowButton" helpers:Loc.Uid="ScanNowButton" Content="Scan Now" Style="{StaticResource PrimaryButtonStyle}" Click="ScanNowButton_Click" />
-                    </StackPanel>
-                    <Image Grid.Column="1" Source="Assets/RobotMascotHero.png" Width="140" Height="140" Margin="16,0,0,0" VerticalAlignment="Center">
-                        <Image.RenderTransform>
-                            <TranslateTransform x:Name="MascotTransform" Y="0" />
-                        </Image.RenderTransform>
-                    </Image>
-                </Grid>
-            </Border>
+            <!-- Header & Quick Action Strip -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock x:Uid="TitleDashboard" helpers:Loc.Uid="TitleDashboard" Text="Dashboard" Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock x:Uid="SubtitleDashboard" helpers:Loc.Uid="SubtitleDashboard" Text="Verified security status, read live from Windows, Microsoft Defender, and Native YARA Engine." Style="{StaticResource SectionSubtitleStyle}" Margin="0" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" />
+                    <Button Content="Ctrl+K" Click="OpenCommandPalette_Click" ToolTipService.ToolTip="Quick Command Palette (Ctrl+K)" />
+                </StackPanel>
+            </Grid>
 
-            <!-- Security Score: a 0-100 figure recomputed every refresh only from the
-                 real signals just read above - never a fixed or randomized number. -->
-            <Border Style="{StaticResource GlassHeroCardStyle}">
-                <StackPanel>
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" />
+            <ProgressBar IsIndeterminate="True" Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay}" />
+
+            <!-- Top Row: 2-Column Executive Hero + Visual Circular Security Score Ring -->
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.45*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Hero Protection Banner + Quick Launch -->
+                <Border Grid.Column="0" Style="{StaticResource GlassHeroCardStyle}" Margin="0">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <FontIcon x:Name="HeroShieldIcon" Glyph="&#xE7EF;" FontSize="32"
+                                          Foreground="{x:Bind ViewModel.ProtectionLevel, Mode=OneWay, Converter={StaticResource LevelToBrushConverter}}" />
+                                <TextBlock Text="{x:Bind ViewModel.ProtectionHeadline, Mode=OneWay}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind ViewModel.ProtectionSubtext, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                <Button x:Uid="ScanNowButton" helpers:Loc.Uid="ScanNowButton" Content="Scan Now" Style="{StaticResource PrimaryButtonStyle}" Click="ScanNowButton_Click" />
+                                <Button Content="YARA Engine" Click="OpenYara_Click" />
+                                <Button Content="EDR &amp; Hardening" Click="OpenEdr_Click" />
+                            </StackPanel>
+                        </StackPanel>
+                        <Image Grid.Column="1" Source="Assets/RobotMascotHero.png" Width="116" Height="116" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <Image.RenderTransform>
+                                <TranslateTransform x:Name="MascotTransform" Y="0" />
+                            </Image.RenderTransform>
+                        </Image>
+                    </Grid>
+                </Border>
+
+                <!-- Right: Interactive Circular Security Score Gauge -->
+                <Border Grid.Column="1" Style="{StaticResource GlassHeroCardStyle}" Margin="0">
+                    <StackPanel Spacing="12" VerticalAlignment="Center">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Width="92" Height="92" Margin="0,0,16,0">
+                                <ProgressRing IsIndeterminate="False"
+                                              Minimum="0" Maximum="100"
+                                              Value="{x:Bind ViewModel.SecurityScoreValue, Mode=OneWay}"
+                                              Width="92" Height="92"
+                                              Foreground="{StaticResource ElectricBlueBrush}"
+                                              Background="#1E293B" />
+                                <TextBlock Text="{x:Bind ViewModel.SecurityScoreText, Mode=OneWay}"
+                                           FontSize="26" FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock x:Uid="SecurityScoreTitle" helpers:Loc.Uid="SecurityScoreTitle" Text="Security Score" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                                <Border Style="{StaticResource ShellBadgeStyle}" HorizontalAlignment="Left">
+                                    <TextBlock Text="{x:Bind ViewModel.SecurityScoreGrade, Mode=OneWay}" Foreground="{StaticResource ElectricBlueBrush}" FontWeight="SemiBold" FontSize="12" />
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.SecurityScore.Factors, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:SecurityScoreFactor">
+                                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                                        <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                                 Fill="{x:Bind IsPositive, Converter={StaticResource BoolToStatusBrush}}" />
+                                        <TextBlock Text="{x:Bind Title}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Live Active Shields Quick-Control Matrix (3 x 2 Interactive Grid) -->
+            <Border Style="{StaticResource CardStyle}" Margin="0">
+                <StackPanel Spacing="12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock x:Uid="DashActiveShieldsTitle" helpers:Loc.Uid="DashActiveShieldsTitle" Text="Live Active Defense Shields" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock x:Uid="DashActiveShieldsSubtitle" helpers:Loc.Uid="DashActiveShieldsSubtitle" Text="Toggle real-time background guards directly from the Command Center." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="Advanced Defense" Click="OpenAdvancedDefense_Click" VerticalAlignment="Center" />
+                    </Grid>
+
+                    <Grid ColumnSpacing="12" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{x:Bind ViewModel.SecurityScoreText, Mode=OneWay}"
-                                   FontSize="48" FontWeight="Bold" Foreground="{StaticResource ElectricBlueBrush}"
-                                   VerticalAlignment="Center" Margin="0,0,16,0" />
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock x:Uid="SecurityScoreTitle" helpers:Loc.Uid="SecurityScoreTitle" Text="Security Score" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="{x:Bind ViewModel.SecurityScoreGrade, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" />
-                        </StackPanel>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14,10">
+                            <ToggleSwitch Header="Real-Time YARA Guard" IsOn="{x:Bind ViewModel.YaraGuardActive, Mode=TwoWay}" />
+                        </Border>
+                        <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14,10">
+                            <ToggleSwitch Header="Ransomware Canary" IsOn="{x:Bind ViewModel.CanaryActive, Mode=TwoWay}" />
+                        </Border>
+                        <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14,10">
+                            <ToggleSwitch Header="Clipboard Hijack Guard" IsOn="{x:Bind ViewModel.ClipboardActive, Mode=TwoWay}" />
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14,10">
+                            <ToggleSwitch Header="USB Auto-Scan" IsOn="{x:Bind ViewModel.UsbAutoActive, Mode=TwoWay}" />
+                        </Border>
+                        <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14,10">
+                            <ToggleSwitch Header="Hosts &amp; DNS Guard" IsOn="{x:Bind ViewModel.HostsGuardActive, Mode=TwoWay}" />
+                        </Border>
+                        <Border Grid.Row="1" Grid.Column="2" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14,10">
+                            <ToggleSwitch Header="File Integrity Monitor" IsOn="{x:Bind ViewModel.FimActive, Mode=TwoWay}" />
+                        </Border>
                     </Grid>
-                    <ItemsControl ItemsSource="{x:Bind ViewModel.SecurityScore.Factors, Mode=OneWay}" Margin="0,12,0,0">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="models:SecurityScoreFactor">
-                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4" VerticalAlignment="Top">
-                                    <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,6,0,0"
-                                             Fill="{x:Bind IsPositive, Converter={StaticResource BoolToStatusBrush}}" />
-                                    <StackPanel>
-                                        <TextBlock Text="{x:Bind Title}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                        <TextBlock Text="{x:Bind Detail}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" FontSize="12" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock x:Uid="DashAntivirusLabel" helpers:Loc.Uid="DashAntivirusLabel" Text="Antivirus" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Text="{x:Bind ViewModel.DefenderText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock x:Uid="DashRealTimeLabel" helpers:Loc.Uid="DashRealTimeLabel" Text="Real-Time Protection" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Text="{x:Bind ViewModel.RealTimeText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock x:Uid="DashFirewallLabel" helpers:Loc.Uid="DashFirewallLabel" Text="Firewall" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Text="{x:Bind ViewModel.FirewallText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock x:Uid="DashSignatureLabel" helpers:Loc.Uid="DashSignatureLabel" Text="Security Intelligence" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Text="{x:Bind ViewModel.SignatureText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock x:Uid="DashDeviceLabel" helpers:Loc.Uid="DashDeviceLabel" Text="Device" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Text="{x:Bind ViewModel.DeviceText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock x:Uid="DashCloudLabel" helpers:Loc.Uid="DashCloudLabel" Text="Cloud Connection" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Text="{x:Bind ViewModel.CloudText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock x:Uid="DashLastScanLabel" helpers:Loc.Uid="DashLastScanLabel" Text="Last Verified Scan" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Text="{x:Bind ViewModel.LastScanText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock x:Uid="DashAppVersionLabel" helpers:Loc.Uid="DashAppVersionLabel" Text="Application Version" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}" Style="{StaticResource ValueStyle}" />
-                </StackPanel>
-            </Border>
-            <Button x:Uid="RefreshButton" helpers:Loc.Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
-            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+            <!-- 2-Column Executive Telemetry Grid -->
+            <Grid ColumnSpacing="16" RowSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Uid="DashAntivirusLabel" helpers:Loc.Uid="DashAntivirusLabel" Text="Antivirus" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.DefenderText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource CardStyle}" Margin="0">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Uid="DashRealTimeLabel" helpers:Loc.Uid="DashRealTimeLabel" Text="Real-Time Protection" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.RealTimeText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Uid="DashFirewallLabel" helpers:Loc.Uid="DashFirewallLabel" Text="Firewall" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.FirewallText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardStyle}" Margin="0">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Native YARA Engine" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.YaraText, Mode=OneWay}" Style="{StaticResource ValueStyle}" Foreground="{StaticResource ElectricBlueBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Uid="DashSignatureLabel" helpers:Loc.Uid="DashSignatureLabel" Text="Security Intelligence" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.SignatureText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource CardStyle}" Margin="0">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Uid="DashDeviceLabel" helpers:Loc.Uid="DashDeviceLabel" Text="Device" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.DeviceText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Uid="DashCloudLabel" helpers:Loc.Uid="DashCloudLabel" Text="Cloud Connection" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.CloudText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource CardStyle}" Margin="0">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Uid="DashLastScanLabel" helpers:Loc.Uid="DashLastScanLabel" Text="Last Verified Scan" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.LastScanText, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
         </StackPanel>
     </ScrollViewer>
 </Page>

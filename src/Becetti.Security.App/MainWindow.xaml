@@ -5,10 +5,16 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:helpers="using:Becetti.Security.App.Helpers"
+    xmlns:local="using:Becetti.Security.App"
     mc:Ignorable="d"
     Title="BECETTI SECURITY">
 
-    <Grid Background="{StaticResource AppBackgroundBrush}" RequestedTheme="Dark">
+    <Grid x:Name="RootGrid" Background="{StaticResource AppBackgroundBrush}" RequestedTheme="Dark">
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Key="K" Modifiers="Control" Invoked="CommandPaletteAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Escape" Invoked="EscapeAccelerator_Invoked" />
+        </Grid.KeyboardAccelerators>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -18,203 +24,176 @@
             x:Name="NavView"
             Grid.Row="0"
             PaneDisplayMode="Left"
-            OpenPaneLength="268"
+            OpenPaneLength="276"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
             IsPaneOpen="True"
             Background="{StaticResource AppBackgroundBrush}">
+
             <NavigationView.MenuItems>
-                <NavigationViewItem x:Uid="NavDashboard" helpers:Loc.Uid="NavDashboard" Content="Dashboard" Tag="Dashboard" IsSelected="True">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE80F;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavEmergency" helpers:Loc.Uid="NavEmergency" Content="Emergency Center" Tag="Emergency">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7BA;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavScan" helpers:Loc.Uid="NavScan" Content="Smart Scan" Tag="Scan">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE721;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavYara" helpers:Loc.Uid="NavYara" Content="YARA Engine" Tag="Yara">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE9D5;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavAdvancedDefense" helpers:Loc.Uid="NavAdvancedDefense" Content="Advanced Defense" Tag="AdvancedDefense">
+                <!-- Group 1: Command & Active Protection -->
+                <NavigationViewItem x:Uid="NavGroupProtection" helpers:Loc.Uid="NavGroupProtection" Content="Command &amp; Protection" SelectsOnInvoked="False" IsExpanded="True">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE83D;" />
                     </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem x:Uid="NavDashboard" helpers:Loc.Uid="NavDashboard" Content="Dashboard" Tag="Dashboard" IsSelected="True">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE80F;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavEmergency" helpers:Loc.Uid="NavEmergency" Content="Emergency Center" Tag="Emergency">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE7BA;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavScan" helpers:Loc.Uid="NavScan" Content="Smart Scan" Tag="Scan">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE721;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavYara" helpers:Loc.Uid="NavYara" Content="YARA Engine" Tag="Yara">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE9D5;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavAdvancedDefense" helpers:Loc.Uid="NavAdvancedDefense" Content="Advanced Defense" Tag="AdvancedDefense">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE83D;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavEdrCenter" helpers:Loc.Uid="NavEdrCenter" Content="EDR &amp; Hardening" Tag="EdrCenter">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE9F5;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavProtection" helpers:Loc.Uid="NavProtection" Content="Real-Time Protection" Tag="Protection">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE7EF;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavRansomware" helpers:Loc.Uid="NavRansomware" Content="Ransomware Defense" Tag="Ransomware">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xEA18;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavThreats" helpers:Loc.Uid="NavThreats" Content="Threat Management" Tag="Threats">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE7BA;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavProtection" helpers:Loc.Uid="NavProtection" Content="Real-Time Protection" Tag="Protection">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7EF;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavCloud" helpers:Loc.Uid="NavCloud" Content="Cloud Security" Tag="Cloud">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE753;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavAi" helpers:Loc.Uid="NavAi" Content="BECETTI AI" Tag="Ai">
+
+                <!-- Group 2: AI & Threat Intelligence -->
+                <NavigationViewItem x:Uid="NavGroupAiIntel" helpers:Loc.Uid="NavGroupAiIntel" Content="AI &amp; Intelligence" SelectsOnInvoked="False" IsExpanded="True">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE99A;" />
                     </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem x:Uid="NavAi" helpers:Loc.Uid="NavAi" Content="BECETTI AI" Tag="Ai">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE99A;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavThreatIntel" helpers:Loc.Uid="NavThreatIntel" Content="Threat Intelligence" Tag="ThreatIntel">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE7BA;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavIpReputation" helpers:Loc.Uid="NavIpReputation" Content="IP Reputation" Tag="IpReputation">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE704;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavDataBreach" helpers:Loc.Uid="NavDataBreach" Content="Data Breach Monitor" Tag="DataBreach">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE8D7;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavKnowledge" helpers:Loc.Uid="NavKnowledge" Content="Knowledge Base" Tag="Knowledge">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE82D;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavRansomware" helpers:Loc.Uid="NavRansomware" Content="Ransomware Defense" Tag="Ransomware">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xEA18;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavThreats" helpers:Loc.Uid="NavThreats" Content="Threat Management" Tag="Threats">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7BA;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavPcHealth" helpers:Loc.Uid="NavPcHealth" Content="Smart PC Health" Tag="PcHealth">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE9D9;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavStartup" helpers:Loc.Uid="NavStartup" Content="Startup Manager" Tag="Startup">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7B5;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavSoftware" helpers:Loc.Uid="NavSoftware" Content="Software Manager" Tag="Software">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7B8;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavDrivers" helpers:Loc.Uid="NavDrivers" Content="Driver Monitor" Tag="Drivers">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE9CE;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavUsb" helpers:Loc.Uid="NavUsb" Content="USB Protection" Tag="Usb">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE88E;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavNetwork" helpers:Loc.Uid="NavNetwork" Content="Network Monitor" Tag="Network">
+
+                <!-- Group 3: Network & Privacy -->
+                <NavigationViewItem x:Uid="NavGroupNetworkPrivacy" helpers:Loc.Uid="NavGroupNetworkPrivacy" Content="Network &amp; Privacy" SelectsOnInvoked="False" IsExpanded="False">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE968;" />
                     </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem x:Uid="NavNetwork" helpers:Loc.Uid="NavNetwork" Content="Network Monitor" Tag="Network">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE968;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavWifi" helpers:Loc.Uid="NavWifi" Content="Wi-Fi Security" Tag="Wifi">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE701;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavBrowser" helpers:Loc.Uid="NavBrowser" Content="Browser Security" Tag="Browser">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE774;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavIdentity" helpers:Loc.Uid="NavIdentity" Content="Identity Protection" Tag="Identity">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE77B;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavPrivacy" helpers:Loc.Uid="NavPrivacy" Content="Privacy &amp; Network" Tag="Privacy">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE774;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavSecureVault" helpers:Loc.Uid="NavSecureVault" Content="Secure Vault" Tag="SecureVault">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE72E;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavFileShredder" helpers:Loc.Uid="NavFileShredder" Content="File Shredder" Tag="FileShredder">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE74D;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavParentalControl" helpers:Loc.Uid="NavParentalControl" Content="Parental Controls" Tag="ParentalControl">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE716;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavVulnerability" helpers:Loc.Uid="NavVulnerability" Content="Vulnerability Advisor" Tag="Vulnerability">
+
+                <!-- Group 4: System & Device Health -->
+                <NavigationViewItem x:Uid="NavGroupSystem" helpers:Loc.Uid="NavGroupSystem" Content="System &amp; Health" SelectsOnInvoked="False" IsExpanded="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7BA;" />
+                        <FontIcon Glyph="&#xE9D9;" />
                     </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem x:Uid="NavPcHealth" helpers:Loc.Uid="NavPcHealth" Content="Smart PC Health" Tag="PcHealth">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE9D9;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavStartup" helpers:Loc.Uid="NavStartup" Content="Startup Manager" Tag="Startup">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE7B5;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavSoftware" helpers:Loc.Uid="NavSoftware" Content="Software Manager" Tag="Software">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE7B8;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavDrivers" helpers:Loc.Uid="NavDrivers" Content="Driver Monitor" Tag="Drivers">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE9CE;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavUsb" helpers:Loc.Uid="NavUsb" Content="USB Protection" Tag="Usb">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE88E;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavVulnerability" helpers:Loc.Uid="NavVulnerability" Content="Vulnerability Advisor" Tag="Vulnerability">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE7BA;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavScheduledScan" helpers:Loc.Uid="NavScheduledScan" Content="Scheduled Scan" Tag="ScheduledScan">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE823;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavBackup" helpers:Loc.Uid="NavBackup" Content="Backup Advisor" Tag="Backup">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE7B3;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavGameMode" helpers:Loc.Uid="NavGameMode" Content="Game / Performance Mode" Tag="GameMode">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE7FC;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavBrowser" helpers:Loc.Uid="NavBrowser" Content="Browser Security" Tag="Browser">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE774;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavIdentity" helpers:Loc.Uid="NavIdentity" Content="Identity Protection" Tag="Identity">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE77B;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavWifi" helpers:Loc.Uid="NavWifi" Content="Wi-Fi Security" Tag="Wifi">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE701;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavScheduledScan" helpers:Loc.Uid="NavScheduledScan" Content="Scheduled Scan" Tag="ScheduledScan">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE823;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavBackup" helpers:Loc.Uid="NavBackup" Content="Backup Advisor" Tag="Backup">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7B3;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavReports" helpers:Loc.Uid="NavReports" Content="Smart Security Reports" Tag="Reports">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE9F9;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavCloudSync" helpers:Loc.Uid="NavCloudSync" Content="Cloud Sync" Tag="CloudSync">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE895;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavKnowledge" helpers:Loc.Uid="NavKnowledge" Content="Knowledge Base" Tag="Knowledge">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE82D;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavThreatIntel" helpers:Loc.Uid="NavThreatIntel" Content="Threat Intelligence" Tag="ThreatIntel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7BA;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavDataBreach" helpers:Loc.Uid="NavDataBreach" Content="Data Breach Monitor" Tag="DataBreach">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8D7;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavIpReputation" helpers:Loc.Uid="NavIpReputation" Content="IP Reputation" Tag="IpReputation">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE704;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavSecureVault" helpers:Loc.Uid="NavSecureVault" Content="Secure Vault" Tag="SecureVault">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE72E;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavFileShredder" helpers:Loc.Uid="NavFileShredder" Content="File Shredder" Tag="FileShredder">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE74D;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavParentalControl" helpers:Loc.Uid="NavParentalControl" Content="Parental Controls" Tag="ParentalControl">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE716;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavGameMode" helpers:Loc.Uid="NavGameMode" Content="Game / Performance Mode" Tag="GameMode">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7FC;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavPrivacy" helpers:Loc.Uid="NavPrivacy" Content="Privacy &amp; Network" Tag="Privacy">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE774;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavHistory" helpers:Loc.Uid="NavHistory" Content="Security History" Tag="History">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE81C;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavUpdates" helpers:Loc.Uid="NavUpdates" Content="Updates" Tag="Updates">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE777;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavSettings" helpers:Loc.Uid="NavSettings" Content="Settings" Tag="Settings">
+
+                <!-- Group 5: Cloud, Reports & Settings -->
+                <NavigationViewItem x:Uid="NavGroupCloudSettings" helpers:Loc.Uid="NavGroupCloudSettings" Content="Cloud, Reports &amp; Settings" SelectsOnInvoked="False" IsExpanded="False">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE713;" />
                     </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavContact" helpers:Loc.Uid="NavContact" Content="Contact Becetti" Tag="Contact">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE715;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavAbout" helpers:Loc.Uid="NavAbout" Content="About BECETTI SECURITY" Tag="About">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE946;" />
-                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem x:Uid="NavCloud" helpers:Loc.Uid="NavCloud" Content="Cloud Security" Tag="Cloud">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE753;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavCloudSync" helpers:Loc.Uid="NavCloudSync" Content="Cloud Sync" Tag="CloudSync">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE895;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavReports" helpers:Loc.Uid="NavReports" Content="Smart Security Reports" Tag="Reports">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE9F9;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavHistory" helpers:Loc.Uid="NavHistory" Content="Security History" Tag="History">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE81C;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavUpdates" helpers:Loc.Uid="NavUpdates" Content="Updates" Tag="Updates">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE777;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavSettings" helpers:Loc.Uid="NavSettings" Content="Settings" Tag="Settings">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE713;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavContact" helpers:Loc.Uid="NavContact" Content="Contact Becetti" Tag="Contact">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE715;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavAbout" helpers:Loc.Uid="NavAbout" Content="About BECETTI SECURITY" Tag="About">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE946;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
+
             <NavigationView.Header>
                 <Border Background="{StaticResource HeaderGradientBrush}"
                         BorderBrush="{StaticResource ShellDividerBrush}"
@@ -252,6 +231,23 @@
                                        Foreground="{StaticResource ElectricBlueBrush}" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <!-- Instant Command Palette Trigger Pill -->
+                            <Button x:Name="CommandPaletteButton"
+                                    Click="CommandPaletteButton_Click"
+                                    Background="#121824"
+                                    BorderBrush="#223047"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="12,6"
+                                    ToolTipService.ToolTip="Command Palette (Ctrl+K)">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE721;" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" />
+                                    <TextBlock x:Uid="CommandPaletteTriggerLabel" helpers:Loc.Uid="CommandPaletteTriggerLabel" Text="Quick Search" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                                    <Border Background="#1B2538" CornerRadius="4" Padding="6,1">
+                                        <TextBlock Text="Ctrl+K" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource ElectricBlueBrush}" />
+                                    </Border>
+                                </StackPanel>
+                            </Button>
                             <Button x:Name="HelpButton" Style="{StaticResource HeaderIconButtonStyle}" Click="HelpButton_Click" ToolTipService.ToolTip="Help">
                                 <FontIcon Glyph="&#xE897;" FontSize="15" />
                             </Button>
@@ -311,6 +307,85 @@
                 ToolTipService.ToolTip="BECETTI AI">
             <Image Source="Assets/RobotMascotHero.png" Width="36" Height="36" Stretch="Uniform" />
         </Button>
+
+        <!-- Global Ctrl+K Command Palette Overlay (Linear / VS Code Style) -->
+        <Grid x:Name="CommandPaletteOverlay"
+              Grid.Row="0" Grid.RowSpan="2"
+              Visibility="Collapsed"
+              Background="#B804070D"
+              PointerPressed="CommandPaletteBackdrop_PointerPressed">
+            <Border Width="580"
+                    MaxHeight="480"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Margin="0,72,0,0"
+                    Background="{StaticResource CardBackgroundBrush}"
+                    BorderBrush="{StaticResource HeroBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Padding="0"
+                    PointerPressed="CommandPaletteCard_PointerPressed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Search Bar -->
+                    <Border Grid.Row="0" BorderBrush="{StaticResource ShellDividerBrush}" BorderThickness="0,0,0,1" Padding="14,12">
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon Grid.Column="0" Glyph="&#xE721;" FontSize="16" Foreground="{StaticResource ElectricBlueBrush}" VerticalAlignment="Center" />
+                            <TextBox x:Name="CommandPaletteInput"
+                                     Grid.Column="1"
+                                     PlaceholderText="Jump to any security tool, scan, or action… (Type to filter)"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     TextChanged="CommandPaletteInput_TextChanged"
+                                     KeyDown="CommandPaletteInput_KeyDown" />
+                            <Button Grid.Column="2" Content="Esc" Click="CloseCommandPalette_Click" FontSize="11" Padding="8,4" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Matching Commands List -->
+                    <ListView x:Name="CommandPaletteList"
+                              Grid.Row="1"
+                              MaxHeight="340"
+                              SelectionMode="Single"
+                              IsItemClickEnabled="True"
+                              ItemClick="CommandPaletteList_ItemClick"
+                              Padding="6">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:CommandPaletteItem">
+                                <Grid Padding="8,7" ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="1">
+                                        <TextBlock Text="{x:Bind Title}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" FontSize="14" />
+                                        <TextBlock Text="{x:Bind Subtitle}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" />
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Style="{StaticResource ShellBadgeStyle}" VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind Category}" Foreground="{StaticResource ElectricBlueBrush}" FontSize="10" FontWeight="SemiBold" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <!-- Footer Hint -->
+                    <Border Grid.Row="2" Background="{StaticResource FooterBackgroundBrush}" BorderBrush="{StaticResource ShellDividerBrush}" BorderThickness="0,1,0,0" Padding="14,8" CornerRadius="0,0,14,14">
+                        <TextBlock Text="↑↓ Navigate · Enter Execute · Esc Close" Foreground="{StaticResource TextMutedBrush}" FontSize="11" />
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 
 </Window>

@@ -61,7 +61,17 @@ public partial class App : Application
         services.AddSingleton<IScheduledYaraUpdateService, ScheduledYaraUpdateService>();
         services.AddSingleton<IExplorerContextMenuService, ExplorerContextMenuService>();
         services.AddSingleton<IPerAppFirewallService, PerAppFirewallService>();
+        services.AddSingleton<IPersistenceHunterService, PersistenceHunterService>();
+        services.AddSingleton<IHostsDnsGuardService, HostsDnsGuardService>();
+        services.AddSingleton<ICameraMicAuditorService, CameraMicAuditorService>();
+        services.AddSingleton<IScriptCommandAuditorService, ScriptCommandAuditorService>();
+        services.AddSingleton<IUrlPhishingInspectorService, UrlPhishingInspectorService>();
+        services.AddSingleton<INetworkKillSwitchService, NetworkKillSwitchService>();
+        services.AddSingleton<IIncidentEvidenceService, IncidentEvidenceService>();
+        services.AddSingleton<IFileIntegrityMonitorService, FileIntegrityMonitorService>();
+        services.AddSingleton<IWindowsHardeningService, WindowsHardeningService>();
         services.AddSingleton<LocalizationService>();
+        services.AddSingleton<Services.SystemTrayService>();
         services.AddSingleton<Services.SoundService>();
         services.AddSingleton<Services.SpeechService>();
         services.AddSingleton<Services.NotificationService>();
@@ -89,6 +99,7 @@ public partial class App : Application
         services.AddTransient<ScanViewModel>();
         services.AddTransient<YaraScannerViewModel>();
         services.AddTransient<AdvancedDefenseViewModel>();
+        services.AddTransient<EdrCenterViewModel>();
         services.AddTransient<ProtectionViewModel>();
         services.AddTransient<CloudViewModel>();
         services.AddTransient<ThreatsViewModel>();
@@ -174,6 +185,14 @@ public partial class App : Application
         usbAutoScan.UsbThreatDetected += (_, ev) =>
             _ = notifications.NotifyCriticalAsync("USB YARA Threat Detected!", ev.Summary);
 
+        var hostsGuard = Services.GetRequiredService<IHostsDnsGuardService>();
+        hostsGuard.HostsTampered += (_, alert) =>
+            _ = notifications.NotifyCriticalAsync("Hosts File Modified!", alert.Message);
+
+        var fim = Services.GetRequiredService<IFileIntegrityMonitorService>();
+        fim.IntegrityViolation += (_, alert) =>
+            _ = notifications.NotifyCriticalAsync("File Integrity Alert (FIM)!", $"{alert.ChangeType}: {alert.FilePath}");
+
         // Subscribe to real Windows Clipboard changes on the UI thread
         try
         {
@@ -214,6 +233,12 @@ public partial class App : Application
 
                 if (settings.Current.UsbAutoScanEnabled)
                     usbAutoScan.Start();
+
+                if (settings.Current.HostsGuardEnabled)
+                    hostsGuard.StartWatching();
+
+                if (settings.Current.FimAutoWatchEnabled)
+                    await fim.StartWatchingAsync();
 
                 var scheduledYara = Services.GetRequiredService<IScheduledYaraUpdateService>();
                 await scheduledYara.LoadConfigAsync();

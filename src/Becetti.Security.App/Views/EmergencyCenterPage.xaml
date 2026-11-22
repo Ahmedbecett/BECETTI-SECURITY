@@ -26,6 +26,21 @@
             </Border>
 
             <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="KillSwitchTitle" helpers:Loc.Uid="KillSwitchTitle" Text="Emergency Network Kill-Switch (Host Isolation)" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource DangerBrush}" />
+                    <TextBlock Text="{x:Bind ViewModel.IsolationStatusText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                    <TextBlock x:Uid="KillSwitchHint" helpers:Loc.Uid="KillSwitchHint"
+                               Text="Immediately cuts all outbound &amp; inbound Windows Firewall traffic to stop active data exfiltration or ransomware lateral movement. Requires Administrator privileges."
+                               Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Uid="KillSwitchIsolateBtn" helpers:Loc.Uid="KillSwitchIsolateBtn" Content="Isolate Host Now" Command="{x:Bind ViewModel.IsolateNetworkCommand}" Background="{StaticResource DangerBrush}" Foreground="White" FontWeight="SemiBold" Padding="16,9" CornerRadius="8" />
+                        <Button x:Uid="KillSwitchRestoreBtn" helpers:Loc.Uid="KillSwitchRestoreBtn" Content="Restore Network Access" Command="{x:Bind ViewModel.RestoreNetworkCommand}" />
+                        <Button x:Uid="EdrEvidenceExportBtn" helpers:Loc.Uid="EdrEvidenceExportBtn" Content="Export Forensic ZIP" Command="{x:Bind ViewModel.ExportForensicBundleCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock x:Uid="QuickActionsLabel" helpers:Loc.Uid="QuickActionsLabel" Text="Quick actions" Style="{StaticResource LabelStyle}" />
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">

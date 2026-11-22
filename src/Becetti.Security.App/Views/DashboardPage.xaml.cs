@@ -24,16 +24,24 @@ public sealed partial class DashboardPage : Page
         base.OnNavigatedTo(e);
         await ViewModel.LoadAsync();
 
-        // Decorative only: a gentle float on the mascot. Never used to imply a
-        // scan/update is running — those states have their own real progress UI.
         if (ViewModel.EnableAnimations)
             StartMascotFloat();
     }
 
-    private void ScanNowButton_Click(object sender, RoutedEventArgs e)
-    {
-        Frame.Navigate(typeof(ScanPage), null, new EntranceNavigationTransitionInfo());
-    }
+    private void ScanNowButton_Click(object sender, RoutedEventArgs e) =>
+        App.MainWindow?.NavigateTo("Scan", null);
+
+    private void OpenYara_Click(object sender, RoutedEventArgs e) =>
+        App.MainWindow?.NavigateTo("Yara", null);
+
+    private void OpenEdr_Click(object sender, RoutedEventArgs e) =>
+        App.MainWindow?.NavigateTo("EdrCenter", null);
+
+    private void OpenAdvancedDefense_Click(object sender, RoutedEventArgs e) =>
+        App.MainWindow?.NavigateTo("AdvancedDefense", null);
+
+    private void OpenCommandPalette_Click(object sender, RoutedEventArgs e) =>
+        App.MainWindow?.OpenCommandPalette();
 
     private void StartMascotFloat()
     {

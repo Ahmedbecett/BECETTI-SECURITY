@@ -4,8 +4,8 @@ using Becetti.Security.Core.Services;
 namespace Becetti.Security.App.ViewModels;
 
 /// <summary>
-/// Security center dashboard. Every value is read live from Defender, the OS
-/// or the cloud API at refresh time. Unknown states are shown as "Unknown".
+/// Interactive Enterprise Command Center Dashboard. Every value is read live from
+/// Defender, Native YARA Engine, real active shields, the OS, or the cloud API at refresh time.
 /// </summary>
 public sealed class DashboardViewModel : ViewModelBase
 {
@@ -13,11 +13,19 @@ public sealed class DashboardViewModel : ViewModelBase
     private readonly ISystemInfoService _system;
     private readonly ICloudService _cloud;
     private readonly ISettingsService _settings;
+    private readonly IYaraEngineService _yara;
+    private readonly IRealTimeYaraGuardService _folderGuard;
+    private readonly IRansomwareCanaryService _canary;
+    private readonly IClipboardGuardService _clipboard;
+    private readonly IUsbAutoScanService _usb;
+    private readonly IHostsDnsGuardService _hosts;
+    private readonly IFileIntegrityMonitorService _fim;
 
     private string _defenderText = "Unknown";
     private string _realTimeText = "Unknown";
     private string _firewallText = "Unknown";
     private string _signatureText = "Unknown";
+    private string _yaraText = "Checking YARA Engine…";
     private string _deviceText = "Unknown";
     private string _cloudText = "Not configured";
     private string _lastScanText = "No scan has run yet";
@@ -25,12 +33,37 @@ public sealed class DashboardViewModel : ViewModelBase
     private ProtectionLevel _protectionLevel = ProtectionLevel.Unknown;
     private SecurityScoreResult _securityScore = new();
 
-    public DashboardViewModel(IDefenderService defender, ISystemInfoService system, ICloudService cloud, ISettingsService settings)
+    private bool _yaraGuardActive;
+    private bool _canaryActive;
+    private bool _clipboardActive;
+    private bool _usbAutoActive;
+    private bool _hostsGuardActive;
+    private bool _fimActive;
+
+    public DashboardViewModel(
+        IDefenderService defender,
+        ISystemInfoService system,
+        ICloudService cloud,
+        ISettingsService settings,
+        IYaraEngineService yara,
+        IRealTimeYaraGuardService folderGuard,
+        IRansomwareCanaryService canary,
+        IClipboardGuardService clipboard,
+        IUsbAutoScanService usb,
+        IHostsDnsGuardService hosts,
+        IFileIntegrityMonitorService fim)
     {
         _defender = defender;
         _system = system;
         _cloud = cloud;
         _settings = settings;
+        _yara = yara;
+        _folderGuard = folderGuard;
+        _canary = canary;
+        _clipboard = clipboard;
+        _usb = usb;
+        _hosts = hosts;
+        _fim = fim;
         RefreshCommand = new RelayCommand(LoadAsync);
     }
 
@@ -40,12 +73,72 @@ public sealed class DashboardViewModel : ViewModelBase
     public string RealTimeText { get => _realTimeText; set => SetProperty(ref _realTimeText, value); }
     public string FirewallText { get => _firewallText; set => SetProperty(ref _firewallText, value); }
     public string SignatureText { get => _signatureText; set => SetProperty(ref _signatureText, value); }
+    public string YaraText { get => _yaraText; set => SetProperty(ref _yaraText, value); }
     public string DeviceText { get => _deviceText; set => SetProperty(ref _deviceText, value); }
     public string CloudText { get => _cloudText; set => SetProperty(ref _cloudText, value); }
     public string LastScanText { get => _lastScanText; set => SetProperty(ref _lastScanText, value); }
     public string AppVersion { get => _appVersion; set => SetProperty(ref _appVersion, value); }
 
-    /// <summary>Aggregate status derived only from the verified DefenderStatus just read — never guessed.</summary>
+    public bool YaraGuardActive
+    {
+        get => _yaraGuardActive;
+        set
+        {
+            if (SetProperty(ref _yaraGuardActive, value))
+                _ = ToggleYaraGuardAsync(value);
+        }
+    }
+
+    public bool CanaryActive
+    {
+        get => _canaryActive;
+        set
+        {
+            if (SetProperty(ref _canaryActive, value))
+                _ = ToggleCanaryAsync(value);
+        }
+    }
+
+    public bool ClipboardActive
+    {
+        get => _clipboardActive;
+        set
+        {
+            if (SetProperty(ref _clipboardActive, value))
+                _ = ToggleClipboardAsync(value);
+        }
+    }
+
+    public bool UsbAutoActive
+    {
+        get => _usbAutoActive;
+        set
+        {
+            if (SetProperty(ref _usbAutoActive, value))
+                _ = ToggleUsbAsync(value);
+        }
+    }
+
+    public bool HostsGuardActive
+    {
+        get => _hostsGuardActive;
+        set
+        {
+            if (SetProperty(ref _hostsGuardActive, value))
+                _ = ToggleHostsAsync(value);
+        }
+    }
+
+    public bool FimActive
+    {
+        get => _fimActive;
+        set
+        {
+            if (SetProperty(ref _fimActive, value))
+                _ = ToggleFimAsync(value);
+        }
+    }
+
     public ProtectionLevel ProtectionLevel
     {
         get => _protectionLevel;
@@ -69,7 +162,7 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public string ProtectionSubtext => ProtectionLevel switch
     {
-        ProtectionLevel.Protected => "Microsoft Defender antivirus and real-time protection are verified active.",
+        ProtectionLevel.Protected => "Microsoft Defender antivirus, real-time protection, and Native YARA Engine are verified active.",
         ProtectionLevel.Warning => "Real-time protection is off, or another antivirus product is managing protection. See Real-Time Protection for details.",
         ProtectionLevel.Danger => "Antivirus is disabled. Enable Microsoft Defender or your other antivirus product.",
         _ => "BECETTI SECURITY could not verify Microsoft Defender's status on this device."
@@ -77,7 +170,6 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public bool EnableAnimations => _settings.Current.EnableAnimations;
 
-    /// <summary>0-100 score computed fresh from this load's own verified Defender/firewall/ransomware reads.</summary>
     public SecurityScoreResult SecurityScore
     {
         get => _securityScore;
@@ -86,12 +178,14 @@ public sealed class DashboardViewModel : ViewModelBase
             if (SetProperty(ref _securityScore, value))
             {
                 OnPropertyChanged(nameof(SecurityScoreText));
+                OnPropertyChanged(nameof(SecurityScoreValue));
                 OnPropertyChanged(nameof(SecurityScoreGrade));
             }
         }
     }
 
     public string SecurityScoreText => SecurityScore.Score?.ToString() ?? "—";
+    public double SecurityScoreValue => SecurityScore.Score ?? 0;
     public string SecurityScoreGrade => SecurityScore.Grade;
 
     public async Task LoadAsync()
@@ -103,6 +197,20 @@ public sealed class DashboardViewModel : ViewModelBase
         ClearMessages();
         try
         {
+            // Sync live shield switches without triggering duplicate start/stop
+            _yaraGuardActive = _folderGuard.IsRunning; OnPropertyChanged(nameof(YaraGuardActive));
+            _canaryActive = _canary.IsArmed; OnPropertyChanged(nameof(CanaryActive));
+            _clipboardActive = _clipboard.IsEnabled; OnPropertyChanged(nameof(ClipboardActive));
+            _usbAutoActive = _usb.IsEnabled; OnPropertyChanged(nameof(UsbAutoActive));
+            _hostsGuardActive = _hosts.IsWatching; OnPropertyChanged(nameof(HostsGuardActive));
+            _fimActive = _fim.IsWatching; OnPropertyChanged(nameof(FimActive));
+
+            var yaraInit = await _yara.InitializeAsync();
+            if (yaraInit.Success && yaraInit.Value is not null && yaraInit.Value.IsAvailable)
+                YaraText = $"YARA {yaraInit.Value.Version} · {yaraInit.Value.ActiveRuleCount} active rules compiled";
+            else
+                YaraText = "YARA engine unavailable";
+
             var status = await _defender.GetStatusAsync();
             ProtectionLevel = ProtectionStatusEvaluator.Evaluate(status.Success ? status.Value : null);
             if (status.Success && status.Value is not null)
@@ -111,7 +219,7 @@ public sealed class DashboardViewModel : ViewModelBase
                 DefenderText = s.AntivirusEnabled ? "Antivirus: Enabled" : "Antivirus: Disabled";
                 RealTimeText = s.RealTimeProtectionEnabled ? "Real-time protection: On" : "Real-time protection: Off";
                 SignatureText = s.AntivirusSignatureVersion is not null
-                    ? $"Signatures: {s.AntivirusSignatureVersion} (updated {s.AntivirusSignatureLastUpdated?.ToString("g") ?? "unknown"})"
+                    ? $"Signatures: {s.AntivirusSignatureVersion} ({s.AntivirusSignatureLastUpdated?.ToString("g") ?? "unknown"})"
                     : "Signatures: Unknown";
             }
             else
@@ -127,7 +235,7 @@ public sealed class DashboardViewModel : ViewModelBase
             {
                 FirewallText = firewall.Value.All(f => f.Enabled)
                     ? "Firewall: On (all profiles)"
-                    : "Firewall: Check profiles — " + string.Join(", ", firewall.Value.Select(f => $"{f.Name}: {(f.Enabled ? "On" : "Off")}"));
+                    : "Firewall: " + string.Join(", ", firewall.Value.Select(f => $"{f.Name}: {(f.Enabled ? "On" : "Off")}"));
             }
             else
             {
@@ -135,7 +243,6 @@ public sealed class DashboardViewModel : ViewModelBase
             }
 
             var ransomware = await _defender.GetRansomwareProtectionAsync();
-
             SecurityScore = SecurityScoreEvaluator.Evaluate(
                 status.Success ? status.Value : null,
                 firewall.Success ? firewall.Value : null,
@@ -151,23 +258,88 @@ public sealed class DashboardViewModel : ViewModelBase
             if (_cloud.IsConfigured)
             {
                 var health = await _cloud.GetHealthAsync();
-                CloudText = health.Success ? $"Cloud: Connected (API {health.Value!.Version})" : $"Cloud: Unreachable — {health.Message}";
+                CloudText = health.Success ? $"Connected (API {health.Value!.Version})" : $"Unreachable — {health.Message}";
             }
             else
             {
-                CloudText = "Cloud: Not configured (set API URL in Settings)";
+                CloudText = "Not configured (Settings)";
             }
 
-            var lastScan = _settings.Current.LastVerifiedScan;
-            LastScanText = lastScan.HasValue
-                ? $"Last verified scan: {lastScan.Value:yyyy-MM-dd HH:mm} — {_settings.Current.LastScanSummary}"
+            LastScanText = _settings.Current.LastVerifiedScan.HasValue
+                ? $"{_settings.Current.LastVerifiedScan.Value.ToLocalTime():g} — {_settings.Current.LastScanSummary}"
                 : "No scan has run yet";
 
-            StatusMessage = "Dashboard refreshed from live system checks.";
+            AppVersion = typeof(DashboardViewModel).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
+            StatusMessage = "Live command center telemetry updated.";
         }
         finally
         {
             IsBusy = false;
         }
+    }
+
+    private async Task ToggleYaraGuardAsync(bool enable)
+    {
+        if (enable)
+        {
+            var res = await _folderGuard.StartAsync();
+            StatusMessage = res.Message;
+        }
+        else
+        {
+            _folderGuard.Stop();
+            StatusMessage = "Real-Time YARA Folder Guard stopped.";
+        }
+        _settings.Current.RealTimeYaraGuardEnabled = enable;
+        await _settings.SaveAsync();
+    }
+
+    private async Task ToggleCanaryAsync(bool enable)
+    {
+        if (enable)
+        {
+            var res = await _canary.ArmAsync();
+            StatusMessage = res.Message;
+        }
+        else
+        {
+            _canary.Disarm(removeDecoyFiles: true);
+            StatusMessage = "Ransomware Canary Guard disarmed.";
+        }
+        _settings.Current.RansomwareCanaryEnabled = enable;
+        await _settings.SaveAsync();
+    }
+
+    private async Task ToggleClipboardAsync(bool enable)
+    {
+        _clipboard.IsEnabled = enable;
+        _settings.Current.ClipboardGuardEnabled = enable;
+        await _settings.SaveAsync();
+        StatusMessage = enable ? "Clipboard Hijack Guard enabled." : "Clipboard Hijack Guard disabled.";
+    }
+
+    private async Task ToggleUsbAsync(bool enable)
+    {
+        if (enable) _usb.Start();
+        else _usb.Stop();
+        _settings.Current.UsbAutoScanEnabled = enable;
+        await _settings.SaveAsync();
+        StatusMessage = enable ? "USB Auto-Scan started." : "USB Auto-Scan stopped.";
+    }
+
+    private async Task ToggleHostsAsync(bool enable)
+    {
+        var res = enable ? _hosts.StartWatching() : _hosts.StopWatching();
+        _settings.Current.HostsGuardEnabled = enable;
+        await _settings.SaveAsync();
+        StatusMessage = res.Message;
+    }
+
+    private async Task ToggleFimAsync(bool enable)
+    {
+        var res = enable ? await _fim.StartWatchingAsync() : _fim.StopWatching();
+        _settings.Current.FimAutoWatchEnabled = enable;
+        await _settings.SaveAsync();
+        StatusMessage = res.Message;
     }
 }
