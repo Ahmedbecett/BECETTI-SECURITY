@@ -92,6 +92,51 @@
                         <FontIcon Glyph="&#xE968;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavVulnerability" Content="Vulnerability Advisor" Tag="Vulnerability">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7BA;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavBrowser" Content="Browser Security" Tag="Browser">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE774;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavIdentity" Content="Identity Protection" Tag="Identity">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE77B;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavWifi" Content="Wi-Fi Security" Tag="Wifi">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE701;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavScheduledScan" Content="Scheduled Scan" Tag="ScheduledScan">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE823;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavBackup" Content="Backup Advisor" Tag="Backup">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7B3;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavReports" Content="Smart Security Reports" Tag="Reports">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE9F9;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavCloudSync" Content="Cloud Sync" Tag="CloudSync">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE895;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavKnowledge" Content="Knowledge Base" Tag="Knowledge">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE82D;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavPrivacy" Content="Privacy &amp; Network" Tag="Privacy">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE774;" />

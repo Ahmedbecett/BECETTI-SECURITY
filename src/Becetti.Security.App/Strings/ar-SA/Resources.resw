@@ -134,4 +134,53 @@
   <data name="DiagnosticSummaryLabel.Text" xml:space="preserve"><value>ملخص التشخيص</value></data>
   <data name="DiagnosticSummaryHint.Text" xml:space="preserve"><value>يُنشئ لقطة نصية لحالة الحماية والجدار الناري وصحة الجهاز الحالية لنسخها — لا يُرسل شيء تلقائيًا إلى أي جهة.</value></data>
   <data name="GenerateSummaryButton.Content" xml:space="preserve"><value>إنشاء الملخص</value></data>
+
+  <data name="NavVulnerability.Content" xml:space="preserve"><value>مستشار الثغرات</value></data>
+  <data name="TitleVulnerability.Text" xml:space="preserve"><value>مستشار الثغرات</value></data>
+  <data name="SubtitleVulnerability.Text" xml:space="preserve"><value>عرض مجمّع للفحوصات الحقيقية المنفذة بالفعل في أماكن أخرى من BECETTI SECURITY (ديفندر، الجدار الناري، التشغيل التلقائي لـ USB، التعريفات، TPM، التمهيد الآمن، BitLocker، تحديثات ويندوز). لا يوجد ماسح ثغرات أو قاعدة بيانات CVE منفصلة — كل نتيجة تعود إلى فحص حقيقي محدد.</value></data>
+  <data name="VulnerabilityFindingsLabel.Text" xml:space="preserve"><value>النتائج</value></data>
+
+  <data name="NavBrowser.Content" xml:space="preserve"><value>أمان المتصفح</value></data>
+  <data name="TitleBrowser.Text" xml:space="preserve"><value>أمان المتصفح</value></data>
+  <data name="SubtitleBrowser.Text" xml:space="preserve"><value>المتصفحات الحقيقية المثبتة (من نفس قائمة التطبيقات المثبتة التي يقرأها مدير البرامج) وسياسة SmartScreen الخاصة بويندوز، مقروءة من سجل النظام.</value></data>
+  <data name="SmartScreenLabel.Text" xml:space="preserve"><value>SmartScreen</value></data>
+  <data name="InstalledBrowsersLabel.Text" xml:space="preserve"><value>المتصفحات المثبتة</value></data>
+
+  <data name="NavIdentity.Content" xml:space="preserve"><value>حماية الهوية</value></data>
+  <data name="TitleIdentity.Text" xml:space="preserve"><value>حماية الهوية</value></data>
+  <data name="SubtitleIdentity.Text" xml:space="preserve"><value>أمان العتاد/المنصة الحقيقي الذي يحمي بيانات اعتمادك وبياناتك المخزّنة: TPM، التمهيد الآمن، Credential Guard وBitLocker، مقروءة من Get-Tpm وConfirm-SecureBootUEFI وWin32_DeviceGuard وGet-BitLockerVolume.</value></data>
+
+  <data name="NavWifi.Content" xml:space="preserve"><value>أمان الواي فاي</value></data>
+  <data name="TitleWifi.Text" xml:space="preserve"><value>أمان الواي فاي</value></data>
+  <data name="SubtitleWifi.Text" xml:space="preserve"><value>نوع المصادقة والتشفير الحقيقي لشبكة الواي فاي المتصل بها حاليًا، مقروء من أمر netsh wlan show interfaces — نفس الأداة التي تستخدمها تشخيصات واي فاي ويندوز.</value></data>
+
+  <data name="NavScheduledScan.Content" xml:space="preserve"><value>الفحص المجدول</value></data>
+  <data name="TitleScheduledScan.Text" xml:space="preserve"><value>الفحص المجدول</value></data>
+  <data name="SubtitleScheduledScan.Text" xml:space="preserve"><value>يسجّل مهمة مجدولة حقيقية في ويندوز (مرئية وقابلة للتعديل في جدولة المهام) تُشغّل فحص Microsoft Defender حقيقيًا يوميًا — حتى عند إغلاق BECETTI SECURITY. إنشاؤها أو حذفها يتطلب صلاحيات المسؤول.</value></data>
+  <data name="ScheduleNewScanLabel.Text" xml:space="preserve"><value>جدولة فحص يومي</value></data>
+  <data name="FullScanToggle.Header" xml:space="preserve"><value>فحص كامل (وإلا فحص سريع)</value></data>
+  <data name="ScheduleHourLabel.Text" xml:space="preserve"><value>ساعة اليوم (0-23، بالتوقيت المحلي)</value></data>
+  <data name="ScheduleScanButton.Content" xml:space="preserve"><value>جدولة</value></data>
+  <data name="RemoveScheduleButton.Content" xml:space="preserve"><value>إزالة الفحص المجدول</value></data>
+
+  <data name="NavBackup.Content" xml:space="preserve"><value>مستشار النسخ الاحتياطي</value></data>
+  <data name="TitleBackup.Text" xml:space="preserve"><value>مستشار النسخ الاحتياطي</value></data>
+  <data name="SubtitleBackup.Text" xml:space="preserve"><value>وضعية النسخ الاحتياطي الحقيقية الخاصة بويندوز: حالة خدمة سجل الملفات (File History) ونسخ الاستعادة الحقيقية لاستعادة النظام. BECETTI SECURITY لا يطبّق محرك نسخ احتياطي خاصًا به — الحماية من الفيروسات ليست بديلاً عن النسخ الاحتياطي.</value></data>
+
+  <data name="NavReports.Content" xml:space="preserve"><value>تقارير الأمان الذكية</value></data>
+  <data name="TitleReports.Text" xml:space="preserve"><value>تقارير الأمان الذكية</value></data>
+  <data name="SubtitleReports.Text" xml:space="preserve"><value>لقطة مجمّعة من فحوصات موجودة بالفعل في أماكن أخرى من BECETTI SECURITY (ديفندر، الجدار الناري، مستشار الثغرات). صدّرها كنص عادي أو ملف PDF بسيط للمشاركة أو الأرشفة.</value></data>
+  <data name="SaveAsPdfButton.Content" xml:space="preserve"><value>حفظ كملف PDF</value></data>
+  <data name="SaveAsTextButton.Content" xml:space="preserve"><value>حفظ كنص</value></data>
+
+  <data name="NavCloudSync.Content" xml:space="preserve"><value>مزامنة السحابة</value></data>
+  <data name="TitleCloudSync.Text" xml:space="preserve"><value>مزامنة السحابة</value></data>
+  <data name="SubtitleCloudSync.Text" xml:space="preserve"><value>حالة الاتصال وتسجيل الدخول الحقيقية لحساب BECETTI السحابي. هذه نافذة حالة فوق تسجيل الدخول السحابي الموجود بالفعل — لا توجد خادمية ثانية أو مخزن بيانات تتم مزامنته.</value></data>
+  <data name="SyncNowButton.Content" xml:space="preserve"><value>مزامنة الآن</value></data>
+
+  <data name="NavKnowledge.Content" xml:space="preserve"><value>قاعدة المعرفة</value></data>
+  <data name="TitleKnowledge.Text" xml:space="preserve"><value>قاعدة المعرفة</value></data>
+  <data name="SubtitleKnowledge.Text" xml:space="preserve"><value>مقالات مؤلَّفة محليًا تشرح ميزات الأمان الحقيقية التي يقدمها BECETTI SECURITY وممارسات الاستخدام الآمن العامة. لا يتم إجراء أي اتصال شبكي لعرض هذا المحتوى.</value></data>
+  <data name="KnowledgeSearchBox.PlaceholderText" xml:space="preserve"><value>ابحث في المقالات...</value></data>
+  <data name="SearchButton.Content" xml:space="preserve"><value>بحث</value></data>
 </root>

@@ -450,3 +450,226 @@ public sealed class NetworkConnectionInfo
     public string ProcessDisplay =>
         string.IsNullOrWhiteSpace(ProcessName) ? $"PID {OwningProcessId}" : $"{ProcessName} (PID {OwningProcessId})";
 }
+
+// ---------- Platform / Identity security (TPM, Secure Boot, Credential Guard, BitLocker, Windows Update) ----------
+
+/// <summary>Real TPM state from the built-in Get-Tpm cmdlet.</summary>
+public sealed class TpmStatus
+{
+    public bool Available { get; init; }
+    public bool Present { get; init; }
+    public bool Ready { get; init; }
+    public string? ManufacturerVersion { get; init; }
+    public string? RawError { get; init; }
+}
+
+/// <summary>Real UEFI Secure Boot state from Confirm-SecureBootUEFI. Unavailable on legacy BIOS systems.</summary>
+public sealed class SecureBootStatus
+{
+    public bool Available { get; init; }
+    public bool Enabled { get; init; }
+    public string? RawError { get; init; }
+}
+
+/// <summary>Real Credential Guard running state from Win32_DeviceGuard (root\Microsoft\Windows\DeviceGuard).</summary>
+public sealed class CredentialGuardStatus
+{
+    public bool Available { get; init; }
+    public bool Running { get; init; }
+    public string? RawError { get; init; }
+}
+
+/// <summary>Real BitLocker protection status for one volume from Get-BitLockerVolume.</summary>
+public sealed class DiskEncryptionStatus
+{
+    public bool Available { get; init; }
+    public string? MountPoint { get; init; }
+    /// <summary>Raw BitLocker ProtectionStatus ("On"/"Off"), or null when unavailable.</summary>
+    public string? ProtectionStatus { get; init; }
+    public bool IsProtected => string.Equals(ProtectionStatus, "On", StringComparison.OrdinalIgnoreCase);
+    public string? RawError { get; init; }
+}
+
+/// <summary>Real last-successful-install time from the Windows Update registry key Settings &gt; Update reads.</summary>
+public sealed class WindowsUpdateStatus
+{
+    public bool Available { get; init; }
+    public DateTimeOffset? LastSuccessInstallTime { get; init; }
+}
+
+/// <summary>One combined read of TPM, Secure Boot, Credential Guard and BitLocker state.</summary>
+public sealed class PlatformSecuritySnapshot
+{
+    public TpmStatus Tpm { get; init; } = new();
+    public SecureBootStatus SecureBoot { get; init; } = new();
+    public CredentialGuardStatus CredentialGuard { get; init; } = new();
+    public DiskEncryptionStatus DiskEncryption { get; init; } = new();
+}
+
+// ---------- Vulnerability Advisor / Security Reports shared findings ----------
+
+/// <summary>Severity of one real, verified security finding. Never a guessed or simulated risk score.</summary>
+public enum FindingSeverity
+{
+    Good,
+    Info,
+    Low,
+    Medium,
+    High,
+    Unknown
+}
+
+/// <summary>
+/// One real, verified security finding compiled from an existing BECETTI SECURITY
+/// check (Defender, firewall, UAC, drivers, AutoRun, TPM, BitLocker, Windows Update).
+/// BECETTI SECURITY has no vulnerability database or CVE feed of its own — every
+/// finding here traces back to a real Windows/Defender API read elsewhere in the app.
+/// </summary>
+public sealed class SecurityFinding
+{
+    public string Title { get; init; } = string.Empty;
+    public FindingSeverity Severity { get; init; } = FindingSeverity.Unknown;
+    public string Detail { get; init; } = string.Empty;
+    public string? Recommendation { get; init; }
+    /// <summary>Which real API/cmdlet this finding came from, e.g. "Get-MpComputerStatus".</summary>
+    public string Source { get; init; } = string.Empty;
+}
+
+// ---------- Browser Security ----------
+
+/// <summary>One detected installed browser, reused from the real installed-software inventory.</summary>
+public sealed class BrowserInfo
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Version { get; init; }
+    public string? Publisher { get; init; }
+}
+
+/// <summary>Real Windows SmartScreen policy state read from the registry.</summary>
+public sealed class SmartScreenStatus
+{
+    /// <summary>SmartScreen for apps &amp; files (Explorer). Null when not explicitly configured.</summary>
+    public bool? AppsAndFilesEnabled { get; init; }
+    /// <summary>Microsoft Edge's own SmartScreen policy. Null when not explicitly configured.</summary>
+    public bool? EdgeSmartScreenEnabled { get; init; }
+}
+
+// ---------- Scheduled Scan ----------
+
+/// <summary>
+/// A real Windows Scheduled Task that BECETTI SECURITY registered to run an
+/// unattended Defender scan (via MpCmdRun.exe), read back from Task Scheduler
+/// itself (schtasks.exe /Query) — not an internal timer BECETTI SECURITY
+/// fakes while the app is closed. Visible and manageable in Task Scheduler.
+/// </summary>
+public sealed class ScheduledScanInfo
+{
+    public bool Exists { get; init; }
+    public string TaskName { get; init; } = string.Empty;
+    public DefenderScanType ScanType { get; init; }
+    public string? ScheduleDescription { get; init; }
+    public DateTimeOffset? NextRunTime { get; init; }
+    public DateTimeOffset? LastRunTime { get; init; }
+    public string? LastTaskResult { get; init; }
+}
+
+// ---------- Wi-Fi Security ----------
+
+/// <summary>Real currently-connected Wi-Fi network security details from "netsh wlan show interfaces".</summary>
+public sealed class WifiSecurityInfo
+{
+    public bool Connected { get; init; }
+    public string? Ssid { get; init; }
+    /// <summary>Raw authentication type reported by Windows (e.g. "WPA2-Personal", "Open").</summary>
+    public string? AuthenticationType { get; init; }
+    public string? CipherType { get; init; }
+    public int? SignalPercent { get; init; }
+    /// <summary>True only when the authentication type is a recognized WPA2/WPA3 variant — never guessed.</summary>
+    public bool? IsStronglySecured { get; init; }
+    public string? RawError { get; init; }
+}
+
+// ---------- Backup Advisor ----------
+
+/// <summary>
+/// Real backup posture read from Windows' own File History configuration and
+/// System Restore shadow copies (vssadmin/WMI). BECETTI SECURITY implements no
+/// backup engine of its own — it only reports what Windows itself has configured.
+/// </summary>
+public sealed class BackupStatus
+{
+    public bool Available { get; init; }
+    /// <summary>Null when File History's configuration could not be determined.</summary>
+    public bool? FileHistoryConfigured { get; init; }
+    public int RestorePointCount { get; init; }
+    public DateTimeOffset? LatestRestorePoint { get; init; }
+    public string? RawError { get; init; }
+}
+
+// ---------- Vulnerability Advisor report ----------
+
+/// <summary>
+/// A combined read of every real BECETTI SECURITY check compiled into one
+/// list of findings. No independent vulnerability scanner or CVE feed is
+/// implemented — this is a summary of checks that already exist elsewhere
+/// in the app (Defender, firewall, USB AutoRun, drivers, platform security,
+/// Windows Update).
+/// </summary>
+public sealed class VulnerabilityReport
+{
+    public IReadOnlyList<SecurityFinding> Findings { get; init; } = Array.Empty<SecurityFinding>();
+    public int HighCount => Findings.Count(f => f.Severity == FindingSeverity.High);
+    public int MediumCount => Findings.Count(f => f.Severity == FindingSeverity.Medium);
+    public int LowCount => Findings.Count(f => f.Severity == FindingSeverity.Low);
+    public int GoodCount => Findings.Count(f => f.Severity == FindingSeverity.Good);
+    public DateTimeOffset GeneratedAt { get; init; } = DateTimeOffset.Now;
+}
+
+// ---------- Smart Security Reports ----------
+
+/// <summary>
+/// A single consolidated snapshot of the device's real security posture,
+/// assembled from the same checks the other pages already perform (Defender,
+/// firewall, PC health, vulnerability findings). Exportable as plain text or
+/// a simple PDF so it can be shared or archived.
+/// </summary>
+public sealed class SecurityReportSummary
+{
+    public DateTimeOffset GeneratedAt { get; init; } = DateTimeOffset.Now;
+    public string DeviceName { get; init; } = string.Empty;
+    public bool DefenderAvailable { get; init; }
+    public bool AntivirusEnabled { get; init; }
+    public bool RealTimeProtectionEnabled { get; init; }
+    public bool FirewallFullyEnabled { get; init; }
+    public int ThreatCount { get; init; }
+    public VulnerabilityReport Vulnerability { get; init; } = new();
+}
+
+// ---------- Cloud sync ----------
+
+/// <summary>
+/// Real cloud account/connectivity state built on top of the existing
+/// ICloudService auth client — not a second backend. "Sync" here means the
+/// local app's verified knowledge of the cloud account (reachability, signed
+/// in email, last successful check), not a duplicated data store.
+/// </summary>
+public sealed class CloudSyncStatus
+{
+    public bool Configured { get; init; }
+    public bool Reachable { get; init; }
+    public bool Authenticated { get; init; }
+    public string? AccountEmail { get; init; }
+    public DateTimeOffset? LastSyncedAt { get; init; }
+    public string? RawError { get; init; }
+}
+
+// ---------- Knowledge Base ----------
+
+/// <summary>One locally-authored security education article (no external/AI content).</summary>
+public sealed class KnowledgeBaseArticle
+{
+    public string Id { get; init; } = string.Empty;
+    public string Title { get; init; } = string.Empty;
+    public string Category { get; init; } = string.Empty;
+    public string Body { get; init; } = string.Empty;
+}

@@ -1,0 +1,39 @@
+<Page
+    x:Class="Becetti.Security.App.Views.KnowledgeBasePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    mc:Ignorable="d">
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleKnowledge" Text="Knowledge Base" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleKnowledge"
+                       Text="Locally-authored articles explaining the real security features BECETTI SECURITY exposes and general safe-use practices. No network call is made to show this content."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+                <TextBox x:Uid="KnowledgeSearchBox" PlaceholderText="Search articles..." Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" Width="320" />
+                <Button x:Uid="SearchButton" Content="Search" Command="{x:Bind ViewModel.SearchCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{x:Bind ViewModel.Articles, Mode=OneWay}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:KnowledgeBaseArticle">
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="{x:Bind Category}" Foreground="{StaticResource ElectricBlueBrush}" FontSize="11" FontWeight="SemiBold" />
+                                <TextBlock Text="{x:Bind Title}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" FontSize="16" Margin="0,2,0,6" TextWrapping="Wrap" />
+                                <TextBlock Text="{x:Bind Body}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -59,6 +59,13 @@ public sealed class AppSettings
 
     /// <summary>WhatsApp number (E.164, no "+") for the "Contact Becetti" feature's WhatsApp option.</summary>
     public string SupportWhatsAppNumber { get; set; } = "213784302071";
+
+    /// <summary>
+    /// Timestamp of the last time this device actually completed a real
+    /// cloud health/auth check (Cloud Sync page). Null until one succeeds;
+    /// never backfilled with a guessed value.
+    /// </summary>
+    public DateTimeOffset? LastCloudSyncAt { get; set; }
 }
 
 public interface ISettingsService

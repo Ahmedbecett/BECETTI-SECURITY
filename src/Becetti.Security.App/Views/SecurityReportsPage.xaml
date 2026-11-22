@@ -1,0 +1,33 @@
+<Page
+    x:Class="Becetti.Security.App.Views.SecurityReportsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleReports" Text="Smart Security Reports" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleReports"
+                       Text="A consolidated snapshot assembled from checks that already exist elsewhere in BECETTI SECURITY (Defender, firewall, Vulnerability Advisor). Export it as plain text or a simple PDF to share or archive."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+                <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                <Button x:Uid="SaveAsPdfButton" Content="Save as PDF" Click="SaveAsPdf_Click" IsEnabled="{x:Bind ViewModel.HasReport, Mode=OneWay}" />
+                <Button x:Uid="SaveAsTextButton" Content="Save as Text" Click="SaveAsText_Click" IsEnabled="{x:Bind ViewModel.HasReport, Mode=OneWay}" />
+            </StackPanel>
+
+            <Border Style="{StaticResource CardStyle}">
+                <ScrollViewer MaxHeight="420">
+                    <TextBlock Text="{x:Bind ViewModel.ReportText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Consolas" TextWrapping="Wrap" />
+                </ScrollViewer>
+            </Border>
+
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

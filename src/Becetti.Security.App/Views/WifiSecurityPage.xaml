@@ -1,0 +1,29 @@
+<Page
+    x:Class="Becetti.Security.App.Views.WifiSecurityPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleWifi" Text="Wi-Fi Security" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleWifi"
+                       Text="The real authentication and cipher of the Wi-Fi network you're currently connected to, read from netsh wlan show interfaces — the same tool Windows' own Wi-Fi diagnostics use."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{x:Bind ViewModel.Summary, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.SecuritySummary, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,8,0,0" />
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

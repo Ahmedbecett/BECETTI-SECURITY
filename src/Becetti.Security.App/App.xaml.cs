@@ -35,6 +35,15 @@ public partial class App : Application
         services.AddSingleton<IDriverMonitorService, DriverMonitorService>();
         services.AddSingleton<IUsbProtectionService, UsbProtectionService>();
         services.AddSingleton<INetworkMonitorService, NetworkMonitorService>();
+        services.AddSingleton<IPlatformSecurityService, PlatformSecurityService>();
+        services.AddSingleton<IVulnerabilityAdvisorService, VulnerabilityAdvisorService>();
+        services.AddSingleton<IBrowserSecurityService, BrowserSecurityService>();
+        services.AddSingleton<ISecurityReportService, SecurityReportService>();
+        services.AddSingleton<ICloudSyncService, CloudSyncService>();
+        services.AddSingleton<IScheduledScanService, ScheduledScanService>();
+        services.AddSingleton<IBackupAdvisorService, BackupAdvisorService>();
+        services.AddSingleton<IWifiSecurityService, WifiSecurityService>();
+        services.AddSingleton<IKnowledgeBaseService, KnowledgeBaseService>();
         services.AddSingleton<IEventLogService, EventLogService>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
@@ -75,6 +84,15 @@ public partial class App : Application
         services.AddTransient<EmergencyCenterViewModel>();
         services.AddTransient<UsbProtectionViewModel>();
         services.AddTransient<NetworkMonitorViewModel>();
+        services.AddTransient<VulnerabilityAdvisorViewModel>();
+        services.AddTransient<BrowserSecurityViewModel>();
+        services.AddTransient<SecurityReportsViewModel>();
+        services.AddTransient<IdentityProtectionViewModel>();
+        services.AddTransient<CloudSyncViewModel>();
+        services.AddTransient<ScheduledScanViewModel>();
+        services.AddTransient<BackupAdvisorViewModel>();
+        services.AddTransient<WifiSecurityViewModel>();
+        services.AddTransient<KnowledgeBaseViewModel>();
 
         Services = services.BuildServiceProvider();
 

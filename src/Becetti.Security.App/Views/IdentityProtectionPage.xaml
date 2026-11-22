@@ -1,0 +1,50 @@
+<Page
+    x:Class="Becetti.Security.App.Views.IdentityProtectionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleIdentity" Text="Identity Protection" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleIdentity"
+                       Text="Real hardware/platform security that protects your credentials and data at rest: TPM, Secure Boot, Credential Guard and BitLocker, read from Get-Tpm, Confirm-SecureBootUEFI, Win32_DeviceGuard and Get-BitLockerVolume."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="TPM" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.TpmSummary, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Secure Boot" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.SecureBootSummary, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Credential Guard" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.CredentialGuardSummary, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="BitLocker (Disk Encryption)" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.DiskEncryptionSummary, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,8,0,0" />
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

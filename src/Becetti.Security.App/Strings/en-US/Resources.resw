@@ -134,4 +134,53 @@
   <data name="DiagnosticSummaryLabel.Text" xml:space="preserve"><value>Diagnostic summary</value></data>
   <data name="DiagnosticSummaryHint.Text" xml:space="preserve"><value>Builds a plain-text snapshot of your current protection, firewall and PC health state for you to copy — nothing is sent anywhere automatically.</value></data>
   <data name="GenerateSummaryButton.Content" xml:space="preserve"><value>Generate Summary</value></data>
+
+  <data name="NavVulnerability.Content" xml:space="preserve"><value>Vulnerability Advisor</value></data>
+  <data name="TitleVulnerability.Text" xml:space="preserve"><value>Vulnerability Advisor</value></data>
+  <data name="SubtitleVulnerability.Text" xml:space="preserve"><value>A combined view of real checks already performed elsewhere in BECETTI SECURITY (Defender, firewall, USB AutoRun, drivers, TPM, Secure Boot, BitLocker, Windows Update). There is no separate vulnerability scanner or CVE database — every finding traces back to a named real check.</value></data>
+  <data name="VulnerabilityFindingsLabel.Text" xml:space="preserve"><value>Findings</value></data>
+
+  <data name="NavBrowser.Content" xml:space="preserve"><value>Browser Security</value></data>
+  <data name="TitleBrowser.Text" xml:space="preserve"><value>Browser Security</value></data>
+  <data name="SubtitleBrowser.Text" xml:space="preserve"><value>Real installed browsers (from the same installed-apps inventory Software Manager reads) and Windows' own SmartScreen policy, read from the registry.</value></data>
+  <data name="SmartScreenLabel.Text" xml:space="preserve"><value>SmartScreen</value></data>
+  <data name="InstalledBrowsersLabel.Text" xml:space="preserve"><value>Installed Browsers</value></data>
+
+  <data name="NavIdentity.Content" xml:space="preserve"><value>Identity Protection</value></data>
+  <data name="TitleIdentity.Text" xml:space="preserve"><value>Identity Protection</value></data>
+  <data name="SubtitleIdentity.Text" xml:space="preserve"><value>Real hardware/platform security that protects your credentials and data at rest: TPM, Secure Boot, Credential Guard and BitLocker, read from Get-Tpm, Confirm-SecureBootUEFI, Win32_DeviceGuard and Get-BitLockerVolume.</value></data>
+
+  <data name="NavWifi.Content" xml:space="preserve"><value>Wi-Fi Security</value></data>
+  <data name="TitleWifi.Text" xml:space="preserve"><value>Wi-Fi Security</value></data>
+  <data name="SubtitleWifi.Text" xml:space="preserve"><value>The real authentication and cipher of the Wi-Fi network you're currently connected to, read from netsh wlan show interfaces — the same tool Windows' own Wi-Fi diagnostics use.</value></data>
+
+  <data name="NavScheduledScan.Content" xml:space="preserve"><value>Scheduled Scan</value></data>
+  <data name="TitleScheduledScan.Text" xml:space="preserve"><value>Scheduled Scan</value></data>
+  <data name="SubtitleScheduledScan.Text" xml:space="preserve"><value>Registers a real Windows Scheduled Task (visible and editable in Task Scheduler) that runs a genuine Microsoft Defender scan daily — even while BECETTI SECURITY is closed. Creating or removing it requires an administrator.</value></data>
+  <data name="ScheduleNewScanLabel.Text" xml:space="preserve"><value>Schedule a daily scan</value></data>
+  <data name="FullScanToggle.Header" xml:space="preserve"><value>Full scan (otherwise Quick scan)</value></data>
+  <data name="ScheduleHourLabel.Text" xml:space="preserve"><value>Hour of day (0-23, local time)</value></data>
+  <data name="ScheduleScanButton.Content" xml:space="preserve"><value>Schedule</value></data>
+  <data name="RemoveScheduleButton.Content" xml:space="preserve"><value>Remove Scheduled Scan</value></data>
+
+  <data name="NavBackup.Content" xml:space="preserve"><value>Backup Advisor</value></data>
+  <data name="TitleBackup.Text" xml:space="preserve"><value>Backup Advisor</value></data>
+  <data name="SubtitleBackup.Text" xml:space="preserve"><value>Windows' own real backup posture: File History's service state and System Restore's real shadow copies. BECETTI SECURITY implements no backup engine of its own — antivirus protection is not a substitute for backups.</value></data>
+
+  <data name="NavReports.Content" xml:space="preserve"><value>Smart Security Reports</value></data>
+  <data name="TitleReports.Text" xml:space="preserve"><value>Smart Security Reports</value></data>
+  <data name="SubtitleReports.Text" xml:space="preserve"><value>A consolidated snapshot assembled from checks that already exist elsewhere in BECETTI SECURITY (Defender, firewall, Vulnerability Advisor). Export it as plain text or a simple PDF to share or archive.</value></data>
+  <data name="SaveAsPdfButton.Content" xml:space="preserve"><value>Save as PDF</value></data>
+  <data name="SaveAsTextButton.Content" xml:space="preserve"><value>Save as Text</value></data>
+
+  <data name="NavCloudSync.Content" xml:space="preserve"><value>Cloud Sync</value></data>
+  <data name="TitleCloudSync.Text" xml:space="preserve"><value>Cloud Sync</value></data>
+  <data name="SubtitleCloudSync.Text" xml:space="preserve"><value>Real connectivity and sign-in status for your BECETTI cloud account. This is a status view on top of the existing cloud sign-in — there is no second backend or data store being synchronized.</value></data>
+  <data name="SyncNowButton.Content" xml:space="preserve"><value>Sync Now</value></data>
+
+  <data name="NavKnowledge.Content" xml:space="preserve"><value>Knowledge Base</value></data>
+  <data name="TitleKnowledge.Text" xml:space="preserve"><value>Knowledge Base</value></data>
+  <data name="SubtitleKnowledge.Text" xml:space="preserve"><value>Locally-authored articles explaining the real security features BECETTI SECURITY exposes and general safe-use practices. No network call is made to show this content.</value></data>
+  <data name="KnowledgeSearchBox.PlaceholderText" xml:space="preserve"><value>Search articles...</value></data>
+  <data name="SearchButton.Content" xml:space="preserve"><value>Search</value></data>
 </root>
