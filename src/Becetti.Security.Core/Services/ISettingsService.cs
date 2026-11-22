@@ -115,6 +115,24 @@ public sealed class AppSettings
 
     /// <summary>When true, File Integrity Monitor (FIM) watches tracked files for unexpected byte modifications.</summary>
     public bool FimAutoWatchEnabled { get; set; }
+
+    /// <summary>When true, Automated Scan Scheduler periodically runs YARA Quick Scan and Hardening Audit.</summary>
+    public bool ScheduledScanEnabled { get; set; }
+
+    /// <summary>Interval in hours between automated scheduled scans (default 24h = daily, 168h = weekly).</summary>
+    public int ScheduledScanIntervalHours { get; set; } = 24;
+
+    /// <summary>UTC timestamp of the last automated scheduled scan run.</summary>
+    public DateTimeOffset? LastScheduledScanUtc { get; set; }
+
+    /// <summary>When true, sensitive security controls require Windows Hello or PIN verification.</summary>
+    public bool AppLockEnabled { get; set; }
+
+    /// <summary>PBKDF2-SHA256 Base64 hash of optional fallback local PIN (empty if using Windows Hello only).</summary>
+    public string AppLockPinHash { get; set; } = string.Empty;
+
+    /// <summary>Random Base64 salt for optional fallback local PIN.</summary>
+    public string AppLockPinSalt { get; set; } = string.Empty;
 }
 
 public interface ISettingsService

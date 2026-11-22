@@ -48,6 +48,24 @@
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="SettingsAppLockTitle" helpers:Loc.Uid="SettingsAppLockTitle" Text="Anti-Tamper Protection (Windows Hello / PIN Lock)" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="SettingsAppLockHint" helpers:Loc.Uid="SettingsAppLockHint" Text="Require Windows Hello biometric/PIN verification (or a local PBKDF2-SHA256 PIN) before opening Settings, Emergency Kill-Switch, or Quarantine Vault." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsAppLockToggle" helpers:Loc.Uid="SettingsAppLockToggle" Header="Require authentication for sensitive security controls" IsOn="{x:Bind ViewModel.AppLockEnabled, Mode=TwoWay}" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <PasswordBox Grid.Column="0" x:Name="AppLockPinBox" PlaceholderText="Set local fallback Security PIN (4-32 chars)..." PasswordChanged="AppLockPinBox_PasswordChanged" />
+                        <Button Grid.Column="1" Content="Set PIN &amp; Enable" Style="{StaticResource PrimaryButtonStyle}" Command="{x:Bind ViewModel.SaveAppLockPinCommand}" />
+                        <Button Grid.Column="2" Content="Disable Lock" Command="{x:Bind ViewModel.DisableAppLockCommand}" />
+                    </Grid>
+                    <TextBlock Text="{x:Bind ViewModel.AppLockStatusText, Mode=OneWay}" Foreground="{StaticResource ElectricBlueBrush}" FontSize="12" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="BECETTI AI" Style="{StaticResource ValueStyle}" />
                     <TextBlock x:Uid="SettingsAiHint" helpers:Loc.Uid="SettingsAiHint" Text="The AI assistant talks only to the BECETTI AI server below — the real AI provider key is never stored in this app. Device-state sharing and chat history are separate, off-by-default opt-ins available on the BECETTI AI page."

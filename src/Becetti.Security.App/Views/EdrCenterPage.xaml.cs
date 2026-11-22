@@ -26,6 +26,24 @@ public sealed partial class EdrCenterPage : Page
         await ViewModel.LoadAsync();
     }
 
+    private async void RemediateHardening_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: HardeningCheckItem check })
+            await ViewModel.RemediateHardeningCheckAsync(check);
+    }
+
+    private void AskAiAboutPersistence_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: PersistenceEntry entry })
+            App.MainWindow?.NavigateTo("Ai", ViewModel.BuildPersistenceAiPrompt(entry));
+    }
+
+    private void AskAiAboutUrl_Click(object sender, RoutedEventArgs e)
+    {
+        if (!string.IsNullOrWhiteSpace(ViewModel.UrlToInspect))
+            App.MainWindow?.NavigateTo("Ai", ViewModel.BuildUrlAiPrompt());
+    }
+
     private void ScanPersistenceWithYara_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button { Tag: string path } && !string.IsNullOrWhiteSpace(path))

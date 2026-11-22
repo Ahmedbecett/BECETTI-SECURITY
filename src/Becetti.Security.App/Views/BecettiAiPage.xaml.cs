@@ -31,7 +31,11 @@ public sealed partial class BecettiAiPage : Page
         base.OnNavigatedTo(e);
 
         if (e.Parameter is string seedText && !string.IsNullOrWhiteSpace(seedText))
+        {
             ViewModel.SeedInput(seedText);
+            if (seedText.StartsWith("Analyze ", StringComparison.OrdinalIgnoreCase) && ViewModel.SendCommand.CanExecute(null))
+                ViewModel.SendCommand.Execute(null);
+        }
 
         var localization = App.Services.GetRequiredService<LocalizationService>();
         var (welcomeText, languageTag) = localization.Current switch

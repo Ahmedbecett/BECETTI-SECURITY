@@ -1,0 +1,261 @@
+<Page
+    x:Class="Becetti.Security.App.Views.ProactiveDefensePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:helpers="using:Becetti.Security.App.Helpers"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid Padding="28,24,28,24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock x:Uid="ProactivePageTitle" helpers:Loc.Uid="ProactivePageTitle"
+                           Text="Proactive Defense, Privacy &amp; Reports"
+                           Style="{StaticResource PageTitleStyle}"/>
+                <TextBlock x:Uid="ProactivePageSubtitle" helpers:Loc.Uid="ProactivePageSubtitle"
+                           Text="Browser extension risk auditor, Winget patch manager, Wi-Fi/ARP MITM guard, Process DLL inspector, DoD shredder, k-Anonymity breach check &amp; executive PDF reports."
+                           Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <ProgressRing IsActive="{Binding IsBusy}" Width="22" Height="22"/>
+                <Button x:Uid="ProactiveGenerateReportTopBtn" helpers:Loc.Uid="ProactiveGenerateReportTopBtn"
+                        Content="Executive Security Report (HTML/PDF)"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Command="{Binding GenerateReportCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Status / Error Banners -->
+        <StackPanel Grid.Row="1" Spacing="8">
+            <InfoBar IsOpen="{Binding HasStatus}" Severity="Informational" Title="Status" Message="{Binding StatusMessage}"/>
+            <InfoBar IsOpen="{Binding HasError}" Severity="Error" Title="Action Required" Message="{Binding ErrorMessage}"/>
+        </StackPanel>
+
+        <!-- Enterprise 6-Tab Workspace -->
+        <Pivot Grid.Row="2">
+
+            <!-- Tab 1: Browser Extensions Risk Auditor (#2) -->
+            <PivotItem x:Uid="ProactiveTabBrowsers" helpers:Loc.Uid="ProactiveTabBrowsers" Header="Browser Extensions">
+                <ScrollViewer Padding="0,12,0,12">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding BrowserSummary}" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Audit Browser Extensions" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AuditBrowsersCommand}"/>
+                                    <Button Content="Analyze with BECETTI AI" Command="{Binding AskAiExtensionCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                            <ListView ItemsSource="{Binding Extensions}" SelectedItem="{Binding SelectedExtension, Mode=TwoWay}" MaxHeight="440">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:BrowserExtensionItem">
+                                        <StackPanel Padding="6,8" Spacing="3">
+                                            <TextBlock Text="{x:Bind DisplayLine}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="{x:Bind DetailLine}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!-- Tab 2: Outdated Software & Winget Auditor (#3) -->
+            <PivotItem x:Uid="ProactiveTabSoftware" helpers:Loc.Uid="ProactiveTabSoftware" Header="Software Updates">
+                <ScrollViewer Padding="0,12,0,12">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding SoftwareSummary}" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Check Outdated Apps" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding CheckSoftwareCommand}"/>
+                                    <Button Content="Upgrade Selected" Command="{Binding UpgradeSelectedSoftwareCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                            <ListView ItemsSource="{Binding OutdatedPackages}" SelectedItem="{Binding SelectedSoftware, Mode=TwoWay}" MaxHeight="440">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:OutdatedSoftwareItem">
+                                        <StackPanel Padding="6,8" Spacing="3">
+                                            <TextBlock Text="{x:Bind DisplayLine}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="{x:Bind DetailLine}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!-- Tab 3: Wi-Fi Security & ARP Spoofing Guard (#4) -->
+            <PivotItem x:Uid="ProactiveTabWifiArp" helpers:Loc.Uid="ProactiveTabWifiArp" Header="Wi-Fi &amp; ARP Guard">
+                <ScrollViewer Padding="0,12,0,12">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="{Binding WifiSummary}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding WifiDetails}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Audit Wi-Fi &amp; ARP" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AuditWifiArpCommand}"/>
+                                    <Button Content="Ask BECETTI AI" Command="{Binding AskAiWifiArpCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                            <InfoBar IsOpen="{Binding ArpAlertActive}" Severity="Warning" Title="Network / ARP Alert" Message="Potential Wi-Fi encryption weakness or ARP Spoofing / MITM indicator detected below."/>
+                            <ListView ItemsSource="{Binding WifiArpAlerts}" MaxHeight="140"/>
+                            <TextBlock Text="Live ARP Neighbor Table" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <ListView ItemsSource="{Binding ArpEntries}" MaxHeight="320">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ArpEntryInfo">
+                                        <TextBlock Text="{x:Bind DisplayLine}" FontFamily="Consolas" FontSize="12" Padding="4,4"/>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!-- Tab 4: Live Process DLL & Module Inspector (#5) -->
+            <PivotItem x:Uid="ProactiveTabDlls" helpers:Loc.Uid="ProactiveTabDlls" Header="Process DLL Inspector">
+                <ScrollViewer Padding="0,12,0,12">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="12">
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding DllSummary}" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBox Grid.Column="1" PlaceholderText="PID (optional)" Text="{Binding TargetPidInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Inspect DLLs" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AuditDllsCommand}"/>
+                                    <Button Content="YARA Scan DLL" Command="{Binding ScanSelectedDllYaraCommand}"/>
+                                    <Button Content="Ask BECETTI AI" Command="{Binding AskAiDllCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                            <ListView ItemsSource="{Binding LoadedDlls}" SelectedItem="{Binding SelectedDll, Mode=TwoWay}" MaxHeight="420">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ProcessDllInfo">
+                                        <StackPanel Padding="6,8" Spacing="3">
+                                            <TextBlock Text="{x:Bind DisplayLine}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="{x:Bind DetailLine}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!-- Tab 5: Privacy Vault — Secure File Shredder (#6) & Password Breach Checker (#7) -->
+            <PivotItem x:Uid="ProactiveTabPrivacy" helpers:Loc.Uid="ProactiveTabPrivacy" Header="Shredder &amp; Passwords">
+                <ScrollViewer Padding="0,12,0,12">
+                    <StackPanel Spacing="16">
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Secure File Shredder (DoD 5220.22-M)" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Text="Permanently overwrites file bytes on disk (0x00, 0xFF, CSPRNG random), flushes buffers, scrambles filename, and unlinks irreversibly." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                <Grid ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox PlaceholderText="Select or paste file path to shred permanently..." Text="{Binding ShredFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Button Grid.Column="1" Content="Browse File" Click="BrowseShredFile_Click"/>
+                                    <Button Grid.Column="2" Content="Shred Permanently" Background="{StaticResource DangerBrush}" Foreground="White" Command="{Binding ShredFileCommand}"/>
+                                </Grid>
+                                <CheckBox Content="Use 7-Pass DoD ECE overwrite (slower, maximum erasure)" IsChecked="{Binding ShredSevenPass, Mode=TwoWay}"/>
+                                <TextBlock Text="{Binding ShredResult}" FontSize="12" Foreground="{StaticResource ElectricBlueBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Password Breach &amp; Strength Auditor (k-Anonymity)" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Text="Computes local entropy and checks HaveIBeenPwned using k-Anonymity: ONLY the first 5 characters of SHA-1 are ever sent. Plaintext passwords never leave your device." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                <Grid ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <PasswordBox x:Name="BreachPasswordBox" PlaceholderText="Enter password to test..." PasswordChanged="BreachPasswordBox_PasswordChanged"/>
+                                    <Button Grid.Column="1" Content="Check Password" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding CheckPasswordCommand}"/>
+                                </Grid>
+                                <TextBlock Text="{Binding PasswordSummary}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!-- Tab 6: Executive Reports (#10) & Automated Scheduler / Policy Backup (#8) -->
+            <PivotItem x:Uid="ProactiveTabReports" helpers:Loc.Uid="ProactiveTabReports" Header="Reports &amp; Automation">
+                <ScrollViewer Padding="0,12,0,12">
+                    <StackPanel Spacing="16">
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Executive Security Report (HTML / Print-to-PDF)" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Text="Generates a styled, localized executive report (EN / AR RTL / FR) containing Security Score, all 9 Windows Hardening checks, Active Shields, YARA status, and recent Security Events — ready to print or save as PDF." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Button Content="Generate &amp; Open Report" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding GenerateReportCommand}"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding LastReportPath}" FontFamily="Consolas" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Automated Scan Scheduler &amp; Policy Backup" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <ToggleSwitch Header="Enable Automated Background Security Audits (YARA Quick Scan + Hardening Check)"
+                                              IsOn="{Binding ScheduledScanEnabled, Mode=TwoWay}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                    <TextBlock Text="Schedule Interval:" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <ComboBox SelectedIndex="{Binding ScheduledIntervalIndex, Mode=TwoWay}" Width="200">
+                                        <ComboBoxItem Content="Daily (Every 24 hours)"/>
+                                        <ComboBoxItem Content="Weekly (Every 7 days)"/>
+                                    </ComboBox>
+                                    <Button Content="Run Audit Now" Command="{Binding RunScheduledAuditNowCommand}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Button Content="Export Policy JSON" Command="{Binding ExportPolicyCommand}"/>
+                                    <Button Content="Import Policy JSON" Click="ImportPolicy_Click"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding AutomationSummary}" FontSize="12" Foreground="{StaticResource ElectricBlueBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+        </Pivot>
+    </Grid>
+</Page>

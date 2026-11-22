@@ -41,6 +41,7 @@ public sealed class EdrCenterViewModel : ViewModelBase
     private string _fimSummary = "Add sensitive files to monitor their SHA-256 cryptographic integrity.";
     private string _hardeningScoreText = "—";
     private string _hardeningSummary = "Click 'Audit Windows Hardening' to verify UAC, Secure Boot, HVCI, SMBv1, RDP, TPM, and BitLocker.";
+    private bool _createRestorePointBeforeFix;
     private string _evidenceSummary = "Export a timestamped ZIP bundle with live processes, network, YARA, persistence, hardening, and SHA-256 hash.";
 
     public EdrCenterViewModel(
@@ -453,6 +454,45 @@ public sealed class EdrCenterViewModel : ViewModelBase
         }
         finally { IsBusy = false; }
     }
+
+    public bool CreateRestorePointBeforeFix
+    {
+        get => _createRestorePointBeforeFix;
+        set => SetProperty(ref _createRestorePointBeforeFix, value);
+    }
+
+    public async Task RemediateHardeningCheckAsync(HardeningCheckItem check)
+    {
+        if (check is null || !check.CanAutoFix) return;
+        ClearMessages();
+        IsBusy = true;
+        try
+        {
+            var res = await _hardening.RemediateCheckAsync(check.Id, CreateRestorePointBeforeFix);
+            if (!res.Success)
+            {
+                ErrorMessage = res.Message;
+                return;
+            }
+
+            StatusMessage = res.Message;
+            await _events.RecordAsync("edr.hardening.remediated", res.Message, true, check.Id);
+            await AuditHardeningAsync();
+        }
+        finally { IsBusy = false; }
+    }
+
+    public string BuildPersistenceAiPrompt(PersistenceEntry entry) =>
+        $"Analyze this Windows persistence entry detected by BECETTI SECURITY Deep Persistence Hunter:\n" +
+        $"Category: {entry.Category}\nName: {entry.Name}\nLocation: {entry.SourceLocation}\n" +
+        $"Command: {entry.Command}\nSignature: {entry.SignatureStatus} ({entry.Publisher})\n" +
+        $"Risk: {entry.RiskLevel} — {entry.RiskReason}\n" +
+        $"Tell me if this looks legitimate or suspicious, and exact safe steps to verify or remove it.";
+
+    public string BuildUrlAiPrompt() =>
+        $"Analyze this URL inspection from BECETTI SECURITY Phishing & Homograph Inspector:\n" +
+        $"URL: {UrlToInspect}\nSummary: {UrlReportSummary}\nFindings:\n- {string.Join("\n- ", UrlFindings)}\n" +
+        $"Should I trust this link or block it? Explain concisely.";
 
     public string BuildScriptAiPrompt(string scriptOrDecoded) =>
         $"Analyze this Windows PowerShell / LOLBin command captured by BECETTI SECURITY EDR Auditor. Explain whether it is benign or malicious, what each flag does, and safe remediation steps:\n\n{scriptOrDecoded}";

@@ -70,6 +70,15 @@ public partial class App : Application
         services.AddSingleton<IIncidentEvidenceService, IncidentEvidenceService>();
         services.AddSingleton<IFileIntegrityMonitorService, FileIntegrityMonitorService>();
         services.AddSingleton<IWindowsHardeningService, WindowsHardeningService>();
+        services.AddSingleton<IBrowserExtensionAuditorService, BrowserExtensionAuditorService>();
+        services.AddSingleton<ISoftwareUpdateAuditorService, SoftwareUpdateAuditorService>();
+        services.AddSingleton<IWifiArpGuardService, WifiArpGuardService>();
+        services.AddSingleton<IProcessDllInspectorService, ProcessDllInspectorService>();
+        services.AddSingleton<ISecureShredderService, SecureShredderService>();
+        services.AddSingleton<IScanSchedulerService, ScanSchedulerService>();
+        services.AddSingleton<IExecutiveHtmlReportService, ExecutiveHtmlReportService>();
+        services.AddSingleton<IAppLockService, AppLockService>();
+        services.AddSingleton<Services.IAiTriageNavigator, Services.AiTriageNavigator>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SystemTrayService>();
         services.AddSingleton<Services.SoundService>();
@@ -94,12 +103,14 @@ public partial class App : Application
         services.AddHttpClient<IThreatIntelligenceService, ThreatIntelligenceService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IDataBreachService, DataBreachService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IIpReputationService, IpReputationService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IPasswordBreachService, PasswordBreachService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
 
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
         services.AddTransient<YaraScannerViewModel>();
         services.AddTransient<AdvancedDefenseViewModel>();
         services.AddTransient<EdrCenterViewModel>();
+        services.AddTransient<ProactiveDefenseViewModel>();
         services.AddTransient<ProtectionViewModel>();
         services.AddTransient<CloudViewModel>();
         services.AddTransient<ThreatsViewModel>();
@@ -244,6 +255,15 @@ public partial class App : Application
                 await scheduledYara.LoadConfigAsync();
                 if (scheduledYara.CurrentConfig.Enabled)
                     scheduledYara.StartBackgroundLoop();
+
+                var scanScheduler = Services.GetRequiredService<IScanSchedulerService>();
+                scanScheduler.ScanCompleted += (_, res) =>
+                {
+                    if (res.YaraThreatsFound > 0)
+                        _ = notifications.NotifyCriticalAsync("Scheduled YARA Audit Alert!", res.Summary);
+                };
+                if (settings.Current.ScheduledScanEnabled)
+                    scanScheduler.Start();
             }
             catch
             {

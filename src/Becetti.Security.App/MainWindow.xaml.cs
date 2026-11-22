@@ -32,6 +32,12 @@ public sealed partial class MainWindow : Window
     private readonly LocalizationService _localization;
     private readonly ISettingsService _settings;
     private readonly SystemTrayService _tray;
+    private readonly IAppLockService _appLock;
+    private readonly IAiTriageNavigator _aiTriage;
+    private static readonly HashSet<string> ProtectedTags = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Settings", "Emergency", "AdvancedDefense"
+    };
     private bool _allowFullExit;
     private ProtectionLevel _lastProtectionLevel = ProtectionLevel.Unknown;
     private string? _lastYaraVersion;
@@ -47,6 +53,7 @@ public sealed partial class MainWindow : Window
         ["Yara"] = typeof(YaraScannerPage),
         ["AdvancedDefense"] = typeof(AdvancedDefensePage),
         ["EdrCenter"] = typeof(EdrCenterPage),
+        ["ProactiveDefense"] = typeof(ProactiveDefensePage),
         ["Protection"] = typeof(ProtectionPage),
         ["Cloud"] = typeof(CloudPage),
         ["Ai"] = typeof(BecettiAiPage),
@@ -92,6 +99,10 @@ public sealed partial class MainWindow : Window
         _localization = App.Services.GetRequiredService<LocalizationService>();
         _settings = App.Services.GetRequiredService<ISettingsService>();
         _tray = App.Services.GetRequiredService<SystemTrayService>();
+        _appLock = App.Services.GetRequiredService<IAppLockService>();
+        _aiTriage = App.Services.GetRequiredService<IAiTriageNavigator>();
+        _aiTriage.TriageRequested += (_, prompt) =>
+            DispatcherQueue.TryEnqueue(() => NavigateTo("Ai", prompt));
 
         CommandPaletteList.ItemsSource = _filteredPaletteItems;
         ConfigureSystemTray();
@@ -242,6 +253,20 @@ public sealed partial class MainWindow : Window
         });
         _allPaletteItems.Add(new CommandPaletteItem
         {
+            Title = "Proactive Defense: Browser Extensions, Winget, Wi-Fi/ARP & DLL Inspector",
+            Subtitle = "Audit extensions, patch outdated apps, detect ARP spoofing, inspect unsigned DLLs & shred files",
+            Category = "Action",
+            TargetTag = "ProactiveDefense"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Generate Executive Security Report (HTML / Print-to-PDF)",
+            Subtitle = "Export full localized security score, hardening table & recent events report",
+            Category = "Reports",
+            TargetTag = "ProactiveDefense"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
             Title = "Ask BECETTI AI Security Assistant",
             Subtitle = "Investigate alerts, decode scripts, or explain system status",
             Category = "AI",
@@ -372,10 +397,8 @@ public sealed partial class MainWindow : Window
 
     private void OnNavigationInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
-        if (args.InvokedItemContainer?.Tag is string tag && _pages.TryGetValue(tag, out var pageType))
-        {
-            ContentFrame.Navigate(pageType, null, new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo());
-        }
+        if (args.InvokedItemContainer?.Tag is string tag)
+            NavigateTo(tag, null);
     }
 
     private void AiLauncherButton_Click(object sender, RoutedEventArgs e) => NavigateTo("Ai");
@@ -410,11 +433,27 @@ public sealed partial class MainWindow : Window
 
     public void NavigateTo(string tag, object? parameter)
     {
-        if (_pages.TryGetValue(tag, out var pageType))
+        _ = NavigateToWithGateAsync(tag, parameter);
+    }
+
+    private async Task NavigateToWithGateAsync(string tag, object? parameter)
+    {
+        if (!_pages.TryGetValue(tag, out var pageType))
+            return;
+
+        if (ProtectedTags.Contains(tag) && _appLock.IsEnabled && !_appLock.IsSessionUnlocked)
         {
-            ContentFrame.Navigate(pageType, parameter);
-            TrySelectNavItem(NavView.MenuItems, tag);
+            var xamlRoot = (Content as FrameworkElement)?.XamlRoot;
+            var ok = await WindowsHelloAuthHelper.VerifyAccessAsync(
+                xamlRoot,
+                _appLock,
+                $"Verify identity to access protected BECETTI SECURITY module ({tag}).");
+            if (!ok)
+                return;
         }
+
+        ContentFrame.Navigate(pageType, parameter);
+        TrySelectNavItem(NavView.MenuItems, tag);
     }
 
     private bool TrySelectNavItem(IList<object> items, string tag)

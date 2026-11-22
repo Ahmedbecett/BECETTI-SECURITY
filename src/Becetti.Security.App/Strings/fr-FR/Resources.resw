@@ -1176,4 +1176,43 @@ BECETTI SECURITY ne simule jamais de détections.</value>
   <data name="SettingsMinimizeToTray.Header" xml:space="preserve">
     <value>Rester actif en arrière-plan dans la barre système à la fermeture</value>
   </data>
+  <data name="NavProactiveDefense.Content" xml:space="preserve">
+    <value>Défense Proactive &amp; Rapports</value>
+  </data>
+  <data name="ProactivePageTitle.Text" xml:space="preserve">
+    <value>Défense Proactive, Confidentialité &amp; Rapports</value>
+  </data>
+  <data name="ProactivePageSubtitle.Text" xml:space="preserve">
+    <value>Audit d'extensions navigateur, mises à jour Winget, garde Wi-Fi/ARP, inspecteur DLL, broyeur DoD, vérification k-Anonymity et rapports PDF.</value>
+  </data>
+  <data name="ProactiveGenerateReportTopBtn.Content" xml:space="preserve">
+    <value>Rapport de Sécurité Exécutif (HTML/PDF)</value>
+  </data>
+  <data name="ProactiveTabBrowsers.Header" xml:space="preserve">
+    <value>Extensions Navigateur</value>
+  </data>
+  <data name="ProactiveTabSoftware.Header" xml:space="preserve">
+    <value>Mises à jour Logiciels</value>
+  </data>
+  <data name="ProactiveTabWifiArp.Header" xml:space="preserve">
+    <value>Garde Wi-Fi &amp; ARP</value>
+  </data>
+  <data name="ProactiveTabDlls.Header" xml:space="preserve">
+    <value>Inspecteur DLL</value>
+  </data>
+  <data name="ProactiveTabPrivacy.Header" xml:space="preserve">
+    <value>Broyeur &amp; Mots de passe</value>
+  </data>
+  <data name="ProactiveTabReports.Header" xml:space="preserve">
+    <value>Rapports &amp; Automatisation</value>
+  </data>
+  <data name="SettingsAppLockTitle.Text" xml:space="preserve">
+    <value>Protection Anti-Sabotage (Windows Hello / PIN)</value>
+  </data>
+  <data name="SettingsAppLockHint.Text" xml:space="preserve">
+    <value>Exiger Windows Hello ou un code PIN local (PBKDF2-SHA256) avant d'ouvrir les Paramètres, le Kill-Switch d'urgence ou la Quarantaine.</value>
+  </data>
+  <data name="SettingsAppLockToggle.Header" xml:space="preserve">
+    <value>Exiger une authentification pour les contrôles sensibles</value>
+  </data>
 </root>

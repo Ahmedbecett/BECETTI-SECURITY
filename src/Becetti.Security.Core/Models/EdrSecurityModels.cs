@@ -247,6 +247,8 @@ public sealed class HardeningCheckItem
     public string Status { get; init; } = "Unavailable"; // Passed, Warning, Failed, Unavailable
     public string CurrentValue { get; init; } = string.Empty;
     public string Recommendation { get; init; } = string.Empty;
+    public bool CanAutoFix { get; init; }
+    public string AutoFixAction { get; init; } = string.Empty;
 
     public string DisplayLine => $"[{Status}] {Title} — {CurrentValue}";
 }

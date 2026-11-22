@@ -8,14 +8,17 @@
     xmlns:helpers="using:Becetti.Security.App.Helpers"
     mc:Ignorable="d">
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
-        <StackPanel Padding="32" MaxWidth="900">
-            <TextBlock x:Uid="TitleHistory" helpers:Loc.Uid="TitleHistory" Text="Security History" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock x:Uid="SubtitleHistory" helpers:Loc.Uid="SubtitleHistory" Text="Local log of real events recorded by BECETTI SECURITY. Nothing is seeded or invented." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
-            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
-            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+        <StackPanel Padding="32" MaxWidth="1040" Spacing="16">
+            <StackPanel>
+                <TextBlock x:Uid="TitleHistory" helpers:Loc.Uid="TitleHistory" Text="Security History &amp; Activity Timeline" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock x:Uid="SubtitleHistory" helpers:Loc.Uid="SubtitleHistory" Text="Real local event timeline with 7-day activity telemetry, severity filters, and instant search." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            </StackPanel>
 
-            <!-- Real summary counts computed from the events below. Empty history shows as empty. -->
-            <Grid Margin="0,0,0,16" ColumnSpacing="12">
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="28" Height="28" />
+
+            <!-- Summary Metric Row -->
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -24,44 +27,106 @@
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0">
                     <StackPanel>
-                        <TextBlock Text="Scans" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="Scans &amp; Audits" Style="{StaticResource LabelStyle}" />
                         <TextBlock Text="{x:Bind ViewModel.ScanSummaryText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="0">
                     <StackPanel>
-                        <TextBlock Text="Threats" Style="{StaticResource LabelStyle}" />
-                        <TextBlock Text="{x:Bind ViewModel.ThreatSummaryText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                        <TextBlock Text="Alerts &amp; Threats" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.ThreatSummaryText, Mode=OneWay}" Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="0">
                     <StackPanel>
-                        <TextBlock Text="Signature Updates" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="Updates" Style="{StaticResource LabelStyle}" />
                         <TextBlock Text="{x:Bind ViewModel.UpdateSummaryText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="3" Style="{StaticResource CardStyle}" Margin="0">
                     <StackPanel>
-                        <TextBlock Text="Protection Changes" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="Shield &amp; Hardening" Style="{StaticResource LabelStyle}" />
                         <TextBlock Text="{x:Bind ViewModel.ProtectionSummaryText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <ListView ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}" MinHeight="200">
+            <!-- 7-Day Interactive Security Activity Bar Chart -->
+            <Border Style="{StaticResource CardStyle}" Margin="0">
+                <StackPanel Spacing="12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="7-Day Security Activity Chart" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Border Width="10" Height="10" CornerRadius="2" Background="{StaticResource PrimaryBlueBrush}" />
+                                <TextBlock Text="Total Events" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Border Width="10" Height="10" CornerRadius="2" Background="{StaticResource DangerBrush}" />
+                                <TextBlock Text="Alerts / Failures" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.SevenDayChart, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="24" HorizontalAlignment="Center" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:DailySecurityMetric">
+                                <StackPanel Width="76" Spacing="6" VerticalAlignment="Bottom" ToolTipService.ToolTip="{x:Bind TooltipText}">
+                                    <TextBlock Text="{x:Bind TotalCount}" FontSize="11" HorizontalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}" />
+                                    <Grid Height="96" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Bottom">
+                                            <Border Width="18" Height="{x:Bind TotalBarHeight}" CornerRadius="4,4,0,0" Background="{StaticResource PrimaryBlueBrush}" VerticalAlignment="Bottom" />
+                                            <Border Width="12" Height="{x:Bind AlertBarHeight}" CornerRadius="4,4,0,0" Background="{StaticResource DangerBrush}" VerticalAlignment="Bottom" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <TextBlock Text="{x:Bind DayLabel}" FontSize="11" HorizontalAlignment="Center" Foreground="{StaticResource TextMutedBrush}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Filter Bar + Timeline Feed -->
+            <Border Style="{StaticResource CardStyle}" Margin="0">
+                <StackPanel Spacing="12">
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="210" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" PlaceholderText="Filter timeline by keyword, rule, or event type..."
+                                 Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <ComboBox Grid.Column="1" SelectedIndex="{x:Bind ViewModel.SeverityFilterIndex, Mode=TwoWay}" HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="All Events" />
+                            <ComboBoxItem Content="Alerts &amp; Failures" />
+                            <ComboBoxItem Content="Passed &amp; Info" />
+                        </ComboBox>
+                        <Button Grid.Column="2" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    </Grid>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}" MaxHeight="440">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:SecurityEvent">
-                                <StackPanel Margin="0,8">
+                                <StackPanel Margin="0,8" Spacing="2">
                                     <TextBlock Text="{x:Bind Summary}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{x:Bind Type}" Foreground="{StaticResource TextSecondaryBrush}" />
-                                    <TextBlock Text="{x:Bind Timestamp}" Foreground="{StaticResource TextSecondaryBrush}" />
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <TextBlock Text="{x:Bind Type}" FontSize="12" Foreground="{StaticResource ElectricBlueBrush}" />
+                                        <TextBlock Text="{x:Bind Timestamp}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" />
+                                    </StackPanel>
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Button Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
                 </StackPanel>
             </Border>
             <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />

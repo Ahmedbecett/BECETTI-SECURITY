@@ -46,6 +46,8 @@ public sealed class PersistenceHunterService : IPersistenceHunterService
 
         await Task.Run(() =>
         {
+            if (!OperatingSystem.IsWindows())
+                return;
             InspectWinlogon(entries);
             InspectAppInitDlls(entries);
             InspectIfeoDebuggers(entries, ct);

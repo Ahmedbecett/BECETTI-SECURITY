@@ -41,14 +41,25 @@
                         </StackPanel>
                         <Button Grid.Column="2" x:Uid="EdrHardeningAuditBtn" helpers:Loc.Uid="EdrHardeningAuditBtn" Content="Audit Windows Hardening" Command="{x:Bind ViewModel.AuditHardeningCommand}" Style="{StaticResource PrimaryButtonStyle}" VerticalAlignment="Center" />
                     </Grid>
+                    <CheckBox Content="Create Windows System Restore Point automatically before applying 1-click fixes"
+                              IsChecked="{x:Bind ViewModel.CreateRestorePointBeforeFix, Mode=TwoWay}" />
                     <ItemsControl ItemsSource="{x:Bind ViewModel.HardeningChecks, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="models:HardeningCheckItem">
                                 <Border Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,6">
-                                    <StackPanel Spacing="2">
-                                        <TextBlock Text="{x:Bind DisplayLine}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                        <TextBlock Text="{x:Bind Recommendation}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
-                                    </StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Spacing="2">
+                                            <TextBlock Text="{x:Bind DisplayLine}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                            <TextBlock Text="{x:Bind Recommendation}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Content="Fix Now" Style="{StaticResource PrimaryButtonStyle}"
+                                                Visibility="{x:Bind CanAutoFix}" Click="RemediateHardening_Click" Tag="{x:Bind}"
+                                                FontSize="12" Padding="12,5" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                    </Grid>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -86,6 +97,7 @@
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="8,0,0,0">
                                             <Button Content="YARA Scan" Click="ScanPersistenceWithYara_Click" Tag="{x:Bind ExecutablePath}" FontSize="12" Padding="10,5" />
+                                            <Button Content="Ask AI" Click="AskAiAboutPersistence_Click" Tag="{x:Bind}" FontSize="12" Padding="10,5" />
                                             <Button Content="Disable" Click="DisablePersistenceTask_Click" Tag="{x:Bind}" Visibility="{x:Bind CanDisable}" FontSize="12" Padding="10,5" />
                                         </StackPanel>
                                     </Grid>
@@ -206,9 +218,11 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" PlaceholderText="https://example.com or suspicious link..." Text="{x:Bind ViewModel.UrlToInspect, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <Button Grid.Column="1" x:Uid="EdrUrlInspectBtn" helpers:Loc.Uid="EdrUrlInspectBtn" Content="Inspect URL" Command="{x:Bind ViewModel.InspectUrlCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button Grid.Column="2" Content="Ask BECETTI AI" Click="AskAiAboutUrl_Click" />
                     </Grid>
                     <ItemsControl ItemsSource="{x:Bind ViewModel.UrlFindings, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>

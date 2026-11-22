@@ -55,6 +55,9 @@
                         <NavigationViewItem x:Uid="NavEdrCenter" helpers:Loc.Uid="NavEdrCenter" Content="EDR &amp; Hardening" Tag="EdrCenter">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE9F5;" /></NavigationViewItem.Icon>
                         </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavProactiveDefense" helpers:Loc.Uid="NavProactiveDefense" Content="Proactive Defense &amp; Reports" Tag="ProactiveDefense">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE72E;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
                         <NavigationViewItem x:Uid="NavProtection" helpers:Loc.Uid="NavProtection" Content="Real-Time Protection" Tag="Protection">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE7EF;" /></NavigationViewItem.Icon>
                         </NavigationViewItem>

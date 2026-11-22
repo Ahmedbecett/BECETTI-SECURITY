@@ -1177,4 +1177,43 @@
   <data name="SettingsMinimizeToTray.Header" xml:space="preserve">
     <value>الإبقاء على التشغيل الصامت في شريط المهام عند إغلاق النافذة</value>
   </data>
+  <data name="NavProactiveDefense.Content" xml:space="preserve">
+    <value>الدفاع الاستباقي والتقارير</value>
+  </data>
+  <data name="ProactivePageTitle.Text" xml:space="preserve">
+    <value>الدفاع الاستباقي، الخصوصية والتقارير</value>
+  </data>
+  <data name="ProactivePageSubtitle.Text" xml:space="preserve">
+    <value>مدقق إضافات المتصفح، تحديثات Winget، حارس Wi-Fi/ARP، فاحص مكتبات العمليات DLL، ممزّق الملفات الآمن، فاحص كلمات المرور والتقارير التنفيذية.</value>
+  </data>
+  <data name="ProactiveGenerateReportTopBtn.Content" xml:space="preserve">
+    <value>تقرير الأمان التنفيذي (HTML/PDF)</value>
+  </data>
+  <data name="ProactiveTabBrowsers.Header" xml:space="preserve">
+    <value>إضافات المتصفحات</value>
+  </data>
+  <data name="ProactiveTabSoftware.Header" xml:space="preserve">
+    <value>تحديثات البرامج</value>
+  </data>
+  <data name="ProactiveTabWifiArp.Header" xml:space="preserve">
+    <value>حارس Wi-Fi و ARP</value>
+  </data>
+  <data name="ProactiveTabDlls.Header" xml:space="preserve">
+    <value>فاحص مكتبات DLL</value>
+  </data>
+  <data name="ProactiveTabPrivacy.Header" xml:space="preserve">
+    <value>الممزّق وكلمات المرور</value>
+  </data>
+  <data name="ProactiveTabReports.Header" xml:space="preserve">
+    <value>التقارير والأتمتة</value>
+  </data>
+  <data name="SettingsAppLockTitle.Text" xml:space="preserve">
+    <value>حماية ضد العبث (Windows Hello / رمز PIN)</value>
+  </data>
+  <data name="SettingsAppLockHint.Text" xml:space="preserve">
+    <value>طلب التحقق عبر Windows Hello أو رمز PIN مشفر محلياً (PBKDF2-SHA256) قبل فتح الإعدادات أو العزل الطارئ أو الحجر الصحي.</value>
+  </data>
+  <data name="SettingsAppLockToggle.Header" xml:space="preserve">
+    <value>طلب المصادقة للوصول إلى أدوات الحماية الحساسة</value>
+  </data>
 </root>

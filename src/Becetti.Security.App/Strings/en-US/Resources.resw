@@ -1177,4 +1177,43 @@ BECETTI SECURITY never simulates or fabricates detections.</value>
   <data name="SettingsMinimizeToTray.Header" xml:space="preserve">
     <value>Keep running silently in Windows System Tray when window is closed</value>
   </data>
+  <data name="NavProactiveDefense.Content" xml:space="preserve">
+    <value>Proactive Defense &amp; Reports</value>
+  </data>
+  <data name="ProactivePageTitle.Text" xml:space="preserve">
+    <value>Proactive Defense, Privacy &amp; Reports</value>
+  </data>
+  <data name="ProactivePageSubtitle.Text" xml:space="preserve">
+    <value>Browser extension risk auditor, Winget patch manager, Wi-Fi/ARP MITM guard, Process DLL inspector, DoD shredder, k-Anonymity breach check &amp; executive PDF reports.</value>
+  </data>
+  <data name="ProactiveGenerateReportTopBtn.Content" xml:space="preserve">
+    <value>Executive Security Report (HTML/PDF)</value>
+  </data>
+  <data name="ProactiveTabBrowsers.Header" xml:space="preserve">
+    <value>Browser Extensions</value>
+  </data>
+  <data name="ProactiveTabSoftware.Header" xml:space="preserve">
+    <value>Software Updates</value>
+  </data>
+  <data name="ProactiveTabWifiArp.Header" xml:space="preserve">
+    <value>Wi-Fi &amp; ARP Guard</value>
+  </data>
+  <data name="ProactiveTabDlls.Header" xml:space="preserve">
+    <value>Process DLL Inspector</value>
+  </data>
+  <data name="ProactiveTabPrivacy.Header" xml:space="preserve">
+    <value>Shredder &amp; Passwords</value>
+  </data>
+  <data name="ProactiveTabReports.Header" xml:space="preserve">
+    <value>Reports &amp; Automation</value>
+  </data>
+  <data name="SettingsAppLockTitle.Text" xml:space="preserve">
+    <value>Anti-Tamper Protection (Windows Hello / PIN Lock)</value>
+  </data>
+  <data name="SettingsAppLockHint.Text" xml:space="preserve">
+    <value>Require Windows Hello biometric/PIN verification (or a local PBKDF2-SHA256 PIN) before opening Settings, Emergency Kill-Switch, or Quarantine Vault.</value>
+  </data>
+  <data name="SettingsAppLockToggle.Header" xml:space="preserve">
+    <value>Require authentication for sensitive security controls</value>
+  </data>
 </root>

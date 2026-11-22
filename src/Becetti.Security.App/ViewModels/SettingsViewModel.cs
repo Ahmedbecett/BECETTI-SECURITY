@@ -8,6 +8,7 @@ public sealed class SettingsViewModel : ViewModelBase
     private readonly ISettingsService _settings;
     private readonly LocalizationService _localization;
     private readonly ICloudService _cloud;
+    private readonly IAppLockService _appLock;
 
     private bool _isLoading;
     private string _apiBaseUrl = string.Empty;
@@ -23,19 +24,27 @@ public sealed class SettingsViewModel : ViewModelBase
     private bool _criticalAlertNotificationsEnabled = true;
     private string _criticalAlertWebhookUrl = string.Empty;
     private bool _minimizeToTrayOnClose = true;
+    private bool _appLockEnabled;
+    private string _newAppLockPin = string.Empty;
+    private string _appLockStatusText = string.Empty;
 
-    public SettingsViewModel(ISettingsService settings, LocalizationService localization, ICloudService cloud)
+    public SettingsViewModel(ISettingsService settings, LocalizationService localization, ICloudService cloud, IAppLockService appLock)
     {
         _settings = settings;
         _localization = localization;
         _cloud = cloud;
+        _appLock = appLock;
         LoadFromSettings();
         SaveCommand = new RelayCommand(SaveAsync);
         TestConnectionCommand = new RelayCommand(TestConnectionAsync);
+        SaveAppLockPinCommand = new RelayCommand(SaveAppLockPinAsync);
+        DisableAppLockCommand = new RelayCommand(DisableAppLockAsync);
     }
 
     public RelayCommand SaveCommand { get; }
     public RelayCommand TestConnectionCommand { get; }
+    public RelayCommand SaveAppLockPinCommand { get; }
+    public RelayCommand DisableAppLockCommand { get; }
 
     public string ApiBaseUrl { get => _apiBaseUrl; set => SetProperty(ref _apiBaseUrl, value); }
 
@@ -79,6 +88,10 @@ public sealed class SettingsViewModel : ViewModelBase
     /// <summary>When true, closing the main window hides BECETTI SECURITY to the Windows System Tray so background shields stay active.</summary>
     public bool MinimizeToTrayOnClose { get => _minimizeToTrayOnClose; set => SetProperty(ref _minimizeToTrayOnClose, value); }
 
+    public bool AppLockEnabled { get => _appLockEnabled; set => SetProperty(ref _appLockEnabled, value); }
+    public string NewAppLockPin { get => _newAppLockPin; set => SetProperty(ref _newAppLockPin, value); }
+    public string AppLockStatusText { get => _appLockStatusText; set => SetProperty(ref _appLockStatusText, value); }
+
     private void LoadFromSettings()
     {
         _isLoading = true;
@@ -96,6 +109,10 @@ public sealed class SettingsViewModel : ViewModelBase
             CriticalAlertNotificationsEnabled = _settings.Current.CriticalAlertNotificationsEnabled;
             CriticalAlertWebhookUrl = _settings.Current.CriticalAlertWebhookUrl;
             MinimizeToTrayOnClose = _settings.Current.MinimizeToTrayOnClose;
+            AppLockEnabled = _appLock.IsEnabled;
+            AppLockStatusText = _appLock.IsEnabled
+                ? (_appLock.HasPinConfigured ? "Active (Windows Hello + PBKDF2-SHA256 PIN configured)" : "Active (Windows Hello)")
+                : "Disabled — sensitive controls open immediately.";
         }
         finally
         {
@@ -142,6 +159,7 @@ public sealed class SettingsViewModel : ViewModelBase
             _settings.Current.CriticalAlertNotificationsEnabled = CriticalAlertNotificationsEnabled;
             _settings.Current.CriticalAlertWebhookUrl = CriticalAlertWebhookUrl.Trim();
             _settings.Current.MinimizeToTrayOnClose = MinimizeToTrayOnClose;
+            _settings.Current.AppLockEnabled = AppLockEnabled;
             await _settings.SaveAsync();
 
             var language = LocalizationService.ParseLanguageCode(Language);
@@ -184,5 +202,29 @@ public sealed class SettingsViewModel : ViewModelBase
         {
             IsBusy = false;
         }
+    }
+
+    public async Task SaveAppLockPinAsync()
+    {
+        ClearMessages();
+        var res = await _appLock.SetPinAsync(NewAppLockPin);
+        if (!res.Success)
+        {
+            ErrorMessage = res.Message;
+            return;
+        }
+        NewAppLockPin = string.Empty;
+        AppLockEnabled = true;
+        AppLockStatusText = "Active (Windows Hello + PBKDF2-SHA256 PIN configured)";
+        StatusMessage = res.Message;
+    }
+
+    public async Task DisableAppLockAsync()
+    {
+        ClearMessages();
+        var res = await _appLock.ClearPinAsync();
+        AppLockEnabled = false;
+        AppLockStatusText = "Disabled — sensitive controls open immediately.";
+        StatusMessage = res.Message;
     }
 }
