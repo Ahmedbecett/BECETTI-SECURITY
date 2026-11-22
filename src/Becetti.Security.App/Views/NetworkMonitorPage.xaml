@@ -1,0 +1,82 @@
+<Page
+    x:Class="Becetti.Security.App.Views.NetworkMonitorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:converters="using:Becetti.Security.App.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToStatusBrushConverter x:Key="BoolToStatusBrush" />
+    </Page.Resources>
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleNetwork" Text="Network Monitor" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleNetwork"
+                       Text="Real network adapters and active TCP connections, read from Windows' own NetworkInterface API and Get-NetTCPConnection (the same source Resource Monitor uses). BECETTI SECURITY draws no conclusion about any connection — it shows Windows' own verified list."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="FirewallProfilesLabel" Text="Firewall Profiles" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.FirewallText, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="NetworkAdaptersLabel" Text="Network Adapters" Style="{StaticResource ValueStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.Adapters, Mode=OneWay}" MinHeight="120" Margin="0,8,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:NetworkAdapterInfo">
+                                <Grid Margin="0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Ellipse Grid.Column="0" Width="10" Height="10" Margin="0,4,12,0" VerticalAlignment="Top"
+                                             Fill="{x:Bind IsUp, Converter={StaticResource BoolToStatusBrush}}" />
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                                        <TextBlock Text="{x:Bind InterfaceType}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                                        <TextBlock Text="{x:Bind Status}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="ActiveConnectionsLabel" Text="Active Connections &amp; Listening Ports" Style="{StaticResource ValueStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.Connections, Mode=OneWay}" MinHeight="260" Margin="0,8,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:NetworkConnectionInfo">
+                                <StackPanel Margin="0,6">
+                                    <TextBlock Text="{x:Bind ProcessDisplay}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                    <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap">
+                                        <Run Text="{x:Bind LocalEndpointDisplay}" />
+                                        <Run Text=" → " />
+                                        <Run Text="{x:Bind RemoteEndpointDisplay}" />
+                                        <Run Text="  ·  " />
+                                        <Run Text="{x:Bind State}" />
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

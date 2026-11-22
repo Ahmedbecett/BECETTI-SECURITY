@@ -87,6 +87,11 @@
                         <FontIcon Glyph="&#xE88E;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavNetwork" Content="Network Monitor" Tag="Network">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE968;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavPrivacy" Content="Privacy &amp; Network" Tag="Privacy">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE774;" />

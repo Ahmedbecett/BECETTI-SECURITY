@@ -404,3 +404,49 @@ public sealed class UsbAutoRunStatus
     public bool FullyProtected => RemovableAutoRunBlocked == true && AutorunInfDisabled == true;
     public string? RawError { get; init; }
 }
+
+/// <summary>
+/// One real network adapter from <see cref="System.Net.NetworkInformation.NetworkInterface"/> —
+/// the same inventory Windows' own Network Connections panel is built on.
+/// </summary>
+public sealed class NetworkAdapterInfo
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public string InterfaceType { get; init; } = "Unknown";
+    /// <summary>Raw OperationalStatus (e.g. "Up", "Down").</summary>
+    public string Status { get; init; } = "Unknown";
+    public bool IsUp { get; init; }
+    /// <summary>Link speed in bits per second, or null when the adapter does not report one.</summary>
+    public long? SpeedBps { get; init; }
+    public string? MacAddress { get; init; }
+    public IReadOnlyList<string> IPv4Addresses { get; init; } = Array.Empty<string>();
+}
+
+/// <summary>
+/// One real active TCP connection or listening port from Get-NetTCPConnection —
+/// the same source Resource Monitor's "Network" tab reads. The owning process
+/// name is resolved from the real local process list; a connection whose
+/// process already exited by the time it is resolved is shown with a null
+/// name rather than a guessed one.
+/// </summary>
+public sealed class NetworkConnectionInfo
+{
+    public string LocalAddress { get; init; } = string.Empty;
+    public int LocalPort { get; init; }
+    public string? RemoteAddress { get; init; }
+    public int RemotePort { get; init; }
+    /// <summary>Raw TCP state (e.g. "Established", "Listen", "TimeWait").</summary>
+    public string State { get; init; } = "Unknown";
+    public int OwningProcessId { get; init; }
+    public string? ProcessName { get; init; }
+
+    /// <summary>Pre-formatted "address:port" for display, computed from real fields only.</summary>
+    public string LocalEndpointDisplay => $"{LocalAddress}:{LocalPort}";
+    public string RemoteEndpointDisplay =>
+        string.IsNullOrWhiteSpace(RemoteAddress) || RemoteAddress == "0.0.0.0" || RemoteAddress == "::"
+            ? "(listening)"
+            : $"{RemoteAddress}:{RemotePort}";
+    public string ProcessDisplay =>
+        string.IsNullOrWhiteSpace(ProcessName) ? $"PID {OwningProcessId}" : $"{ProcessName} (PID {OwningProcessId})";
+}

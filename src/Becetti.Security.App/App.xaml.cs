@@ -34,6 +34,7 @@ public partial class App : Application
         services.AddSingleton<ISoftwareManagerService, SoftwareManagerService>();
         services.AddSingleton<IDriverMonitorService, DriverMonitorService>();
         services.AddSingleton<IUsbProtectionService, UsbProtectionService>();
+        services.AddSingleton<INetworkMonitorService, NetworkMonitorService>();
         services.AddSingleton<IEventLogService, EventLogService>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SoundService>();
@@ -73,6 +74,7 @@ public partial class App : Application
         services.AddTransient<DriverMonitorViewModel>();
         services.AddTransient<EmergencyCenterViewModel>();
         services.AddTransient<UsbProtectionViewModel>();
+        services.AddTransient<NetworkMonitorViewModel>();
 
         Services = services.BuildServiceProvider();
 

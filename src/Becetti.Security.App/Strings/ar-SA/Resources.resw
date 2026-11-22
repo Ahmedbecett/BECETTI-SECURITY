@@ -74,6 +74,7 @@
   <data name="NavSoftware.Content" xml:space="preserve"><value>إدارة البرامج</value></data>
   <data name="NavDrivers.Content" xml:space="preserve"><value>مراقبة التعريفات</value></data>
   <data name="NavUsb.Content" xml:space="preserve"><value>حماية USB</value></data>
+  <data name="NavNetwork.Content" xml:space="preserve"><value>مراقبة الشبكة</value></data>
   <data name="NavEmergency.Content" xml:space="preserve"><value>مركز الطوارئ</value></data>
 
   <data name="TitleRansomware.Text" xml:space="preserve"><value>حماية الفدية</value></data>
@@ -116,6 +117,12 @@
   <data name="UsbAutoRunLabel.Text" xml:space="preserve"><value>حماية AutoPlay / AutoRun</value></data>
   <data name="EnableAutoRunProtectionButton.Content" xml:space="preserve"><value>تفعيل حماية AutoRun</value></data>
   <data name="DisableAutoRunProtectionButton.Content" xml:space="preserve"><value>إزالة حظر AutoRun الخاص بـ BECETTI</value></data>
+
+  <data name="TitleNetwork.Text" xml:space="preserve"><value>مراقبة الشبكة</value></data>
+  <data name="SubtitleNetwork.Text" xml:space="preserve"><value>محولات شبكة حقيقية واتصالات TCP نشطة، مقروءة من واجهة NetworkInterface الخاصة بـ Windows ومن Get-NetTCPConnection (نفس المصدر الذي يستخدمه مراقب الموارد). لا تستنتج BECETTI SECURITY أي حكم بشأن أي اتصال — فقط تعرض القائمة الحقيقية التي يوثقها Windows.</value></data>
+  <data name="FirewallProfilesLabel.Text" xml:space="preserve"><value>ملفات جدار الحماية</value></data>
+  <data name="NetworkAdaptersLabel.Text" xml:space="preserve"><value>محولات الشبكة</value></data>
+  <data name="ActiveConnectionsLabel.Text" xml:space="preserve"><value>الاتصالات النشطة ومنافذ الاستماع</value></data>
 
   <data name="TitleEmergency.Text" xml:space="preserve"><value>مركز الطوارئ</value></data>
   <data name="SubtitleEmergency.Text" xml:space="preserve"><value>مكان واحد للحظات "هناك خطأ ما" — حالة حقيقية، وصول سريع لأدوات Windows نفسها، وBECETTI AI للمساعدة.</value></data>
