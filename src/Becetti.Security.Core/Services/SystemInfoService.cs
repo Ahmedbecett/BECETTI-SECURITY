@@ -188,6 +188,9 @@ public sealed class SystemInfoService : ISystemInfoService
     /// same switch Settings &gt; Privacy &amp; security itself reads/writes; it is
     /// not a per-app permission list.
     /// </summary>
+    // Only ever called from GetPrivacyPermissionsAsync, which already guards on
+    // OperatingSystem.IsWindows() before reaching here.
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     private static bool? ReadGlobalCapabilityConsent(string capability)
     {
         try

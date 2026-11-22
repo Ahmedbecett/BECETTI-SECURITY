@@ -11,12 +11,13 @@ namespace Becetti.Security.Core.Services;
 public sealed class DriverMonitorService : IDriverMonitorService
 {
     public Task<OperationResult<IReadOnlyList<DriverInfo>>> GetDriversAsync() =>
+        // GetDrivers() checks OperatingSystem.IsWindows() itself before doing anything
+        // Windows-only; this pragma only silences the platform-compatibility analyzer
+        // (CA1416) for that known-safe indirection, not an actual behavior change.
+#pragma warning disable CA1416
         Task.Run(() => GetDrivers());
+#pragma warning restore CA1416
 
-    // GetDriversAsync already refuses to call this at all on any other OS via its own
-    // OperatingSystem.IsWindows() guard below; this attribute only documents that fact
-    // for the platform-compatibility analyzer (CA1416) rather than changing behavior.
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     private static OperationResult<IReadOnlyList<DriverInfo>> GetDrivers()
     {
         if (!OperatingSystem.IsWindows())
