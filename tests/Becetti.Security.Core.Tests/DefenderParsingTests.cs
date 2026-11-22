@@ -124,6 +124,59 @@ public sealed class DefenderParsingTests
     }
 
     [Fact]
+    public void ParseStatusJson_ExplicitUnavailable_ReportsRawError()
+    {
+        // Mirrors what the real catch-wrapped PowerShell script emits when
+        // Get-MpComputerStatus itself throws (e.g. a real device where Defender's
+        // WMI provider could not load because its service was stopped/disabled).
+        const string json = """{"Available": false, "Error": "Provider load failure"}""";
+
+        var status = DefenderService.ParseStatusJson(json);
+
+        Assert.False(status.Available);
+        Assert.Equal("Provider load failure", status.RawError);
+    }
+
+    [Fact]
+    public void ParseStatusJson_NormalPayloadWithoutAvailableKey_IsStillAvailable()
+    {
+        // A real successful Get-MpComputerStatus payload never includes an "Available" key;
+        // the explicit-false detection above must not misclassify it.
+        const string json = """{"AntivirusEnabled": true}""";
+
+        var status = DefenderService.ParseStatusJson(json);
+
+        Assert.True(status.Available);
+        Assert.True(status.AntivirusEnabled);
+    }
+
+    [Fact]
+    public void HumanizeDefenderUnavailable_ProviderLoadFailure_ExplainsDefenderIsDisabled()
+    {
+        var message = DefenderService.HumanizeDefenderUnavailable("Provider load failure");
+
+        Assert.Contains("Windows Defender", message);
+        Assert.Contains("disabled", message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Provider load failure", message);
+    }
+
+    [Fact]
+    public void HumanizeDefenderUnavailable_UnknownError_PassesThroughUnchanged()
+    {
+        var message = DefenderService.HumanizeDefenderUnavailable("Some completely different error");
+
+        Assert.Equal("Some completely different error", message);
+    }
+
+    [Fact]
+    public void HumanizeDefenderUnavailable_Null_ReturnsFallbackText()
+    {
+        var message = DefenderService.HumanizeDefenderUnavailable(null);
+
+        Assert.False(string.IsNullOrWhiteSpace(message));
+    }
+
+    [Fact]
     public void ParseThreatsJson_Array()
     {
         const string json = """

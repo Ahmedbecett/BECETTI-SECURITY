@@ -133,12 +133,20 @@ public sealed class DefenderService : IDefenderService
         // is the only supported source for the cloud-delivered protection (MAPS) level and the
         // automatic sample submission mode. The preference read is best-effort (wrapped so a
         // failure there does not take down the primary status read) and merged into one object.
+        // The whole read is wrapped in try/catch (not just the Get-MpPreference part): on a
+        // real device where Defender itself has been disabled, uninstalled, or had its
+        // service stopped, Get-MpComputerStatus throws (a classic case is the WMI/CIM
+        // "Provider load failure" when the hosting service isn't running) instead of
+        // returning anything to format. Without this, the script produced no JSON at all
+        // and the real failure reason was lost; now it is captured and surfaced honestly.
         const string script =
-            "$s = Get-MpComputerStatus | Select-Object AntivirusEnabled,RealTimeProtectionEnabled,BehaviorMonitorEnabled,IoavProtectionEnabled,NISEnabled,IsTamperProtected,AntivirusSignatureVersion,AntivirusSignatureLastUpdated,QuickScanEndTime,FullScanEndTime,AMRunningMode; " +
+            "try { " +
+            "$s = Get-MpComputerStatus -ErrorAction Stop | Select-Object AntivirusEnabled,RealTimeProtectionEnabled,BehaviorMonitorEnabled,IoavProtectionEnabled,NISEnabled,IsTamperProtected,AntivirusSignatureVersion,AntivirusSignatureLastUpdated,QuickScanEndTime,FullScanEndTime,AMRunningMode; " +
             "try { $p = Get-MpPreference -ErrorAction Stop } catch { $p = $null }; " +
             "$s | Add-Member -NotePropertyName MAPSReporting -NotePropertyValue $p.MAPSReporting -Force; " +
             "$s | Add-Member -NotePropertyName SubmitSamplesConsent -NotePropertyValue $p.SubmitSamplesConsent -Force; " +
-            "$s | ConvertTo-Json -Depth 3";
+            "$s | ConvertTo-Json -Depth 3 " +
+            "} catch { [PSCustomObject]@{ Available = $false; Error = $_.Exception.Message } | ConvertTo-Json }";
         var run = await RunPowerShellAsync(script, QueryTimeout, ct).ConfigureAwait(false);
         if (!run.Success)
             return OperationResult<DefenderStatus>.Fail(run.Message, run.ErrorCode);
@@ -146,7 +154,12 @@ public sealed class DefenderService : IDefenderService
         try
         {
             var status = ParseStatusJson(run.Value?.Output ?? string.Empty);
-            return OperationResult<DefenderStatus>.Ok(status, "Defender status read from Get-MpComputerStatus.");
+            // Available=false must surface as a failed result, not a "successful" read full
+            // of default/false fields — otherwise every consumer would show e.g. "Antivirus:
+            // Disabled" as a confirmed fact when the truth is "could not be checked at all".
+            return status.Available
+                ? OperationResult<DefenderStatus>.Ok(status, "Defender status read from Get-MpComputerStatus.")
+                : OperationResult<DefenderStatus>.Fail(HumanizeDefenderUnavailable(status.RawError), "DEFENDER_UNAVAILABLE");
         }
         catch (Exception ex)
         {
@@ -189,7 +202,7 @@ public sealed class DefenderService : IDefenderService
             var status = ParseRansomwareJson(run.Value?.Output ?? string.Empty);
             return status.Available
                 ? OperationResult<RansomwareProtectionStatus>.Ok(status, "Ransomware protection state read from Get-MpPreference.")
-                : OperationResult<RansomwareProtectionStatus>.Fail(status.RawError ?? "Could not read Controlled Folder Access state.", "DEFENDER_UNAVAILABLE");
+                : OperationResult<RansomwareProtectionStatus>.Fail(HumanizeDefenderUnavailable(status.RawError), "DEFENDER_UNAVAILABLE");
         }
         catch (Exception ex)
         {
@@ -518,6 +531,13 @@ public sealed class DefenderService : IDefenderService
         if (root.ValueKind != JsonValueKind.Object)
             return new DefenderStatus { Available = false, RawError = "Unexpected response shape from Get-MpComputerStatus." };
 
+        // The script's catch branch emits an explicit {"Available": false, "Error": "..."}
+        // object when Get-MpComputerStatus itself throws. A normal successful read never
+        // includes an "Available" key, so checking for an *explicit* false value here cannot
+        // misclassify a real, successful status payload.
+        if (root.TryGetProperty("Available", out var availableElement) && availableElement.ValueKind == JsonValueKind.False)
+            return new DefenderStatus { Available = false, RawError = GetString(root, "Error") ?? "Get-MpComputerStatus did not return a value." };
+
         return new DefenderStatus
         {
             Available = true,
@@ -622,6 +642,30 @@ public sealed class DefenderService : IDefenderService
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Turns a known low-level Defender/WMI failure string into a clear, honest explanation
+    /// of what it actually means in practice — without ever inventing a status BECETTI
+    /// SECURITY did not actually verify. The real, unmodified error text from Defender is
+    /// always preserved alongside the explanation for full transparency.
+    /// </summary>
+    internal static string HumanizeDefenderUnavailable(string? rawError)
+    {
+        var raw = string.IsNullOrWhiteSpace(rawError) ? "Defender did not return a value." : rawError!.Trim();
+
+        string? explanation = raw switch
+        {
+            _ when raw.Contains("provider load failure", StringComparison.OrdinalIgnoreCase) =>
+                "Microsoft Defender's own management service could not be reached on this device. This almost always means Windows Defender itself is disabled, its service is stopped, or it has been removed or replaced (by Group Policy, another security product, or a manual change). BECETTI SECURITY does not ship its own antivirus engine, so it can only reflect Defender's real status — re-enable Windows Defender (Windows Security > Virus & threat protection, or the \"Windows Defender Antivirus Service\" in Services) to restore protection and these checks.",
+            _ when raw.Contains("Invalid namespace", StringComparison.OrdinalIgnoreCase) || raw.Contains("Invalid class", StringComparison.OrdinalIgnoreCase) =>
+                "Microsoft Defender's management interface is not present on this device (its WMI/CIM namespace could not be found). Defender may have been uninstalled or is not included in this Windows edition.",
+            _ when raw.Contains("Access is denied", StringComparison.OrdinalIgnoreCase) =>
+                "Windows denied access to Microsoft Defender's status. Try running BECETTI SECURITY as an administrator.",
+            _ => null
+        };
+
+        return explanation is null ? raw : $"{explanation} (Defender reported: \"{raw}\")";
     }
 
     internal static string SeverityLabel(int severityId) => severityId switch
