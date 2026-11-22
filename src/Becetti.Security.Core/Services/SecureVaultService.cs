@@ -175,15 +175,11 @@ public sealed class SecureVaultService : ISecureVaultService
 
             var key = await LoadMasterKeyAsync(ct).ConfigureAwait(false);
 
-            var plaintext = new byte[blob.Length - NonceSizeBytes - TagSizeBytes];
-            {
-                var nonce = blob.AsSpan(0, NonceSizeBytes);
-                var tag = blob.AsSpan(NonceSizeBytes, TagSizeBytes);
-                var ciphertext = blob.AsSpan(NonceSizeBytes + TagSizeBytes);
-
-                using var aesGcm = new AesGcm(key, TagSizeBytes);
-                aesGcm.Decrypt(nonce, ciphertext, tag, plaintext);
-            }
+            // Decryption itself is a synchronous, non-async helper: C# 12 (pinned for this
+            // solution) does not allow Span<byte>/ref-struct locals inside an async method
+            // body at all, regardless of whether they cross an await — only moving the
+            // actual Span usage into an ordinary synchronous method avoids CS9202.
+            var plaintext = DecryptBlob(blob, key);
 
             await File.WriteAllBytesAsync(destinationPath, plaintext, ct).ConfigureAwait(false);
             Array.Clear(plaintext);
@@ -235,6 +231,24 @@ public sealed class SecureVaultService : ISecureVaultService
     {
         var bytes = await File.ReadAllBytesAsync(_keyPath, ct).ConfigureAwait(false);
         return ProtectionActive ? ProtectedData.Unprotect(bytes, _entropy, DataProtectionScope.CurrentUser) : bytes;
+    }
+
+    /// <summary>
+    /// Real AES-256-GCM decrypt of a vault blob (nonce(12) + tag(16) + ciphertext),
+    /// kept as an ordinary synchronous method (not async) so its Span&lt;byte&gt;
+    /// locals are unrestricted — this solution pins LangVersion 12, which does not
+    /// allow Span/ref-struct locals inside async method bodies at all (CS9202).
+    /// </summary>
+    private static byte[] DecryptBlob(byte[] blob, byte[] key)
+    {
+        var nonce = blob.AsSpan(0, NonceSizeBytes);
+        var tag = blob.AsSpan(NonceSizeBytes, TagSizeBytes);
+        var ciphertext = blob.AsSpan(NonceSizeBytes + TagSizeBytes);
+        var plaintext = new byte[ciphertext.Length];
+
+        using var aesGcm = new AesGcm(key, TagSizeBytes);
+        aesGcm.Decrypt(nonce, ciphertext, tag, plaintext);
+        return plaintext;
     }
 
     private async Task<List<VaultItemInfo>> ReadManifestAsync(CancellationToken ct)
