@@ -906,3 +906,63 @@ public sealed class GamePerformanceStatus
     public string CurrentPowerPlanName { get; init; } = "Unknown";
     public bool WindowsGameModeEnabled { get; init; }
 }
+
+// ---------------------------------------------------------------------------
+// IP Reputation (AbuseIPDB) — an optional second opinion on a single IP
+// address the user chooses to check (e.g. an unfamiliar Network Monitor
+// connection), via the server-side proxy in backend/becetti-ai (AbuseIPDB
+// requires a registered API key, so it cannot be called directly/keyless
+// like the data-breach checks).
+// ---------------------------------------------------------------------------
+
+public enum IpReputationVerdict
+{
+    Unknown,
+    Clean,
+    Suspicious,
+    Malicious
+}
+
+/// <summary>A real AbuseIPDB "/check" result for one IP address, mapped field-for-field — nothing invented.</summary>
+public sealed class IpReputationReport
+{
+    public string IpAddress { get; init; } = string.Empty;
+    public bool? IsPublic { get; init; }
+    public int? IpVersion { get; init; }
+    public int AbuseConfidenceScore { get; init; }
+    public int TotalReports { get; init; }
+    public int NumDistinctUsers { get; init; }
+    public DateTimeOffset? LastReportedAtUtc { get; init; }
+    public string? CountryCode { get; init; }
+    public string? CountryName { get; init; }
+    public string? UsageType { get; init; }
+    public string? Isp { get; init; }
+    public string? Domain { get; init; }
+    public bool IsTor { get; init; }
+    public bool IsWhitelisted { get; init; }
+    public IpReputationVerdict Verdict { get; init; } = IpReputationVerdict.Unknown;
+    public string Message { get; init; } = string.Empty;
+}
+
+/// <summary>One entry in the local IP-reputation check history. Only real, completed checks are recorded.</summary>
+public sealed class IpReputationCheckRecord
+{
+    public DateTimeOffset Timestamp { get; init; } = DateTimeOffset.UtcNow;
+    public string IpAddress { get; init; } = string.Empty;
+    public int AbuseConfidenceScore { get; init; }
+    public IpReputationVerdict Verdict { get; init; } = IpReputationVerdict.Unknown;
+
+    /// <summary>UI convenience, not persisted: true when the verdict is Clean.</summary>
+    [JsonIgnore]
+    public bool IsClean => Verdict == IpReputationVerdict.Clean;
+
+    /// <summary>UI convenience, not persisted: a short human-readable outcome for the history list.</summary>
+    [JsonIgnore]
+    public string StatusLabel => Verdict switch
+    {
+        IpReputationVerdict.Malicious => $"Malicious ({AbuseConfidenceScore}%)",
+        IpReputationVerdict.Suspicious => $"Suspicious ({AbuseConfidenceScore}%)",
+        IpReputationVerdict.Clean => "Clean",
+        _ => "Unknown"
+    };
+}

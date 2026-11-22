@@ -36,6 +36,7 @@ public sealed partial class MainWindow : Window
         ["Knowledge"] = typeof(KnowledgeBasePage),
         ["ThreatIntel"] = typeof(ThreatIntelligencePage),
         ["DataBreach"] = typeof(DataBreachPage),
+        ["IpReputation"] = typeof(IpReputationPage),
         ["SecureVault"] = typeof(SecureVaultPage),
         ["FileShredder"] = typeof(FileShredderPage),
         ["ParentalControl"] = typeof(ParentalControlPage),

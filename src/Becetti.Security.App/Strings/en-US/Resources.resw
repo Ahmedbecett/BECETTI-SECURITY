@@ -221,6 +221,20 @@
   <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve"><value>This password is hashed on this device — only a 5-character fragment of that hash ever leaves it. The password itself is never sent or stored anywhere.</value></data>
   <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve"><value>Check password</value></data>
   <data name="DataBreachHistoryLabel.Text" xml:space="preserve"><value>Previous checks</value></data>
+
+  <data name="NavIpReputation.Content" xml:space="preserve"><value>IP Reputation</value></data>
+  <data name="TitleIpReputation.Text" xml:space="preserve"><value>IP Reputation</value></data>
+  <data name="SubtitleIpReputation.Text" xml:space="preserve"><value>An optional second opinion on a single IP address you choose to check — for example, an unfamiliar connection you noticed in Network Monitor. Powered by AbuseIPDB's community abuse reports. This never replaces BECETTI SECURITY's own local protection.</value></data>
+  <data name="IpReputationNotConfiguredBar.Title" xml:space="preserve"><value>Not configured</value></data>
+  <data name="IpReputationNotConfiguredBar.Message" xml:space="preserve"><value>The IP reputation server is not configured. Open Settings and set the BECETTI server URL.</value></data>
+  <data name="IpReputationSectionLabel.Text" xml:space="preserve"><value>Check an IP address</value></data>
+  <data name="IpReputationTextBox.PlaceholderText" xml:space="preserve"><value>203.0.113.42</value></data>
+  <data name="IpReputationCheckButton.Content" xml:space="preserve"><value>Check IP</value></data>
+  <data name="IpReputationScoreLabel.Text" xml:space="preserve"><value>Abuse confidence score:</value></data>
+  <data name="IpReputationReportsLabel.Text" xml:space="preserve"><value>Total reports:</value></data>
+  <data name="IpReputationIspLabel.Text" xml:space="preserve"><value>ISP:</value></data>
+  <data name="IpReputationCountryLabel.Text" xml:space="preserve"><value>Country:</value></data>
+  <data name="IpReputationHistoryLabel.Text" xml:space="preserve"><value>Previous checks</value></data>
   <data name="NavSecureVault.Content" xml:space="preserve"><value>Secure Vault</value></data>
   <data name="NavFileShredder.Content" xml:space="preserve"><value>File Shredder</value></data>
   <data name="NavParentalControl.Content" xml:space="preserve"><value>Parental Controls</value></data>

@@ -221,6 +221,20 @@
   <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve"><value>يتم احتساب بصمة كلمة المرور هذه على هذا الجهاز — لا يغادر الجهاز سوى جزء من 5 أحرف من تلك البصمة. كلمة المرور نفسها لا تُرسل أو تُخزَّن في أي مكان أبدًا.</value></data>
   <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve"><value>فحص كلمة المرور</value></data>
   <data name="DataBreachHistoryLabel.Text" xml:space="preserve"><value>الفحوصات السابقة</value></data>
+
+  <data name="NavIpReputation.Content" xml:space="preserve"><value>سمعة عنوان IP</value></data>
+  <data name="TitleIpReputation.Text" xml:space="preserve"><value>سمعة عنوان IP</value></data>
+  <data name="SubtitleIpReputation.Text" xml:space="preserve"><value>رأي ثانٍ اختياري حول عنوان IP واحد تختار فحصه — مثل اتصال غير مألوف لاحظته في مراقب الشبكة. مدعوم ببلاغات الإساءة المجتمعية من AbuseIPDB. هذا لا يحل أبدًا محل حماية BECETTI SECURITY المحلية الخاصة.</value></data>
+  <data name="IpReputationNotConfiguredBar.Title" xml:space="preserve"><value>غير مُهيّأ</value></data>
+  <data name="IpReputationNotConfiguredBar.Message" xml:space="preserve"><value>خادم سمعة عناوين IP غير مُهيّأ. افتح الإعدادات واضبط عنوان خادم BECETTI.</value></data>
+  <data name="IpReputationSectionLabel.Text" xml:space="preserve"><value>فحص عنوان IP</value></data>
+  <data name="IpReputationTextBox.PlaceholderText" xml:space="preserve"><value>203.0.113.42</value></data>
+  <data name="IpReputationCheckButton.Content" xml:space="preserve"><value>فحص عنوان IP</value></data>
+  <data name="IpReputationScoreLabel.Text" xml:space="preserve"><value>درجة الثقة بالإساءة:</value></data>
+  <data name="IpReputationReportsLabel.Text" xml:space="preserve"><value>إجمالي البلاغات:</value></data>
+  <data name="IpReputationIspLabel.Text" xml:space="preserve"><value>مزود خدمة الإنترنت:</value></data>
+  <data name="IpReputationCountryLabel.Text" xml:space="preserve"><value>الدولة:</value></data>
+  <data name="IpReputationHistoryLabel.Text" xml:space="preserve"><value>الفحوصات السابقة</value></data>
   <data name="NavSecureVault.Content" xml:space="preserve"><value>الخزنة الآمنة</value></data>
   <data name="NavFileShredder.Content" xml:space="preserve"><value>ممزق الملفات</value></data>
   <data name="NavParentalControl.Content" xml:space="preserve"><value>الرقابة الأبوية</value></data>

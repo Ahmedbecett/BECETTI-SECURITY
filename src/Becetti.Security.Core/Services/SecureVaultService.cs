@@ -173,14 +173,17 @@ public sealed class SecureVaultService : ISecureVaultService
             if (blob.Length < NonceSizeBytes + TagSizeBytes)
                 return OperationResult.Fail("The vault's encrypted copy of this file is corrupt.", "BLOB_CORRUPT");
 
-            var nonce = blob.AsSpan(0, NonceSizeBytes);
-            var tag = blob.AsSpan(NonceSizeBytes, TagSizeBytes);
-            var ciphertext = blob.AsSpan(NonceSizeBytes + TagSizeBytes);
-            var plaintext = new byte[ciphertext.Length];
-
             var key = await LoadMasterKeyAsync(ct).ConfigureAwait(false);
-            using (var aesGcm = new AesGcm(key, TagSizeBytes))
+
+            var plaintext = new byte[blob.Length - NonceSizeBytes - TagSizeBytes];
+            {
+                var nonce = blob.AsSpan(0, NonceSizeBytes);
+                var tag = blob.AsSpan(NonceSizeBytes, TagSizeBytes);
+                var ciphertext = blob.AsSpan(NonceSizeBytes + TagSizeBytes);
+
+                using var aesGcm = new AesGcm(key, TagSizeBytes);
                 aesGcm.Decrypt(nonce, ciphertext, tag, plaintext);
+            }
 
             await File.WriteAllBytesAsync(destinationPath, plaintext, ct).ConfigureAwait(false);
             Array.Clear(plaintext);

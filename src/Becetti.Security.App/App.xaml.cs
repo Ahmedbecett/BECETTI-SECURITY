@@ -47,6 +47,7 @@ public partial class App : Application
         services.AddSingleton<IEventLogService, EventLogService>();
         services.AddSingleton<IThreatIntelHistoryService, ThreatIntelHistoryService>();
         services.AddSingleton<IDataBreachHistoryService, DataBreachHistoryService>();
+        services.AddSingleton<IIpReputationHistoryService, IpReputationHistoryService>();
         services.AddSingleton<IFileShredderService, FileShredderService>();
         services.AddSingleton<ISecureVaultService, SecureVaultService>();
         services.AddSingleton<IParentalControlService, ParentalControlService>();
@@ -72,6 +73,7 @@ public partial class App : Application
         services.AddHttpClient<IBecettiAiService, BecettiAiService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IThreatIntelligenceService, ThreatIntelligenceService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IDataBreachService, DataBreachService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IIpReputationService, IpReputationService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
 
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
@@ -104,6 +106,7 @@ public partial class App : Application
         services.AddTransient<KnowledgeBaseViewModel>();
         services.AddTransient<ThreatIntelligenceViewModel>();
         services.AddTransient<DataBreachViewModel>();
+        services.AddTransient<IpReputationViewModel>();
         services.AddTransient<FileShredderViewModel>();
         services.AddTransient<SecureVaultViewModel>();
         services.AddTransient<ParentalControlViewModel>();

@@ -147,6 +147,11 @@
                         <FontIcon Glyph="&#xE8D7;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavIpReputation" Content="IP Reputation" Tag="IpReputation">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE704;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavSecureVault" Content="Secure Vault" Tag="SecureVault">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE72E;" />

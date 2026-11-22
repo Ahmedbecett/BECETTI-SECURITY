@@ -43,8 +43,7 @@ public sealed class FileShredderService : IFileShredderService
                     while (written < length)
                     {
                         var chunkSize = (int)Math.Min(buffer.Length, length - written);
-                        var span = buffer.AsSpan(0, chunkSize);
-                        RandomNumberGenerator.Fill(span);
+                        RandomNumberGenerator.Fill(buffer.AsSpan(0, chunkSize));
                         await stream.WriteAsync(buffer.AsMemory(0, chunkSize), ct).ConfigureAwait(false);
                         written += chunkSize;
                     }

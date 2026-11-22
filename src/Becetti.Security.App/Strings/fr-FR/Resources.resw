@@ -221,6 +221,20 @@
   <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve"><value>Ce mot de passe est haché sur cet appareil — seul un fragment de 5 caractères de ce hachage en sort jamais. Le mot de passe lui-même n'est jamais envoyé ni stocké nulle part.</value></data>
   <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve"><value>Vérifier le mot de passe</value></data>
   <data name="DataBreachHistoryLabel.Text" xml:space="preserve"><value>Vérifications précédentes</value></data>
+
+  <data name="NavIpReputation.Content" xml:space="preserve"><value>Réputation IP</value></data>
+  <data name="TitleIpReputation.Text" xml:space="preserve"><value>Réputation IP</value></data>
+  <data name="SubtitleIpReputation.Text" xml:space="preserve"><value>Un second avis facultatif sur une seule adresse IP que vous choisissez de vérifier — par exemple, une connexion inconnue repérée dans le Moniteur réseau. Propulsé par les signalements communautaires d'AbuseIPDB. Ceci ne remplace jamais la protection locale propre à BECETTI SECURITY.</value></data>
+  <data name="IpReputationNotConfiguredBar.Title" xml:space="preserve"><value>Non configuré</value></data>
+  <data name="IpReputationNotConfiguredBar.Message" xml:space="preserve"><value>Le serveur de réputation IP n'est pas configuré. Ouvrez Paramètres et définissez l'URL du serveur BECETTI.</value></data>
+  <data name="IpReputationSectionLabel.Text" xml:space="preserve"><value>Vérifier une adresse IP</value></data>
+  <data name="IpReputationTextBox.PlaceholderText" xml:space="preserve"><value>203.0.113.42</value></data>
+  <data name="IpReputationCheckButton.Content" xml:space="preserve"><value>Vérifier l'IP</value></data>
+  <data name="IpReputationScoreLabel.Text" xml:space="preserve"><value>Score de confiance d'abus :</value></data>
+  <data name="IpReputationReportsLabel.Text" xml:space="preserve"><value>Nombre total de signalements :</value></data>
+  <data name="IpReputationIspLabel.Text" xml:space="preserve"><value>FAI :</value></data>
+  <data name="IpReputationCountryLabel.Text" xml:space="preserve"><value>Pays :</value></data>
+  <data name="IpReputationHistoryLabel.Text" xml:space="preserve"><value>Vérifications précédentes</value></data>
   <data name="NavSecureVault.Content" xml:space="preserve"><value>Coffre-fort sécurisé</value></data>
   <data name="NavFileShredder.Content" xml:space="preserve"><value>Destructeur de fichiers</value></data>
   <data name="NavParentalControl.Content" xml:space="preserve"><value>Contrôle parental</value></data>
