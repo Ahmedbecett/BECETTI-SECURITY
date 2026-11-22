@@ -1216,4 +1216,43 @@ BECETTI SECURITY never simulates or fabricates detections.</value>
   <data name="SettingsAppLockToggle.Header" xml:space="preserve">
     <value>Require authentication for sensitive security controls</value>
   </data>
+  <data name="NavGlobalIntel.Content" xml:space="preserve">
+    <value>Global Intel &amp; Radar</value>
+  </data>
+  <data name="TitleGlobalIntel.Text" xml:space="preserve">
+    <value>Global Threat Intelligence, Radar &amp; MITRE ATT&amp;CK</value>
+  </data>
+  <data name="SubtitleGlobalIntel.Text" xml:space="preserve">
+    <value>Live abuse.ch C2/Malware feeds, real outbound GeoIP radar with 1-click firewall blocker, MITRE ATT&amp;CK Enterprise coverage, Windows privacy hardener, and official GitHub Releases auto-updater.</value>
+  </data>
+  <data name="DashboardAiBriefingTitle.Text" xml:space="preserve">
+    <value>BECETTI AI Executive Security Briefing</value>
+  </data>
+  <data name="DashboardAiBriefingBtn.Content" xml:space="preserve">
+    <value>Generate AI Briefing</value>
+  </data>
+  <data name="DashboardAiSpeakBtn.Content" xml:space="preserve">
+    <value>Read Aloud</value>
+  </data>
+  <data name="GlobalIntelPageTitle.Text" xml:space="preserve">
+    <value>Global Threat Intelligence, Radar &amp; MITRE ATT&amp;CK</value>
+  </data>
+  <data name="GlobalIntelPageSubtitle.Text" xml:space="preserve">
+    <value>Live abuse.ch C2/Malware feeds, outbound GeoIP radar with 1-click firewall blocker, MITRE ATT&amp;CK Enterprise coverage, Windows privacy hardener, and official GitHub Releases auto-updater.</value>
+  </data>
+  <data name="GlobalTabFeeds.Header" xml:space="preserve">
+    <value>Global Threat Feeds</value>
+  </data>
+  <data name="GlobalTabRadar.Header" xml:space="preserve">
+    <value>Live GeoIP Radar</value>
+  </data>
+  <data name="GlobalTabMitre.Header" xml:space="preserve">
+    <value>MITRE ATT&amp;CK</value>
+  </data>
+  <data name="GlobalTabPrivacy.Header" xml:space="preserve">
+    <value>Privacy &amp; Anti-Telemetry</value>
+  </data>
+  <data name="GlobalTabUpdater.Header" xml:space="preserve">
+    <value>Auto-Updater</value>
+  </data>
 </root>

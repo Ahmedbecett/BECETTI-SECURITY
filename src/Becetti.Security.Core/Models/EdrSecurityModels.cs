@@ -17,8 +17,10 @@ public sealed class PersistenceEntry
     public string RiskReason { get; init; } = string.Empty;
     public bool CanDisable { get; init; }
 
+    public string MitreTechniqueId => Becetti.Security.Core.Services.MitreAttackMapper.MapPersistenceCategory(Category).TechniqueId;
+
     public string SummaryLine =>
-        $"[{RiskLevel}] {Category} · {Name} · Sig: {SignatureStatus}" +
+        $"[{RiskLevel}] [{MitreTechniqueId}] {Category} · {Name} · Sig: {SignatureStatus}" +
         (string.IsNullOrWhiteSpace(Publisher) ? string.Empty : $" ({Publisher})");
 }
 
@@ -130,8 +132,10 @@ public sealed class SuspiciousScriptEvent
     public IReadOnlyList<string> MatchedIndicators { get; init; } = Array.Empty<string>();
     public string RiskLevel { get; init; } = "Medium";
 
+    public string MitreTechniqueId => Becetti.Security.Core.Services.MitreAttackMapper.MapScriptCommand($"{ProcessOrHost} {RawCommand}").TechniqueId;
+
     public string DisplayLine =>
-        $"[{RiskLevel}] {Timestamp.ToLocalTime():HH:mm:ss} · {Source} · {ProcessOrHost} · {string.Join(", ", MatchedIndicators)}";
+        $"[{RiskLevel}] [{MitreTechniqueId}] {Timestamp.ToLocalTime():HH:mm:ss} · {Source} · {ProcessOrHost} · {string.Join(", ", MatchedIndicators)}";
 }
 
 public sealed class ScriptAuditReport

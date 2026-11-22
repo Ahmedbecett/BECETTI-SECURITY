@@ -1215,4 +1215,43 @@ BECETTI SECURITY ne simule jamais de détections.</value>
   <data name="SettingsAppLockToggle.Header" xml:space="preserve">
     <value>Exiger une authentification pour les contrôles sensibles</value>
   </data>
+  <data name="NavGlobalIntel.Content" xml:space="preserve">
+    <value>Renseignement mondial &amp; Radar</value>
+  </data>
+  <data name="TitleGlobalIntel.Text" xml:space="preserve">
+    <value>Renseignement mondial, Radar &amp; MITRE ATT&amp;CK</value>
+  </data>
+  <data name="SubtitleGlobalIntel.Text" xml:space="preserve">
+    <value>Flux en direct abuse.ch, radar GeoIP sortant avec blocage pare-feu en 1 clic, couverture MITRE ATT&amp;CK Enterprise, durcissement de confidentialité Windows et mise à jour GitHub Releases.</value>
+  </data>
+  <data name="DashboardAiBriefingTitle.Text" xml:space="preserve">
+    <value>Briefing de sécurité exécutif BECETTI AI</value>
+  </data>
+  <data name="DashboardAiBriefingBtn.Content" xml:space="preserve">
+    <value>Générer le briefing IA</value>
+  </data>
+  <data name="DashboardAiSpeakBtn.Content" xml:space="preserve">
+    <value>Lire à voix haute</value>
+  </data>
+  <data name="GlobalIntelPageTitle.Text" xml:space="preserve">
+    <value>Renseignement mondial, Radar &amp; MITRE ATT&amp;CK</value>
+  </data>
+  <data name="GlobalIntelPageSubtitle.Text" xml:space="preserve">
+    <value>Flux en direct abuse.ch, radar GeoIP sortant avec blocage pare-feu en 1 clic, couverture MITRE ATT&amp;CK Enterprise, durcissement de confidentialité Windows et mise à jour GitHub Releases.</value>
+  </data>
+  <data name="GlobalTabFeeds.Header" xml:space="preserve">
+    <value>Flux de menaces mondiaux</value>
+  </data>
+  <data name="GlobalTabRadar.Header" xml:space="preserve">
+    <value>Radar GeoIP en direct</value>
+  </data>
+  <data name="GlobalTabMitre.Header" xml:space="preserve">
+    <value>MITRE ATT&amp;CK</value>
+  </data>
+  <data name="GlobalTabPrivacy.Header" xml:space="preserve">
+    <value>Confidentialité &amp; Anti-Télémétrie</value>
+  </data>
+  <data name="GlobalTabUpdater.Header" xml:space="preserve">
+    <value>Mise à jour auto</value>
+  </data>
 </root>

@@ -14,11 +14,16 @@
             <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock x:Uid="SettingsLanguageTitle" helpers:Loc.Uid="SettingsLanguageTitle" Text="Language / اللغة / Langue" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="SettingsLanguageTitle" helpers:Loc.Uid="SettingsLanguageTitle" Text="Language / اللغة / Langue / Idioma / Sprache / Dil" Style="{StaticResource ValueStyle}" />
                     <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,8,0,0">
                         <RadioButton Content="English" GroupName="Language" IsChecked="{x:Bind ViewModel.IsEnglish, Mode=TwoWay}" />
                         <RadioButton Content="العربية (Arabic)" GroupName="Language" IsChecked="{x:Bind ViewModel.IsArabic, Mode=TwoWay}" />
                         <RadioButton Content="Français (French)" GroupName="Language" IsChecked="{x:Bind ViewModel.IsFrench, Mode=TwoWay}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+                        <RadioButton Content="Español (Spanish)" GroupName="Language" IsChecked="{x:Bind ViewModel.IsSpanish, Mode=TwoWay}" />
+                        <RadioButton Content="Deutsch (German)" GroupName="Language" IsChecked="{x:Bind ViewModel.IsGerman, Mode=TwoWay}" />
+                        <RadioButton Content="Türkçe (Turkish)" GroupName="Language" IsChecked="{x:Bind ViewModel.IsTurkish, Mode=TwoWay}" />
                     </StackPanel>
                     <TextBlock x:Uid="SettingsLanguageHint" helpers:Loc.Uid="SettingsLanguageHint" Text="Language changes apply immediately across BECETTI SECURITY and are saved automatically." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap" FontSize="12" />
                 </StackPanel>

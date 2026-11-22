@@ -36,6 +36,35 @@
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" />
             <ProgressBar IsIndeterminate="True" Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay}" />
 
+            <!-- AI Executive Security Briefing Card (Readable & Spoken) -->
+            <Border Style="{StaticResource CardStyle}" Margin="0">
+                <StackPanel Spacing="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE99A;" FontSize="18" Foreground="{StaticResource ElectricBlueBrush}" />
+                            <TextBlock x:Uid="DashboardAiBriefingTitle" helpers:Loc.Uid="DashboardAiBriefingTitle"
+                                       Text="BECETTI AI Executive Security Briefing"
+                                       FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <ProgressRing IsActive="{x:Bind ViewModel.IsGeneratingBriefing, Mode=OneWay}" Width="18" Height="18" />
+                            <Button x:Uid="DashboardAiBriefingBtn" helpers:Loc.Uid="DashboardAiBriefingBtn"
+                                    Content="Generate AI Briefing" Style="{StaticResource PrimaryButtonStyle}"
+                                    Command="{x:Bind ViewModel.GenerateAiBriefingCommand}" FontSize="12" Padding="12,5" />
+                            <Button x:Uid="DashboardAiSpeakBtn" helpers:Loc.Uid="DashboardAiSpeakBtn"
+                                    Content="Read Aloud" Command="{x:Bind ViewModel.SpeakAiBriefingCommand}" FontSize="12" Padding="10,5" />
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock Text="{x:Bind ViewModel.AiBriefingText, Mode=OneWay}"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" FontSize="13" LineHeight="20" />
+                </StackPanel>
+            </Border>
+
             <!-- Top Row: 2-Column Executive Hero + Visual Circular Security Score Ring -->
             <Grid ColumnSpacing="16">
                 <Grid.ColumnDefinitions>

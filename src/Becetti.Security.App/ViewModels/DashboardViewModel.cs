@@ -1,3 +1,4 @@
+using Becetti.Security.App.Services;
 using Becetti.Security.Core.Models;
 using Becetti.Security.Core.Services;
 
@@ -20,6 +21,10 @@ public sealed class DashboardViewModel : ViewModelBase
     private readonly IUsbAutoScanService _usb;
     private readonly IHostsDnsGuardService _hosts;
     private readonly IFileIntegrityMonitorService _fim;
+    private readonly IBecettiAiService _ai;
+    private readonly LocalizationService _localization;
+    private readonly SpeechService _speech;
+    private readonly IThreatFeedService _threatFeeds;
 
     private string _defenderText = "Unknown";
     private string _realTimeText = "Unknown";
@@ -32,6 +37,8 @@ public sealed class DashboardViewModel : ViewModelBase
     private string _appVersion = "1.0.0";
     private ProtectionLevel _protectionLevel = ProtectionLevel.Unknown;
     private SecurityScoreResult _securityScore = new();
+    private string _aiBriefingText = "Click 'Generate AI Briefing' for an instant executive security summary based on your live Windows, YARA, and Shield telemetry.";
+    private bool _isGeneratingBriefing;
 
     private bool _yaraGuardActive;
     private bool _canaryActive;
@@ -51,7 +58,11 @@ public sealed class DashboardViewModel : ViewModelBase
         IClipboardGuardService clipboard,
         IUsbAutoScanService usb,
         IHostsDnsGuardService hosts,
-        IFileIntegrityMonitorService fim)
+        IFileIntegrityMonitorService fim,
+        IBecettiAiService ai,
+        LocalizationService localization,
+        SpeechService speech,
+        IThreatFeedService threatFeeds)
     {
         _defender = defender;
         _system = system;
@@ -64,10 +75,38 @@ public sealed class DashboardViewModel : ViewModelBase
         _usb = usb;
         _hosts = hosts;
         _fim = fim;
+        _ai = ai;
+        _localization = localization;
+        _speech = speech;
+        _threatFeeds = threatFeeds;
         RefreshCommand = new RelayCommand(LoadAsync);
+        GenerateAiBriefingCommand = new RelayCommand(GenerateAiBriefingAsync, () => !IsGeneratingBriefing);
+        SpeakAiBriefingCommand = new RelayCommand(SpeakAiBriefingAsync, () => !string.IsNullOrWhiteSpace(AiBriefingText));
     }
 
     public RelayCommand RefreshCommand { get; }
+    public RelayCommand GenerateAiBriefingCommand { get; }
+    public RelayCommand SpeakAiBriefingCommand { get; }
+
+    public string AiBriefingText
+    {
+        get => _aiBriefingText;
+        set
+        {
+            if (SetProperty(ref _aiBriefingText, value))
+                SpeakAiBriefingCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public bool IsGeneratingBriefing
+    {
+        get => _isGeneratingBriefing;
+        set
+        {
+            if (SetProperty(ref _isGeneratingBriefing, value))
+                GenerateAiBriefingCommand.RaiseCanExecuteChanged();
+        }
+    }
 
     public string DefenderText { get => _defenderText; set => SetProperty(ref _defenderText, value); }
     public string RealTimeText { get => _realTimeText; set => SetProperty(ref _realTimeText, value); }
@@ -341,5 +380,55 @@ public sealed class DashboardViewModel : ViewModelBase
         _settings.Current.FimAutoWatchEnabled = enable;
         await _settings.SaveAsync();
         StatusMessage = res.Message;
+    }
+
+    public async Task GenerateAiBriefingAsync()
+    {
+        if (IsGeneratingBriefing) return;
+        IsGeneratingBriefing = true;
+        ClearMessages();
+        try
+        {
+            var langName = _localization.Current switch
+            {
+                AppLanguage.Arabic => "Arabic",
+                AppLanguage.French => "French",
+                AppLanguage.Spanish => "Spanish",
+                AppLanguage.German => "German",
+                AppLanguage.Turkish => "Turkish",
+                _ => "English"
+            };
+
+            var feeds = _threatFeeds.GetStatus();
+            var prompt =
+                $"Give me a concise 3-bullet Executive Security Briefing in {langName} based ONLY on these real live endpoint metrics from BECETTI SECURITY:\n" +
+                $"- Security Score: {SecurityScoreText}/100 ({ProtectionHeadline})\n" +
+                $"- Microsoft Defender: {DefenderText} · Real-Time: {RealTimeText} · Firewall: {FirewallText}\n" +
+                $"- Native YARA Engine: {YaraText}\n" +
+                $"- Active Shields: YARA Guard={(YaraGuardActive ? "ON" : "OFF")}, Ransomware Canary={(CanaryActive ? "ON" : "OFF")}, Clipboard={(ClipboardActive ? "ON" : "OFF")}, USB Auto-Scan={(UsbAutoActive ? "ON" : "OFF")}, Hosts Guard={(HostsGuardActive ? "ON" : "OFF")}, FIM={(FimActive ? "ON" : "OFF")}\n" +
+                $"- Global Threat Feeds (abuse.ch): {feeds.TotalIndicators:N0} IOCs synced\n" +
+                $"- Last Scan: {LastScanText}\n" +
+                $"Keep it crisp (max 80 words total) with 1 positive observation and 2 concrete next actions inside the app.";
+
+            var res = await _ai.SendAsync(new[] { new AiChatTurn { Role = "user", Content = prompt } });
+            if (res.Success && !string.IsNullOrWhiteSpace(res.Value))
+            {
+                AiBriefingText = res.Value.Trim();
+            }
+            else
+            {
+                ErrorMessage = res.Message;
+            }
+        }
+        finally
+        {
+            IsGeneratingBriefing = false;
+        }
+    }
+
+    private async Task SpeakAiBriefingAsync()
+    {
+        if (string.IsNullOrWhiteSpace(AiBriefingText)) return;
+        await _speech.SpeakAsync(AiBriefingText, _localization.Bcp47Tag);
     }
 }

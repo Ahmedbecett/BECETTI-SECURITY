@@ -37,6 +37,9 @@
     <EmbeddedResource Include="..\Becetti.Security.App\Strings\en-US\Resources.resw" LogicalName="Becetti.Security.Core.Strings.en-US.resw" />
     <EmbeddedResource Include="..\Becetti.Security.App\Strings\ar-SA\Resources.resw" LogicalName="Becetti.Security.Core.Strings.ar-SA.resw" />
     <EmbeddedResource Include="..\Becetti.Security.App\Strings\fr-FR\Resources.resw" LogicalName="Becetti.Security.Core.Strings.fr-FR.resw" />
+    <EmbeddedResource Include="..\Becetti.Security.App\Strings\es-ES\Resources.resw" LogicalName="Becetti.Security.Core.Strings.es-ES.resw" />
+    <EmbeddedResource Include="..\Becetti.Security.App\Strings\de-DE\Resources.resw" LogicalName="Becetti.Security.Core.Strings.de-DE.resw" />
+    <EmbeddedResource Include="..\Becetti.Security.App\Strings\tr-TR\Resources.resw" LogicalName="Becetti.Security.Core.Strings.tr-TR.resw" />
   </ItemGroup>
 
 </Project>

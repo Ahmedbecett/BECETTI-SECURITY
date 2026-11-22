@@ -1216,4 +1216,43 @@
   <data name="SettingsAppLockToggle.Header" xml:space="preserve">
     <value>طلب المصادقة للوصول إلى أدوات الحماية الحساسة</value>
   </data>
+  <data name="NavGlobalIntel.Content" xml:space="preserve">
+    <value>الاستخبارات العالمية والرادار</value>
+  </data>
+  <data name="TitleGlobalIntel.Text" xml:space="preserve">
+    <value>استخبارات التهديدات العالمية والرادار و MITRE ATT&amp;CK</value>
+  </data>
+  <data name="SubtitleGlobalIntel.Text" xml:space="preserve">
+    <value>قواعد استخبارات abuse.ch الحية، ورادار الاتصالات الصادرة GeoIP مع حظر الجدار الناري بنقرة واحدة، ومصفوفة MITRE ATT&amp;CK، وتحصين خصوصية ويندوز، والتحديث التلقائي من GitHub.</value>
+  </data>
+  <data name="DashboardAiBriefingTitle.Text" xml:space="preserve">
+    <value>الموجز الأمني التنفيذي بالذكاء الاصطناعي BECETTI AI</value>
+  </data>
+  <data name="DashboardAiBriefingBtn.Content" xml:space="preserve">
+    <value>توليد الموجز بالذكاء الاصطناعي</value>
+  </data>
+  <data name="DashboardAiSpeakBtn.Content" xml:space="preserve">
+    <value>قراءة صوتية</value>
+  </data>
+  <data name="GlobalIntelPageTitle.Text" xml:space="preserve">
+    <value>استخبارات التهديدات العالمية والرادار و MITRE ATT&amp;CK</value>
+  </data>
+  <data name="GlobalIntelPageSubtitle.Text" xml:space="preserve">
+    <value>قواعد استخبارات abuse.ch الحية، ورادار الاتصالات الصادرة GeoIP مع حظر الجدار الناري بنقرة واحدة، ومصفوفة MITRE ATT&amp;CK، وتحصين خصوصية ويندوز، والتحديث التلقائي من GitHub.</value>
+  </data>
+  <data name="GlobalTabFeeds.Header" xml:space="preserve">
+    <value>قواعد التهديدات العالمية</value>
+  </data>
+  <data name="GlobalTabRadar.Header" xml:space="preserve">
+    <value>رادار GeoIP المباشر</value>
+  </data>
+  <data name="GlobalTabMitre.Header" xml:space="preserve">
+    <value>مصفوفة MITRE ATT&amp;CK</value>
+  </data>
+  <data name="GlobalTabPrivacy.Header" xml:space="preserve">
+    <value>الخصوصية ومكافحة التتبع</value>
+  </data>
+  <data name="GlobalTabUpdater.Header" xml:space="preserve">
+    <value>التحديث التلقائي</value>
+  </data>
 </root>

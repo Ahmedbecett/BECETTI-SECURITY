@@ -79,6 +79,9 @@
                         <NavigationViewItem x:Uid="NavAi" helpers:Loc.Uid="NavAi" Content="BECETTI AI" Tag="Ai">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE99A;" /></NavigationViewItem.Icon>
                         </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavGlobalIntel" helpers:Loc.Uid="NavGlobalIntel" Content="Global Intel &amp; Radar" Tag="GlobalIntel">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE774;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
                         <NavigationViewItem x:Uid="NavThreatIntel" helpers:Loc.Uid="NavThreatIntel" Content="Threat Intelligence" Tag="ThreatIntel">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE7BA;" /></NavigationViewItem.Icon>
                         </NavigationViewItem>
@@ -387,6 +390,84 @@
                         <TextBlock Text="↑↓ Navigate · Enter Execute · Esc Close" Foreground="{StaticResource TextMutedBrush}" FontSize="11" />
                     </Border>
                 </Grid>
+            </Border>
+        </Grid>
+
+        <!-- World-Class 3-Step First-Run Onboarding Wizard Overlay (#4) -->
+        <Grid x:Name="OnboardingOverlay"
+              Grid.RowSpan="2"
+              Visibility="Collapsed"
+              Background="#CC05080F">
+            <Border Width="640"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="{StaticResource CardBackgroundBrush}"
+                    BorderBrush="{StaticResource HeroBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="16"
+                    Padding="28">
+                <StackPanel Spacing="18">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="BECETTI SECURITY" FontSize="12" FontWeight="Bold" CharacterSpacing="120" Foreground="{StaticResource ElectricBlueBrush}" />
+                        <TextBlock x:Name="OnboardingTitle" Text="Welcome to Global Endpoint Protection" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                        <TextBlock x:Name="OnboardingSubtitle" Text="100% Real Windows APIs · Native YARA v4.6.0 · MITRE ATT&amp;CK EDR · Zero Simulation" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!-- Step 1: Choose Global Language (6 Languages) -->
+                    <Border x:Name="OnboardingStep1" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Step 1 of 3 — Choose Your Language (Instant Live Switch)" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                            <Grid ColumnSpacing="8" RowSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Button Grid.Row="0" Grid.Column="0" Content="English" Tag="en" Click="OnboardingLanguage_Click" HorizontalAlignment="Stretch" />
+                                <Button Grid.Row="0" Grid.Column="1" Content="العربية (RTL)" Tag="ar" Click="OnboardingLanguage_Click" HorizontalAlignment="Stretch" />
+                                <Button Grid.Row="0" Grid.Column="2" Content="Français" Tag="fr" Click="OnboardingLanguage_Click" HorizontalAlignment="Stretch" />
+                                <Button Grid.Row="1" Grid.Column="0" Content="Español" Tag="es" Click="OnboardingLanguage_Click" HorizontalAlignment="Stretch" />
+                                <Button Grid.Row="1" Grid.Column="1" Content="Deutsch" Tag="de" Click="OnboardingLanguage_Click" HorizontalAlignment="Stretch" />
+                                <Button Grid.Row="1" Grid.Column="2" Content="Türkçe" Tag="tr" Click="OnboardingLanguage_Click" HorizontalAlignment="Stretch" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Step 2: Recommended Real-Time Shields -->
+                    <Border x:Name="OnboardingStep2" Visibility="Collapsed" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Step 2 of 3 — Activate Recommended Active Defense Shields" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                            <CheckBox x:Name="ObYaraGuardCheck" Content="Real-Time YARA Folder Guard (Downloads, Desktop, Temp, Startup)" IsChecked="True" />
+                            <CheckBox x:Name="ObCanaryCheck" Content="Ransomware Canary Honeypot Guard" IsChecked="True" />
+                            <CheckBox x:Name="ObHostsGuardCheck" Content="Hosts File &amp; DNS Hijack Real-Time Guard" IsChecked="True" />
+                            <CheckBox x:Name="ObTrayCheck" Content="Keep Active Shields Running in Windows System Tray on Close" IsChecked="True" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Step 3: Ready to Launch -->
+                    <Border x:Name="OnboardingStep3" Visibility="Collapsed" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource GlowBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Step 3 of 3 — You Are Protected &amp; Ready" FontWeight="SemiBold" Foreground="{StaticResource AccentGreenBrush}" />
+                            <TextBlock Text="Your chosen shields have been configured. Press Ctrl+K at any time to open the instant Command Palette, or launch your first Windows Hardening &amp; Global Threat Feed audit now." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Skip Setup" Click="OnboardingSkip_Click" HorizontalAlignment="Left" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <Button x:Name="OnboardingBackBtn" Content="Back" Click="OnboardingBack_Click" Visibility="Collapsed" />
+                            <Button x:Name="OnboardingNextBtn" Content="Next Step" Style="{StaticResource PrimaryButtonStyle}" Click="OnboardingNext_Click" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
             </Border>
         </Grid>
     </Grid>

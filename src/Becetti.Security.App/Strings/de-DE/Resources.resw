@@ -1,0 +1,1258 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTitle" xml:space="preserve">
+    <value>BECETTI SECURITY</value>
+  </data>
+  <data name="AppTagline" xml:space="preserve">
+    <value>Your Digital Protection Center</value>
+  </data>
+  <data name="AppHeaderTitle.Text" xml:space="preserve">
+    <value>BECETTI SECURITY</value>
+  </data>
+  <data name="AppHeaderSubtitle.Text" xml:space="preserve">
+    <value>Advanced Protection for Windows</value>
+  </data>
+  <data name="ScanNowButton.Content" xml:space="preserve">
+    <value>Jetzt scannen</value>
+  </data>
+  <data name="SettingsAnimations.Header" xml:space="preserve">
+    <value>Enable decorative animations</value>
+  </data>
+  <data name="SettingsSounds.Header" xml:space="preserve">
+    <value>Enable sound cues</value>
+  </data>
+  <data name="NavDashboard.Content" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="NavScan.Content" xml:space="preserve">
+    <value>Virenscan</value>
+  </data>
+  <data name="NavProtection.Content" xml:space="preserve">
+    <value>Echtzeitschutz</value>
+  </data>
+  <data name="NavCloud.Content" xml:space="preserve">
+    <value>Cloud-Reputation</value>
+  </data>
+  <data name="NavThreats.Content" xml:space="preserve">
+    <value>Bedrohungen &amp; Quarantäne</value>
+  </data>
+  <data name="NavPrivacy.Content" xml:space="preserve">
+    <value>Datenschutz</value>
+  </data>
+  <data name="NavHistory.Content" xml:space="preserve">
+    <value>Verlauf &amp; Ereignisse</value>
+  </data>
+  <data name="NavUpdates.Content" xml:space="preserve">
+    <value>Aktualisierungen</value>
+  </data>
+  <data name="NavSettings.Content" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="NavAbout.Content" xml:space="preserve">
+    <value>Über</value>
+  </data>
+  <data name="NavAi.Content" xml:space="preserve">
+    <value>BECETTI AI</value>
+  </data>
+  <data name="NavContact.Content" xml:space="preserve">
+    <value>Kontakt</value>
+  </data>
+  <data name="TitleDashboard.Text" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="TitleScan.Text" xml:space="preserve">
+    <value>Sicherheitsscan</value>
+  </data>
+  <data name="TitleProtection.Text" xml:space="preserve">
+    <value>Echtzeitschutz</value>
+  </data>
+  <data name="TitleCloud.Text" xml:space="preserve">
+    <value>Cloud Sicherheit</value>
+  </data>
+  <data name="TitleThreats.Text" xml:space="preserve">
+    <value>Bedrohung Management</value>
+  </data>
+  <data name="TitlePrivacy.Text" xml:space="preserve">
+    <value>Datenschutz &amp; Netzwerk</value>
+  </data>
+  <data name="PrivacyPermissionsLabel.Text" xml:space="preserve">
+    <value>App permissions (device-wide)</value>
+  </data>
+  <data name="TitleHistory.Text" xml:space="preserve">
+    <value>Ereignisverlauf &amp; Zeitachse</value>
+  </data>
+  <data name="TitleUpdates.Text" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="TitleSettings.Text" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="TitleAbout.Text" xml:space="preserve">
+    <value>About BECETTI SECURITY</value>
+  </data>
+  <data name="TitleAi.Text" xml:space="preserve">
+    <value>BECETTI AI Sicherheitsassistent</value>
+  </data>
+  <data name="TitleContact.Text" xml:space="preserve">
+    <value>Contact Becetti</value>
+  </data>
+  <data name="SubtitleDashboard.Text" xml:space="preserve">
+    <value>Verifizierter Sicherheitsstatus live aus Windows, Microsoft Defender und der nativen YARA-Engine.</value>
+  </data>
+  <data name="SubtitleScan.Text" xml:space="preserve">
+    <value>Dual local scanning powered by the built-in Native YARA Engine (VirusTotal/yara x64) and Microsoft Defender (MpCmdRun). Every result is real — never simulated.</value>
+  </data>
+  <data name="AskAiAboutScanButton.Content" xml:space="preserve">
+    <value>Ask BECETTI AI to explain this</value>
+  </data>
+  <data name="SubtitleProtection.Text" xml:space="preserve">
+    <value>Verified Microsoft Defender state. Changes are applied through Defender and re-verified before success is reported.</value>
+  </data>
+  <data name="SubtitleCloud.Text" xml:space="preserve">
+    <value>Connect to the BECETTI SECURITY cloud API for reputation checks, update information, and a multi-device dashboard. Only file hashes are sent — never files.</value>
+  </data>
+  <data name="CloudDevicesSectionLabel.Text" xml:space="preserve">
+    <value>Your devices</value>
+  </data>
+  <data name="CloudDevicesSectionNote.Text" xml:space="preserve">
+    <value>Every device that has signed in to this cloud account and sent a check-in, including this one. Remove a device if it is lost or no longer in use.</value>
+  </data>
+  <data name="CloudRefreshDevicesButton.Content" xml:space="preserve">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="CloudThisDeviceBadge.Text" xml:space="preserve">
+    <value>(this device)</value>
+  </data>
+  <data name="CloudRemoveDeviceButton.Content" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="SubtitleThreats.Text" xml:space="preserve">
+    <value>Real detections reported by Microsoft Defender. Removal runs through Defender and is verified before success is shown.</value>
+  </data>
+  <data name="AskAiAboutThreatButton.Content" xml:space="preserve">
+    <value>Ask BECETTI AI to explain this</value>
+  </data>
+  <data name="SubtitlePrivacy.Text" xml:space="preserve">
+    <value>Measured network, TLS and configuration checks. Recommendations come from the measured values only.</value>
+  </data>
+  <data name="SubtitleHistory.Text" xml:space="preserve">
+    <value>Local log of real events recorded by BECETTI SECURITY. Nothing is seeded or invented.</value>
+  </data>
+  <data name="SubtitleUpdates.Text" xml:space="preserve">
+    <value>Application updates and security-intelligence updates are separate. Each is checked through its real channel.</value>
+  </data>
+  <data name="SubtitleSettings.Text" xml:space="preserve">
+    <value>Every setting here is stored and applied. Nothing is decorative.</value>
+  </data>
+  <data name="SubtitleAbout.Text" xml:space="preserve">
+    <value>Your Digital Protection Center</value>
+  </data>
+  <data name="SubtitleAi.Text" xml:space="preserve">
+    <value>Ask BECETTI AI about your security status. It only answers from real, verified information — it never invents a threat or a fix.</value>
+  </data>
+  <data name="SubtitleContact.Text" xml:space="preserve">
+    <value>Nothing is sent automatically. This prepares a draft in your own email app — you review and press Send yourself.</value>
+  </data>
+  <data name="SupportWhatsAppLabel.Text" xml:space="preserve">
+    <value>WhatsApp</value>
+  </data>
+  <data name="OpenWhatsAppButton.Content" xml:space="preserve">
+    <value>Open WhatsApp</value>
+  </data>
+  <data name="SettingsAiShareDeviceState.Header" xml:space="preserve">
+    <value>Share real device/Defender status with BECETTI AI for this chat</value>
+  </data>
+  <data name="SettingsAiSaveHistory.Header" xml:space="preserve">
+    <value>Speichern chat history on this device</value>
+  </data>
+  <data name="SettingsAiApiBaseUrl.Header" xml:space="preserve">
+    <value>BECETTI AI server URL</value>
+  </data>
+  <data name="SettingsSupportEmail.Header" xml:space="preserve">
+    <value>Support email address</value>
+  </data>
+  <data name="SettingsCriticalAlertsLabel.Text" xml:space="preserve">
+    <value>Critical Alerts</value>
+  </data>
+  <data name="SettingsCriticalAlertsDescription.Text" xml:space="preserve">
+    <value>A critical event (threat found, a checked email/password found in a breach, a malicious scan result) always shows a Windows notification. Optionally, it can also be posted to a webhook URL (Slack, Discord or any generic JSON endpoint) so it reaches another device.</value>
+  </data>
+  <data name="SettingsCriticalAlertsToggle.Header" xml:space="preserve">
+    <value>Show a Windows notification for critical events</value>
+  </data>
+  <data name="SettingsCriticalAlertsWebhook.Header" xml:space="preserve">
+    <value>Webhook URL (optional)</value>
+  </data>
+  <data name="AiWelcomeMessage.Text" xml:space="preserve">
+    <value>Welcome, you are safe.</value>
+  </data>
+  <data name="AiWelcomeSubtitle.Text" xml:space="preserve">
+    <value>I'm BECETTI AI. Ask me about any part of your protection and I'll explain exactly what it shows and where to go.</value>
+  </data>
+  <data name="AiVoiceToggle.Header" xml:space="preserve">
+    <value>Read replies aloud</value>
+  </data>
+  <data name="AiSupportTicketButton.Content" xml:space="preserve">
+    <value>Open a support ticket</value>
+  </data>
+  <data name="NavRansomware.Content" xml:space="preserve">
+    <value>Ransomware-Schutz</value>
+  </data>
+  <data name="NavPcHealth.Content" xml:space="preserve">
+    <value>PC-Zustand</value>
+  </data>
+  <data name="NavStartup.Content" xml:space="preserve">
+    <value>Autostart-Manager</value>
+  </data>
+  <data name="NavSoftware.Content" xml:space="preserve">
+    <value>Software-Manager</value>
+  </data>
+  <data name="NavDrivers.Content" xml:space="preserve">
+    <value>Treiber-Monitor</value>
+  </data>
+  <data name="NavUsb.Content" xml:space="preserve">
+    <value>USB-Schutz</value>
+  </data>
+  <data name="NavNetwork.Content" xml:space="preserve">
+    <value>Netzwerk-Monitor</value>
+  </data>
+  <data name="NavEmergency.Content" xml:space="preserve">
+    <value>Notfallzentrum</value>
+  </data>
+  <data name="TitleRansomware.Text" xml:space="preserve">
+    <value>Ransomware Defense</value>
+  </data>
+  <data name="SubtitleRansomware.Text" xml:space="preserve">
+    <value>Microsoft Defender's own Controlled Folder Access (Exploit Guard). BECETTI SECURITY only reads and explains this real Windows feature — it never runs its own ransomware engine.</value>
+  </data>
+  <data name="ElevationRequiredInfoBar.Title" xml:space="preserve">
+    <value>Administrator required</value>
+  </data>
+  <data name="ElevationRequiredInfoBar.Message" xml:space="preserve">
+    <value>Changing Controlled Folder Access requires an administrator. Use Einstellungen → Restart as administrator.</value>
+  </data>
+  <data name="ProtectedFoldersLabel.Text" xml:space="preserve">
+    <value>Protected folders</value>
+  </data>
+  <data name="RansomwareRecommendationLabel.Text" xml:space="preserve">
+    <value>Recommendation</value>
+  </data>
+  <data name="RansomwareRecommendationText.Text" xml:space="preserve">
+    <value>Add your most important personal folders (Documents, Pictures, Desktop) to Controlled Folder Access from Windows Sicherheit, so ransomware cannot silently encrypt or delete them. Ask BECETTI AI if you're not sure which folders to protect.</value>
+  </data>
+  <data name="EnableButton.Content" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="DisableButton.Content" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="TitlePcHealth.Text" xml:space="preserve">
+    <value>Smart PC Health</value>
+  </data>
+  <data name="SubtitlePcHealth.Text" xml:space="preserve">
+    <value>Live CPU, memory, disk and essential-service state, read directly from Windows — nothing cached or estimated.</value>
+  </data>
+  <data name="CpuUsageLabel.Text" xml:space="preserve">
+    <value>CPU usage</value>
+  </data>
+  <data name="MemoryUsageLabel.Text" xml:space="preserve">
+    <value>Memory usage</value>
+  </data>
+  <data name="DisksLabel.Text" xml:space="preserve">
+    <value>Disks</value>
+  </data>
+  <data name="EssentialServicesLabel.Text" xml:space="preserve">
+    <value>Essential services</value>
+  </data>
+  <data name="SecurityScoreTitle.Text" xml:space="preserve">
+    <value>Sicherheitsbewertung</value>
+  </data>
+  <data name="RefreshButton.Content" xml:space="preserve">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="UninstallButton.Content" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="AdminRequiredInfoBar.Title" xml:space="preserve">
+    <value>Administrator required</value>
+  </data>
+  <data name="AdminRequiredInfoBar.Message" xml:space="preserve">
+    <value>Changing this startup item requires an administrator. Restart BECETTI SECURITY as administrator from Einstellungen.</value>
+  </data>
+  <data name="TitleStartup.Text" xml:space="preserve">
+    <value>Startup Manager</value>
+  </data>
+  <data name="SubtitleStartup.Text" xml:space="preserve">
+    <value>Real registry startup entries — the same Run-key and Task Manager convention Windows itself uses. No performance impact score is invented: Windows does not expose one through any stable API.</value>
+  </data>
+  <data name="TitleSoftware.Text" xml:space="preserve">
+    <value>Software Manager</value>
+  </data>
+  <data name="SubtitleSoftware.Text" xml:space="preserve">
+    <value>Real installed applications from the Windows registry — the same list Einstellungen &gt; Apps shows. Uninstalling only launches the application's own real uninstaller; nothing is removed directly.</value>
+  </data>
+  <data name="TitleDrivers.Text" xml:space="preserve">
+    <value>Driver Monitor</value>
+  </data>
+  <data name="SubtitleDrivers.Text" xml:space="preserve">
+    <value>Real installed device drivers from Windows (WMI), the same inventory Gerät Manager uses. BECETTI SECURITY has no driver issue database of its own — check Windows Aktualisieren or the manufacturer's site for updates.</value>
+  </data>
+  <data name="TitleUsb.Text" xml:space="preserve">
+    <value>USB Protection</value>
+  </data>
+  <data name="SubtitleUsb.Text" xml:space="preserve">
+    <value>Real connected removable drives and Windows' own AutoPlay/AutoRun policy, which blocks the classic autorun.inf USB-malware vector. Scanning a drive runs through Microsoft Defender — BECETTI SECURITY has no USB scanning engine of its own.</value>
+  </data>
+  <data name="UsbConnectedDrivesLabel.Text" xml:space="preserve">
+    <value>Connected Removable Drives</value>
+  </data>
+  <data name="ScanSelectedDriveButton.Content" xml:space="preserve">
+    <value>Scan Selected Drive with Defender</value>
+  </data>
+  <data name="UsbAutoRunLabel.Text" xml:space="preserve">
+    <value>AutoPlay / AutoRun Protection</value>
+  </data>
+  <data name="EnableAutoRunProtectionButton.Content" xml:space="preserve">
+    <value>Enable AutoRun Protection</value>
+  </data>
+  <data name="DisableAutoRunProtectionButton.Content" xml:space="preserve">
+    <value>Remove BECETTI's AutoRun Block</value>
+  </data>
+  <data name="TitleNetwork.Text" xml:space="preserve">
+    <value>Netzwerk Monitor</value>
+  </data>
+  <data name="SubtitleNetwork.Text" xml:space="preserve">
+    <value>Real network adapters and active TCP connections, read from Windows' own NetworkInterface API and Get-NetTCPConnection (the same source Resource Monitor uses). BECETTI SECURITY draws no conclusion about any connection — it shows Windows' own verified list.</value>
+  </data>
+  <data name="FirewallProfilesLabel.Text" xml:space="preserve">
+    <value>Firewall Profiles</value>
+  </data>
+  <data name="NetworkAdaptersLabel.Text" xml:space="preserve">
+    <value>Netzwerk Adapters</value>
+  </data>
+  <data name="ActiveConnectionsLabel.Text" xml:space="preserve">
+    <value>Aktiv Connections &amp; Listening Ports</value>
+  </data>
+  <data name="TitleEmergency.Text" xml:space="preserve">
+    <value>Emergency Center</value>
+  </data>
+  <data name="SubtitleEmergency.Text" xml:space="preserve">
+    <value>A single place for 'something feels wrong' moments — real status, quick access to Windows' own tools, and BECETTI AI for help.</value>
+  </data>
+  <data name="QuickActionsLabel.Text" xml:space="preserve">
+    <value>Quick actions</value>
+  </data>
+  <data name="OpenThreatsButton.Content" xml:space="preserve">
+    <value>View Threats</value>
+  </data>
+  <data name="OpenWindowsSecurityButton.Content" xml:space="preserve">
+    <value>Open Windows Sicherheit</value>
+  </data>
+  <data name="OpenBackupSettingsButton.Content" xml:space="preserve">
+    <value>Backup &amp; Recovery</value>
+  </data>
+  <data name="AskBecettiAiButton.Content" xml:space="preserve">
+    <value>Ask BECETTI AI</value>
+  </data>
+  <data name="DiagnosticSummaryLabel.Text" xml:space="preserve">
+    <value>Diagnostic summary</value>
+  </data>
+  <data name="DiagnosticSummaryHint.Text" xml:space="preserve">
+    <value>Builds a plain-text snapshot of your current protection, firewall and PC health state for you to copy — nothing is sent anywhere automatically.</value>
+  </data>
+  <data name="GenerateSummaryButton.Content" xml:space="preserve">
+    <value>Generate Summary</value>
+  </data>
+  <data name="NavVulnerability.Content" xml:space="preserve">
+    <value>Schwachstellenberater</value>
+  </data>
+  <data name="TitleVulnerability.Text" xml:space="preserve">
+    <value>Vulnerability Advisor</value>
+  </data>
+  <data name="SubtitleVulnerability.Text" xml:space="preserve">
+    <value>A combined view of real checks already performed elsewhere in BECETTI SECURITY (Defender, firewall, USB AutoRun, drivers, TPM, Secure Boot, BitLocker, Windows Aktualisieren). There is no separate vulnerability scanner or CVE database — every finding traces back to a named real check.</value>
+  </data>
+  <data name="VulnerabilityFindingsLabel.Text" xml:space="preserve">
+    <value>Findings</value>
+  </data>
+  <data name="NavBrowser.Content" xml:space="preserve">
+    <value>Browser-Sicherheit</value>
+  </data>
+  <data name="TitleBrowser.Text" xml:space="preserve">
+    <value>Browser Sicherheit</value>
+  </data>
+  <data name="SubtitleBrowser.Text" xml:space="preserve">
+    <value>Real installed browsers (from the same installed-apps inventory Software Manager reads) and Windows' own SmartScreen policy, read from the registry.</value>
+  </data>
+  <data name="SmartScreenLabel.Text" xml:space="preserve">
+    <value>SmartScreen</value>
+  </data>
+  <data name="InstalledBrowsersLabel.Text" xml:space="preserve">
+    <value>Installed Browsers</value>
+  </data>
+  <data name="NavIdentity.Content" xml:space="preserve">
+    <value>Identitätsschutz</value>
+  </data>
+  <data name="TitleIdentity.Text" xml:space="preserve">
+    <value>Identity Protection</value>
+  </data>
+  <data name="SubtitleIdentity.Text" xml:space="preserve">
+    <value>Real hardware/platform security that protects your credentials and data at rest: TPM, Secure Boot, Credential Guard and BitLocker, read from Get-Tpm, Confirm-SecureBootUEFI, Win32_DeviceGuard and Get-BitLockerVolume.</value>
+  </data>
+  <data name="NavWifi.Content" xml:space="preserve">
+    <value>WLAN-Sicherheit</value>
+  </data>
+  <data name="TitleWifi.Text" xml:space="preserve">
+    <value>Wi-Fi Sicherheit</value>
+  </data>
+  <data name="SubtitleWifi.Text" xml:space="preserve">
+    <value>The real authentication and cipher of the Wi-Fi network you're currently connected to, read from netsh wlan show interfaces — the same tool Windows' own Wi-Fi diagnostics use.</value>
+  </data>
+  <data name="NavScheduledScan.Content" xml:space="preserve">
+    <value>Geplante Scans</value>
+  </data>
+  <data name="TitleScheduledScan.Text" xml:space="preserve">
+    <value>Scheduled Scan</value>
+  </data>
+  <data name="SubtitleScheduledScan.Text" xml:space="preserve">
+    <value>Registers a real Windows Scheduled Task (visible and editable in Task Scheduler) that runs a genuine Microsoft Defender scan daily — even while BECETTI SECURITY is closed. Creating or removing it requires an administrator.</value>
+  </data>
+  <data name="ScheduleNewScanLabel.Text" xml:space="preserve">
+    <value>Schedule a daily scan</value>
+  </data>
+  <data name="FullScanToggle.Header" xml:space="preserve">
+    <value>Full scan (otherwise Quick scan)</value>
+  </data>
+  <data name="ScheduleHourLabel.Text" xml:space="preserve">
+    <value>Hour of day (0-23, local time)</value>
+  </data>
+  <data name="ScheduleScanButton.Content" xml:space="preserve">
+    <value>Schedule</value>
+  </data>
+  <data name="RemoveScheduleButton.Content" xml:space="preserve">
+    <value>Remove Scheduled Scan</value>
+  </data>
+  <data name="NavBackup.Content" xml:space="preserve">
+    <value>Backup-Berater</value>
+  </data>
+  <data name="TitleBackup.Text" xml:space="preserve">
+    <value>Backup Advisor</value>
+  </data>
+  <data name="SubtitleBackup.Text" xml:space="preserve">
+    <value>Windows' own real backup posture: File History's service state and System Wiederherstellen's real shadow copies. BECETTI SECURITY implements no backup engine of its own — antivirus protection is not a substitute for backups.</value>
+  </data>
+  <data name="NavReports.Content" xml:space="preserve">
+    <value>Sicherheitsberichte</value>
+  </data>
+  <data name="TitleReports.Text" xml:space="preserve">
+    <value>Smart Sicherheit Reports</value>
+  </data>
+  <data name="SubtitleReports.Text" xml:space="preserve">
+    <value>A consolidated snapshot assembled from checks that already exist elsewhere in BECETTI SECURITY (Defender, firewall, Vulnerability Advisor). Exportieren it as plain text or a simple PDF to share or archive.</value>
+  </data>
+  <data name="SaveAsPdfButton.Content" xml:space="preserve">
+    <value>Speichern as PDF</value>
+  </data>
+  <data name="SaveAsTextButton.Content" xml:space="preserve">
+    <value>Speichern as Text</value>
+  </data>
+  <data name="NavCloudSync.Content" xml:space="preserve">
+    <value>Cloud-Sync</value>
+  </data>
+  <data name="TitleCloudSync.Text" xml:space="preserve">
+    <value>Cloud Sync</value>
+  </data>
+  <data name="SubtitleCloudSync.Text" xml:space="preserve">
+    <value>Real connectivity and sign-in status for your BECETTI cloud account. This is a status view on top of the existing cloud sign-in — there is no second backend or data store being synchronized.</value>
+  </data>
+  <data name="SyncNowButton.Content" xml:space="preserve">
+    <value>Sync Now</value>
+  </data>
+  <data name="NavKnowledge.Content" xml:space="preserve">
+    <value>Wissensdatenbank</value>
+  </data>
+  <data name="TitleKnowledge.Text" xml:space="preserve">
+    <value>Knowledge Base</value>
+  </data>
+  <data name="SubtitleKnowledge.Text" xml:space="preserve">
+    <value>Locally-authored articles explaining the real security features BECETTI SECURITY exposes and general safe-use practices. No network call is made to show this content.</value>
+  </data>
+  <data name="KnowledgeSearchBox.PlaceholderText" xml:space="preserve">
+    <value>Suchen articles...</value>
+  </data>
+  <data name="SearchButton.Content" xml:space="preserve">
+    <value>Suchen</value>
+  </data>
+  <data name="NavThreatIntel.Content" xml:space="preserve">
+    <value>Bedrohungsintelligenz</value>
+  </data>
+  <data name="TitleThreatIntel.Text" xml:space="preserve">
+    <value>Bedrohung Intelligence</value>
+  </data>
+  <data name="SubtitleThreatIntel.Text" xml:space="preserve">
+    <value>An optional second opinion from VirusTotal's ~70 third-party antivirus engines for a file or link you choose — including a suspicious email attachment you saved, or a link from an email or message before you open it. This never replaces Microsoft Defender, BECETTI SECURITY's own independent protection engine — it is a separate, clearly-labelled check you run on demand.</value>
+  </data>
+  <data name="ThreatIntelNotConfiguredBar.Title" xml:space="preserve">
+    <value>Not configured</value>
+  </data>
+  <data name="ThreatIntelNotConfiguredBar.Message" xml:space="preserve">
+    <value>The threat-intelligence server is not configured. Open Einstellungen and set the BECETTI server URL.</value>
+  </data>
+  <data name="ThreatIntelFileSectionLabel.Text" xml:space="preserve">
+    <value>Scan a file</value>
+  </data>
+  <data name="ThreatIntelScanFileButton.Content" xml:space="preserve">
+    <value>Check hash</value>
+  </data>
+  <data name="ThreatIntelHashOnlyNote.Text" xml:space="preserve">
+    <value>The file's SHA-256 is computed on this device and checked against VirusTotal's database — the file itself is not uploaded for this step.</value>
+  </data>
+  <data name="ThreatIntelUploadConsentBar.Title" xml:space="preserve">
+    <value>No existing VirusTotal report</value>
+  </data>
+  <data name="ThreatIntelUploadConsentBar.Message" xml:space="preserve">
+    <value>This file's hash is unknown to VirusTotal. Uploading it will share the actual file content with VirusTotal and its security-industry partners, per VirusTotal's own terms. Only files up to the size shown below can be uploaded here.</value>
+  </data>
+  <data name="ThreatIntelConfirmUploadButton.Content" xml:space="preserve">
+    <value>Upload and scan</value>
+  </data>
+  <data name="ThreatIntelUrlSectionLabel.Text" xml:space="preserve">
+    <value>Check a link</value>
+  </data>
+  <data name="ThreatIntelUrlTextBox.PlaceholderText" xml:space="preserve">
+    <value>https://example.com/suspicious-link</value>
+  </data>
+  <data name="ThreatIntelScanUrlButton.Content" xml:space="preserve">
+    <value>Scan link</value>
+  </data>
+  <data name="ThreatIntelEmailSectionLabel.Text" xml:space="preserve">
+    <value>Check links in an email or message</value>
+  </data>
+  <data name="ThreatIntelEmailSectionNote.Text" xml:space="preserve">
+    <value>Paste the text of a suspicious email or message below. BECETTI SECURITY finds the http(s) links inside it and lets you check each one against VirusTotal before you ever open it — the pasted text itself is never sent anywhere.</value>
+  </data>
+  <data name="ThreatIntelEmailTextBox.PlaceholderText" xml:space="preserve">
+    <value>Paste email or message text here...</value>
+  </data>
+  <data name="ThreatIntelExtractLinksButton.Content" xml:space="preserve">
+    <value>Find links</value>
+  </data>
+  <data name="ThreatIntelScanLinksButton.Content" xml:space="preserve">
+    <value>Scan links</value>
+  </data>
+  <data name="ThreatIntelResultLabel.Text" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ThreatIntelCheckStatusButton.Content" xml:space="preserve">
+    <value>Check status</value>
+  </data>
+  <data name="ThreatIntelOpenReportButton.Content" xml:space="preserve">
+    <value>Open full report on virustotal.com</value>
+  </data>
+  <data name="ThreatIntelHistoryLabel.Text" xml:space="preserve">
+    <value>Previous checks</value>
+  </data>
+  <data name="NavDataBreach.Content" xml:space="preserve">
+    <value>Datenleck-Monitor</value>
+  </data>
+  <data name="TitleDataBreach.Text" xml:space="preserve">
+    <value>Data Breach Monitor</value>
+  </data>
+  <data name="SubtitleDataBreach.Text" xml:space="preserve">
+    <value>An optional second opinion on credential exposure: check whether an email address or password has shown up in a known public data breach. This never replaces BECETTI SECURITY's own local protection — it is a separate, clearly-labelled check you run on demand.</value>
+  </data>
+  <data name="DataBreachNotConfiguredBar.Title" xml:space="preserve">
+    <value>Not configured</value>
+  </data>
+  <data name="DataBreachNotConfiguredBar.Message" xml:space="preserve">
+    <value>The data-breach monitoring server is not configured. Open Einstellungen and set the BECETTI server URL.</value>
+  </data>
+  <data name="DataBreachEmailSectionLabel.Text" xml:space="preserve">
+    <value>Check an email address</value>
+  </data>
+  <data name="DataBreachEmailTextBox.PlaceholderText" xml:space="preserve">
+    <value>name@example.com</value>
+  </data>
+  <data name="DataBreachCheckEmailButton.Content" xml:space="preserve">
+    <value>Check email</value>
+  </data>
+  <data name="DataBreachRiskLabelPrefix.Text" xml:space="preserve">
+    <value>Overall risk:</value>
+  </data>
+  <data name="DataBreachPasswordSectionLabel.Text" xml:space="preserve">
+    <value>Check a password</value>
+  </data>
+  <data name="DataBreachPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Password to check</value>
+  </data>
+  <data name="DataBreachPasswordPrivacyNote.Text" xml:space="preserve">
+    <value>This password is hashed on this device — only a 5-character fragment of that hash ever leaves it. The password itself is never sent or stored anywhere.</value>
+  </data>
+  <data name="DataBreachCheckPasswordButton.Content" xml:space="preserve">
+    <value>Check password</value>
+  </data>
+  <data name="DataBreachHistoryLabel.Text" xml:space="preserve">
+    <value>Previous checks</value>
+  </data>
+  <data name="NavIpReputation.Content" xml:space="preserve">
+    <value>IP-Reputation</value>
+  </data>
+  <data name="TitleIpReputation.Text" xml:space="preserve">
+    <value>IP Reputation</value>
+  </data>
+  <data name="SubtitleIpReputation.Text" xml:space="preserve">
+    <value>An optional second opinion on a single IP address you choose to check — for example, an unfamiliar connection you noticed in Netzwerk Monitor. Powered by AbuseIPDB's community abuse reports. This never replaces BECETTI SECURITY's own local protection.</value>
+  </data>
+  <data name="IpReputationNotConfiguredBar.Title" xml:space="preserve">
+    <value>Not configured</value>
+  </data>
+  <data name="IpReputationNotConfiguredBar.Message" xml:space="preserve">
+    <value>The IP reputation server is not configured. Open Einstellungen and set the BECETTI server URL.</value>
+  </data>
+  <data name="IpReputationSectionLabel.Text" xml:space="preserve">
+    <value>Check an IP address</value>
+  </data>
+  <data name="IpReputationTextBox.PlaceholderText" xml:space="preserve">
+    <value>203.0.113.42</value>
+  </data>
+  <data name="IpReputationCheckButton.Content" xml:space="preserve">
+    <value>Check IP</value>
+  </data>
+  <data name="IpReputationScoreLabel.Text" xml:space="preserve">
+    <value>Abuse confidence score:</value>
+  </data>
+  <data name="IpReputationReportsLabel.Text" xml:space="preserve">
+    <value>Total reports:</value>
+  </data>
+  <data name="IpReputationIspLabel.Text" xml:space="preserve">
+    <value>ISP:</value>
+  </data>
+  <data name="IpReputationCountryLabel.Text" xml:space="preserve">
+    <value>Country:</value>
+  </data>
+  <data name="IpReputationHistoryLabel.Text" xml:space="preserve">
+    <value>Previous checks</value>
+  </data>
+  <data name="NavSecureVault.Content" xml:space="preserve">
+    <value>Sicherer Tresor</value>
+  </data>
+  <data name="NavFileShredder.Content" xml:space="preserve">
+    <value>Dateischredder</value>
+  </data>
+  <data name="NavParentalControl.Content" xml:space="preserve">
+    <value>Jugendschutz</value>
+  </data>
+  <data name="NavGameMode.Content" xml:space="preserve">
+    <value>Spielmodus</value>
+  </data>
+  <data name="TitleSecureVault.Text" xml:space="preserve">
+    <value>Secure Vault</value>
+  </data>
+  <data name="SubtitleSecureVault.Text" xml:space="preserve">
+    <value>A local, encrypted (AES-256) storage area for files you choose to protect. The encryption key is bound to your Windows account on this device with DPAPI — nothing here is ever uploaded anywhere.</value>
+  </data>
+  <data name="SecureVaultNotCreatedLabel.Text" xml:space="preserve">
+    <value>No vault exists on this device yet.</value>
+  </data>
+  <data name="SecureVaultCreateButton.Content" xml:space="preserve">
+    <value>Create vault</value>
+  </data>
+  <data name="SecureVaultAddLabel.Text" xml:space="preserve">
+    <value>Add a file</value>
+  </data>
+  <data name="SecureVaultBrowseButton.Content" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="SecureVaultShredOriginalCheckBox.Content" xml:space="preserve">
+    <value>Securely delete the original file after encrypting it</value>
+  </data>
+  <data name="SecureVaultAddButton.Content" xml:space="preserve">
+    <value>Add to vault</value>
+  </data>
+  <data name="SecureVaultItemsLabel.Text" xml:space="preserve">
+    <value>Files in the vault</value>
+  </data>
+  <data name="SecureVaultExtractButton.Content" xml:space="preserve">
+    <value>Extract</value>
+  </data>
+  <data name="SecureVaultDeleteButton.Content" xml:space="preserve">
+    <value>Remove selected</value>
+  </data>
+  <data name="TitleFileShredder.Text" xml:space="preserve">
+    <value>Secure File Shredder</value>
+  </data>
+  <data name="SubtitleFileShredder.Text" xml:space="preserve">
+    <value>A normal delete only removes a file's entry from the folder — the bytes usually remain on disk until something else happens to overwrite them. This overwrites the file's real content with random data first, then deletes it, for files you choose to permanently destroy.</value>
+  </data>
+  <data name="FileShredderPickLabel.Text" xml:space="preserve">
+    <value>File to destroy</value>
+  </data>
+  <data name="FileShredderBrowseButton.Content" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="FileShredderPassesLabel.Text" xml:space="preserve">
+    <value>Overwrite passes</value>
+  </data>
+  <data name="FileShredderWarningBar.Title" xml:space="preserve">
+    <value>This cannot be undone</value>
+  </data>
+  <data name="FileShredderWarningBar.Message" xml:space="preserve">
+    <value>The file will be permanently destroyed. There is no recycle bin and no recovery.</value>
+  </data>
+  <data name="FileShredderShredButton.Content" xml:space="preserve">
+    <value>Shred permanently</value>
+  </data>
+  <data name="FileShredderSessionLogLabel.Text" xml:space="preserve">
+    <value>Shredded this session</value>
+  </data>
+  <data name="TitleParentalControl.Text" xml:space="preserve">
+    <value>Parental Controls</value>
+  </data>
+  <data name="SubtitleParentalControl.Text" xml:space="preserve">
+    <value>Blocks websites on this device using the real Windows hosts file — the same mechanism Windows itself uses to resolve names. Changing it requires Administrator.</value>
+  </data>
+  <data name="ParentalControlElevationBar.Title" xml:space="preserve">
+    <value>Administrator required</value>
+  </data>
+  <data name="ParentalControlElevationBar.Message" xml:space="preserve">
+    <value>Blocking or unblocking a website requires Administrator. Restart BECETTI SECURITY as administrator from Einstellungen.</value>
+  </data>
+  <data name="ParentalControlAddLabel.Text" xml:space="preserve">
+    <value>Block a website</value>
+  </data>
+  <data name="ParentalControlBlockButton.Content" xml:space="preserve">
+    <value>Block</value>
+  </data>
+  <data name="ParentalControlListLabel.Text" xml:space="preserve">
+    <value>Blockiert websites</value>
+  </data>
+  <data name="ParentalControlUnblockButton.Content" xml:space="preserve">
+    <value>Unblock</value>
+  </data>
+  <data name="TitleGameMode.Text" xml:space="preserve">
+    <value>Game / Performance Mode</value>
+  </data>
+  <data name="SubtitleGameMode.Text" xml:space="preserve">
+    <value>Switches the real Windows power plan to High performance and turns on Windows' own Game Mode setting while active — the same settings available in Power Options and the Einstellungen app. No invented FPS or performance numbers are shown; Windows exposes none honestly.</value>
+  </data>
+  <data name="GameModeStatusLabel.Text" xml:space="preserve">
+    <value>Current status</value>
+  </data>
+  <data name="NavYara.Content" xml:space="preserve">
+    <value>YARA-Engine</value>
+  </data>
+  <data name="TitleYara.Text" xml:space="preserve">
+    <value>Native YARA-Engine</value>
+  </data>
+  <data name="SubtitleYara.Text" xml:space="preserve">
+    <value>Real local malware detection powered by the official open-source YARA x64 engine (VirusTotal/yara). Rules are validated and compiled locally before scanning — never simulated.</value>
+  </data>
+  <data name="YaraScannerSectionLabel.Text" xml:space="preserve">
+    <value>Local File &amp; Folder Scanner</value>
+  </data>
+  <data name="YaraScannerSectionNote.Text" xml:space="preserve">
+    <value>Choose any file or folder to scan locally with compiled YARA rules, or run a quick scan of Downloads, Desktop and Temp.</value>
+  </data>
+  <data name="YaraBrowseFileButton.Content" xml:space="preserve">
+    <value>Browse File...</value>
+  </data>
+  <data name="YaraBrowseFolderButton.Content" xml:space="preserve">
+    <value>Browse Folder...</value>
+  </data>
+  <data name="YaraStartScanButton.Content" xml:space="preserve">
+    <value>Scan with YARA</value>
+  </data>
+  <data name="YaraQuickLocalScanButton.Content" xml:space="preserve">
+    <value>Quick Local YARA Scan</value>
+  </data>
+  <data name="YaraCancelScanButton.Content" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="YaraResultsSectionLabel.Text" xml:space="preserve">
+    <value>Scan Bericht &amp; Matched Rules</value>
+  </data>
+  <data name="YaraSaveJsonButton.Content" xml:space="preserve">
+    <value>Speichern as JSON</value>
+  </data>
+  <data name="YaraScanErrorsLabel.Text" xml:space="preserve">
+    <value>Scan Errors / Skipped Files</value>
+  </data>
+  <data name="YaraRulesManagementLabel.Text" xml:space="preserve">
+    <value>YARA Rules Management (.yar / .yara)</value>
+  </data>
+  <data name="YaraRulesManagementNote.Text" xml:space="preserve">
+    <value>Every rule file is validated with yarac64 before loading. Invalid or outdated rule files are isolated automatically and never break the scanner.</value>
+  </data>
+  <data name="YaraImportRuleButton.Content" xml:space="preserve">
+    <value>Import .yar / .yara Rule...</value>
+  </data>
+  <data name="YaraRecompileRulesButton.Content" xml:space="preserve">
+    <value>Validate &amp; Recompile All</value>
+  </data>
+  <data name="YaraUpdateRepoLabel.Text" xml:space="preserve">
+    <value>Aktualisieren Rules from Trusted Repositories</value>
+  </data>
+  <data name="YaraUpdateRepoNote.Text" xml:space="preserve">
+    <value>Downloaded rules are staged and individually compiled with yarac64 before activation. Any invalid or incompatible rule file is rejected safely.</value>
+  </data>
+  <data name="YaraUpdateFromRepoButton.Content" xml:space="preserve">
+    <value>Aktualisieren Rules</value>
+  </data>
+  <data name="YaraDownloadUrlButton.Content" xml:space="preserve">
+    <value>Download &amp; Validate URL</value>
+  </data>
+  <data name="YaraLicenseTitle.Text" xml:space="preserve">
+    <value>YARA Open-Source License Notice</value>
+  </data>
+  <data name="OpenYaraEngineButton.Content" xml:space="preserve">
+    <value>Open YARA Rules &amp; Engine</value>
+  </data>
+  <data name="ScanYaraQuickTitle.Text" xml:space="preserve">
+    <value>Native YARA Local Scan</value>
+  </data>
+  <data name="ScanYaraQuickDesc.Text" xml:space="preserve">
+    <value>Runs the built-in official YARA x64 malware engine locally on Downloads, Desktop and Temp using compiled .yar/.yara rules — works even offline or without Defender.</value>
+  </data>
+  <data name="ScanQuickTitle.Text" xml:space="preserve">
+    <value>Schnellscan (Microsoft Defender)</value>
+  </data>
+  <data name="ScanQuickDesc.Text" xml:space="preserve">
+    <value>Scans common infection locations. Usually a few minutes.</value>
+  </data>
+  <data name="ScanStartQuickButton.Content" xml:space="preserve">
+    <value>Start Schnellscan</value>
+  </data>
+  <data name="ScanFullTitle.Text" xml:space="preserve">
+    <value>Vollständiger Scan (Microsoft Defender)</value>
+  </data>
+  <data name="ScanFullDesc.Text" xml:space="preserve">
+    <value>Scans every drive. Can take a long time.</value>
+  </data>
+  <data name="ScanStartFullButton.Content" xml:space="preserve">
+    <value>Start Vollständiger Scan</value>
+  </data>
+  <data name="ScanCustomTitle.Text" xml:space="preserve">
+    <value>Custom File or Folder Scan</value>
+  </data>
+  <data name="ScanCustomDesc.Text" xml:space="preserve">
+    <value>Choose a file or folder, then scan it with the Native YARA Engine or Microsoft Defender.</value>
+  </data>
+  <data name="ScanStartCustomButton.Content" xml:space="preserve">
+    <value>Scan with Defender</value>
+  </data>
+  <data name="SettingsLanguageTitle.Text" xml:space="preserve">
+    <value>Sprache / Language / اللغة / Langue / Idioma / Dil</value>
+  </data>
+  <data name="SettingsLanguageHint.Text" xml:space="preserve">
+    <value>Language changes apply immediately across BECETTI SECURITY and are saved automatically.</value>
+  </data>
+  <data name="SettingsLanguageApplied" xml:space="preserve">
+    <value>Language updated immediately.</value>
+  </data>
+  <data name="SettingsSavedMessage" xml:space="preserve">
+    <value>Einstellungen saved.</value>
+  </data>
+  <data name="SettingsCloudApiTitle.Text" xml:space="preserve">
+    <value>Cloud API URL</value>
+  </data>
+  <data name="SettingsCloudApiHint.Text" xml:space="preserve">
+    <value>Leave empty to disable cloud features. The app never invents cloud data.</value>
+  </data>
+  <data name="SettingsTelemetryTitle.Text" xml:space="preserve">
+    <value>Telemetry</value>
+  </data>
+  <data name="SettingsTelemetryHint.Text" xml:space="preserve">
+    <value>Off by default. BECETTI SECURITY collects no telemetry unless you opt in here.</value>
+  </data>
+  <data name="SettingsTelemetryToggle.Header" xml:space="preserve">
+    <value>Allow telemetry</value>
+  </data>
+  <data name="SettingsFeedbackTitle.Text" xml:space="preserve">
+    <value>Feedback</value>
+  </data>
+  <data name="SettingsFeedbackHint.Text" xml:space="preserve">
+    <value>Animations are purely decorative and never used to imply a scan or update is running. Sounds play only on genuine completed/failed actions.</value>
+  </data>
+  <data name="SettingsAiHint.Text" xml:space="preserve">
+    <value>The AI assistant talks only to the BECETTI AI server below — the real AI provider key is never stored in this app. Gerät-state sharing and chat history are separate, off-by-default opt-ins available on the BECETTI AI page.</value>
+  </data>
+  <data name="SettingsContactHint.Text" xml:space="preserve">
+    <value>Address used to prefill the support draft on the Contact Becetti page.</value>
+  </data>
+  <data name="SettingsSaveButton.Content" xml:space="preserve">
+    <value>Speichern Einstellungen</value>
+  </data>
+  <data name="SettingsTestConnectionButton.Content" xml:space="preserve">
+    <value>Test Cloud Connection</value>
+  </data>
+  <data name="AiInputBox.PlaceholderText" xml:space="preserve">
+    <value>Ask BECETTI AI…</value>
+  </data>
+  <data name="AiSendButton.Content" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="AiClearButton.Content" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="DashAntivirusLabel.Text" xml:space="preserve">
+    <value>Antivirus</value>
+  </data>
+  <data name="DashRealTimeLabel.Text" xml:space="preserve">
+    <value>Echtzeitschutz</value>
+  </data>
+  <data name="DashFirewallLabel.Text" xml:space="preserve">
+    <value>Firewall</value>
+  </data>
+  <data name="DashSignatureLabel.Text" xml:space="preserve">
+    <value>Sicherheit Intelligence</value>
+  </data>
+  <data name="DashDeviceLabel.Text" xml:space="preserve">
+    <value>Gerät</value>
+  </data>
+  <data name="DashCloudLabel.Text" xml:space="preserve">
+    <value>Cloud Connection</value>
+  </data>
+  <data name="DashLastScanLabel.Text" xml:space="preserve">
+    <value>Last Verified Scan</value>
+  </data>
+  <data name="DashAppVersionLabel.Text" xml:space="preserve">
+    <value>Application Version</value>
+  </data>
+  <data name="HeaderHelpToolTip" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="CloseButton" xml:space="preserve">
+    <value>Schließen</value>
+  </data>
+  <data name="HelpDialogTitle" xml:space="preserve">
+    <value>BECETTI SECURITY — Help</value>
+  </data>
+  <data name="HelpDialogBody" xml:space="preserve">
+    <value>BECETTI SECURITY combines the official local Native YARA Engine (VirusTotal/yara x64) with Microsoft Defender:
+
+• YARA Engine runs real compiled .yar / .yara rules locally on your files and folders, validates every rule with yarac64 before loading, isolates invalid rules, and supports trusted rule repository updates.
+• Smart Scan runs both Native YARA local scans and real Microsoft Defender scans (MpCmdRun.exe).
+• Echtzeitschutz, Updates, and Bedrohung Management read and manage Microsoft Defender through supported Windows interfaces.
+• BECETTI AI explains real scan reports and guides you inside the app.
+
+BECETTI SECURITY never simulates or fabricates detections.</value>
+  </data>
+  <data name="FooterProtected" xml:space="preserve">
+    <value>Geschützt — Microsoft Defender aktiv</value>
+  </data>
+  <data name="FooterWarning" xml:space="preserve">
+    <value>Achtung erforderlich — Echtzeitschutz prüfen</value>
+  </data>
+  <data name="FooterDanger" xml:space="preserve">
+    <value>Gefährdet — Microsoft Defender ist deaktiviert</value>
+  </data>
+  <data name="FooterYaraReady" xml:space="preserve">
+    <value>Native YARA-Engine bereit</value>
+  </data>
+  <data name="FooterUnknown" xml:space="preserve">
+    <value>Schutzstatus unbekannt</value>
+  </data>
+  <data name="NavAdvancedDefense.Content" xml:space="preserve">
+    <value>Aktive Schutzschilde</value>
+  </data>
+  <data name="TitleAdvancedDefense.Text" xml:space="preserve">
+    <value>Aktive Abwehr &amp; Schutzschilde</value>
+  </data>
+  <data name="SubtitleAdvancedDefense.Text" xml:space="preserve">
+    <value>Real-time YARA Folder Guard, AES-256-GCM Quarantäne Vault, live Process Memory YARA Scanner, PE/Entropy/Authenticode Forensics, Ransomware Canary Honeypot, Clipboard Hijack Guard, USB Auto-Scan, Scheduled YARA Updates, and Explorer Right-Click Integration.</value>
+  </data>
+  <data name="AdvFolderGuardTitle.Text" xml:space="preserve">
+    <value>Real-Time YARA Folder Guard</value>
+  </data>
+  <data name="AdvFolderGuardToggle.Header" xml:space="preserve">
+    <value>Monitor Downloads, Desktop, Temp &amp; Startup</value>
+  </data>
+  <data name="AdvAutoQuarantineToggle.Header" xml:space="preserve">
+    <value>Auto-quarantine detected threats</value>
+  </data>
+  <data name="AdvQuarantineTitle.Text" xml:space="preserve">
+    <value>Encrypted Quarantäne Vault (AES-256-GCM)</value>
+  </data>
+  <data name="AdvQuarantineDesc.Text" xml:space="preserve">
+    <value>Quarantined threats are encrypted locally with AES-256-GCM (DPAPI-protected key) and prevented from executing. You can restore with SHA-256 verification or wipe permanently.</value>
+  </data>
+  <data name="AdvProcessScanTitle.Text" xml:space="preserve">
+    <value>Live Process &amp; Memory YARA Scanner</value>
+  </data>
+  <data name="AdvProcessScanDesc.Text" xml:space="preserve">
+    <value>Scans active Windows process memory directly with yara64.exe to catch fileless malware and in-memory code injection.</value>
+  </data>
+  <data name="AdvScanAllProcsButton.Content" xml:space="preserve">
+    <value>Scan All Processes in Memory</value>
+  </data>
+  <data name="AdvScanPidButton.Content" xml:space="preserve">
+    <value>Scan PID</value>
+  </data>
+  <data name="AdvForensicsTitle.Text" xml:space="preserve">
+    <value>PE Forensics, Shannon Entropy &amp; Authenticode Verifier</value>
+  </data>
+  <data name="AdvAnalyzeFileButton.Content" xml:space="preserve">
+    <value>Analyze File</value>
+  </data>
+  <data name="AdvAiInvestigateButton.Content" xml:space="preserve">
+    <value>AI Bedrohung Investigator</value>
+  </data>
+  <data name="AdvCanaryTitle.Text" xml:space="preserve">
+    <value>Ransomware Canary / Honeypot Guard</value>
+  </data>
+  <data name="AdvCanaryToggle.Header" xml:space="preserve">
+    <value>Arm hidden sentinel canary files in Documents, Pictures &amp; Desktop</value>
+  </data>
+  <data name="AdvVerifyCanariesButton.Content" xml:space="preserve">
+    <value>Verify Integrity Now</value>
+  </data>
+  <data name="AdvClipboardTitle.Text" xml:space="preserve">
+    <value>Clipboard Hijack Guard (Crypto Wallet &amp; IBAN Protection)</value>
+  </data>
+  <data name="AdvClipboardToggle.Header" xml:space="preserve">
+    <value>Detect clipper malware replacing copied wallet / IBAN addresses</value>
+  </data>
+  <data name="AdvUsbTitle.Text" xml:space="preserve">
+    <value>USB Auto-Scan on Insertion (Native YARA)</value>
+  </data>
+  <data name="AdvUsbToggle.Header" xml:space="preserve">
+    <value>Automatically scan newly plugged-in USB drives with YARA</value>
+  </data>
+  <data name="AdvScanUsbNowButton.Content" xml:space="preserve">
+    <value>Scan Connected USB Now</value>
+  </data>
+  <data name="AdvScheduleTitle.Text" xml:space="preserve">
+    <value>Scheduled Automatic YARA Rule Updates</value>
+  </data>
+  <data name="AdvScheduleToggle.Header" xml:space="preserve">
+    <value>Enable automatic trusted repository updates</value>
+  </data>
+  <data name="AdvRunUpdateNowButton.Content" xml:space="preserve">
+    <value>Run Auto-Aktualisieren Now</value>
+  </data>
+  <data name="AdvContextMenuTitle.Text" xml:space="preserve">
+    <value>Windows Explorer Right-Click Integration</value>
+  </data>
+  <data name="AdvRegisterContextMenuButton.Content" xml:space="preserve">
+    <value>Register 'Scan with BECETTI YARA'</value>
+  </data>
+  <data name="AdvUnregisterContextMenuButton.Content" xml:space="preserve">
+    <value>Remove Right-Click Entry</value>
+  </data>
+  <data name="YaraAiStudioTitle.Text" xml:space="preserve">
+    <value>AI YARA Rule Studio (Powered by BECETTI AI + yarac64)</value>
+  </data>
+  <data name="YaraAiStudioDesc.Text" xml:space="preserve">
+    <value>Describe a threat or paste IOCs (strings, domains, filenames). BECETTI AI drafts a YARA 4.x rule and validates it live with yarac64.exe before activation.</value>
+  </data>
+  <data name="YaraAiGenerateButton.Content" xml:space="preserve">
+    <value>Generate &amp; Validate Rule</value>
+  </data>
+  <data name="YaraAiSaveButton.Content" xml:space="preserve">
+    <value>Speichern &amp; Activate Rule</value>
+  </data>
+  <data name="PerAppFirewallTitle.Text" xml:space="preserve">
+    <value>Per-App Windows Firewall Blocker</value>
+  </data>
+  <data name="PerAppFirewallDesc.Text" xml:space="preserve">
+    <value>Block or unblock any executable (.exe) from accessing the internet using real Windows Firewall rules (Administrator rights required).</value>
+  </data>
+  <data name="PerAppBlockButton.Content" xml:space="preserve">
+    <value>Block App</value>
+  </data>
+  <data name="NavGroupProtection.Content" xml:space="preserve">
+    <value>Command &amp; Protection</value>
+  </data>
+  <data name="NavGroupAiIntel.Content" xml:space="preserve">
+    <value>AI &amp; Intelligence</value>
+  </data>
+  <data name="NavGroupNetworkPrivacy.Content" xml:space="preserve">
+    <value>Netzwerk &amp; Datenschutz</value>
+  </data>
+  <data name="NavGroupSystem.Content" xml:space="preserve">
+    <value>System &amp; Netzwerk</value>
+  </data>
+  <data name="NavGroupCloudSettings.Content" xml:space="preserve">
+    <value>Cloud, Reports &amp; Einstellungen</value>
+  </data>
+  <data name="NavEdrCenter.Content" xml:space="preserve">
+    <value>EDR &amp; Härtungszentrum</value>
+  </data>
+  <data name="CommandPaletteTriggerLabel.Text" xml:space="preserve">
+    <value>Quick Suchen</value>
+  </data>
+  <data name="DashActiveShieldsTitle.Text" xml:space="preserve">
+    <value>Live Aktiv Defense Shields</value>
+  </data>
+  <data name="DashActiveShieldsSubtitle.Text" xml:space="preserve">
+    <value>Toggle real-time background guards directly from the Command Center.</value>
+  </data>
+  <data name="TitleEdrCenter.Text" xml:space="preserve">
+    <value>EDR &amp; Windows-Härtungszentrum</value>
+  </data>
+  <data name="SubtitleEdrCenter.Text" xml:space="preserve">
+    <value>Deep Persistence Hunter, Hosts &amp; DNS Guard, Camera/Mic Auditor, Script/LOLBins Decoder, URL Phishing Inspector, File Integrity Monitor, Windows Hardening &amp; Forensic Evidence Bundle.</value>
+  </data>
+  <data name="EdrHardeningTitle.Text" xml:space="preserve">
+    <value>Windows Hardening &amp; Attack Surface Auditor</value>
+  </data>
+  <data name="EdrHardeningAuditBtn.Content" xml:space="preserve">
+    <value>Audit Windows Hardening</value>
+  </data>
+  <data name="EdrPersistenceTitle.Text" xml:space="preserve">
+    <value>Deep Persistence Hunter (Autoruns Pro)</value>
+  </data>
+  <data name="EdrPersistenceAuditBtn.Content" xml:space="preserve">
+    <value>Audit Persistence</value>
+  </data>
+  <data name="EdrHostsDnsTitle.Text" xml:space="preserve">
+    <value>Hosts File &amp; DNS Hijack Guard</value>
+  </data>
+  <data name="EdrHostsWatchToggle.Header" xml:space="preserve">
+    <value>Watch System32\drivers\etc\hosts in real time</value>
+  </data>
+  <data name="EdrHostsAuditBtn.Content" xml:space="preserve">
+    <value>Audit Hosts &amp; DNS</value>
+  </data>
+  <data name="EdrCamMicTitle.Text" xml:space="preserve">
+    <value>Camera &amp; Microphone Access Auditor</value>
+  </data>
+  <data name="EdrCamMicAuditBtn.Content" xml:space="preserve">
+    <value>Audit Camera &amp; Mic</value>
+  </data>
+  <data name="EdrScriptTitle.Text" xml:space="preserve">
+    <value>PowerShell &amp; LOLBins Script Auditor</value>
+  </data>
+  <data name="EdrScriptAuditBtn.Content" xml:space="preserve">
+    <value>Audit Scripts &amp; LOLBins</value>
+  </data>
+  <data name="EdrUrlTitle.Text" xml:space="preserve">
+    <value>Phishing &amp; Homograph URL Inspector</value>
+  </data>
+  <data name="EdrUrlInspectBtn.Content" xml:space="preserve">
+    <value>Inspect URL</value>
+  </data>
+  <data name="EdrFimTitle.Text" xml:space="preserve">
+    <value>File Integrity Monitor (SHA-256 FIM)</value>
+  </data>
+  <data name="EdrFimWatchToggle.Header" xml:space="preserve">
+    <value>Real-Time File Integrity Watcher</value>
+  </data>
+  <data name="EdrFimAddBtn.Content" xml:space="preserve">
+    <value>Track Sensitive File</value>
+  </data>
+  <data name="EdrFimVerifyBtn.Content" xml:space="preserve">
+    <value>Verify All Now</value>
+  </data>
+  <data name="EdrEvidenceTitle.Text" xml:space="preserve">
+    <value>Forensic Incident Evidence Bundle (.ZIP)</value>
+  </data>
+  <data name="EdrEvidenceExportBtn.Content" xml:space="preserve">
+    <value>Exportieren Forensic ZIP</value>
+  </data>
+  <data name="KillSwitchTitle.Text" xml:space="preserve">
+    <value>Emergency Netzwerk Kill-Switch (Host Isolation)</value>
+  </data>
+  <data name="KillSwitchHint.Text" xml:space="preserve">
+    <value>Immediately cuts all outbound &amp; inbound Windows Firewall traffic to stop active data exfiltration or ransomware lateral movement. Requires Administrator privileges.</value>
+  </data>
+  <data name="KillSwitchIsolateBtn.Content" xml:space="preserve">
+    <value>Isolate Host Now</value>
+  </data>
+  <data name="KillSwitchRestoreBtn.Content" xml:space="preserve">
+    <value>Wiederherstellen Netzwerk Access</value>
+  </data>
+  <data name="SettingsMinimizeToTray.Header" xml:space="preserve">
+    <value>Keep running silently in Windows System Tray when window is closed</value>
+  </data>
+  <data name="NavProactiveDefense.Content" xml:space="preserve">
+    <value>Proaktive Abwehr</value>
+  </data>
+  <data name="ProactivePageTitle.Text" xml:space="preserve">
+    <value>Proactive Defense, Datenschutz &amp; Reports</value>
+  </data>
+  <data name="ProactivePageSubtitle.Text" xml:space="preserve">
+    <value>Browser extension risk auditor, Winget patch manager, Wi-Fi/ARP MITM guard, Process DLL inspector, DoD shredder, k-Anonymity breach check &amp; executive PDF reports.</value>
+  </data>
+  <data name="ProactiveGenerateReportTopBtn.Content" xml:space="preserve">
+    <value>Executive Sicherheit Bericht (HTML/PDF)</value>
+  </data>
+  <data name="ProactiveTabBrowsers.Header" xml:space="preserve">
+    <value>Browser Extensions</value>
+  </data>
+  <data name="ProactiveTabSoftware.Header" xml:space="preserve">
+    <value>Software Updates</value>
+  </data>
+  <data name="ProactiveTabWifiArp.Header" xml:space="preserve">
+    <value>Wi-Fi &amp; ARP Guard</value>
+  </data>
+  <data name="ProactiveTabDlls.Header" xml:space="preserve">
+    <value>Process DLL Inspector</value>
+  </data>
+  <data name="ProactiveTabPrivacy.Header" xml:space="preserve">
+    <value>Shredder &amp; Passwords</value>
+  </data>
+  <data name="ProactiveTabReports.Header" xml:space="preserve">
+    <value>Reports &amp; Automation</value>
+  </data>
+  <data name="SettingsAppLockTitle.Text" xml:space="preserve">
+    <value>Anti-Tamper Protection (Windows Hello / PIN Lock)</value>
+  </data>
+  <data name="SettingsAppLockHint.Text" xml:space="preserve">
+    <value>Require Windows Hello biometric/PIN verification (or a local PBKDF2-SHA256 PIN) before opening Einstellungen, Emergency Kill-Switch, or Quarantäne Vault.</value>
+  </data>
+  <data name="SettingsAppLockToggle.Header" xml:space="preserve">
+    <value>Require authentication for sensitive security controls</value>
+  </data>
+  <data name="NavGlobalIntel.Content" xml:space="preserve">
+    <value>Globale Threat Intel &amp; Radar</value>
+  </data>
+  <data name="TitleGlobalIntel.Text" xml:space="preserve">
+    <value>Globale Bedrohungsintelligenz, Radar &amp; MITRE ATT&amp;CK</value>
+  </data>
+  <data name="SubtitleGlobalIntel.Text" xml:space="preserve">
+    <value>Live-abuse.ch-Feeds, ausgehendes GeoIP-Radar mit 1-Klick-Firewall-Blocker, MITRE ATT&amp;CK Enterprise-Matrix, Windows-Datenschutz-Härtung und offizieller GitHub-Auto-Updater.</value>
+  </data>
+  <data name="DashboardAiBriefingTitle.Text" xml:space="preserve">
+    <value>BECETTI AI Executive-Sicherheitsbriefing</value>
+  </data>
+  <data name="DashboardAiBriefingBtn.Content" xml:space="preserve">
+    <value>KI-Briefing erstellen</value>
+  </data>
+  <data name="DashboardAiSpeakBtn.Content" xml:space="preserve">
+    <value>Vorlesen</value>
+  </data>
+  <data name="GlobalIntelPageTitle.Text" xml:space="preserve">
+    <value>Globale Bedrohungsintelligenz, Radar &amp; MITRE ATT&amp;CK</value>
+  </data>
+  <data name="GlobalIntelPageSubtitle.Text" xml:space="preserve">
+    <value>Live-abuse.ch-Feeds, ausgehendes GeoIP-Radar mit 1-Klick-Firewall-Blocker, MITRE ATT&amp;CK Enterprise-Matrix, Windows-Datenschutz-Härtung und offizieller GitHub-Auto-Updater.</value>
+  </data>
+  <data name="GlobalTabFeeds.Header" xml:space="preserve">
+    <value>Globale Threat-Feeds</value>
+  </data>
+  <data name="GlobalTabRadar.Header" xml:space="preserve">
+    <value>Live-GeoIP-Radar</value>
+  </data>
+  <data name="GlobalTabMitre.Header" xml:space="preserve">
+    <value>MITRE ATT&amp;CK</value>
+  </data>
+  <data name="GlobalTabPrivacy.Header" xml:space="preserve">
+    <value>Datenschutz &amp; Anti-Telemetrie</value>
+  </data>
+  <data name="GlobalTabUpdater.Header" xml:space="preserve">
+    <value>Auto-Updater</value>
+  </data>
+</root>

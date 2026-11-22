@@ -1,0 +1,41 @@
+# Created for Windows Package Manager (winget-pkgs) submission
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.6.0.schema.json
+
+PackageIdentifier: Becetti.Security
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: BECETTI SECURITY
+PublisherUrl: https://becetti-ai-backend.vercel.app
+PublisherSupportUrl: https://github.com/Ahmedbecett/BECETTI-SECURITY/issues
+Author: Ahmed Becetti
+PackageName: BECETTI SECURITY
+PackageUrl: https://github.com/Ahmedbecett/BECETTI-SECURITY
+License: Open Source (MIT / YARA BSD-3-Clause)
+LicenseUrl: https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/main/SECURITY.md
+ShortDescription: Enterprise-grade Windows x64 endpoint security suite with Native YARA v4.6.0, MITRE ATT&CK EDR, abuse.ch Threat Feeds, GeoIP Radar, and BECETTI AI.
+Description: >-
+  BECETTI SECURITY is an open-source WinUI 3 (.NET 8) Windows 10/11 x64 cybersecurity suite
+  combining the official Native YARA v4.6.0 malware engine, MITRE ATT&CK Enterprise EDR,
+  live abuse.ch threat intelligence feeds, outbound GeoIP radar with 1-click firewall blocking,
+  1-click Windows hardening and anti-telemetry privacy controls, AES-256-GCM quarantine,
+  and BECETTI AI in 6 global languages (EN, AR-RTL, FR, ES, DE, TR).
+Moniker: becetti-security
+Tags:
+  - antivirus
+  - cybersecurity
+  - edr
+  - firewall
+  - mitre-attack
+  - privacy
+  - security
+  - threat-intelligence
+  - windows-defender
+  - yara
+ReleaseNotesUrl: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases
+Installers:
+  - Architecture: x64
+    InstallerType: msix
+    InstallerUrl: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/latest/download/BECETTI-SECURITY_x64.msix
+    InstallerSha256: REPLACE_WITH_RELEASE_MSIX_SHA256_BEFORE_WINGET_PR
+ManifestType: singleton
+ManifestVersion: 1.6.0

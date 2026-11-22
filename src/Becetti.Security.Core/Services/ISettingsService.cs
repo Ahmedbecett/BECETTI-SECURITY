@@ -133,6 +133,9 @@ public sealed class AppSettings
 
     /// <summary>Random Base64 salt for optional fallback local PIN.</summary>
     public string AppLockPinSalt { get; set; } = string.Empty;
+
+    /// <summary>True once the user has completed or dismissed the First-Run Onboarding Wizard.</summary>
+    public bool OnboardingCompleted { get; set; }
 }
 
 public interface ISettingsService

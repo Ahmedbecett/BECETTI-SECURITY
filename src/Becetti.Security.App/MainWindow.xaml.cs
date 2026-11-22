@@ -54,6 +54,7 @@ public sealed partial class MainWindow : Window
         ["AdvancedDefense"] = typeof(AdvancedDefensePage),
         ["EdrCenter"] = typeof(EdrCenterPage),
         ["ProactiveDefense"] = typeof(ProactiveDefensePage),
+        ["GlobalIntel"] = typeof(GlobalIntelPage),
         ["Protection"] = typeof(ProtectionPage),
         ["Cloud"] = typeof(CloudPage),
         ["Ai"] = typeof(BecettiAiPage),
@@ -115,6 +116,11 @@ public sealed partial class MainWindow : Window
 
         ContentFrame.Navigate(typeof(DashboardPage));
         _ = LoadFooterStatusAsync();
+
+        if (!_settings.Current.OnboardingCompleted)
+        {
+            ShowOnboardingWizard();
+        }
     }
 
     private void ConfigureTitleBar()
@@ -267,6 +273,20 @@ public sealed partial class MainWindow : Window
         });
         _allPaletteItems.Add(new CommandPaletteItem
         {
+            Title = "Global Intel: Threat Feeds (abuse.ch), GeoIP Radar & MITRE ATT&CK",
+            Subtitle = "Live C2 IP feeds, outbound country/ASN radar, 1-click firewall blocker, privacy hardener & updater",
+            Category = "Global",
+            TargetTag = "GlobalIntel"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Launch First-Run Setup Wizard (6 Languages & Recommended Shields)",
+            Subtitle = "Re-open the 3-step interactive BECETTI SECURITY onboarding wizard",
+            Category = "Setup",
+            TargetTag = "__Onboarding__"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
             Title = "Ask BECETTI AI Security Assistant",
             Subtitle = "Investigate alerts, decode scripts, or explain system status",
             Category = "AI",
@@ -337,6 +357,11 @@ public sealed partial class MainWindow : Window
     {
         if (item is null) return;
         CloseCommandPalette();
+        if (string.Equals(item.TargetTag, "__Onboarding__", StringComparison.Ordinal))
+        {
+            ShowOnboardingWizard();
+            return;
+        }
         NavigateTo(item.TargetTag, item.Parameter);
     }
 
@@ -527,5 +552,95 @@ public sealed partial class MainWindow : Window
             FooterReadinessText.Foreground = b;
             ReadinessDot.Fill = b;
         }
+    }
+
+    // =========================================================================
+    //  World-Class 3-Step First-Run Onboarding Wizard (#4)
+    // =========================================================================
+    private int _onboardingStep = 1;
+
+    public void ShowOnboardingWizard()
+    {
+        _onboardingStep = 1;
+        RenderOnboardingStep();
+        OnboardingOverlay.Visibility = Visibility.Visible;
+    }
+
+    private void RenderOnboardingStep()
+    {
+        OnboardingStep1.Visibility = _onboardingStep == 1 ? Visibility.Visible : Visibility.Collapsed;
+        OnboardingStep2.Visibility = _onboardingStep == 2 ? Visibility.Visible : Visibility.Collapsed;
+        OnboardingStep3.Visibility = _onboardingStep == 3 ? Visibility.Visible : Visibility.Collapsed;
+        OnboardingBackBtn.Visibility = _onboardingStep > 1 ? Visibility.Visible : Visibility.Collapsed;
+        OnboardingNextBtn.Content = _onboardingStep switch
+        {
+            1 => "Next Step",
+            2 => "Apply Recommended Shields",
+            _ => "Finish & Open Global Intel"
+        };
+    }
+
+    private async void OnboardingLanguage_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || btn.Tag is not string code) return;
+        _settings.Current.Language = code;
+        App.ApplyLanguageOverride(code);
+        _localization.SetLanguage(LocalizationService.ParseCode(code));
+        await _settings.SaveAsync();
+    }
+
+    private void OnboardingBack_Click(object sender, RoutedEventArgs e)
+    {
+        if (_onboardingStep > 1)
+        {
+            _onboardingStep--;
+            RenderOnboardingStep();
+        }
+    }
+
+    private async void OnboardingNext_Click(object sender, RoutedEventArgs e)
+    {
+        if (_onboardingStep == 1)
+        {
+            _onboardingStep = 2;
+            RenderOnboardingStep();
+            return;
+        }
+
+        if (_onboardingStep == 2)
+        {
+            _settings.Current.RealTimeYaraGuardEnabled = ObYaraGuardCheck.IsChecked == true;
+            _settings.Current.RansomwareCanaryEnabled = ObCanaryCheck.IsChecked == true;
+            _settings.Current.HostsGuardEnabled = ObHostsGuardCheck.IsChecked == true;
+            _settings.Current.MinimizeToTrayOnClose = ObTrayCheck.IsChecked == true;
+            await _settings.SaveAsync();
+
+            try
+            {
+                if (_settings.Current.RealTimeYaraGuardEnabled)
+                    await App.Services.GetRequiredService<IRealTimeYaraGuardService>().StartAsync();
+                if (_settings.Current.RansomwareCanaryEnabled)
+                    await App.Services.GetRequiredService<IRansomwareCanaryService>().ArmAsync();
+                if (_settings.Current.HostsGuardEnabled)
+                    App.Services.GetRequiredService<IHostsDnsGuardService>().StartWatching();
+            }
+            catch { }
+
+            _onboardingStep = 3;
+            RenderOnboardingStep();
+            return;
+        }
+
+        _settings.Current.OnboardingCompleted = true;
+        await _settings.SaveAsync();
+        OnboardingOverlay.Visibility = Visibility.Collapsed;
+        NavigateTo("GlobalIntel", null);
+    }
+
+    private async void OnboardingSkip_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.Current.OnboardingCompleted = true;
+        await _settings.SaveAsync();
+        OnboardingOverlay.Visibility = Visibility.Collapsed;
     }
 }

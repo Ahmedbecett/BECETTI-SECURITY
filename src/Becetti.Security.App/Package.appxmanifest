@@ -44,6 +44,9 @@
     <Resource Language="en-US" />
     <Resource Language="ar-SA" />
     <Resource Language="fr-FR" />
+    <Resource Language="es-ES" />
+    <Resource Language="de-DE" />
+    <Resource Language="tr-TR" />
   </Resources>
 
   <Applications>

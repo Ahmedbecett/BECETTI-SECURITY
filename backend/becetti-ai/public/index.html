@@ -1,10 +1,483 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="utf-8" />
-  <title>BECETTI AI backend</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BECETTI SECURITY — Global Windows x64 EDR, Native YARA &amp; Threat Intelligence Suite</title>
+  <meta name="description" content="Open-source Windows 10/11 x64 endpoint security suite combining Native YARA v4.6.0, MITRE ATT&CK EDR, live abuse.ch Threat Feeds, Outbound GeoIP Radar, Microsoft Defender orchestration, and BECETTI AI." />
+  <style>
+    :root {
+      --bg: #080b12;
+      --bg-elev: #0f1522;
+      --card: rgba(17, 24, 39, 0.78);
+      --border: rgba(56, 189, 248, 0.22);
+      --border-soft: rgba(148, 163, 184, 0.14);
+      --blue: #38bdf8;
+      --sapphire: #2563eb;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Inter, Roboto, sans-serif;
+      background:
+        radial-gradient(900px 500px at 15% -5%, rgba(37, 99, 235, 0.22), transparent 60%),
+        radial-gradient(800px 450px at 88% 5%, rgba(56, 189, 248, 0.14), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+    /* Top Nav */
+    header {
+      position: sticky; top: 0; z-index: 40;
+      backdrop-filter: blur(14px);
+      background: rgba(8, 11, 18, 0.82);
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; padding: 14px 0; flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: 0.08em; font-size: 16px; color: var(--text); }
+    .shield {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--sapphire), var(--blue));
+      display: grid; place-items: center; font-size: 18px;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+    }
+    .nav-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .lang-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+    .lang-btn {
+      background: rgba(30, 41, 59, 0.7); color: var(--muted);
+      border: 1px solid var(--border-soft); border-radius: 8px;
+      padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .lang-btn:hover, .lang-btn.active {
+      color: #fff; border-color: var(--blue); background: rgba(37, 99, 235, 0.32);
+    }
+
+    /* Hero */
+    .hero { padding: 72px 0 48px; text-align: center; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      background: rgba(16, 185, 129, 0.12); color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 20px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+    h1 {
+      font-size: clamp(2.1rem, 4.6vw, 3.6rem);
+      font-weight: 800; line-height: 1.14; letter-spacing: -0.02em;
+      max-width: 900px; margin: 0 auto 18px;
+      background: linear-gradient(180deg, #ffffff 30%, #93c5fd 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      max-width: 740px; margin: 0 auto 30px; color: var(--muted); font-size: 1.08rem;
+    }
+    .cta-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 13px 24px; border-radius: 12px; font-weight: 700; font-size: 15px;
+      border: 1px solid var(--border); transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--sapphire), #0284c7);
+      color: #fff; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+    }
+    .btn-secondary { background: rgba(15, 23, 42, 0.85); color: var(--text); }
+    .release-meta { font-size: 13px; color: var(--muted); }
+
+    /* Telemetry Strip */
+    .stats {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px; margin: 40px 0 56px;
+    }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border-soft);
+      border-radius: 14px; padding: 20px; text-align: center;
+    }
+    .stat-val { font-size: 26px; font-weight: 800; color: var(--blue); }
+    .stat-lbl { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* Feature Grid */
+    section { padding: 36px 0; }
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .section-sub { color: var(--muted); margin-bottom: 28px; max-width: 760px; }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border-soft);
+      border-radius: 16px; padding: 22px; transition: border-color 0.2s ease;
+    }
+    .card:hover { border-color: var(--border); }
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+      padding: 4px 9px; border-radius: 6px; margin-bottom: 12px;
+      background: rgba(56, 189, 248, 0.14); color: var(--blue);
+    }
+    .card h3 { font-size: 18px; margin-bottom: 8px; }
+    .card p { font-size: 14px; color: var(--muted); }
+
+    /* Truth Banner */
+    .truth {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(37, 99, 235, 0.12));
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 18px; padding: 28px; margin: 36px 0;
+    }
+    .truth h2 { font-size: 22px; margin-bottom: 10px; }
+    .truth p { color: #cbd5e1; font-size: 15px; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-soft);
+      margin-top: 56px; padding: 28px 0 42px; color: var(--muted); font-size: 13px;
+    }
+    .footer-flex { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
 </head>
 <body>
-  <p>BECETTI AI backend. See <code>/api/health</code> and <code>/api/chat</code>.</p>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="shield">&#x1F6E1;</div>
+        <span>BECETTI SECURITY</span>
+      </div>
+      <div class="nav-right">
+        <div class="lang-bar" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="ar">العربية</button>
+          <button class="lang-btn" data-lang="fr">FR</button>
+          <button class="lang-btn" data-lang="es">ES</button>
+          <button class="lang-btn" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="tr">TR</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="pill">
+        <span class="dot"></span>
+        <span id="healthText">Verifying live BECETTI AI Cloud status…</span>
+      </div>
+      <h1 data-i18n="heroTitle">Enterprise-Grade Windows x64 Security. 100% Real. Zero Simulation.</h1>
+      <p class="hero-sub" data-i18n="heroSub">
+        Combining the official Native YARA v4.6.0 Malware Engine, MITRE ATT&amp;CK EDR, live abuse.ch Threat Intelligence Feeds, Outbound GeoIP Radar, Microsoft Defender orchestration, and BECETTI AI — in 6 global languages.
+      </p>
+      <div class="cta-row">
+        <a id="downloadBtn" class="btn btn-primary" href="https://github.com/Ahmedbecett/BECETTI-SECURITY/releases" target="_blank" rel="noopener">
+          <span>&#x2B07;</span>
+          <span data-i18n="downloadBtn">Download Windows x64 (MSIX)</span>
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/Ahmedbecett/BECETTI-SECURITY" target="_blank" rel="noopener">
+          <span data-i18n="githubBtn">View Open-Source Repository</span>
+        </a>
+      </div>
+      <div id="releaseMeta" class="release-meta">Checking latest signed GitHub Release…</div>
+    </section>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-val">YARA v4.6.0</div>
+        <div class="stat-lbl" data-i18n="statYara">Official VirusTotal Native x64 Engine</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">MITRE ATT&amp;CK</div>
+        <div class="stat-lbl" data-i18n="statMitre">24 Mapped Enterprise Techniques</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">6 Languages</div>
+        <div class="stat-lbl" data-i18n="statLangs">EN · AR (RTL) · FR · ES · DE · TR</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">0% Fake Data</div>
+        <div class="stat-lbl" data-i18n="statReal">100% Real Windows APIs &amp; Live Feeds</div>
+      </div>
+    </div>
+
+    <section>
+      <h2 class="section-title" data-i18n="capTitle">Global Defense Architecture</h2>
+      <p class="section-sub" data-i18n="capSub">Every single shield, scanner, and audit runs directly against real Windows 10/11 APIs, live threat feeds, and verifiable binaries.</p>
+      <div class="grid">
+        <article class="card">
+          <span class="badge">EDR + MITRE ATT&amp;CK</span>
+          <h3 data-i18n="c1t">Deep Persistence, Script &amp; DLL Hunting</h3>
+          <p data-i18n="c1d">Inspects Scheduled Tasks, Services, Winlogon, IFEO Debuggers, PowerShell -EncodedCommand Base64 payloads, and unsigned process DLLs — tagged with MITRE ATT&amp;CK IDs.</p>
+        </article>
+        <article class="card">
+          <span class="badge">GLOBAL THREAT FEEDS</span>
+          <h3 data-i18n="c2t">Live abuse.ch Intelligence &amp; GeoIP Radar</h3>
+          <p data-i18n="c2d">Syncs live Feodo Tracker C2 IPs, URLhaus malware domains, and MalwareBazaar SHA-256 hashes. Maps every active outbound TCP connection to Country/ASN with 1-click Firewall Blocking.</p>
+        </article>
+        <article class="card">
+          <span class="badge">NATIVE MALWARE ENGINE</span>
+          <h3 data-i18n="c3t">YARA v4.6.0 + AES-256-GCM Quarantine</h3>
+          <p data-i18n="c3d">Real-time folder guard, live process memory scanning, PE entropy &amp; Authenticode forensics, Ransomware Canary honeypots, and AES-256-GCM encrypted quarantine vault.</p>
+        </article>
+        <article class="card">
+          <span class="badge">HARDENING &amp; PRIVACY</span>
+          <h3 data-i18n="c4t">1-Click Windows Hardening &amp; Anti-Telemetry</h3>
+          <p data-i18n="c4d">Audits and fixes UAC, SMBv1, RDP/NLA, Controlled Folder Access, Firewall, plus 6 reversible Windows Privacy &amp; Anti-Telemetry Registry controls with automatic Restore Points.</p>
+        </article>
+        <article class="card">
+          <span class="badge">PROACTIVE &amp; FORENSICS</span>
+          <h3 data-i18n="c5t">Browser, Wi-Fi/ARP, Shredder &amp; k-Anonymity</h3>
+          <p data-i18n="c5d">Scores risky Chrome/Edge/Brave/Firefox extensions, detects ARP spoofing MITM attacks, shreds files via DoD 5220.22-M, and checks passwords via HIBP k-anonymity.</p>
+        </article>
+        <article class="card">
+          <span class="badge">BECETTI AI COPILOT</span>
+          <h3 data-i18n="c6t">Executive Security Briefings &amp; 1-Click Triage</h3>
+          <p data-i18n="c6d">Readable &amp; spoken AI Executive Security Briefings on the Dashboard, plus instant 1-click AI triage for any alert, URL, browser extension, DLL, or YARA rule.</p>
+        </article>
+      </div>
+    </section>
+
+    <div class="truth">
+      <h2 data-i18n="truthTitle">Our Engineering Covenant: Verifiable Security, Never Theater</h2>
+      <p data-i18n="truthBody">
+        BECETTI SECURITY is open-source, auditable, and built with WinUI 3 on .NET 8 (Windows x64). Every scan result, firewall rule, registry check, threat feed indicator, and update release is verified directly against Windows, official VirusTotal YARA binaries, abuse.ch open feeds, and GitHub Releases.
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container footer-flex">
+      <div>&copy; 2026 BECETTI SECURITY — Open-Source Windows x64 Endpoint Protection</div>
+      <div class="footer-links">
+        <a href="https://github.com/Ahmedbecett/BECETTI-SECURITY" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/Ahmedbecett/BECETTI-SECURITY/releases" target="_blank" rel="noopener">Releases (MSIX)</a>
+        <a href="https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/main/SECURITY.md" target="_blank" rel="noopener">SECURITY.md</a>
+        <a href="/api/health">API Health</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const I18N = {
+      en: {
+        dir: "ltr",
+        heroTitle: "Enterprise-Grade Windows x64 Security. 100% Real. Zero Simulation.",
+        heroSub: "Combining the official Native YARA v4.6.0 Malware Engine, MITRE ATT&CK EDR, live abuse.ch Threat Intelligence Feeds, Outbound GeoIP Radar, Microsoft Defender orchestration, and BECETTI AI — in 6 global languages.",
+        downloadBtn: "Download Windows x64 (MSIX)",
+        githubBtn: "View Open-Source Repository",
+        statYara: "Official VirusTotal Native x64 Engine",
+        statMitre: "24 Mapped Enterprise Techniques",
+        statLangs: "EN · AR (RTL) · FR · ES · DE · TR",
+        statReal: "100% Real Windows APIs & Live Feeds",
+        capTitle: "Global Defense Architecture",
+        capSub: "Every single shield, scanner, and audit runs directly against real Windows 10/11 APIs, live threat feeds, and verifiable binaries.",
+        c1t: "Deep Persistence, Script & DLL Hunting",
+        c1d: "Inspects Scheduled Tasks, Services, Winlogon, IFEO Debuggers, PowerShell -EncodedCommand Base64 payloads, and unsigned process DLLs — tagged with MITRE ATT&CK IDs.",
+        c2t: "Live abuse.ch Intelligence & GeoIP Radar",
+        c2d: "Syncs live Feodo Tracker C2 IPs, URLhaus malware domains, and MalwareBazaar SHA-256 hashes. Maps every active outbound TCP connection to Country/ASN with 1-click Firewall Blocking.",
+        c3t: "YARA v4.6.0 + AES-256-GCM Quarantine",
+        c3d: "Real-time folder guard, live process memory scanning, PE entropy & Authenticode forensics, Ransomware Canary honeypots, and AES-256-GCM encrypted quarantine vault.",
+        c4t: "1-Click Windows Hardening & Anti-Telemetry",
+        c4d: "Audits and fixes UAC, SMBv1, RDP/NLA, Controlled Folder Access, Firewall, plus 6 reversible Windows Privacy & Anti-Telemetry Registry controls with automatic Restore Points.",
+        c5t: "Browser, Wi-Fi/ARP, Shredder & k-Anonymity",
+        c5d: "Scores risky Chrome/Edge/Brave/Firefox extensions, detects ARP spoofing MITM attacks, shreds files via DoD 5220.22-M, and checks passwords via HIBP k-anonymity.",
+        c6t: "Executive Security Briefings & 1-Click Triage",
+        c6d: "Readable & spoken AI Executive Security Briefings on the Dashboard, plus instant 1-click AI triage for any alert, URL, browser extension, DLL, or YARA rule.",
+        truthTitle: "Our Engineering Covenant: Verifiable Security, Never Theater",
+        truthBody: "BECETTI SECURITY is open-source, auditable, and built with WinUI 3 on .NET 8 (Windows x64). Every scan result, firewall rule, registry check, threat feed indicator, and update release is verified directly against Windows, official VirusTotal YARA binaries, abuse.ch open feeds, and GitHub Releases."
+      },
+      ar: {
+        dir: "rtl",
+        heroTitle: "حماية مؤسسية عالمية لويندوز x64. حقيقية 100%. بدون أي محاكاة.",
+        heroSub: "يجمع بين محرك YARA v4.6.0 الرسمي لكشف البرمجيات الخبيثة، ومنظومة EDR بمعيار MITRE ATT&CK، وقواعد استخبارات abuse.ch الحية، ورادار الاتصالات الصادرة GeoIP، وإدارة Microsoft Defender، ومساعد BECETTI AI — بـ 6 لغات عالمية.",
+        downloadBtn: "تحميل نسخة ويندوز x64 (MSIX)",
+        githubBtn: "استعراض الكود المصدري على GitHub",
+        statYara: "محرك VirusTotal YARA الرسمي x64",
+        statMitre: "24 تقنية مغطاة من MITRE ATT&CK",
+        statLangs: "العربية · EN · FR · ES · DE · TR",
+        statReal: "واجهات ويندوز حقيقية 100% بدون محاكاة",
+        capTitle: "معمارية الدفاع السيبراني العالمية",
+        capSub: "كل درع وفحص وتدقيق يعمل مباشرة عبر واجهات Windows 10/11 الرسمية وقواعد الاستخبارات العالمية الحية.",
+        c1t: "صياد التمركز العميق والسكربتات ومكتبات DLL",
+        c1d: "يفحص المهام المجدولة والخدمات و Winlogon و IFEO ويفك تشفير أوامر PowerShell Base64 ويكشف مكتبات DLL غير الموقّعة مع وسم MITRE ATT&CK.",
+        c2t: "استخبارات abuse.ch الحية ورادار GeoIP",
+        c2d: "يزامن عناوين C2 من Feodo Tracker ونطاقات URLhaus وبصمات MalwareBazaar، ويرصد اتصالات جهازك الصادرة بالدولة والشبكة مع حظر فوري من الجدار الناري.",
+        c3t: "محرك YARA v4.6.0 وخزنة حجر مشفرة AES-256",
+        c3d: "حارس مجلدات لحظي، وفحص ذاكرة العمليات الحية، وتحليل جنائي لملفات PE والتواقيع الرقمية، ومصيدة فدية Ransomware Canary.",
+        c4t: "تحصين ويندوز ومكافحة التتبع بنقرة واحدة",
+        c4d: "تدقيق وإصلاح تلقائي لـ UAC و SMBv1 و RDP والجدار الناري، مع 6 ضوابط عكوسة لإغلاق تتبع وإعلانات ويندوز وإنشاء نقطة استعادة تلقائية.",
+        c5t: "إضافات المتصفح و Wi-Fi/ARP والتمزيق الآمن",
+        c5d: "تدقيق إضافات المتصفحات الخطرة، وكشف هجمات انتحال ARP MITM، وتمزيق الملفات بمعيار DoD 5220.22-M، وفحص تسريب كلمات المرور بسرية k-Anonymity.",
+        c6t: "الموجز الأمني التنفيذي والتحقيق بالذكاء الاصطناعي",
+        c6d: "موجز أمني مقروء ومسموع على لوحة القيادة، مع زر تحقيق فوري بالذكاء الاصطناعي لأي تنبيه أو رابط أو إضافة أو مكتبة DLL.",
+        truthTitle: "ميثاقنا الهندسي: أمن حقيقي قابل للتدقيق، وليس مجرد عرض",
+        truthBody: "BECETTI SECURITY مشروع مفتوح المصدر مبني بتقنية WinUI 3 و .NET 8 لويندوز x64. كل نتيجة فحص وقاعدة جدار ناري وتحديث أمني يتم التحقق منها مباشرة من النظام وقواعد abuse.ch وإصدارات GitHub الرسمية."
+      },
+      fr: {
+        dir: "ltr",
+        heroTitle: "Sécurité Windows x64 de niveau entreprise. 100% réelle. Zéro simulation.",
+        heroSub: "Combine le moteur natif YARA v4.6.0, l'EDR MITRE ATT&CK, les flux abuse.ch en direct, le radar GeoIP sortant, Microsoft Defender et BECETTI AI — en 6 langues mondiales.",
+        downloadBtn: "Télécharger Windows x64 (MSIX)",
+        githubBtn: "Voir le dépôt Open-Source",
+        statYara: "Moteur natif VirusTotal x64 officiel",
+        statMitre: "24 techniques Enterprise mappées",
+        statLangs: "EN · AR (RTL) · FR · ES · DE · TR",
+        statReal: "APIs Windows 100% réelles et flux en direct",
+        capTitle: "Architecture de défense mondiale",
+        capSub: "Chaque bouclier, analyse et audit s'exécute directement sur les APIs Windows 10/11 et les flux de menaces en direct.",
+        c1t: "Chasse à la persistance, scripts et DLL",
+        c1d: "Inspecte les tâches planifiées, services, Winlogon, IFEO, scripts PowerShell encodés en Base64 et DLL non signées avec identifiants MITRE ATT&CK.",
+        c2t: "Flux abuse.ch en direct & Radar GeoIP",
+        c2d: "Synchronise Feodo Tracker, URLhaus et MalwareBazaar. Associe chaque connexion TCP sortante à son Pays/ASN avec blocage pare-feu en 1 clic.",
+        c3t: "YARA v4.6.0 + Quarantaine AES-256-GCM",
+        c3d: "Protection dossier temps réel, scan mémoire des processus, analyse PE/Authenticode, leurres anti-ransomware et coffre AES-256-GCM.",
+        c4t: "Durcissement Windows & Anti-Télémétrie",
+        c4d: "Audite et corrige UAC, SMBv1, RDP/NLA, pare-feu, plus 6 contrôles réversibles de confidentialité Windows avec point de restauration.",
+        c5t: "Extensions, Wi-Fi/ARP, Broyeur & k-Anonymity",
+        c5d: "Évalue les extensions navigateur, détecte l'usurpation ARP MITM, détruit les fichiers DoD 5220.22-M et vérifie les mots de passe via HIBP.",
+        c6t: "Briefings exécutifs IA & Triage en 1 clic",
+        c6d: "Briefing de sécurité lisible et vocal sur le tableau de bord, plus triage IA instantané pour chaque alerte.",
+        truthTitle: "Notre pacte d'ingénierie : sécurité vérifiable, jamais de théâtre",
+        truthBody: "BECETTI SECURITY est open-source, auditable et conçu avec WinUI 3 sur .NET 8 (Windows x64). Chaque résultat est vérifié en direct."
+      },
+      es: {
+        dir: "ltr",
+        heroTitle: "Seguridad Windows x64 de nivel empresarial. 100% real. Cero simulación.",
+        heroSub: "Combina el motor nativo YARA v4.6.0, EDR MITRE ATT&CK, fuentes en vivo abuse.ch, Radar GeoIP saliente, Microsoft Defender y BECETTI AI — en 6 idiomas.",
+        downloadBtn: "Descargar Windows x64 (MSIX)",
+        githubBtn: "Ver Repositorio Open-Source",
+        statYara: "Motor nativo oficial VirusTotal x64",
+        statMitre: "24 técnicas Enterprise mapeadas",
+        statLangs: "EN · AR (RTL) · FR · ES · DE · TR",
+        statReal: "APIs reales de Windows 100%",
+        capTitle: "Arquitectura de Defensa Global",
+        capSub: "Cada escudo y auditoría se ejecuta directamente sobre APIs reales de Windows 10/11 y fuentes en vivo.",
+        c1t: "Caza de Persistencia, Scripts y DLL",
+        c1d: "Inspecciona Tareas Programadas, Servicios, PowerShell Base64 y DLLs sin firmar con etiquetas MITRE ATT&CK.",
+        c2t: "Inteligencia abuse.ch y Radar GeoIP",
+        c2d: "Sincroniza IPs C2 de Feodo, URLhaus y MalwareBazaar, y mapea conexiones salientes por País/ASN con bloqueo en 1 clic.",
+        c3t: "YARA v4.6.0 + Cuarentena AES-256-GCM",
+        c3d: "Protección de carpetas en tiempo real, escaneo de memoria, forense PE y señuelos Anti-Ransomware.",
+        c4t: "Endurecimiento Windows y Anti-Telemetría",
+        c4d: "Audita y corrige UAC, SMBv1, RDP y 6 controles reversibles de privacidad en el Registro de Windows.",
+        c5t: "Navegador, Wi-Fi/ARP, Destructor y HIBP",
+        c5d: "Audita extensiones, detecta suplantación ARP MITM, destruye archivos DoD y verifica contraseñas con k-Anonymity.",
+        c6t: "Resumen Ejecutivo IA y Triaje en 1 Clic",
+        c6d: "Resumen ejecutivo legible y narrado en el Panel, más triaje instantáneo con BECETTI AI.",
+        truthTitle: "Nuestro compromiso: seguridad verificable, nunca simulada",
+        truthBody: "BECETTI SECURITY es código abierto y auditable, construido con WinUI 3 sobre .NET 8 para Windows x64."
+      },
+      de: {
+        dir: "ltr",
+        heroTitle: "Enterprise Windows x64 Sicherheit. 100% Echt. Null Simulation.",
+        heroSub: "Vereint die offizielle YARA v4.6.0 Engine, MITRE ATT&CK EDR, Live-abuse.ch-Feeds, ausgehendes GeoIP-Radar, Microsoft Defender und BECETTI AI — in 6 Weltsprachen.",
+        downloadBtn: "Windows x64 herunterladen (MSIX)",
+        githubBtn: "Open-Source-Repository ansehen",
+        statYara: "Offizielle VirusTotal Native x64 Engine",
+        statMitre: "24 abgebildete Enterprise-Techniken",
+        statLangs: "EN · AR (RTL) · FR · ES · DE · TR",
+        statReal: "100% echte Windows-APIs & Live-Feeds",
+        capTitle: "Globale Sicherheitsarchitektur",
+        capSub: "Jeder Schutzschild und jedes Audit arbeitet direkt mit echten Windows 10/11-APIs und Live-Bedrohungsdaten.",
+        c1t: "Persistenz-, Skript- & DLL-Jagd",
+        c1d: "Prüft geplante Aufgaben, Dienste, PowerShell-Base64-Befehle und unsignierte DLLs mit MITRE ATT&CK-IDs.",
+        c2t: "Live abuse.ch Feeds & GeoIP-Radar",
+        c2d: "Synchronisiert Feodo C2-IPs, URLhaus und MalwareBazaar und ordnet ausgehende TCP-Verbindungen Land/ASN mit 1-Klick-Firewall-Block zu.",
+        c3t: "YARA v4.6.0 + AES-256-GCM Quarantäne",
+        c3d: "Echtzeit-Ordnerschutz, Prozessspeicher-Scan, PE-Forensik, Ransomware-Canary-Fallen und verschlüsselte Quarantäne.",
+        c4t: "1-Klick Windows-Härtung & Anti-Telemetrie",
+        c4d: "Prüft und korrigiert UAC, SMBv1, RDP sowie 6 umkehrbare Windows-Datenschutz-Registry-Regeln.",
+        c5t: "Browser, WLAN/ARP, Schredder & HIBP",
+        c5d: "Bewertet Browser-Erweiterungen, erkennt ARP-Spoofing, schreddert Dateien nach DoD und prüft Passwörter per k-Anonymity.",
+        c6t: "KI-Executive-Briefings & 1-Klick-Triage",
+        c6d: "Lesbare und vorgelesene KI-Sicherheitsbriefings auf dem Dashboard sowie sofortige KI-Analyse jeder Warnung.",
+        truthTitle: "Unser Versprechen: Verifizierbare Sicherheit statt Show",
+        truthBody: "BECETTI SECURITY ist Open Source, auditierbar und nativ mit WinUI 3 auf .NET 8 für Windows x64 entwickelt."
+      },
+      tr: {
+        dir: "ltr",
+        heroTitle: "Kurumsal Düzey Windows x64 Güvenliği. %100 Gerçek. Sıfır Simülasyon.",
+        heroSub: "Resmi Yerel YARA v4.6.0 Motoru, MITRE ATT&CK EDR, canlı abuse.ch Tehdit Akışları, Giden GeoIP Radarı, Microsoft Defender ve BECETTI AI — 6 küresel dilde.",
+        downloadBtn: "Windows x64 İndir (MSIX)",
+        githubBtn: "Açık Kaynak Kodunu İncele",
+        statYara: "Resmi VirusTotal Yerel x64 Motoru",
+        statMitre: "24 Eşleştirilmiş Enterprise Tekniği",
+        statLangs: "EN · AR (RTL) · FR · ES · DE · TR",
+        statReal: "%100 Gerçek Windows API ve Canlı Akış",
+        capTitle: "Küresel Savunma Mimarisi",
+        capSub: "Her kalkan ve denetim doğrudan gerçek Windows 10/11 API'leri ve canlı tehdit akışları üzerinde çalışır.",
+        c1t: "Derin Kalıcılık, Betik ve DLL Avı",
+        c1d: "Zamanlanmış Görevleri, Hizmetleri, PowerShell Base64 komutlarını ve imzasız DLL'leri MITRE ATT&CK etiketleriyle denetler.",
+        c2t: "Canlı abuse.ch Akışları ve GeoIP Radarı",
+        c2d: "Feodo Tracker C2 IP'lerini, URLhaus ve MalwareBazaar'ı eşitler; giden bağlantıları Ülke/ASN bazlı gösterir ve tek tıkla engeller.",
+        c3t: "YARA v4.6.0 + AES-256-GCM Karantina",
+        c3d: "Gerçek zamanlı klasör koruması, bellek taraması, PE adli analizi, Fidye Yazılımı Canary tuzakları ve şifreli kasa.",
+        c4t: "Tek Tıkla Windows Sıkılaştırma ve Gizlilik",
+        c4d: "UAC, SMBv1, RDP ve 6 geri alınabilir Windows gizlilik/telemetri kayıt defteri ayarını otomatik onarır.",
+        c5t: "Tarayıcı, Wi-Fi/ARP, Öğütücü ve HIBP",
+        c5d: "Riskli tarayıcı eklentilerini puanlar, ARP zehirlenmesini yakalar, DoD standardında dosya öğütür ve şifre ihlali denetler.",
+        c6t: "Yapay Zeka Yönetici Özeti ve Anında Analiz",
+        c6d: "Kontrol panelinde okunabilir ve sesli yapay zeka güvenlik özeti ile her uyarı için tek tıkla BECETTI AI analizi.",
+        truthTitle: "Mühendislik Sözümüz: Doğrulanabilir Güvenlik, Asla Gösteriş Değil",
+        truthBody: "BECETTI SECURITY açık kaynaklıdır, denetlenebilir ve Windows x64 için .NET 8 / WinUI 3 ile geliştirilmiştir."
+      }
+    };
+
+    function applyLang(code) {
+      const pack = I18N[code] || I18N.en;
+      document.documentElement.lang = code;
+      document.documentElement.dir = pack.dir;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        if (pack[k]) el.textContent = pack[k];
+      });
+      document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.lang === code);
+      });
+    }
+
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+      btn.addEventListener("click", () => applyLang(btn.dataset.lang));
+    });
+
+    // Live health check against our own Vercel /api/health
+    fetch("/api/health")
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById("healthText").textContent =
+          d && d.ok ? "BECETTI AI Cloud Online · Live Production" : "BECETTI AI Cloud Status: Check /api/health";
+      })
+      .catch(() => {
+        document.getElementById("healthText").textContent = "BECETTI SECURITY Official Global Portal";
+      });
+
+    // Live GitHub Releases API fetch for latest signed x64 MSIX
+    fetch("https://api.github.com/repos/Ahmedbecett/BECETTI-SECURITY/releases/latest")
+      .then(r => r.ok ? r.json() : fetch("https://api.github.com/repos/Ahmedbecett/BECETTI-SECURITY/releases?per_page=1").then(x => x.json()).then(arr => arr[0]))
+      .then(rel => {
+        if (!rel) return;
+        const msix = (rel.assets || []).find(a => a.name && a.name.toLowerCase().endsWith(".msix"));
+        const btn = document.getElementById("downloadBtn");
+        const meta = document.getElementById("releaseMeta");
+        if (msix && msix.browser_download_url) {
+          btn.href = msix.browser_download_url;
+          const mb = (msix.size / (1024 * 1024)).toFixed(1);
+          meta.textContent = `Latest Release: ${rel.tag_name} · ${msix.name} (${mb} MB) · Windows 10/11 x64`;
+        } else if (rel.html_url) {
+          btn.href = rel.html_url;
+          meta.textContent = `Latest Release: ${rel.tag_name} · Windows 10/11 x64`;
+        }
+      })
+      .catch(() => {
+        document.getElementById("releaseMeta").textContent = "Official Signed Windows 10/11 x64 MSIX Releases on GitHub";
+      });
+  </script>
 </body>
 </html>

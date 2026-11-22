@@ -78,6 +78,7 @@ public partial class App : Application
         services.AddSingleton<IScanSchedulerService, ScanSchedulerService>();
         services.AddSingleton<IExecutiveHtmlReportService, ExecutiveHtmlReportService>();
         services.AddSingleton<IAppLockService, AppLockService>();
+        services.AddSingleton<IWindowsPrivacyHardenerService, WindowsPrivacyHardenerService>();
         services.AddSingleton<Services.IAiTriageNavigator, Services.AiTriageNavigator>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SystemTrayService>();
@@ -104,6 +105,9 @@ public partial class App : Application
         services.AddHttpClient<IDataBreachService, DataBreachService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IIpReputationService, IpReputationService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IPasswordBreachService, PasswordBreachService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IThreatFeedService, ThreatFeedService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IOutboundRadarService, OutboundRadarService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IAppUpdaterService, AppUpdaterService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
 
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
@@ -111,6 +115,7 @@ public partial class App : Application
         services.AddTransient<AdvancedDefenseViewModel>();
         services.AddTransient<EdrCenterViewModel>();
         services.AddTransient<ProactiveDefenseViewModel>();
+        services.AddTransient<GlobalIntelViewModel>();
         services.AddTransient<ProtectionViewModel>();
         services.AddTransient<CloudViewModel>();
         services.AddTransient<ThreatsViewModel>();
@@ -293,8 +298,11 @@ public partial class App : Application
     {
         var bcp47 = languageCode switch
         {
-            "ar" => "ar-SA",
-            "fr" => "fr-FR",
+            "ar" or "ar-SA" => "ar-SA",
+            "fr" or "fr-FR" => "fr-FR",
+            "es" or "es-ES" => "es-ES",
+            "de" or "de-DE" => "de-DE",
+            "tr" or "tr-TR" => "tr-TR",
             _ => "en-US"
         };
 

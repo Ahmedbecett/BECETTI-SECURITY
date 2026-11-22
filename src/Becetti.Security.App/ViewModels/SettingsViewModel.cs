@@ -58,6 +58,9 @@ public sealed class SettingsViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsEnglish));
                 OnPropertyChanged(nameof(IsArabic));
                 OnPropertyChanged(nameof(IsFrench));
+                OnPropertyChanged(nameof(IsSpanish));
+                OnPropertyChanged(nameof(IsGerman));
+                OnPropertyChanged(nameof(IsTurkish));
 
                 if (!_isLoading)
                     _ = ApplyLanguageImmediatelyAsync(value);
@@ -73,6 +76,9 @@ public sealed class SettingsViewModel : ViewModelBase
     public bool IsArabic { get => Language == "ar"; set { if (value) Language = "ar"; } }
     public bool IsEnglish { get => Language == "en"; set { if (value) Language = "en"; } }
     public bool IsFrench { get => Language == "fr"; set { if (value) Language = "fr"; } }
+    public bool IsSpanish { get => Language == "es"; set { if (value) Language = "es"; } }
+    public bool IsGerman { get => Language == "de"; set { if (value) Language = "de"; } }
+    public bool IsTurkish { get => Language == "tr"; set { if (value) Language = "tr"; } }
 
     public string AiApiBaseUrl { get => _aiApiBaseUrl; set => SetProperty(ref _aiApiBaseUrl, value); }
     public bool AiShareDeviceState { get => _aiShareDeviceState; set => SetProperty(ref _aiShareDeviceState, value); }

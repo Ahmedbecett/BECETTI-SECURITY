@@ -8,14 +8,17 @@ public enum AppLanguage
 {
     English,
     Arabic,
-    French
+    French,
+    Spanish,
+    German,
+    Turkish
 }
 
 /// <summary>
 /// Tracks the selected UI language, text direction (RTL for Arabic), and provides
 /// instant live string resolution from the single-source-of-truth .resw catalogs
-/// (en-US, ar-SA, fr-FR) embedded into Core — so changing language updates the
-/// entire UI immediately without requiring an app restart.
+/// (en-US, ar-SA, fr-FR, es-ES, de-DE, tr-TR) embedded into Core — so changing language
+/// updates the entire UI immediately without requiring an app restart.
 /// </summary>
 public sealed class LocalizationService
 {
@@ -37,6 +40,9 @@ public sealed class LocalizationService
     {
         AppLanguage.Arabic => "ar-SA",
         AppLanguage.French => "fr-FR",
+        AppLanguage.Spanish => "es-ES",
+        AppLanguage.German => "de-DE",
+        AppLanguage.Turkish => "tr-TR",
         _ => "en-US"
     };
 
@@ -44,6 +50,9 @@ public sealed class LocalizationService
     {
         AppLanguage.Arabic => "ar",
         AppLanguage.French => "fr",
+        AppLanguage.Spanish => "es",
+        AppLanguage.German => "de",
+        AppLanguage.Turkish => "tr",
         _ => "en"
     };
 
@@ -61,6 +70,9 @@ public sealed class LocalizationService
         {
             "ar" or "ar-sa" => AppLanguage.Arabic,
             "fr" or "fr-fr" => AppLanguage.French,
+            "es" or "es-es" => AppLanguage.Spanish,
+            "de" or "de-de" => AppLanguage.German,
+            "tr" or "tr-tr" => AppLanguage.Turkish,
             _ => AppLanguage.English
         };
 
@@ -139,7 +151,10 @@ public sealed class LocalizationService
         {
             [AppLanguage.English] = LoadResw(assembly, "Becetti.Security.Core.Strings.en-US.resw"),
             [AppLanguage.Arabic] = LoadResw(assembly, "Becetti.Security.Core.Strings.ar-SA.resw"),
-            [AppLanguage.French] = LoadResw(assembly, "Becetti.Security.Core.Strings.fr-FR.resw")
+            [AppLanguage.French] = LoadResw(assembly, "Becetti.Security.Core.Strings.fr-FR.resw"),
+            [AppLanguage.Spanish] = LoadResw(assembly, "Becetti.Security.Core.Strings.es-ES.resw"),
+            [AppLanguage.German] = LoadResw(assembly, "Becetti.Security.Core.Strings.de-DE.resw"),
+            [AppLanguage.Turkish] = LoadResw(assembly, "Becetti.Security.Core.Strings.tr-TR.resw")
         };
     }
 

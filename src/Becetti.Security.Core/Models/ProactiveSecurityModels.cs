@@ -103,7 +103,9 @@ public sealed class ProcessDllInfo
     public string RiskLevel { get; init; } = "Low";
     public string RiskReason { get; init; } = string.Empty;
 
-    public string DisplayLine => $"[{RiskLevel}] {ProcessName} (PID {ProcessId}) · {ModuleName} [{SignatureStatus}]";
+    public string MitreTechniqueId => Becetti.Security.Core.Services.MitreAttackMapper.MapDllFinding(RiskReason).TechniqueId;
+
+    public string DisplayLine => $"[{RiskLevel}] [{MitreTechniqueId}] {ProcessName} (PID {ProcessId}) · {ModuleName} [{SignatureStatus}]";
     public string DetailLine => string.IsNullOrWhiteSpace(RiskReason) ? FilePath : $"{RiskReason} · {FilePath}";
 }
 
