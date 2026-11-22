@@ -1,0 +1,121 @@
+<Page
+    x:Class="Becetti.Security.App.Views.DataBreachPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:converters="using:Becetti.Security.App.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:BoolToStatusBrushConverter x:Key="BoolToStatusBrush" />
+        <converters:NotEmptyToVisibilityConverter x:Key="NotEmptyToVisibility" />
+    </Page.Resources>
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleDataBreach" Text="Data Breach Monitor" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleDataBreach"
+                       Text="An optional second opinion on credential exposure: check whether an email address or password has shown up in a known public data breach. This never replaces BECETTI SECURITY's own local protection — it is a separate, clearly-labelled check you run on demand."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+
+            <InfoBar x:Uid="DataBreachNotConfiguredBar" Title="Not configured" Message="The data-breach monitoring server is not configured. Open Settings and set the BECETTI server URL."
+                     Severity="Warning" IsOpen="{x:Bind ViewModel.IsNotConfigured, Mode=OneWay}"
+                     IsClosable="False" Margin="0,0,0,16" />
+
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <!-- Email check -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="DataBreachEmailSectionLabel" Text="Check an email address" Style="{StaticResource ValueStyle}" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Uid="DataBreachEmailTextBox" Grid.Column="0" Text="{x:Bind ViewModel.EmailInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="name@example.com" Margin="0,0,8,0" />
+                        <Button x:Uid="DataBreachCheckEmailButton" Grid.Column="1" Content="Check email" Command="{x:Bind ViewModel.CheckEmailCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0" Visibility="{x:Bind ViewModel.HasEmailReport, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                        <Ellipse Width="14" Height="14" Fill="{x:Bind ViewModel.EmailIsClean, Mode=OneWay, Converter={StaticResource BoolToStatusBrush}}" VerticalAlignment="Center" />
+                        <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0"
+                                Visibility="{x:Bind ViewModel.EmailReport.RiskLabel, Mode=OneWay, Converter={StaticResource NotEmptyToVisibility}}">
+                        <TextBlock x:Uid="DataBreachRiskLabelPrefix" Text="Overall risk:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                        <TextBlock Text="{x:Bind ViewModel.EmailReport.RiskLabel, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold" />
+                    </StackPanel>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.EmailBreaches}" MinHeight="40" Margin="0,12,0,0"
+                              Visibility="{x:Bind ViewModel.EmailBreaches.Count, Mode=OneWay, Converter={StaticResource NotEmptyToVisibility}}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:DataBreachRecord">
+                                <StackPanel Margin="0,8" Spacing="2">
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                                        <TextBlock Text="{x:Bind BreachDate}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Bind Domain}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="{x:Bind Description}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Password check -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="DataBreachPasswordSectionLabel" Text="Check a password" Style="{StaticResource ValueStyle}" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <PasswordBox x:Name="PasswordInputBox" x:Uid="DataBreachPasswordBox" Grid.Column="0" PlaceholderText="Password to check" Margin="0,0,8,0" PasswordChanged="PasswordInputBox_PasswordChanged" />
+                        <Button x:Uid="DataBreachCheckPasswordButton" Grid.Column="1" Content="Check password" Command="{x:Bind ViewModel.CheckPasswordCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                    </Grid>
+                    <TextBlock x:Uid="DataBreachPasswordPrivacyNote" Text="This password is hashed on this device — only a 5-character fragment of that hash ever leaves it. The password itself is never sent or stored anywhere."
+                               Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0" Visibility="{x:Bind ViewModel.HasPasswordReport, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                        <Ellipse Width="14" Height="14" Fill="{x:Bind ViewModel.PasswordIsClean, Mode=OneWay, Converter={StaticResource BoolToStatusBrush}}" VerticalAlignment="Center" />
+                        <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- History -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="DataBreachHistoryLabel" Text="Previous checks" Style="{StaticResource ValueStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.History}" MinHeight="120" Margin="0,8,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:DataBreachCheckRecord">
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Timestamp}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Width="140" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind TargetDisplay}" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" Margin="8,0" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind StatusLabel}" Foreground="{x:Bind IsClean, Converter={StaticResource BoolToStatusBrush}}" FontWeight="SemiBold" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshHistoryCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

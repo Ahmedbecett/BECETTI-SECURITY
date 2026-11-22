@@ -4,13 +4,81 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:models="using:Becetti.Security.Core.Models"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:ProtectionLevelToBrushConverter x:Key="LevelToBrushConverter" />
+        <converters:BoolToStatusBrushConverter x:Key="BoolToStatusBrush" />
+    </Page.Resources>
+
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
             <TextBlock x:Uid="TitleDashboard" Text="Dashboard" Style="{StaticResource PageTitleStyle}" />
             <TextBlock x:Uid="SubtitleDashboard" Text="Verified security status, read live from Windows and Microsoft Defender." Style="{StaticResource SectionSubtitleStyle}" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
             <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <!-- Hero: aggregate protection status + robot mascot + Scan Now. Color/text are
+                 derived only from the verified DefenderStatus just read — never decorative. -->
+            <Border Style="{StaticResource GlassHeroCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <FontIcon x:Name="HeroShieldIcon" Glyph="&#xE7EF;" FontSize="32"
+                                      Foreground="{x:Bind ViewModel.ProtectionLevel, Mode=OneWay, Converter={StaticResource LevelToBrushConverter}}" />
+                            <TextBlock Text="{x:Bind ViewModel.ProtectionHeadline, Mode=OneWay}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="{x:Bind ViewModel.ProtectionSubtext, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,8,0,16" MaxWidth="480" />
+                        <Button x:Uid="ScanNowButton" Content="Scan Now" Style="{StaticResource PrimaryButtonStyle}" Click="ScanNowButton_Click" />
+                    </StackPanel>
+                    <Image Grid.Column="1" Source="Assets/RobotMascotHero.png" Width="140" Height="140" Margin="16,0,0,0" VerticalAlignment="Center">
+                        <Image.RenderTransform>
+                            <TranslateTransform x:Name="MascotTransform" Y="0" />
+                        </Image.RenderTransform>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!-- Security Score: a 0-100 figure recomputed every refresh only from the
+                 real signals just read above - never a fixed or randomized number. -->
+            <Border Style="{StaticResource GlassHeroCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{x:Bind ViewModel.SecurityScoreText, Mode=OneWay}"
+                                   FontSize="48" FontWeight="Bold" Foreground="{StaticResource ElectricBlueBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,16,0" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock x:Uid="SecurityScoreTitle" Text="Security Score" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.SecurityScoreGrade, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" />
+                        </StackPanel>
+                    </Grid>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.SecurityScore.Factors, Mode=OneWay}" Margin="0,12,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:SecurityScoreFactor">
+                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4" VerticalAlignment="Top">
+                                    <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,6,0,0"
+                                             Fill="{x:Bind IsPositive, Converter={StaticResource BoolToStatusBrush}}" />
+                                    <StackPanel>
+                                        <TextBlock Text="{x:Bind Title}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock Text="{x:Bind Detail}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" FontSize="12" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="Antivirus" Style="{StaticResource LabelStyle}" />

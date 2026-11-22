@@ -1,0 +1,146 @@
+<Page
+    x:Class="Becetti.Security.App.Views.BecettiAiPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:vm="using:Becetti.Security.App.ViewModels"
+    x:Name="RootPage"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:AiMessageAlignmentConverter x:Key="MessageAlignment" />
+
+        <Storyboard x:Key="RobotEntranceStoryboard">
+            <DoubleAnimation Storyboard.TargetName="RobotTranslate" Storyboard.TargetProperty="X"
+                              From="220" To="0" Duration="0:0:0.7">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="RobotImage" Storyboard.TargetProperty="Opacity"
+                              From="0" To="1" Duration="0:0:0.5" />
+        </Storyboard>
+
+        <Storyboard x:Key="RobotTalkingStoryboard" RepeatBehavior="Forever" AutoReverse="True">
+            <DoubleAnimation Storyboard.TargetName="RobotScale" Storyboard.TargetProperty="ScaleX"
+                              From="1.0" To="1.08" Duration="0:0:0.35" />
+            <DoubleAnimation Storyboard.TargetName="RobotScale" Storyboard.TargetProperty="ScaleY"
+                              From="1.0" To="1.08" Duration="0:0:0.35" />
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid Background="{StaticResource AppBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: robot mascot + honesty banner -->
+        <StackPanel Grid.Row="0" Padding="32,24,32,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock x:Uid="TitleAi" Text="BECETTI AI" Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock x:Uid="SubtitleAi"
+                               Text="Ask BECETTI AI about your security status. It only answers from real, verified information — it never invents a threat or a fix."
+                               Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+                <Image x:Name="RobotImage" Grid.Column="1" Source="Assets/RobotMascotHero.png" Width="72" Height="72"
+                       VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                    <Image.RenderTransform>
+                        <TransformGroup>
+                            <TranslateTransform x:Name="RobotTranslate" X="0" />
+                            <ScaleTransform x:Name="RobotScale" ScaleX="1.0" ScaleY="1.0" />
+                        </TransformGroup>
+                    </Image.RenderTransform>
+                </Image>
+            </Grid>
+
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error"
+                     IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,12,0,0" />
+
+            <Border Style="{StaticResource CardStyle}" Margin="0,12,0,0">
+                <StackPanel>
+                    <ToggleSwitch x:Uid="SettingsAiShareDeviceState"
+                                  Header="Share real device/Defender status with BECETTI AI for this chat"
+                                  IsOn="{x:Bind ViewModel.ShareDeviceState, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsAiSaveHistory"
+                                  Header="Save chat history on this device"
+                                  IsOn="{x:Bind ViewModel.SaveHistory, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="AiVoiceToggle"
+                                  Header="Read replies aloud"
+                                  IsOn="{x:Bind ViewModel.VoiceRepliesEnabled, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Conversation -->
+        <Grid Grid.Row="1">
+            <!-- Welcome overlay: robot + "Welcome, you are safe", shown only before any message is sent. -->
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420"
+                        Visibility="{x:Bind ViewModel.HasNoMessages, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                <Image Source="Assets/RobotMascotHero.png" Width="120" Height="120" HorizontalAlignment="Center" Margin="0,0,0,16" />
+                <TextBlock x:Uid="AiWelcomeMessage" Text="Welcome, you are safe." FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource ElectricBlueBrush}" HorizontalAlignment="Center" TextAlignment="Center" />
+                <TextBlock x:Uid="AiWelcomeSubtitle"
+                           Text="I'm BECETTI AI. Ask me about any part of your protection and I'll explain exactly what it shows and where to go."
+                           Foreground="{StaticResource TextSecondaryBrush}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,8,0,0" />
+            </StackPanel>
+
+            <ScrollViewer x:Name="ChatScroller" Padding="32,0"
+                          Visibility="{x:Bind ViewModel.HasNoMessages, Mode=OneWay, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
+                <ItemsControl ItemsSource="{x:Bind ViewModel.Messages, Mode=OneWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AiChatMessage">
+                            <StackPanel HorizontalAlignment="{x:Bind IsFromUser, Converter={StaticResource MessageAlignment}}" Margin="0,6">
+                                <Border MaxWidth="560"
+                                        Padding="14,10"
+                                        CornerRadius="14"
+                                        Background="{StaticResource PanelBackgroundBrush}"
+                                        BorderBrush="{StaticResource GlowBorderBrush}"
+                                        BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="{x:Bind Text}" TextWrapping="Wrap"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   Visibility="{x:Bind IsPending, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+                                        <TextBlock Text="BECETTI AI is typing…" FontStyle="Italic"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   Visibility="{x:Bind IsPending, Converter={StaticResource BoolToVisibility}}" />
+                                    </StackPanel>
+                                </Border>
+                                <Button x:Uid="AiSupportTicketButton" Content="Open a support ticket"
+                                        Command="{Binding ElementName=RootPage, Path=ViewModel.CreateSupportTicketCommand}"
+                                        Visibility="{x:Bind SuggestsSupportTicket, Converter={StaticResource BoolToVisibility}}"
+                                        Margin="0,6,0,0" FontSize="12" Padding="10,4" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Composer -->
+        <Grid Grid.Row="2" Padding="32,12,32,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" x:Name="InputBox"
+                     PlaceholderText="Ask BECETTI AI…"
+                     Text="{x:Bind ViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     AcceptsReturn="False" Margin="0,0,8,0" />
+            <Button Grid.Column="1" Content="Send" Command="{x:Bind ViewModel.SendCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" />
+            <Button Grid.Column="2" Content="Clear" Command="{x:Bind ViewModel.ClearCommand}" Margin="0,0,8,0" />
+            <Button Grid.Column="3" x:Uid="AiSupportTicketButton" Content="Open a support ticket" Command="{x:Bind ViewModel.CreateSupportTicketCommand}" FontSize="12" />
+        </Grid>
+    </Grid>
+</Page>

@@ -29,9 +29,51 @@ public partial class App : Application
         services.AddSingleton<ITokenStore, TokenStore>();
         services.AddSingleton<IDefenderService, DefenderService>();
         services.AddSingleton<ISystemInfoService, SystemInfoService>();
+        services.AddSingleton<IPcHealthService, PcHealthService>();
+        services.AddSingleton<IStartupManagerService, StartupManagerService>();
+        services.AddSingleton<ISoftwareManagerService, SoftwareManagerService>();
+        services.AddSingleton<IDriverMonitorService, DriverMonitorService>();
+        services.AddSingleton<IUsbProtectionService, UsbProtectionService>();
+        services.AddSingleton<INetworkMonitorService, NetworkMonitorService>();
+        services.AddSingleton<IPlatformSecurityService, PlatformSecurityService>();
+        services.AddSingleton<IVulnerabilityAdvisorService, VulnerabilityAdvisorService>();
+        services.AddSingleton<IBrowserSecurityService, BrowserSecurityService>();
+        services.AddSingleton<ISecurityReportService, SecurityReportService>();
+        services.AddSingleton<ICloudSyncService, CloudSyncService>();
+        services.AddSingleton<IScheduledScanService, ScheduledScanService>();
+        services.AddSingleton<IBackupAdvisorService, BackupAdvisorService>();
+        services.AddSingleton<IWifiSecurityService, WifiSecurityService>();
+        services.AddSingleton<IKnowledgeBaseService, KnowledgeBaseService>();
         services.AddSingleton<IEventLogService, EventLogService>();
+        services.AddSingleton<IThreatIntelHistoryService, ThreatIntelHistoryService>();
+        services.AddSingleton<IDataBreachHistoryService, DataBreachHistoryService>();
+        services.AddSingleton<IIpReputationHistoryService, IpReputationHistoryService>();
+        services.AddSingleton<IFileShredderService, FileShredderService>();
+        services.AddSingleton<ISecureVaultService, SecureVaultService>();
+        services.AddSingleton<IParentalControlService, ParentalControlService>();
+        services.AddSingleton<IGamePerformanceModeService, GamePerformanceModeService>();
         services.AddSingleton<LocalizationService>();
-        services.AddHttpClient<ICloudService, CloudService>();
+        services.AddSingleton<Services.SoundService>();
+        services.AddSingleton<Services.SpeechService>();
+        services.AddSingleton<Services.NotificationService>();
+        // Real-device testing surfaced timeouts reaching the BECETTI AI backend on a
+        // machine where a normal browser worked fine. HttpClient's default SocketsHttpHandler
+        // has no explicit connect timeout, so when a restrictive firewall/antivirus or a flaky
+        // network silently drops the TCP/TLS handshake instead of refusing it outright, the
+        // whole request can sit doing nothing until the much longer per-request timeout below
+        // finally gives up. An explicit, shorter ConnectTimeout makes that specific failure
+        // mode fail fast with a clear, distinguishable error instead of a long silent hang.
+        static SocketsHttpHandler NetworkResilientHandler() => new()
+        {
+            ConnectTimeout = TimeSpan.FromSeconds(10),
+            PooledConnectionLifetime = TimeSpan.FromMinutes(5)
+        };
+
+        services.AddHttpClient<ICloudService, CloudService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IBecettiAiService, BecettiAiService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IThreatIntelligenceService, ThreatIntelligenceService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IDataBreachService, DataBreachService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IIpReputationService, IpReputationService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
 
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
@@ -43,18 +85,75 @@ public partial class App : Application
         services.AddTransient<UpdatesViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<AboutViewModel>();
+        services.AddTransient<BecettiAiViewModel>();
+        services.AddTransient<ContactViewModel>();
+        services.AddTransient<RansomwareViewModel>();
+        services.AddTransient<PcHealthViewModel>();
+        services.AddTransient<StartupManagerViewModel>();
+        services.AddTransient<SoftwareManagerViewModel>();
+        services.AddTransient<DriverMonitorViewModel>();
+        services.AddTransient<EmergencyCenterViewModel>();
+        services.AddTransient<UsbProtectionViewModel>();
+        services.AddTransient<NetworkMonitorViewModel>();
+        services.AddTransient<VulnerabilityAdvisorViewModel>();
+        services.AddTransient<BrowserSecurityViewModel>();
+        services.AddTransient<SecurityReportsViewModel>();
+        services.AddTransient<IdentityProtectionViewModel>();
+        services.AddTransient<CloudSyncViewModel>();
+        services.AddTransient<ScheduledScanViewModel>();
+        services.AddTransient<BackupAdvisorViewModel>();
+        services.AddTransient<WifiSecurityViewModel>();
+        services.AddTransient<KnowledgeBaseViewModel>();
+        services.AddTransient<ThreatIntelligenceViewModel>();
+        services.AddTransient<DataBreachViewModel>();
+        services.AddTransient<IpReputationViewModel>();
+        services.AddTransient<FileShredderViewModel>();
+        services.AddTransient<SecureVaultViewModel>();
+        services.AddTransient<ParentalControlViewModel>();
+        services.AddTransient<GamePerformanceModeViewModel>();
 
         Services = services.BuildServiceProvider();
 
         var settings = Services.GetRequiredService<ISettingsService>();
         await settings.LoadAsync();
 
+        // Apply the persisted UI language before any window/resw lookup happens,
+        // so the correct Strings/<culture>/Resources.resw is the one resolved.
+        ApplyLanguageOverride(settings.Current.Language);
+
         var cloud = Services.GetRequiredService<ICloudService>();
         if (cloud is CloudService concreteCloud)
             await concreteCloud.RestoreSessionAsync();
 
-        _window = new MainWindow();
-        MainWindow = _window;
-        _window.Activate();
+        Services.GetRequiredService<Services.NotificationService>().Initialize();
+
+        var mainWindow = new MainWindow();
+        _window = mainWindow;
+        MainWindow = mainWindow;
+        mainWindow.Activate();
+    }
+
+    /// <summary>
+    /// Sets the resource language actually used to resolve x:Uid-based resw strings.
+    /// Must run before any XAML is loaded for a language switch to take effect.
+    /// </summary>
+    private static void ApplyLanguageOverride(string languageCode)
+    {
+        var bcp47 = languageCode switch
+        {
+            "ar" => "ar-SA",
+            "fr" => "fr-FR",
+            _ => "en-US"
+        };
+
+        try
+        {
+            Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = bcp47;
+        }
+        catch
+        {
+            // Best-effort: if the override can't be set (e.g. unpackaged dev run),
+            // the app falls back to the OS-selected display language.
+        }
     }
 }

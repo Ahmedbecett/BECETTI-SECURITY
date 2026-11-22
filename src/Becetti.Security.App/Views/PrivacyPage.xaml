@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
     mc:Ignorable="d">
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="32" MaxWidth="900">
@@ -11,6 +12,22 @@
             <TextBlock x:Uid="SubtitlePrivacy" Text="Measured network, TLS and configuration checks. Recommendations come from the measured values only." Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
             <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
             <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="PrivacyPermissionsLabel" Text="App permissions (device-wide)" Style="{StaticResource LabelStyle}" />
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Permissions, Mode=OneWay}" Margin="0,4,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:PrivacyPermissionInfo">
+                                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2">
+                                    <Run Text="{x:Bind Name}" FontWeight="SemiBold" />
+                                    <Run Text=": " />
+                                    <Run Text="{x:Bind StateText}" />
+                                </TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="Network" Style="{StaticResource LabelStyle}" />
@@ -35,7 +52,7 @@
                     <ListView ItemsSource="{x:Bind ViewModel.Recommendations, Mode=OneWay}" Margin="0,8,0,0">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="x:String">
-                                <TextBlock Text="{x:Bind Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4" />
+                                <TextBlock Text="{x:Bind Mode=OneTime}" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4" />
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

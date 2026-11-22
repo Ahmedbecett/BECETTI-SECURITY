@@ -42,4 +42,40 @@ public sealed class CloudServiceTests
         Assert.False(result.Success);
         Assert.Equal("OFFLINE", result.ErrorCode);
     }
+
+    [Fact]
+    public async Task Devices_NotConfigured_ReturnsNotConfigured()
+    {
+        var cloud = CreateCloud(string.Empty);
+
+        var heartbeat = await cloud.SendDeviceHeartbeatAsync("Test-PC", "Windows", "1.0.0");
+        Assert.False(heartbeat.Success);
+        Assert.Equal("NOT_CONFIGURED", heartbeat.ErrorCode);
+
+        var list = await cloud.GetDevicesAsync();
+        Assert.False(list.Success);
+        Assert.Equal("NOT_CONFIGURED", list.ErrorCode);
+
+        var remove = await cloud.RemoveDeviceAsync("some-device-id");
+        Assert.False(remove.Success);
+        Assert.Equal("NOT_CONFIGURED", remove.ErrorCode);
+    }
+
+    [Fact]
+    public async Task Devices_ConfiguredButNotSignedIn_ReturnsNotAuthenticated()
+    {
+        var cloud = CreateCloud("https://api.example.test");
+
+        var heartbeat = await cloud.SendDeviceHeartbeatAsync("Test-PC", "Windows", "1.0.0");
+        Assert.False(heartbeat.Success);
+        Assert.Equal("NOT_AUTHENTICATED", heartbeat.ErrorCode);
+
+        var list = await cloud.GetDevicesAsync();
+        Assert.False(list.Success);
+        Assert.Equal("NOT_AUTHENTICATED", list.ErrorCode);
+
+        var remove = await cloud.RemoveDeviceAsync("some-device-id");
+        Assert.False(remove.Success);
+        Assert.Equal("NOT_AUTHENTICATED", remove.ErrorCode);
+    }
 }

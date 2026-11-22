@@ -15,6 +15,8 @@ public sealed class SettingsAndHistoryTests
             first.Current.ApiBaseUrl = "https://api.example.test";
             first.Current.Language = "ar";
             first.Current.TelemetryOptIn = true;
+            first.Current.EnableAnimations = false;
+            first.Current.EnableSounds = false;
             await first.SaveAsync();
 
             var second = new SettingsService(dir);
@@ -22,6 +24,50 @@ public sealed class SettingsAndHistoryTests
             Assert.Equal("https://api.example.test", second.Current.ApiBaseUrl);
             Assert.Equal("ar", second.Current.Language);
             Assert.True(second.Current.TelemetryOptIn);
+            Assert.False(second.Current.EnableAnimations);
+            Assert.False(second.Current.EnableSounds);
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+                Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task Settings_Defaults_AnimationsAndSoundsOn()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "becetti-test-" + Guid.NewGuid());
+        try
+        {
+            var settings = new SettingsService(dir);
+            await settings.LoadAsync();
+            Assert.True(settings.Current.EnableAnimations);
+            Assert.True(settings.Current.EnableSounds);
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+                Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task Settings_FirstRun_LanguageFollowsSavedPreferenceOnReload()
+    {
+        // Once a language has been explicitly saved, reloading must respect it exactly
+        // (not re-derive it from the OS) regardless of what the test host's culture is.
+        var dir = Path.Combine(Path.GetTempPath(), "becetti-test-" + Guid.NewGuid());
+        try
+        {
+            var first = new SettingsService(dir);
+            await first.LoadAsync();
+            first.Current.Language = "ar";
+            await first.SaveAsync();
+
+            var second = new SettingsService(dir);
+            await second.LoadAsync();
+            Assert.Equal("ar", second.Current.Language);
         }
         finally
         {

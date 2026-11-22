@@ -28,6 +28,12 @@ Thumbs.db
 appsettings.Development.json
 appsettings.Production.json
 .env
+
+# Locally generated signing material handed to the repo owner to add as
+# GitHub Actions secrets - must never be committed, even the "public" .cer
+# copy (keep it paired with its password file instead of scattered in git
+# history).
+local-only/
 *.pfx
 
 # Logs

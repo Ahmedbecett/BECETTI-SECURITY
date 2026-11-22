@@ -17,7 +17,9 @@
                     <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,8,0,0">
                         <RadioButton Content="English" IsChecked="{x:Bind ViewModel.IsEnglish, Mode=TwoWay}" />
                         <RadioButton Content="العربية (Arabic)" IsChecked="{x:Bind ViewModel.IsArabic, Mode=TwoWay}" />
+                        <RadioButton Content="Français (French)" IsChecked="{x:Bind ViewModel.IsFrench, Mode=TwoWay}" />
                     </StackPanel>
+                    <TextBlock Text="Changing the language requires restarting BECETTI SECURITY to fully apply." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap" FontSize="12" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource CardStyle}">
@@ -43,6 +45,44 @@
                     <TextBlock Text="Telemetry" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="Off by default. BECETTI SECURITY collects no telemetry unless you opt in here." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
                     <ToggleSwitch Header="Allow telemetry" IsOn="{x:Bind ViewModel.TelemetryOptIn, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Appearance &amp; Feedback" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="Animations are purely decorative and never used to imply a scan or update is running. Sounds play only on genuine completed/failed actions." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsAnimations" Header="Enable decorative animations" IsOn="{x:Bind ViewModel.EnableAnimations, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsSounds" Header="Enable sound cues" IsOn="{x:Bind ViewModel.EnableSounds, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="BECETTI AI" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="The AI assistant talks only to the BECETTI AI server below — the real AI provider key is never stored in this app. Device-state sharing and chat history are separate, off-by-default opt-ins available on the BECETTI AI page."
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <TextBox x:Uid="SettingsAiApiBaseUrl" Header="BECETTI AI server URL"
+                             Text="{x:Bind ViewModel.AiApiBaseUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Contact Becetti" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="Address used to prefill the support draft on the Contact Becetti page."
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <TextBox x:Uid="SettingsSupportEmail" Header="Support email address"
+                             Text="{x:Bind ViewModel.SupportEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="SettingsCriticalAlertsLabel" Text="Critical Alerts" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="SettingsCriticalAlertsDescription"
+                               Text="A critical event (threat found, a checked email/password found in a breach, a malicious scan result) always shows a Windows notification. Optionally, it can also be posted to a webhook URL (Slack, Discord or any generic JSON endpoint) so it reaches another device."
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsCriticalAlertsToggle" Header="Show a Windows notification for critical events" IsOn="{x:Bind ViewModel.CriticalAlertNotificationsEnabled, Mode=TwoWay}" />
+                    <TextBox x:Uid="SettingsCriticalAlertsWebhook" Header="Webhook URL (optional)"
+                             PlaceholderText="https://hooks.slack.com/services/..."
+                             Text="{x:Bind ViewModel.CriticalAlertWebhookUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
             <StackPanel Orientation="Horizontal" Spacing="12">

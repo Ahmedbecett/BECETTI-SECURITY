@@ -9,30 +9,66 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- BECETTI SECURITY design system: deep black/navy + emerald -->
-            <Color x:Key="AppBackgroundColor">#050810</Color>
-            <Color x:Key="PanelBackgroundColor">#0B1220</Color>
-            <Color x:Key="CardBackgroundColor">#101A2E</Color>
-            <Color x:Key="AccentGreenColor">#10B981</Color>
-            <Color x:Key="TextPrimaryColor">#F1F5F9</Color>
-            <Color x:Key="TextSecondaryColor">#94A3B8</Color>
-            <Color x:Key="WarningColor">#F59E0B</Color>
-            <Color x:Key="DangerColor">#EF4444</Color>
+            <!--
+                BECETTI SECURITY design system: premium dark cybersecurity dashboard.
+                Deep navy backgrounds, electric blue highlights, protection-green/
+                warning-orange/danger-red status colors. Green is used only for a
+                verified protection state, orange for warnings, red for genuine
+                problems — never decoratively.
+            -->
+            <Color x:Key="AppBackgroundColor">#020B1D</Color>
+            <Color x:Key="PanelBackgroundColor">#06152F</Color>
+            <Color x:Key="CardBackgroundColor">#0B1D3B</Color>
+            <Color x:Key="PrimaryBlueColor">#087CFF</Color>
+            <Color x:Key="ElectricBlueColor">#00BFFF</Color>
+            <Color x:Key="AccentGreenColor">#00D978</Color>
+            <Color x:Key="TextPrimaryColor">#FFFFFF</Color>
+            <Color x:Key="TextSecondaryColor">#AFC3E8</Color>
+            <Color x:Key="WarningColor">#FFA500</Color>
+            <Color x:Key="DangerColor">#FF3B50</Color>
 
             <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}" />
             <SolidColorBrush x:Key="PanelBackgroundBrush" Color="{StaticResource PanelBackgroundColor}" />
             <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource CardBackgroundColor}" />
+            <SolidColorBrush x:Key="PrimaryBlueBrush" Color="{StaticResource PrimaryBlueColor}" />
+            <SolidColorBrush x:Key="ElectricBlueBrush" Color="{StaticResource ElectricBlueColor}" />
             <SolidColorBrush x:Key="AccentGreenBrush" Color="{StaticResource AccentGreenColor}" />
             <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
             <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
             <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
             <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" />
 
+            <!-- Soft glowing border used on glass-style cards and the selected nav item. -->
+            <SolidColorBrush x:Key="GlowBorderBrush" Color="#4D00BFFF" />
+
+            <LinearGradientBrush x:Key="HeroGradientBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#06152F" Offset="0" />
+                <GradientStop Color="#0B2A5C" Offset="1" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="NavSelectedGradientBrush" StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="#087CFF" Offset="0" />
+                <GradientStop Color="#00BFFF" Offset="1" />
+            </LinearGradientBrush>
+
+            <!-- Glass-style rounded card with a subtle glowing border. Used across every page. -->
             <Style x:Key="CardStyle" TargetType="Border">
                 <Setter Property="Background" Value="{StaticResource CardBackgroundBrush}" />
-                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="BorderBrush" Value="{StaticResource GlowBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="14" />
                 <Setter Property="Padding" Value="20" />
                 <Setter Property="Margin" Value="0,0,0,16" />
+            </Style>
+
+            <!-- Same glass treatment, slightly more prominent border, for hero/status cards. -->
+            <Style x:Key="GlassHeroCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource HeroGradientBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ElectricBlueBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="Padding" Value="28" />
+                <Setter Property="Margin" Value="0,0,0,20" />
             </Style>
 
             <Style x:Key="PageTitleStyle" TargetType="TextBlock">
@@ -60,12 +96,37 @@
             </Style>
 
             <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="{StaticResource AccentGreenBrush}" />
-                <Setter Property="Foreground" Value="Black" />
+                <Setter Property="Background" Value="{StaticResource PrimaryBlueBrush}" />
+                <Setter Property="Foreground" Value="White" />
                 <Setter Property="FontWeight" Value="SemiBold" />
                 <Setter Property="Padding" Value="20,10" />
                 <Setter Property="CornerRadius" Value="8" />
             </Style>
+
+            <!-- Icon-only header button (settings / help / about). -->
+            <Style x:Key="HeaderIconButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                <Setter Property="Padding" Value="8" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Width" Value="36" />
+                <Setter Property="Height" Value="36" />
+            </Style>
+
+            <!-- NavigationView look: dark panel + a bright blue gradient with a soft glow on the selected item. -->
+            <SolidColorBrush x:Key="NavigationViewContentBackground" Color="{StaticResource AppBackgroundColor}" />
+            <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="{StaticResource PanelBackgroundColor}" />
+            <SolidColorBrush x:Key="NavigationViewItemForeground" Color="{StaticResource TextSecondaryColor}" />
+            <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="{StaticResource TextPrimaryColor}" />
+            <LinearGradientBrush x:Key="NavigationViewItemBackgroundSelected" StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="#087CFF" Offset="0" />
+                <GradientStop Color="#00BFFF" Offset="1" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="#1A8CFF" Offset="0" />
+                <GradientStop Color="#2ECCFF" Offset="1" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="{StaticResource ElectricBlueColor}" />
         </ResourceDictionary>
     </Application.Resources>
 

@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Globalization;
-using System.Security.Principal;
 using System.Text.Json;
 using Becetti.Security.Core.Models;
 
@@ -10,8 +9,14 @@ namespace Becetti.Security.Core.Services;
 /// Microsoft Defender integration through supported Windows interfaces only:
 /// PowerShell Defender cmdlets (Get-MpComputerStatus, Get-MpThreatDetection,
 /// Get-NetFirewallProfile, Update-MpSignature, Set-MpPreference, Remove-MpThreat)
-/// and the MpCmdRun.exe command-line scanner. No independent verdicts are made:
-/// scan results come from MpCmdRun exit codes and Defender's own detection store.
+/// and the MpCmdRun.exe command-line scanner (-Scan, -SignatureUpdate). No
+/// independent verdicts are made: scan results come from MpCmdRun exit codes
+/// and Defender's own detection store. Signature updates only ever ask Defender
+/// to pull from Microsoft's own update service (Update-MpSignature
+/// -UpdateSource MicrosoftUpdateServer, or MpCmdRun.exe -SignatureUpdate as a
+/// fallback) — this app never downloads definitions itself, never contacts a
+/// third-party or unofficial source, and never maintains an independent virus
+/// database of its own.
 /// </summary>
 public sealed class DefenderService : IDefenderService
 {
@@ -22,13 +27,31 @@ public sealed class DefenderService : IDefenderService
         if (!OperatingSystem.IsWindows())
             return null;
 
-        var candidates = new[]
+        // On the large majority of real-world Windows 10/11 machines, the ONLY
+        // copy of MpCmdRun.exe lives under the versioned Defender "Platform"
+        // folder in ProgramData - that is where Windows Update actually drops
+        // each Defender platform update. The static "Program Files\Windows
+        // Defender\MpCmdRun.exe" path below is a legacy/compatibility
+        // location that modern installs frequently do not populate at all
+        // (confirmed: a real tester had Defender installed and working, but
+        // this method returned null and the app reported "Microsoft Defender
+        // (MpCmdRun.exe) was not found on this device" because it only ever
+        // checked Program Files). Prefer the newest Platform version folder
+        // when more than one is present (old versions can be left behind
+        // after an update).
+        var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+        var platformRoot = Path.Combine(programData, "Microsoft", "Windows Defender", "Platform");
+        var newestPlatformMpCmdRun = FindNewestInPlatformFolder(platformRoot);
+        if (newestPlatformMpCmdRun is not null)
+            return newestPlatformMpCmdRun;
+
+        var legacyCandidates = new[]
         {
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Windows Defender", "MpCmdRun.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Windows Defender", "MpCmdRun.exe")
         };
 
-        foreach (var candidate in candidates)
+        foreach (var candidate in legacyCandidates)
         {
             if (File.Exists(candidate))
                 return candidate;
@@ -37,15 +60,45 @@ public sealed class DefenderService : IDefenderService
         return null;
     }
 
-    public bool IsElevated()
+    /// <summary>
+    /// Returns the path to MpCmdRun.exe inside the highest-versioned
+    /// subfolder of the Defender "Platform" directory, or null if the
+    /// directory does not exist, is inaccessible, or contains no usable copy.
+    /// Platform folder names look like "4.18.26080.3-0" (a trailing build
+    /// suffix after the last dot-separated version segment is tolerated).
+    /// </summary>
+    internal static string? FindNewestInPlatformFolder(string platformRoot)
     {
-        if (!OperatingSystem.IsWindows())
-            return false;
+        try
+        {
+            if (!Directory.Exists(platformRoot))
+                return null;
 
-        using var identity = WindowsIdentity.GetCurrent();
-        var principal = new WindowsPrincipal(identity);
-        return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            return Directory.GetDirectories(platformRoot)
+                .Select(dir => (Dir: dir, CandidatePath: Path.Combine(dir, "MpCmdRun.exe"), Version: ParsePlatformVersion(Path.GetFileName(dir))))
+                .Where(x => File.Exists(x.CandidatePath))
+                .OrderByDescending(x => x.Version)
+                .Select(x => x.CandidatePath)
+                .FirstOrDefault();
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+        {
+            // A locked-down or unusual ACL on ProgramData should fall back to
+            // the legacy Program Files check below, not crash the caller.
+            return null;
+        }
     }
+
+    internal static Version ParsePlatformVersion(string folderName)
+    {
+        // Strip a trailing "-<build>" suffix (e.g. "4.18.26080.3-0" -> "4.18.26080.3")
+        // before parsing, since System.Version does not accept it.
+        var dashIndex = folderName.IndexOf('-');
+        var versionPart = dashIndex >= 0 ? folderName[..dashIndex] : folderName;
+        return Version.TryParse(versionPart, out var version) ? version : new Version(0, 0, 0, 0);
+    }
+
+    public bool IsElevated() => ElevationHelper.IsElevated();
 
     public OperationResult RestartElevated()
     {
@@ -76,15 +129,37 @@ public sealed class DefenderService : IDefenderService
 
     public async Task<OperationResult<DefenderStatus>> GetStatusAsync(CancellationToken ct = default)
     {
-        const string script = "Get-MpComputerStatus | Select-Object AntivirusEnabled,RealTimeProtectionEnabled,BehaviorMonitorEnabled,IoavProtectionEnabled,NISEnabled,IsTamperProtected,AntivirusSignatureVersion,AntivirusSignatureLastUpdated,QuickScanEndTime,FullScanEndTime | ConvertTo-Json -Depth 3";
+        // Get-MpComputerStatus covers the antivirus/real-time/signature state; Get-MpPreference
+        // is the only supported source for the cloud-delivered protection (MAPS) level and the
+        // automatic sample submission mode. The preference read is best-effort (wrapped so a
+        // failure there does not take down the primary status read) and merged into one object.
+        // The whole read is wrapped in try/catch (not just the Get-MpPreference part): on a
+        // real device where Defender itself has been disabled, uninstalled, or had its
+        // service stopped, Get-MpComputerStatus throws (a classic case is the WMI/CIM
+        // "Provider load failure" when the hosting service isn't running) instead of
+        // returning anything to format. Without this, the script produced no JSON at all
+        // and the real failure reason was lost; now it is captured and surfaced honestly.
+        const string script =
+            "try { " +
+            "$s = Get-MpComputerStatus -ErrorAction Stop | Select-Object AntivirusEnabled,RealTimeProtectionEnabled,BehaviorMonitorEnabled,IoavProtectionEnabled,NISEnabled,IsTamperProtected,AntivirusSignatureVersion,AntivirusSignatureLastUpdated,QuickScanEndTime,FullScanEndTime,AMRunningMode; " +
+            "try { $p = Get-MpPreference -ErrorAction Stop } catch { $p = $null }; " +
+            "$s | Add-Member -NotePropertyName MAPSReporting -NotePropertyValue $p.MAPSReporting -Force; " +
+            "$s | Add-Member -NotePropertyName SubmitSamplesConsent -NotePropertyValue $p.SubmitSamplesConsent -Force; " +
+            "$s | ConvertTo-Json -Depth 3 " +
+            "} catch { [PSCustomObject]@{ Available = $false; Error = $_.Exception.Message } | ConvertTo-Json }";
         var run = await RunPowerShellAsync(script, QueryTimeout, ct).ConfigureAwait(false);
         if (!run.Success)
             return OperationResult<DefenderStatus>.Fail(run.Message, run.ErrorCode);
 
         try
         {
-            var status = ParseStatusJson(run.Value ?? string.Empty);
-            return OperationResult<DefenderStatus>.Ok(status, "Defender status read from Get-MpComputerStatus.");
+            var status = ParseStatusJson(run.Value?.Output ?? string.Empty);
+            // Available=false must surface as a failed result, not a "successful" read full
+            // of default/false fields — otherwise every consumer would show e.g. "Antivirus:
+            // Disabled" as a confirmed fact when the truth is "could not be checked at all".
+            return status.Available
+                ? OperationResult<DefenderStatus>.Ok(status, "Defender status read from Get-MpComputerStatus.")
+                : OperationResult<DefenderStatus>.Fail(HumanizeDefenderUnavailable(status.RawError), "DEFENDER_UNAVAILABLE");
         }
         catch (Exception ex)
         {
@@ -101,13 +176,59 @@ public sealed class DefenderService : IDefenderService
 
         try
         {
-            var list = ParseFirewallJson(run.Value ?? string.Empty);
+            var list = ParseFirewallJson(run.Value?.Output ?? string.Empty);
             return OperationResult<IReadOnlyList<FirewallProfileStatus>>.Ok(list, $"Read {list.Count} firewall profile(s).");
         }
         catch (Exception ex)
         {
             return OperationResult<IReadOnlyList<FirewallProfileStatus>>.Fail($"Could not parse firewall status: {ex.Message}", "PARSE_ERROR");
         }
+    }
+
+    public async Task<OperationResult<RansomwareProtectionStatus>> GetRansomwareProtectionAsync(CancellationToken ct = default)
+    {
+        const string script =
+            "try { $p = Get-MpPreference -ErrorAction Stop; " +
+            "[PSCustomObject]@{ Available = $true; EnableControlledFolderAccess = $p.EnableControlledFolderAccess; " +
+            "ProtectedFolders = @($p.ControlledFolderAccessProtectedFolders); " +
+            "AllowedApplications = @($p.ControlledFolderAccessAllowedApplications) } | ConvertTo-Json -Depth 4 } " +
+            "catch { [PSCustomObject]@{ Available = $false; Error = $_.Exception.Message } | ConvertTo-Json }";
+        var run = await RunPowerShellAsync(script, QueryTimeout, ct).ConfigureAwait(false);
+        if (!run.Success)
+            return OperationResult<RansomwareProtectionStatus>.Fail(run.Message, run.ErrorCode);
+
+        try
+        {
+            var status = ParseRansomwareJson(run.Value?.Output ?? string.Empty);
+            return status.Available
+                ? OperationResult<RansomwareProtectionStatus>.Ok(status, "Ransomware protection state read from Get-MpPreference.")
+                : OperationResult<RansomwareProtectionStatus>.Fail(HumanizeDefenderUnavailable(status.RawError), "DEFENDER_UNAVAILABLE");
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<RansomwareProtectionStatus>.Fail($"Could not parse ransomware protection state: {ex.Message}", "PARSE_ERROR");
+        }
+    }
+
+    public async Task<OperationResult> SetControlledFolderAccessAsync(bool enable, CancellationToken ct = default)
+    {
+        if (!IsElevated())
+            return OperationResult.Fail("Changing Controlled Folder Access requires an administrator. Use 'Restart as administrator' and try again.", "ELEVATION_REQUIRED");
+
+        var value = enable ? "Enabled" : "Disabled";
+        var script = $"Set-MpPreference -EnableControlledFolderAccess {value}";
+        var run = await RunPowerShellAsync(script, QueryTimeout, ct).ConfigureAwait(false);
+        if (!run.Success)
+            return OperationResult.Fail(run.Message, run.ErrorCode);
+
+        var verify = await GetRansomwareProtectionAsync(ct).ConfigureAwait(false);
+        if (!verify.Success || verify.Value is null)
+            return OperationResult.Fail("Preference changed but verification failed: " + (verify.Message ?? "unknown"), "VERIFY_FAILED");
+
+        if (verify.Value.ControlledFolderAccessEnabled != enable)
+            return OperationResult.Fail($"Controlled Folder Access is still {(verify.Value.ControlledFolderAccessEnabled ? "enabled" : "disabled")} after the change request.", "VERIFY_FAILED");
+
+        return OperationResult.Ok($"Controlled Folder Access is now {(enable ? "enabled" : "disabled")} (verified).");
     }
 
     public async Task<OperationResult<IReadOnlyList<ThreatInfo>>> GetThreatsAsync(CancellationToken ct = default)
@@ -119,7 +240,7 @@ public sealed class DefenderService : IDefenderService
 
         try
         {
-            var threats = ParseThreatsJson(run.Value ?? string.Empty);
+            var threats = ParseThreatsJson(run.Value?.Output ?? string.Empty);
             return OperationResult<IReadOnlyList<ThreatInfo>>.Ok(threats, $"Defender reported {threats.Count} detection(s).");
         }
         catch (Exception ex)
@@ -185,13 +306,120 @@ public sealed class DefenderService : IDefenderService
         return OperationResult<ScanOutcome>.Ok(outcome, message);
     }
 
+    /// <summary>
+    /// Updates Microsoft Defender security intelligence (signatures) through the
+    /// two supported, official mechanisms only: Update-MpSignature with
+    /// -UpdateSource MicrosoftUpdateServer, falling back to MpCmdRun.exe
+    /// -SignatureUpdate if the cmdlet path is unavailable. BECETTI SECURITY never
+    /// downloads definitions itself and never maintains its own signature store;
+    /// it only asks Defender to pull from Microsoft, then re-reads
+    /// Get-MpComputerStatus to confirm what actually happened before reporting
+    /// success or failure.
+    /// </summary>
     public async Task<OperationResult> UpdateSignaturesAsync(CancellationToken ct = default)
     {
-        var run = await RunPowerShellAsync("Update-MpSignature", QueryTimeout, ct).ConfigureAwait(false);
-        if (!run.Success)
-            return OperationResult.Fail(run.Message, run.ErrorCode);
+        if (!OperatingSystem.IsWindows())
+            return OperationResult.Fail("Signature updates are only available on Windows.", "UNSUPPORTED_OS");
 
-        return OperationResult.Ok("Defender signature update completed.");
+        // Step 1: detect whether Defender is actually installed and active before touching anything.
+        var before = await GetStatusAsync(ct).ConfigureAwait(false);
+        if (!before.Success || before.Value is null || !before.Value.Available)
+        {
+            return OperationResult.Fail(
+                "Microsoft Defender could not be reached on this device (" + (before.Message ?? "no details") +
+                "). BECETTI SECURITY does not ship its own antivirus engine or signature database, so it cannot update definitions when Defender itself is unavailable.",
+                "DEFENDER_UNAVAILABLE");
+        }
+
+        if (!before.Value.AntivirusEnabled)
+        {
+            return OperationResult.Fail(
+                "Microsoft Defender Antivirus is currently disabled on this device (by policy, another antivirus product, or a manual setting). Signature updates cannot be applied while it is off.",
+                "DEFENDER_DISABLED");
+        }
+
+        if (!IsElevated())
+        {
+            return OperationResult.Fail(
+                "Updating signatures requires an administrator. Use 'Restart as administrator' and try again.",
+                "ELEVATION_REQUIRED");
+        }
+
+        var managedNote = before.Value.ManagedByAnotherAntivirus
+            ? $" Note: Defender reports running mode '{before.Value.RunningMode}', which means another antivirus product is the active real-time engine on this device; Defender continues to keep its own signatures current alongside it."
+            : string.Empty;
+
+        // Step 2: ask Defender to pull real signatures from Microsoft's own update service.
+        // This never reaches a third-party or unofficial source.
+        var primary = await RunPowerShellAsync(
+            "Update-MpSignature -UpdateSource MicrosoftUpdateServer",
+            QueryTimeout, ct).ConfigureAwait(false);
+
+        var primaryOk = primary.Success && primary.Value is not null && primary.Value.ExitCode == 0;
+        string? lastError = primaryOk
+            ? null
+            : (!primary.Success
+                ? primary.Message
+                : (string.IsNullOrWhiteSpace(primary.Value!.Error) ? primary.Value.Output : primary.Value.Error));
+
+        // Step 3: if the PowerShell cmdlet path failed, fall back to the MpCmdRun.exe
+        // command-line mechanism (also official, also Microsoft-only).
+        var fallbackAttempted = false;
+        var fallbackOk = false;
+        if (!primaryOk)
+        {
+            var mpCmdRun = FindMpCmdRun();
+            if (mpCmdRun is not null)
+            {
+                fallbackAttempted = true;
+                var fallback = await RunProcessAsync(mpCmdRun, "-SignatureUpdate", QueryTimeout, ct).ConfigureAwait(false);
+                fallbackOk = fallback.Success && fallback.Value is not null && fallback.Value.ExitCode == 0;
+                if (!fallbackOk)
+                {
+                    lastError = !fallback.Success
+                        ? fallback.Message
+                        : (string.IsNullOrWhiteSpace(fallback.Value?.Error) ? fallback.Value?.Output : fallback.Value?.Error) ?? lastError;
+                }
+            }
+        }
+
+        if (!primaryOk && !fallbackOk)
+        {
+            var attemptedFallback = fallbackAttempted ? " MpCmdRun.exe -SignatureUpdate was also attempted and failed." : string.Empty;
+            return OperationResult.Fail(
+                $"Signature update failed: {lastError ?? "unknown error"}.{attemptedFallback}",
+                "SIGNATURE_UPDATE_FAILED");
+        }
+
+        // Step 4: verify the actual outcome instead of trusting the exit code — re-read real state.
+        var after = await GetStatusAsync(ct).ConfigureAwait(false);
+        if (!after.Success || after.Value is null)
+        {
+            return OperationResult.Fail(
+                "The update command reported success, but the resulting Defender status could not be verified: " + (after.Message ?? "unknown error"),
+                "VERIFY_FAILED");
+        }
+
+        var mechanism = fallbackAttempted ? "MpCmdRun.exe -SignatureUpdate" : "Update-MpSignature -UpdateSource MicrosoftUpdateServer";
+        var oldVersion = before.Value.AntivirusSignatureVersion;
+        var newVersion = after.Value.AntivirusSignatureVersion;
+        var newUpdated = after.Value.AntivirusSignatureLastUpdated;
+
+        if (!string.IsNullOrWhiteSpace(newVersion) && !string.Equals(oldVersion, newVersion, StringComparison.OrdinalIgnoreCase))
+        {
+            return OperationResult.Ok(
+                $"Signatures updated via {mechanism}: version {oldVersion ?? "unknown"} -> {newVersion} (verified by re-reading Get-MpComputerStatus, last updated {newUpdated?.ToString("u") ?? "unknown"}).{managedNote}");
+        }
+
+        var justUpdated = newUpdated.HasValue && (DateTimeOffset.Now - newUpdated.Value) < TimeSpan.FromMinutes(10);
+        if (justUpdated)
+        {
+            return OperationResult.Ok(
+                $"Signatures re-validated via {mechanism}: version {newVersion ?? "unknown"} confirmed current as of {newUpdated:u} (verified).{managedNote}");
+        }
+
+        return OperationResult.Ok(
+            $"The update request to Microsoft completed via {mechanism}, and Defender reports version {newVersion ?? "unknown"} unchanged from before the request (last updated {newUpdated?.ToString("u") ?? "unknown"}). This normally means no newer signature package was available from Microsoft at this time.{managedNote}");
     }
 
     public async Task<OperationResult> SetRealTimeProtectionAsync(bool enable, CancellationToken ct = default)
@@ -303,6 +531,13 @@ public sealed class DefenderService : IDefenderService
         if (root.ValueKind != JsonValueKind.Object)
             return new DefenderStatus { Available = false, RawError = "Unexpected response shape from Get-MpComputerStatus." };
 
+        // The script's catch branch emits an explicit {"Available": false, "Error": "..."}
+        // object when Get-MpComputerStatus itself throws. A normal successful read never
+        // includes an "Available" key, so checking for an *explicit* false value here cannot
+        // misclassify a real, successful status payload.
+        if (root.TryGetProperty("Available", out var availableElement) && availableElement.ValueKind == JsonValueKind.False)
+            return new DefenderStatus { Available = false, RawError = GetString(root, "Error") ?? "Get-MpComputerStatus did not return a value." };
+
         return new DefenderStatus
         {
             Available = true,
@@ -315,7 +550,10 @@ public sealed class DefenderService : IDefenderService
             AntivirusSignatureVersion = GetString(root, "AntivirusSignatureVersion"),
             AntivirusSignatureLastUpdated = GetDate(root, "AntivirusSignatureLastUpdated"),
             QuickScanEndTime = GetDate(root, "QuickScanEndTime"),
-            FullScanEndTime = GetDate(root, "FullScanEndTime")
+            FullScanEndTime = GetDate(root, "FullScanEndTime"),
+            RunningMode = GetString(root, "AMRunningMode"),
+            CloudProtectionLevel = CloudProtectionLabel(GetNullableInt(root, "MAPSReporting")),
+            SampleSubmissionMode = SampleSubmissionLabel(GetNullableInt(root, "SubmitSamplesConsent"))
         };
     }
 
@@ -345,6 +583,29 @@ public sealed class DefenderService : IDefenderService
         }
 
         return result;
+    }
+
+    internal static RansomwareProtectionStatus ParseRansomwareJson(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return new RansomwareProtectionStatus { Available = false, RawError = "Empty response from Get-MpPreference." };
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object)
+            return new RansomwareProtectionStatus { Available = false, RawError = "Unexpected response shape from Get-MpPreference." };
+
+        var available = GetBool(root, "Available");
+        if (!available)
+            return new RansomwareProtectionStatus { Available = false, RawError = GetString(root, "Error") ?? "Get-MpPreference did not return a value." };
+
+        return new RansomwareProtectionStatus
+        {
+            Available = true,
+            ControlledFolderAccessRaw = GetNullableInt(root, "EnableControlledFolderAccess") ?? -1,
+            ProtectedFolders = GetStringArray(root, "ProtectedFolders"),
+            AllowedApplications = GetStringArray(root, "AllowedApplications")
+        };
     }
 
     internal static IReadOnlyList<ThreatInfo> ParseThreatsJson(string json)
@@ -383,6 +644,30 @@ public sealed class DefenderService : IDefenderService
         return result;
     }
 
+    /// <summary>
+    /// Turns a known low-level Defender/WMI failure string into a clear, honest explanation
+    /// of what it actually means in practice — without ever inventing a status BECETTI
+    /// SECURITY did not actually verify. The real, unmodified error text from Defender is
+    /// always preserved alongside the explanation for full transparency.
+    /// </summary>
+    internal static string HumanizeDefenderUnavailable(string? rawError)
+    {
+        var raw = string.IsNullOrWhiteSpace(rawError) ? "Defender did not return a value." : rawError!.Trim();
+
+        string? explanation = raw switch
+        {
+            _ when raw.Contains("provider load failure", StringComparison.OrdinalIgnoreCase) =>
+                "Microsoft Defender's own management service could not be reached on this device. This almost always means Windows Defender itself is disabled, its service is stopped, or it has been removed or replaced (by Group Policy, another security product, or a manual change). BECETTI SECURITY does not ship its own antivirus engine, so it can only reflect Defender's real status — re-enable Windows Defender (Windows Security > Virus & threat protection, or the \"Windows Defender Antivirus Service\" in Services) to restore protection and these checks.",
+            _ when raw.Contains("Invalid namespace", StringComparison.OrdinalIgnoreCase) || raw.Contains("Invalid class", StringComparison.OrdinalIgnoreCase) =>
+                "Microsoft Defender's management interface is not present on this device (its WMI/CIM namespace could not be found). Defender may have been uninstalled or is not included in this Windows edition.",
+            _ when raw.Contains("Access is denied", StringComparison.OrdinalIgnoreCase) =>
+                "Windows denied access to Microsoft Defender's status. Try running BECETTI SECURITY as an administrator.",
+            _ => null
+        };
+
+        return explanation is null ? raw : $"{explanation} (Defender reported: \"{raw}\")";
+    }
+
     internal static string SeverityLabel(int severityId) => severityId switch
     {
         1 => "Low",
@@ -390,6 +675,25 @@ public sealed class DefenderService : IDefenderService
         3 => "High",
         4 => "Severe",
         5 => "Critical",
+        _ => "Unknown"
+    };
+
+    /// <summary>Maps Get-MpPreference's MAPSReporting (cloud-delivered protection level).</summary>
+    internal static string CloudProtectionLabel(int? mapsReporting) => mapsReporting switch
+    {
+        0 => "Disabled",
+        1 => "Basic",
+        2 => "Advanced",
+        _ => "Unknown"
+    };
+
+    /// <summary>Maps Get-MpPreference's SubmitSamplesConsent (automatic sample submission mode).</summary>
+    internal static string SampleSubmissionLabel(int? consent) => consent switch
+    {
+        0 => "Always Prompt",
+        1 => "Send Safe Samples",
+        2 => "Never Send",
+        3 => "Send All Samples",
         _ => "Unknown"
     };
 
@@ -437,6 +741,21 @@ public sealed class DefenderService : IDefenderService
         return 0;
     }
 
+    /// <summary>Like GetInt, but distinguishes "field absent/null" (returns null) from a real 0 value.</summary>
+    private static int? GetNullableInt(JsonElement element, string name)
+    {
+        if (!element.TryGetProperty(name, out var value) || value.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var n))
+            return n;
+
+        if (value.ValueKind == JsonValueKind.String && int.TryParse(value.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+            return parsed;
+
+        return null;
+    }
+
     private static string? GetString(JsonElement element, string name)
     {
         if (!element.TryGetProperty(name, out var value))
@@ -454,5 +773,27 @@ public sealed class DefenderService : IDefenderService
         return DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed)
             ? parsed
             : null;
+    }
+
+    /// <summary>
+    /// Reads a JSON array of strings, tolerating PowerShell's ConvertTo-Json
+    /// quirk of emitting a bare string (not an array) when the underlying
+    /// collection has exactly one element.
+    /// </summary>
+    private static IReadOnlyList<string> GetStringArray(JsonElement element, string name)
+    {
+        if (!element.TryGetProperty(name, out var value))
+            return Array.Empty<string>();
+
+        return value.ValueKind switch
+        {
+            JsonValueKind.Array => value.EnumerateArray()
+                .Where(e => e.ValueKind == JsonValueKind.String)
+                .Select(e => e.GetString() ?? string.Empty)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList(),
+            JsonValueKind.String => string.IsNullOrWhiteSpace(value.GetString()) ? Array.Empty<string>() : new[] { value.GetString()! },
+            _ => Array.Empty<string>()
+        };
     }
 }

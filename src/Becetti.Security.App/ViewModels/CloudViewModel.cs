@@ -1,14 +1,19 @@
+using System.Collections.ObjectModel;
 using Becetti.Security.Core.Models;
 using Becetti.Security.Core.Services;
 
 namespace Becetti.Security.App.ViewModels;
 
 /// <summary>
-/// Cloud Security page: API connection test, sign-in, and file-reputation
-/// checks. Only the file's SHA-256 hash is sent — never the file itself.
+/// Cloud Security page: API connection test, sign-in, file-reputation
+/// checks, and the multi-device dashboard (every real device that has
+/// checked in under the signed-in account). Only the file's SHA-256 hash is
+/// sent for reputation checks — never the file itself.
 /// </summary>
 public sealed class CloudViewModel : ViewModelBase
 {
+    private const string AppVersion = "1.0.0";
+
     private readonly ICloudService _cloud;
     private readonly ISettingsService _settings;
     private readonly IEventLogService _events;
@@ -21,6 +26,7 @@ public sealed class CloudViewModel : ViewModelBase
     private string _reputationFilePath = string.Empty;
     private string _reputationText = "No reputation check run yet.";
     private bool _isSignedIn;
+    private string _devicesStatusText = "Sign in to see devices on this account.";
 
     public CloudViewModel(ICloudService cloud, ISettingsService settings, IEventLogService events)
     {
@@ -35,6 +41,7 @@ public sealed class CloudViewModel : ViewModelBase
         LogoutCommand = new RelayCommand(LogoutAsync);
         CheckReputationCommand = new RelayCommand(CheckReputationAsync);
         RefreshAccountCommand = new RelayCommand(RefreshAccountAsync);
+        RefreshDevicesCommand = new RelayCommand(RefreshDevicesAsync, () => !IsBusy);
     }
 
     public RelayCommand TestConnectionCommand { get; }
@@ -44,6 +51,11 @@ public sealed class CloudViewModel : ViewModelBase
     public RelayCommand LogoutCommand { get; }
     public RelayCommand CheckReputationCommand { get; }
     public RelayCommand RefreshAccountCommand { get; }
+    public RelayCommand RefreshDevicesCommand { get; }
+
+    public ObservableCollection<DeviceSummary> Devices { get; } = new();
+    public bool HasDevices => Devices.Count > 0;
+    public string DevicesStatusText { get => _devicesStatusText; set => SetProperty(ref _devicesStatusText, value); }
 
     public string ApiUrl { get => _apiUrl; set => SetProperty(ref _apiUrl, value); }
     public string Email { get => _email; set => SetProperty(ref _email, value); }
@@ -181,15 +193,113 @@ public sealed class CloudViewModel : ViewModelBase
 
     public async Task RefreshAccountAsync()
     {
-        IsSignedIn = _cloud.IsAuthenticated;
+        // Try/catch kept consistent with every other command method in this ViewModel:
+        // RelayCommand.Execute only has try/finally, not try/catch, so an uncaught
+        // exception here would otherwise surface as an unhandled exception on the UI
+        // thread instead of a normal ErrorMessage.
+        try
+        {
+            IsSignedIn = _cloud.IsAuthenticated;
+            if (!_cloud.IsAuthenticated)
+            {
+                AccountText = "Not signed in";
+                return;
+            }
+
+            var me = await _cloud.GetCurrentUserEmailAsync();
+            AccountText = me.Success ? $"Signed in as {me.Value}" : "Session present, account details unavailable";
+
+            await RefreshDevicesAsync();
+        }
+        catch (Exception ex)
+        {
+            AccountText = "Account details unavailable";
+            ErrorMessage = $"Could not refresh account details: {ex.Message}";
+        }
+    }
+
+    public async Task InitializeAsync()
+    {
+        await RefreshAccountAsync();
+    }
+
+    /// <summary>
+    /// Sends a real heartbeat for this installation (so it shows up on the
+    /// dashboard) and then refreshes the real device list from the server.
+    /// </summary>
+    public async Task RefreshDevicesAsync()
+    {
         if (!_cloud.IsAuthenticated)
         {
-            AccountText = "Not signed in";
+            Devices.Clear();
+            OnPropertyChanged(nameof(HasDevices));
+            DevicesStatusText = "Sign in to see devices on this account.";
+            RefreshDevicesCommand.RaiseCanExecuteChanged();
             return;
         }
 
-        var me = await _cloud.GetCurrentUserEmailAsync();
-        AccountText = me.Success ? $"Signed in as {me.Value}" : "Session present, account details unavailable";
+        try
+        {
+            var heartbeat = await _cloud.SendDeviceHeartbeatAsync(Environment.MachineName, "Windows", AppVersion);
+            if (!heartbeat.Success)
+                DevicesStatusText = $"Could not update this device's check-in: {heartbeat.Message}";
+
+            var devices = await _cloud.GetDevicesAsync();
+            if (devices.Success && devices.Value is not null)
+            {
+                Devices.Clear();
+                foreach (var device in devices.Value)
+                    Devices.Add(device);
+
+                DevicesStatusText = Devices.Count switch
+                {
+                    0 => "No devices have checked in yet.",
+                    1 => "1 device on this account.",
+                    _ => $"{Devices.Count} devices on this account."
+                };
+            }
+            else if (heartbeat.Success)
+            {
+                DevicesStatusText = $"Could not load devices: {devices.Message}";
+            }
+        }
+        catch (Exception ex)
+        {
+            DevicesStatusText = $"Could not load devices: {ex.Message}";
+        }
+        finally
+        {
+            OnPropertyChanged(nameof(HasDevices));
+            RefreshDevicesCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    /// <summary>Removes a device from the dashboard. Called from the page's code-behind with the clicked row's DeviceSummary.</summary>
+    public async Task RemoveDeviceAsync(DeviceSummary device)
+    {
+        if (IsBusy)
+            return;
+
+        IsBusy = true;
+        ClearMessages();
+        try
+        {
+            var result = await _cloud.RemoveDeviceAsync(device.DeviceId);
+            if (result.Success)
+            {
+                StatusMessage = $"Removed {device.DeviceName} from this account.";
+                await _events.RecordAsync("cloud.device.remove", $"Removed device {device.DeviceName}", true);
+                await RefreshDevicesAsync();
+            }
+            else
+            {
+                ErrorMessage = result.Message;
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     public async Task CheckReputationAsync()

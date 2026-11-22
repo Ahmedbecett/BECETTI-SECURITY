@@ -29,7 +29,16 @@
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
                         <Button Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                         <Button Content="Remove Selected Threat" Command="{x:Bind ViewModel.RemoveSelectedCommand}" />
+                        <Button x:Uid="AskAiAboutThreatButton" Content="Ask BECETTI AI to explain this"
+                                Click="AskAiAboutThreat_Click" />
                     </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Recovery &amp; Quarantine" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="BECETTI SECURITY never claims to quarantine or restore a file itself — removal above runs through Defender's own Remove-MpThreat and is verified by re-reading the threat list. Full quarantine history and file-restore actions live in Windows Security." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <Button Content="Open Windows Security Protection History" Command="{x:Bind ViewModel.OpenWindowsSecurityCommand}" />
                 </StackPanel>
             </Border>
             <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />

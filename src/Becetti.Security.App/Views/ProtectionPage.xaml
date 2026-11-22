@@ -20,6 +20,16 @@
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
+                    <TextBlock Text="Protection Features (verified)" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.CloudProtectionText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.SampleSubmissionText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.BehaviorMonitorText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.NetworkProtectionText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="Cloud-delivered protection and automatic sample submission are read from Get-MpPreference. BECETTI SECURITY does not change these settings directly — use Windows Security below for that." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
                     <TextBlock Text="Real-Time Monitoring" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="Requires administrator rights. If the change is blocked by policy or tamper protection, the real state is shown above." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal" Spacing="12">
@@ -40,6 +50,13 @@
                     <TextBlock Text="Administrator Rights" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="Some actions need elevation. Restarting as administrator opens a UAC prompt." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
                     <Button Content="Restart as Administrator" Command="{x:Bind ViewModel.RestartElevatedCommand}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="More Protection Settings" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="Exclusions, ransomware protection and other detailed settings are managed in Windows Security itself, not duplicated here." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <Button Content="Open Windows Security" Command="{x:Bind ViewModel.OpenWindowsSecurityCommand}" />
                 </StackPanel>
             </Border>
             <Button Content="Refresh Status" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />

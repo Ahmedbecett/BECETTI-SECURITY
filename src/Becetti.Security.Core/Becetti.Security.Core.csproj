@@ -10,6 +10,20 @@
   <ItemGroup>
     <!-- DPAPI token protection (Windows). Guarded at runtime; falls back to plain storage with an explicit warning on non-Windows hosts. -->
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+    <!-- Registry read access (Windows) for real OS/build info and UAC state. This project targets plain
+         net8.0 (shared with the Api/Tests projects), so the registry types are not part of the default
+         reference assemblies and must be added explicitly. All call sites are guarded with
+         OperatingSystem.IsWindows() and throw PlatformNotSupportedException only on non-Windows hosts. -->
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <!-- Real essential-service status (Windows Defender, Firewall, Windows Update, BITS,
+         Task Scheduler) for the PC Health page, via the official ServiceController API.
+         Guarded at runtime with OperatingSystem.IsWindows(); this project targets plain
+         net8.0 so the type is not part of the default reference assemblies. -->
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
+    <!-- Real device driver inventory (Win32_PnPSignedDriver) for Driver Monitor, via the
+         official WMI client API. Guarded with OperatingSystem.IsWindows(); this project
+         targets plain net8.0 so the type is not part of the default reference assemblies. -->
+    <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
 </Project>

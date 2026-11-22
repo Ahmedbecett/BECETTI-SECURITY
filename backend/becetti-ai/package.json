@@ -1,0 +1,6 @@
+{
+  "name": "becetti-ai-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BECETTI AI server-side chat proxy for BECETTI SECURITY. Holds no API keys in source — GEMINI_API_KEY is a Vercel project environment variable only."
+}

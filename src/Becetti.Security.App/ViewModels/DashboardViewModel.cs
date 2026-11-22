@@ -22,6 +22,8 @@ public sealed class DashboardViewModel : ViewModelBase
     private string _cloudText = "Not configured";
     private string _lastScanText = "No scan has run yet";
     private string _appVersion = "1.0.0";
+    private ProtectionLevel _protectionLevel = ProtectionLevel.Unknown;
+    private SecurityScoreResult _securityScore = new();
 
     public DashboardViewModel(IDefenderService defender, ISystemInfoService system, ICloudService cloud, ISettingsService settings)
     {
@@ -43,6 +45,55 @@ public sealed class DashboardViewModel : ViewModelBase
     public string LastScanText { get => _lastScanText; set => SetProperty(ref _lastScanText, value); }
     public string AppVersion { get => _appVersion; set => SetProperty(ref _appVersion, value); }
 
+    /// <summary>Aggregate status derived only from the verified DefenderStatus just read — never guessed.</summary>
+    public ProtectionLevel ProtectionLevel
+    {
+        get => _protectionLevel;
+        set
+        {
+            if (SetProperty(ref _protectionLevel, value))
+            {
+                OnPropertyChanged(nameof(ProtectionHeadline));
+                OnPropertyChanged(nameof(ProtectionSubtext));
+            }
+        }
+    }
+
+    public string ProtectionHeadline => ProtectionLevel switch
+    {
+        ProtectionLevel.Protected => "Your device is protected",
+        ProtectionLevel.Warning => "Your device needs attention",
+        ProtectionLevel.Danger => "Your device is at risk",
+        _ => "Protection status unknown"
+    };
+
+    public string ProtectionSubtext => ProtectionLevel switch
+    {
+        ProtectionLevel.Protected => "Microsoft Defender antivirus and real-time protection are verified active.",
+        ProtectionLevel.Warning => "Real-time protection is off, or another antivirus product is managing protection. See Real-Time Protection for details.",
+        ProtectionLevel.Danger => "Antivirus is disabled. Enable Microsoft Defender or your other antivirus product.",
+        _ => "BECETTI SECURITY could not verify Microsoft Defender's status on this device."
+    };
+
+    public bool EnableAnimations => _settings.Current.EnableAnimations;
+
+    /// <summary>0-100 score computed fresh from this load's own verified Defender/firewall/ransomware reads.</summary>
+    public SecurityScoreResult SecurityScore
+    {
+        get => _securityScore;
+        private set
+        {
+            if (SetProperty(ref _securityScore, value))
+            {
+                OnPropertyChanged(nameof(SecurityScoreText));
+                OnPropertyChanged(nameof(SecurityScoreGrade));
+            }
+        }
+    }
+
+    public string SecurityScoreText => SecurityScore.Score?.ToString() ?? "—";
+    public string SecurityScoreGrade => SecurityScore.Grade;
+
     public async Task LoadAsync()
     {
         if (IsBusy)
@@ -53,6 +104,7 @@ public sealed class DashboardViewModel : ViewModelBase
         try
         {
             var status = await _defender.GetStatusAsync();
+            ProtectionLevel = ProtectionStatusEvaluator.Evaluate(status.Success ? status.Value : null);
             if (status.Success && status.Value is not null)
             {
                 var s = status.Value;
@@ -81,6 +133,13 @@ public sealed class DashboardViewModel : ViewModelBase
             {
                 FirewallText = "Unknown";
             }
+
+            var ransomware = await _defender.GetRansomwareProtectionAsync();
+
+            SecurityScore = SecurityScoreEvaluator.Evaluate(
+                status.Success ? status.Value : null,
+                firewall.Success ? firewall.Value : null,
+                ransomware.Success ? ransomware.Value : null);
 
             var device = await _system.GetDeviceInfoAsync();
             if (device.Success && device.Value is not null)

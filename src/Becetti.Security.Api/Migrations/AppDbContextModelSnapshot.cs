@@ -48,6 +48,45 @@ namespace Becetti.Security.Api.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("Becetti.Security.Api.Models.Device", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AppVersion")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeviceName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("FirstSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "DeviceId")
+                        .IsUnique();
+
+                    b.ToTable("Devices");
+                });
+
             modelBuilder.Entity("Becetti.Security.Api.Models.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -180,6 +219,17 @@ namespace Becetti.Security.Api.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Becetti.Security.Api.Models.Device", b =>
+                {
+                    b.HasOne("Becetti.Security.Api.Models.User", "User")
+                        .WithMany("Devices")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Becetti.Security.Api.Models.RefreshToken", b =>
                 {
                     b.HasOne("Becetti.Security.Api.Models.User", "User")
@@ -193,6 +243,8 @@ namespace Becetti.Security.Api.Migrations
 
             modelBuilder.Entity("Becetti.Security.Api.Models.User", b =>
                 {
+                    b.Navigation("Devices");
+
                     b.Navigation("RefreshTokens");
                 });
         }

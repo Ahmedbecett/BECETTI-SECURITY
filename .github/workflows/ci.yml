@@ -1,18 +1,33 @@
 name: CI
 
+# Re-run trigger (2nd attempt): the BECETTI_TEST_SIGNING_PFX_BASE64 /
+# _PASSWORD repo secrets were re-added under Settings -> Secrets and
+# variables -> Actions (the first attempt was saved under the wrong
+# "Copilot agents" secrets section by mistake). Verifying the "Prepare the
+# test signing certificate" step in package-msix now reuses the persistent
+# certificate (expected SHA-256 fingerprint
+# 40FC907659B1B96323077D07C90658FDE4EAE20A16687C62BA7181B8FC3CA53D) instead
+# of generating a fresh one per run.
+
 on:
   push:
     branches: [main, "arena/**"]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
 
 jobs:
   build-and-test:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET 8 SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: "8.0.x"
 
@@ -20,15 +35,560 @@ jobs:
         run: dotnet restore Becetti.Security.sln
 
       - name: Build (Release, x64)
-        run: dotnet build Becetti.Security.sln -c Release --no-restore -p:Platform=x64
+        shell: pwsh
+        run: |
+          dotnet build Becetti.Security.sln -c Release --no-restore -p:Platform=x64 2>&1 |
+            Tee-Object -FilePath build.log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            Write-Host "::group::Build failed - error/warning lines from build.log"
+            $hits = Select-String -Path build.log -Pattern 'error |warning |Xaml|APPX|WMC' -CaseSensitive:$false
+            $shown = 0
+            foreach ($hit in $hits) {
+              if ($shown -ge 40) { break }
+              Write-Host "::error::$($hit.Line.Trim())"
+              $shown++
+            }
+            Write-Host "::endgroup::"
+
+            Write-Host "::group::Re-running Becetti.Security.App alone with detailed verbosity for diagnosis"
+            dotnet build src/Becetti.Security.App/Becetti.Security.App.csproj -c Release --no-restore -p:Platform=x64 -v:detailed 2>&1 |
+              Tee-Object -FilePath app-detailed.log | Out-Null
+            $lines = Get-Content app-detailed.log
+            $contextIdx = @()
+            for ($i = 0; $i -lt $lines.Count; $i++) {
+              if ($lines[$i] -match 'XamlCompiler|error |Exception|Unhandled') {
+                $contextIdx += $i
+              }
+            }
+            $shown2 = 0
+            $printed = New-Object 'System.Collections.Generic.HashSet[int]'
+            foreach ($idx in $contextIdx) {
+              if ($shown2 -ge 60) { break }
+              $start = [Math]::Max(0, $idx - 2)
+              $end = [Math]::Min($lines.Count - 1, $idx + 2)
+              for ($j = $start; $j -le $end; $j++) {
+                if ($printed.Contains($j)) { continue }
+                [void]$printed.Add($j)
+                if ([string]::IsNullOrWhiteSpace($lines[$j])) { continue }
+                Write-Host "::warning::$($lines[$j].Trim())"
+                $shown2++
+                if ($shown2 -ge 60) { break }
+              }
+            }
+            Write-Host "::endgroup::"
+            exit $code
+          }
 
       - name: Test
-        run: dotnet test Becetti.Security.sln -c Release --no-build -p:Platform=x64
+        shell: pwsh
+        run: |
+          dotnet test Becetti.Security.sln -c Release --no-build -p:Platform=x64 --logger "console;verbosity=detailed" 2>&1 |
+            Tee-Object -FilePath test.log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            Write-Host "::group::Test failed - failing test lines from test.log"
+            $hits = Select-String -Path test.log -Pattern '\[FAIL\]|^\s*Failed |Error Message|Assert\.|Expected:|Actual:|Stack Trace|at Becetti' -CaseSensitive:$false |
+              Where-Object { $_.Line -notmatch '^\s*Passed ' }
+            $shown = 0
+            foreach ($hit in $hits) {
+              if ($shown -ge 50) { break }
+              Write-Host "::error::$($hit.Line.Trim())"
+              $shown++
+            }
+            Write-Host "::endgroup::"
+            exit $code
+          }
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           path: "**/TestResults/**"
           if-no-files-found: ignore
+
+  postgres-migrations:
+    # Windows runners cannot host service containers, so this job verifies
+    # real PostgreSQL connectivity + EF Core migrations on Linux instead.
+    # It only builds/runs the Api project (no WinUI 3 / Windows App SDK
+    # involved), against a genuine PostgreSQL server, not SQLite or a mock.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: becetti
+          POSTGRES_PASSWORD: becetti_ci_password
+          POSTGRES_DB: becetti_security
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      ConnectionStrings__Postgres: "Host=localhost;Port=5432;Database=becetti_security;Username=becetti;Password=becetti_ci_password"
+      Jwt__SigningKey: "ci-postgres-job-signing-key-at-least-32-characters-long"
+      Jwt__Issuer: "becetti-security-api"
+      Jwt__Audience: "becetti-security-app"
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore Api project
+        run: dotnet restore src/Becetti.Security.Api/Becetti.Security.Api.csproj
+
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 8.*
+
+      - name: Apply EF Core migrations to real PostgreSQL
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet ef database update \
+            --project src/Becetti.Security.Api/Becetti.Security.Api.csproj \
+            --connection "$ConnectionStrings__Postgres"
+
+      - name: Verify the migrated schema has the expected tables
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y postgresql-client
+          PGPASSWORD=becetti_ci_password psql -h localhost -U becetti -d becetti_security -c "\dt" | tee tables.log
+          for t in "Users" "RefreshTokens" "ReputationEntries" "ReleaseVersions" "AuditLogs" "Devices"; do
+            grep -qi "$t" tables.log || { echo "::error::Expected table $t was not created by the migration"; exit 1; }
+          done
+          echo "All expected tables exist in the real PostgreSQL database."
+
+  package-msix:
+    # Builds a real, installable MSIX of the WinUI 3 app. Package.appxmanifest's
+    # Publisher is the verified Microsoft Partner Center Windows Publisher ID
+    # for this account (CN=A5D5DC31-4A15-4059-8030-D96C51054596). This job
+    # signs with a self-signed TEST certificate whose Subject matches that
+    # Publisher string exactly (required for MSIX signing to succeed at all)
+    # - if BECETTI_TEST_SIGNING_PFX_BASE64/_PASSWORD repo secrets are set, the
+    # SAME certificate is reused on every build (stable fingerprint, trust it
+    # once); otherwise a fresh one is generated per run. Either way this
+    # certificate itself is NOT issued or trusted by Microsoft or any CA; see
+    # docs/STORE-SUBMISSION.md for the distinction between Store upload
+    # (Microsoft re-signs on ingestion), a purchased CA certificate, and
+    # direct sideloading with a self-signed certificate (needs a one-time
+    # manual trust step - there is no way around that for a self-signed
+    # certificate on any Windows install). The signed package + its public
+    # certificate + its SHA-256/SHA-1 fingerprint are published as a GitHub
+    # Release so they have a stable, verifiable download URL. This is a TEST
+    # package for sideloading, not a Store-ready submission.
+    needs: build-and-test
+    if: github.event_name == 'push'
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Stamp a unique package version for this build (fixes the "already installed" Reinstall/Launch trap)
+        shell: pwsh
+        run: |
+          # Every previous test release signed the manifest's hardcoded
+          # Version="1.0.0.0" unchanged. Windows identifies an MSIX package
+          # by Name + Publisher + Version + Architecture together, so every
+          # single test build - across every round, including real fixes
+          # like the self-contained change - looked like "the exact same
+          # package" already on a tester's machine. Windows then shows
+          # "<app> is already installed" with Reinstall/Launch buttons
+          # instead of a normal Install/Update flow, and a tester who clicks
+          # Launch (the more natural-looking button) runs the OLD cached
+          # build and sees an old bug "come back" even though the new .msix
+          # genuinely fixed it. Stamping a unique 4th version component per
+          # CI run makes every build an unambiguous, real upgrade.
+          $manifestPath = "src\Becetti.Security.App\Package.appxmanifest"
+          $version = "1.0.0.${{ github.run_number }}"
+          $original = Get-Content $manifestPath -Raw
+          $patched = $original -replace 'Version="1\.0\.0\.0"', "Version=`"$version`""
+          if ($patched -eq $original) {
+            Write-Host "::error::Package.appxmanifest's Version=`"1.0.0.0`" was not found/replaced - refusing to build with an unverified version."
+            exit 1
+          }
+          Set-Content -Path $manifestPath -Value $patched -Encoding utf8 -NoNewline
+          Write-Host "Package version for this build: $version (source repo file is untouched - this only patches the CI runner's checkout)."
+          "PACKAGE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore (msbuild, not dotnet - required for single-project MSIX packaging targets)
+        # RuntimeIdentifier + SelfContained must match the actual build/package step below,
+        # so restore also fetches the win-x64 self-contained .NET runtime pack and the
+        # Windows App SDK's self-contained runtime assets (not just ref assemblies).
+        run: msbuild src\Becetti.Security.App\Becetti.Security.App.csproj /t:Restore /p:Configuration=Release /p:Platform=x64 /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:WindowsAppSDKSelfContained=true
+
+      - name: Prepare the test signing certificate (persistent if configured, else a fresh one-off)
+        shell: pwsh
+        env:
+          PERSISTENT_PFX_BASE64: ${{ secrets.BECETTI_TEST_SIGNING_PFX_BASE64 }}
+          PERSISTENT_PFX_PASSWORD: ${{ secrets.BECETTI_TEST_SIGNING_PFX_PASSWORD }}
+        run: |
+          New-Item -ItemType Directory -Force -Path packaging\output | Out-Null
+
+          if ($env:PERSISTENT_PFX_BASE64 -and $env:PERSISTENT_PFX_PASSWORD) {
+            # A maintainer has stored a persistent self-signed test certificate as the
+            # BECETTI_TEST_SIGNING_PFX_BASE64 / BECETTI_TEST_SIGNING_PFX_PASSWORD repo
+            # secrets (see docs/STORE-SUBMISSION.md for how to generate and add one).
+            # Reusing the SAME certificate on every build means a user who already
+            # trusted BecettiTestCert.cer does NOT need to re-trust it for the next
+            # release - its SHA-256/SHA-1 fingerprint stays the same. This is still a
+            # self-signed TEST certificate: it is not issued or trusted by Microsoft
+            # or any public Certificate Authority.
+            Write-Host "Using the persistent test signing certificate from repository secrets (stable fingerprint across releases)."
+            $pfxBytes = [System.Convert]::FromBase64String($env:PERSISTENT_PFX_BASE64)
+            [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.pfx", $pfxBytes)
+
+            $certFromPfx = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new(
+              $pfxBytes, $env:PERSISTENT_PFX_PASSWORD,
+              [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+            if ($certFromPfx.Subject -ne "CN=A5D5DC31-4A15-4059-8030-D96C51054596") {
+              Write-Host "::error::Persistent certificate Subject '$($certFromPfx.Subject)' does not match the required Publisher - refusing to use it."
+              exit 1
+            }
+            $cerBytes = $certFromPfx.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+            [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.cer", $cerBytes)
+
+            "PFX_PASSWORD=$($env:PERSISTENT_PFX_PASSWORD)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          } else {
+            Write-Host "No persistent certificate secrets configured - generating a fresh self-signed test certificate for this run only. Its fingerprint WILL differ from any previous release (see docs/STORE-SUBMISSION.md to make it persistent)."
+
+            # A plain New-SelfSignedCertificate + Export-PfxCertificate pair is
+            # rejected by the MSIX packaging tools with APPX0107 ("not valid for
+            # signing"): it needs an explicit Basic Constraints extension plus
+            # the Code Signing EKU, and exporting via the X509Certificate2.Export
+            # API (rather than Export-PfxCertificate) avoids a separate
+            # "key file may be password protected" (APPX0105) failure some
+            # CSPs hit on Windows Server runner images.
+            $basicConstraints = [System.Security.Cryptography.X509Certificates.X509BasicConstraintsExtension]::new($false, $false, 0, $true)
+            $ekuOids = [System.Security.Cryptography.OidCollection]::new()
+            [void]$ekuOids.Add([System.Security.Cryptography.Oid]::new("1.3.6.1.5.5.7.3.3", "Code Signing"))
+            $eku = [System.Security.Cryptography.X509Certificates.X509EnhancedKeyUsageExtension]::new($ekuOids, $true)
+
+            # Subject MUST match Package.appxmanifest's Identity/@Publisher
+            # exactly, or MSIX signing fails with APPX0107. This is set to the
+            # verified Microsoft Partner Center Windows Publisher ID for this
+            # account. NOTE: this certificate is still self-signed - using
+            # the real Partner Center Publisher string as the Subject does
+            # NOT make it a Microsoft-issued or CA-trusted certificate. It
+            # only makes the test package's identity match what Partner
+            # Center will expect at real Store submission time.
+            $cert = New-SelfSignedCertificate `
+              -Subject "CN=A5D5DC31-4A15-4059-8030-D96C51054596" `
+              -CertStoreLocation "Cert:\CurrentUser\My" `
+              -KeySpec Signature `
+              -KeyUsage DigitalSignature `
+              -KeyLength 2048 `
+              -KeyAlgorithm RSA `
+              -HashAlgorithm SHA256 `
+              -Extension @($basicConstraints, $eku) `
+              -FriendlyName "BECETTI SECURITY test signing certificate" `
+              -NotAfter ([System.DateTime]::UtcNow.Date.AddYears(1))
+
+            $pw = [System.Guid]::NewGuid().ToString("N")
+            $pfxBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $pw)
+            [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.pfx", $pfxBytes)
+            $cerBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+            [System.IO.File]::WriteAllBytes("packaging\output\BecettiTestCert.cer", $cerBytes)
+            Remove-Item "Cert:\CurrentUser\My\$($cert.Thumbprint)" -Force
+
+            "PFX_PASSWORD=$pw" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
+
+      - name: Record the certificate's fingerprint (so a user can verify it before trusting it)
+        shell: pwsh
+        run: |
+          $cerPath = "packaging\output\BecettiTestCert.cer"
+          $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($cerPath)
+          $sha256Bytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash([System.IO.File]::ReadAllBytes($cerPath))
+          $sha256Hex = (($sha256Bytes | ForEach-Object { $_.ToString("X2") }) -join "")
+
+          Write-Host "Certificate Subject:    $($cert.Subject)"
+          Write-Host "Certificate Not After:  $($cert.NotAfter)"
+          Write-Host "SHA-1 thumbprint (Windows 'Thumbprint' property): $($cert.Thumbprint)"
+          Write-Host "SHA-256 fingerprint (of the .cer file itself):    $sha256Hex"
+
+          "CERT_SHA1=$($cert.Thumbprint)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "CERT_SHA256=$sha256Hex" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "CERT_NOT_AFTER=$($cert.NotAfter.ToString('yyyy-MM-dd'))" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build and package the signed MSIX (official single-project MSIX CI recipe)
+        shell: pwsh
+        run: |
+          # This follows Microsoft's documented single-project MSIX CI recipe
+          # (learn.microsoft.com/windows/apps/package-and-deploy/ci-for-winui3):
+          # real msbuild.exe (not `dotnet publish`), UapAppxPackageBuildMode=
+          # SideloadOnly, AppxBundle=Never, GenerateAppxPackageOnBuild=true,
+          # and an explicit AppxPackageDir so the output location is known.
+          # SelfContained=true + WindowsAppSDKSelfContained=true bundle .NET 8
+          # and Windows App Runtime 1.8 INSIDE the .msix, instead of declaring
+          # them as framework dependencies the target machine must already
+          # have (or auto-resolve from the Microsoft Store). That auto-resolve
+          # can fail on a sideloaded install (confirmed: a real tester hit
+          # "The application has failed to start because its side-by-side
+          # configuration is incorrect" after a successful cert-trust +
+          # install, because Windows App Runtime 1.8 wasn't on that machine).
+          # Trade-off: a larger .msix (~150-250 MB instead of a few MB) -
+          # acceptable here since this is a sideload test package; Store
+          # submissions ship self-contained WinUI 3 apps too. See
+          # docs/STORE-SUBMISSION.md for the full "side-by-side" writeup.
+          $certPath = Join-Path $PWD "packaging\output\BecettiTestCert.pfx"
+          $outDir = Join-Path $PWD "packaging\output\AppPackages\"
+          New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+
+          msbuild src\Becetti.Security.App\Becetti.Security.App.csproj `
+            /p:Configuration=Release `
+            /p:Platform=x64 `
+            /p:RuntimeIdentifier=win-x64 `
+            /p:SelfContained=true `
+            /p:WindowsAppSDKSelfContained=true `
+            /p:UapAppxPackageBuildMode=SideloadOnly `
+            /p:AppxBundle=Never `
+            /p:AppxPackageSigningEnabled=true `
+            /p:PackageCertificateKeyFile=$certPath `
+            /p:PackageCertificatePassword=$env:PFX_PASSWORD `
+            /p:AppxPackageDir=$outDir `
+            /p:GenerateAppxPackageOnBuild=true `
+            2>&1 | Tee-Object -FilePath msix-publish.log
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::group::MSIX build failed - full log"
+            Get-Content msix-publish.log | Select-Object -Last 200 | ForEach-Object { Write-Host "::error::$_" }
+            Write-Host "::endgroup::"
+            exit $LASTEXITCODE
+          }
+
+      - name: Collect the signed MSIX next to its certificate
+        shell: pwsh
+        run: |
+          $msix = Get-ChildItem -Path . -Recurse -Filter *.msix -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $msix) {
+            Write-Host "::group::No .msix found anywhere in the repo tree - diagnostics"
+            Write-Host "--- Tail of msix-publish.log ---"
+            Get-Content msix-publish.log -ErrorAction SilentlyContinue | Select-Object -Last 150
+            Write-Host "--- Contents of packaging\output ---"
+            Get-ChildItem -Path packaging\output -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
+            Write-Host "::endgroup::"
+            Write-Host "::error::No .msix file was produced by msbuild - see diagnostics above"
+            exit 1
+          }
+          $outName = "BECETTI-SECURITY_$($env:PACKAGE_VERSION)_x64.msix"
+          Copy-Item $msix.FullName "packaging\output\$outName"
+          Write-Host "MSIX produced: packaging\output\$outName (source: $($msix.FullName))"
+          Get-Item "packaging\output\$outName" | Format-List Name, Length, FullName
+          "MSIX_FILENAME=$outName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Verify the MSIX is actually signed (not just packaged)
+        shell: pwsh
+        run: |
+          # An MSIX is a zip container; a genuinely signed package always
+          # contains an AppxSignature.p7x member. The build step emitted some
+          # non-fatal APPX0107/APPX0105-looking warnings from an unrelated
+          # intermediate pass, so verify the real output directly instead of
+          # trusting exit codes alone.
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $path = (Resolve-Path "packaging\output\$($env:MSIX_FILENAME)").Path
+          $zip = [System.IO.Compression.ZipFile]::OpenRead($path)
+          try {
+            $sig = $zip.Entries | Where-Object { $_.FullName -eq "AppxSignature.p7x" }
+            $manifest = $zip.Entries | Where-Object { $_.FullName -eq "AppxManifest.xml" }
+            if (-not $sig) {
+              Write-Host "::error::AppxSignature.p7x is missing from the .msix - the package was NOT actually signed."
+              exit 1
+            }
+            if (-not $manifest) {
+              Write-Host "::error::AppxManifest.xml is missing from the .msix - this is not a valid package."
+              exit 1
+            }
+            Write-Host "AppxSignature.p7x present ($($sig.Length) bytes) - the package is genuinely signed."
+            Write-Host "AppxManifest.xml present ($($manifest.Length) bytes) - the package is structurally valid."
+          } finally {
+            $zip.Dispose()
+          }
+
+      - name: Try to verify the signature chain (expected to show it is self-signed/untrusted)
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $sdkBin = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Directory -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $signtool = Join-Path $sdkBin.FullName "x64\signtool.exe"
+          if (Test-Path $signtool) {
+            & $signtool verify /pa /v "packaging\output\$($env:MSIX_FILENAME)"
+          } else {
+            Write-Host "signtool.exe not found at expected SDK path - skipping chain verification (non-fatal)."
+          }
+
+      - name: Upload publish log (diagnostics)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: msix-publish-log
+          path: msix-publish.log
+          if-no-files-found: ignore
+
+      - name: Write install instructions
+        shell: pwsh
+        run: |
+          @"
+          BECETTI SECURITY - TEST MSIX build (commit ${{ github.sha }})
+
+          Package version: $env:PACKAGE_VERSION
+          (unique per build - see "WHY THE VERSION NUMBER CHANGED" below if
+          Windows ever shows "already installed" with Reinstall/Launch
+          instead of a normal Install for an older download)
+
+          Package identity: BECETTI.BECETTISECURITY
+          Publisher: CN=A5D5DC31-4A15-4059-8030-D96C51054596
+          (this is the verified Microsoft Partner Center Windows Publisher ID
+          for this account - it identifies WHO the publisher is, independent
+          of which certificate signs any given build)
+
+          IMPORTANT - read this before assuming the package is "Microsoft
+          signed": the Publisher value above matches the real Partner Center
+          identity, but the certificate actually used to sign THIS build is
+          still a self-signed TEST certificate (see "Certificate" section
+          below for which kind this build used). It is NOT issued by
+          Microsoft, NOT issued by a trusted Certificate Authority, and NOT
+          the certificate Microsoft uses when it re-signs a package during
+          real Store certification. Having the correct Publisher string in
+          the manifest is a prerequisite for eventual Store submission - it
+          does not by itself make this specific .msix trusted. Windows will
+          still show error 0x800B010A ("A certificate chain could not be
+          built to a trusted root authority") and Publisher "Unknown" until
+          you manually trust BecettiTestCert.cer below. This is expected,
+          correct Windows behavior for any package not signed by the Store
+          or a CA already in your device's trusted root store - it is not a
+          bug in this package, and bypassing it (disabling Defender,
+          ignoring signature checks) is never the right fix.
+
+          Certificate for this build:
+            Subject:        CN=A5D5DC31-4A15-4059-8030-D96C51054596
+            SHA-256 fingerprint of BecettiTestCert.cer: $env:CERT_SHA256
+            SHA-1 thumbprint (Windows "Thumbprint" property): $env:CERT_SHA1
+            Valid until:    $env:CERT_NOT_AFTER
+
+          Verify the certificate you downloaded matches the fingerprint
+          above BEFORE trusting it (PowerShell):
+            certutil -hashfile BecettiTestCert.cer SHA256
+
+          IMPORTANT - if you installed ANY earlier BECETTI SECURITY test
+          build on this machine, uninstall it first (Settings -> Apps ->
+          Installed apps -> BECETTI SECURITY -> Uninstall) before installing
+          this one, THEN install this one fresh. Do not rely on
+          double-clicking the new .msix alone: Windows's installer may
+          show "BECETTI SECURITY is already installed" with Reinstall/
+          Launch buttons instead of a plain Install button, and clicking
+          "Launch" there runs whatever was already installed, NOT the new
+          file you just downloaded - the easiest way to be certain you are
+          actually running this build is to uninstall first.
+
+          To install on Windows 10/11:
+            1. Download both $env:MSIX_FILENAME and
+               BecettiTestCert.cer from this release.
+            2. Verify the SHA-256 fingerprint of BecettiTestCert.cer matches
+               the value printed above.
+            3. Right-click BecettiTestCert.cer -> Install Certificate ->
+               Local Machine -> "Place all certificates in the following
+               store" -> Trusted People (or Trusted Root Certification
+               Authorities) -> Finish. (Requires administrator rights.)
+            4. If BECETTI SECURITY is already installed, uninstall it first
+               (Settings -> Apps -> Installed apps -> BECETTI SECURITY ->
+               Uninstall).
+            5. Double-click $env:MSIX_FILENAME -> Install.
+
+          Alternative (PowerShell, as Administrator):
+            certutil -hashfile BecettiTestCert.cer SHA256
+            Import-Certificate -FilePath BecettiTestCert.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
+            Get-AppxPackage -Name BECETTI.BECETTISECURITY | Remove-AppxPackage
+            Add-AppxPackage -Path $env:MSIX_FILENAME
+
+          Runtime dependency: this build is SELF-CONTAINED - it bundles its
+          own .NET 8 runtime AND its own Microsoft.WindowsAppSDK 1.8 runtime
+          (1.8.260921001) directly inside the .msix. You do NOT need to
+          install the .NET Desktop Runtime or the Windows App Runtime
+          separately on this machine - that is exactly why this .msix is
+          larger than a typical framework-dependent package. (An earlier
+          test build was framework-dependent instead, and a real tester hit
+          "The application has failed to start because its side-by-side
+          configuration is incorrect" after installing it, because that
+          separate runtime wasn't present and sideloading does not always
+          auto-resolve it the way an install from the Microsoft Store would.
+          This build fixes that by not depending on it at all. See
+          docs/STORE-SUBMISSION.md for the full history if you ever see that
+          error again on an older downloaded copy.)
+
+          UPGRADE NOTE: this build's Publisher was changed from the earlier
+          placeholder (CN=BECETTI) to the real Partner Center ID above.
+          Publisher is part of a package's identity together with its Name,
+          so this is a DIFFERENT package identity than any earlier test
+          build you may have side-loaded. Windows will NOT let you upgrade
+          an old CN=BECETTI install in place - uninstall it first, then
+          install this one.
+
+          WHY THE VERSION NUMBER CHANGED (starting with this build): every
+          earlier test release signed the manifest with the same hardcoded
+          version, 1.0.0.0, even though the file contents were different
+          each time (real bug fixes included). Windows identifies an
+          installed package by Name + Publisher + Version + Architecture
+          together, so every one of those earlier releases looked like "the
+          exact same package" already installed, and Windows showed
+          "already installed" with Reinstall/Launch buttons instead of a
+          plain Install button - clicking Launch there runs whatever was
+          already on the machine, not the new download, which can make a
+          genuinely fixed bug look like it "came back". Starting with this
+          build, the version is stamped uniquely per CI run (this one is
+          $env:PACKAGE_VERSION) specifically so that can no longer happen -
+          every future release is an unambiguous, real Windows upgrade/
+          install, not a same-version "already installed" prompt.
+
+          THE ONLY TWO WAYS TO GET WINDOWS TO TRUST THIS PUBLISHER WITHOUT A
+          MANUAL TRUST STEP (no shortcut exists around this - it is how
+          Windows code-signing trust works for every publisher, not a
+          limitation specific to this app):
+            A) Submit to the Microsoft Store via Partner Center. Microsoft
+               re-signs the package with its own trusted certificate during
+               ingestion, and the Store's own trusted root makes the
+               Publisher show correctly with no manual cert install on the
+               user's machine. See docs/STORE-SUBMISSION.md.
+            B) Buy a commercial code-signing certificate (OV or EV) from a
+               public Certificate Authority already in Windows' trusted
+               root store (e.g. DigiCert, SSL.com, GlobalSign, Sectigo),
+               with Subject exactly matching the Publisher above, and sign
+               with that certificate instead of a self-signed one. This
+               costs real money and requires real identity verification by
+               the CA; nothing in this repository or CI pipeline can
+               substitute for it, and no tool here can fabricate that trust.
+
+          This is a sideloading test package, not the Microsoft Store
+          submission artifact - see docs/STORE-SUBMISSION.md for that
+          process.
+          "@ | Out-File -FilePath packaging\output\INSTALL.txt -Encoding utf8
+
+      - name: Publish signed MSIX + certificate to a GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="msix-test-${GITHUB_SHA::7}"
+          gh release create "$tag" \
+            "packaging/output/${MSIX_FILENAME}" \
+            packaging/output/BecettiTestCert.cer \
+            packaging/output/INSTALL.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "BECETTI SECURITY - signed test MSIX ($tag)" \
+            --notes "Package version: ${PACKAGE_VERSION} (unique per build - if Windows shows \"already installed\" with Reinstall/Launch for an OLDER downloaded copy, that one predates this per-build versioning; uninstall it first). Publisher identity: CN=A5D5DC31-4A15-4059-8030-D96C51054596 (verified Microsoft Partner Center Windows Publisher ID). Signed with a self-signed TEST certificate - NOT a Microsoft-issued or CA-trusted certificate, and not the certificate Microsoft uses when it re-signs a package during real Store certification. Certificate SHA-256 fingerprint: ${CERT_SHA256} / SHA-1 thumbprint: ${CERT_SHA1} (verify with 'certutil -hashfile BecettiTestCert.cer SHA256' before trusting it). Self-contained build: bundles its own .NET 8 and Windows App Runtime 1.8, so no separate runtime install is needed on the target machine (only the one-time certificate trust step still applies). Built from commit ${GITHUB_SHA}. See INSTALL.txt in the release assets for install steps and the 0x800B010A fix. Not a Microsoft Store submission artifact." \
+            --latest=false
+          echo "Release created: https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag"

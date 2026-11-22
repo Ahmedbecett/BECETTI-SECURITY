@@ -1,0 +1,92 @@
+// Real, non-faked health check for the BECETTI AI backend: confirms the
+// server has a Gemini key configured and that Gemini actually accepts it,
+// by making one real, cheap, read-only call (list models). Never reports
+// "configured"/"reachable" without having actually checked.
+
+// The model chat.js actually calls. Kept in sync manually since this file
+// has no shared import with chat.js (two independent Vercel functions).
+// gemini-flash-lite-latest is the model actually usable on this key's
+// current free-tier quota (full gemini-flash-latest authenticates but
+// returns 503/429 on this account — see chat.js's comment for the
+// live-verified diagnosis).
+const GEMINI_MODEL = "gemini-flash-lite-latest";
+
+module.exports = async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    res.status(200).json({ configured: false, geminiReachable: false });
+    return;
+  }
+
+  let modelsOk = false;
+  let httpStatus = null;
+  let modelCount = null;
+  try {
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models", {
+      headers: { "x-goog-api-key": apiKey }
+    });
+    httpStatus = r.status;
+    modelsOk = r.ok;
+    if (r.ok) {
+      const d = await r.json().catch(() => null);
+      modelCount = d && Array.isArray(d.models) ? d.models.length : null;
+    }
+  } catch (err) {
+    res.status(200).json({ configured: true, geminiReachable: false, error: String((err && err.message) || err) });
+    return;
+  }
+
+  // ListModels succeeding does NOT guarantee the actual chat call (generateContent)
+  // works — the two use different quota/permission paths. ?deep=1 makes one real,
+  // minimal generateContent call with the exact model chat.js uses, so a caller can
+  // tell the two apart instead of trusting a healthy-looking ListModels result alone.
+  const deep = req.query && (req.query.deep === "1" || req.query.deep === "true");
+  if (!deep) {
+    res.status(200).json({ configured: true, geminiReachable: modelsOk, httpStatus, modelCount });
+    return;
+  }
+
+  // Optional diagnostic override (deep check only, never used by chat.js) to tell
+  // "this one model is overloaded" apart from "something is wrong account-wide".
+  const modelOverride = (req.query && typeof req.query.model === "string" && req.query.model.trim()) || null;
+  const modelToTest = modelOverride || GEMINI_MODEL;
+
+  try {
+    const upstream = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelToTest}:generateContent`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "ping" }] }], generationConfig: { maxOutputTokens: 5 } })
+      }
+    );
+    const data = await upstream.json().catch(() => null);
+    const candidate = data && data.candidates && data.candidates[0];
+    const parts = candidate && candidate.content && candidate.content.parts;
+    const reply = Array.isArray(parts) ? parts.map((p) => p && p.text).filter(Boolean).join("") : "";
+
+    res.status(200).json({
+      configured: true,
+      geminiReachable: modelsOk,
+      httpStatus,
+      modelCount,
+      model: modelToTest,
+      generateContentOk: upstream.ok,
+      generateContentHttpStatus: upstream.status,
+      generateContentError: upstream.ok ? null : ((data && data.error && data.error.message) || `HTTP ${upstream.status}`),
+      generateContentSample: upstream.ok ? (reply || null) : null
+    });
+  } catch (err) {
+    res.status(200).json({
+      configured: true,
+      geminiReachable: modelsOk,
+      httpStatus,
+      modelCount,
+      model: modelToTest,
+      generateContentOk: false,
+      generateContentError: String((err && err.message) || err)
+    });
+  }
+};

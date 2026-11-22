@@ -106,6 +106,92 @@ public sealed class ApiTests : IClassFixture<BecettiApiFactory>
         Assert.False(body.GetProperty("updateAvailable").GetBoolean());
     }
 
+    [Fact]
+    public async Task Devices_HeartbeatListRemove_Flow()
+    {
+        using var client = _factory.CreateClient();
+        var email = $"user-{Guid.NewGuid():N}@example.test";
+
+        var register = await client.PostAsJsonAsync("/api/v1/auth/register", new { email, password = "correct-horse-123" });
+        var tokens = await register.Content.ReadFromJsonAsync<JsonElement>();
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", tokens.GetProperty("accessToken").GetString());
+
+        var deviceId = Guid.NewGuid().ToString("N");
+        var heartbeat = await client.PostAsJsonAsync("/api/v1/devices/heartbeat", new
+        {
+            deviceId,
+            deviceName = "Test-PC",
+            platform = "Windows",
+            appVersion = "1.0.0"
+        });
+        Assert.Equal(HttpStatusCode.OK, heartbeat.StatusCode);
+        var heartbeatBody = await heartbeat.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(deviceId, heartbeatBody.GetProperty("deviceId").GetString());
+        Assert.Equal("Test-PC", heartbeatBody.GetProperty("deviceName").GetString());
+
+        // A second heartbeat for the same deviceId updates the existing row, it doesn't duplicate it.
+        await client.PostAsJsonAsync("/api/v1/devices/heartbeat", new
+        {
+            deviceId,
+            deviceName = "Test-PC-Renamed",
+            platform = "Windows",
+            appVersion = "1.0.1"
+        });
+
+        var list = await client.GetAsync("/api/v1/devices");
+        Assert.Equal(HttpStatusCode.OK, list.StatusCode);
+        var devices = await list.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(1, devices.GetArrayLength());
+        Assert.Equal("Test-PC-Renamed", devices[0].GetProperty("deviceName").GetString());
+        Assert.Equal("1.0.1", devices[0].GetProperty("appVersion").GetString());
+
+        var remove = await client.DeleteAsync($"/api/v1/devices/{deviceId}");
+        Assert.Equal(HttpStatusCode.NoContent, remove.StatusCode);
+
+        var listAfterRemove = await client.GetAsync("/api/v1/devices");
+        var devicesAfterRemove = await listAfterRemove.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, devicesAfterRemove.GetArrayLength());
+    }
+
+    [Fact]
+    public async Task Devices_Unauthenticated_ReturnsUnauthorized()
+    {
+        using var client = _factory.CreateClient();
+        var response = await client.GetAsync("/api/v1/devices");
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Devices_OneUserCannotSeeAnothersDevices()
+    {
+        using var client = _factory.CreateClient();
+
+        async Task<string> RegisterAndGetTokenAsync()
+        {
+            var email = $"user-{Guid.NewGuid():N}@example.test";
+            var register = await client.PostAsJsonAsync("/api/v1/auth/register", new { email, password = "correct-horse-123" });
+            var tokens = await register.Content.ReadFromJsonAsync<JsonElement>();
+            return tokens.GetProperty("accessToken").GetString()!;
+        }
+
+        var userAToken = await RegisterAndGetTokenAsync();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAToken);
+        await client.PostAsJsonAsync("/api/v1/devices/heartbeat", new
+        {
+            deviceId = Guid.NewGuid().ToString("N"),
+            deviceName = "User-A-PC",
+            platform = "Windows",
+            appVersion = "1.0.0"
+        });
+
+        var userBToken = await RegisterAndGetTokenAsync();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userBToken);
+        var listForB = await client.GetAsync("/api/v1/devices");
+        var devicesForB = await listForB.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, devicesForB.GetArrayLength());
+    }
+
     [Theory]
     [InlineData("1.0.1", "1.0.0", 1)]
     [InlineData("1.0.0", "1.0.1", -1)]

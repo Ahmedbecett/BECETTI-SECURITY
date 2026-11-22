@@ -25,6 +25,21 @@ public interface IDefenderService
     /// <summary>Read firewall profile states via Get-NetFirewallProfile.</summary>
     Task<OperationResult<IReadOnlyList<FirewallProfileStatus>>> GetFirewallAsync(CancellationToken ct = default);
 
+    /// <summary>
+    /// Read real Controlled Folder Access (ransomware protection) state via
+    /// Get-MpPreference. This is Microsoft Defender's own Exploit Guard
+    /// feature — BECETTI SECURITY only reads and explains it, it never
+    /// implements its own ransomware detection engine.
+    /// </summary>
+    Task<OperationResult<RansomwareProtectionStatus>> GetRansomwareProtectionAsync(CancellationToken ct = default);
+
+    /// <summary>
+    /// Enable/disable Controlled Folder Access via Set-MpPreference
+    /// (requires elevation). Verified by re-reading Get-MpPreference before
+    /// reporting success.
+    /// </summary>
+    Task<OperationResult> SetControlledFolderAccessAsync(bool enable, CancellationToken ct = default);
+
     /// <summary>Read real threat detections via Get-MpThreatDetection.</summary>
     Task<OperationResult<IReadOnlyList<ThreatInfo>>> GetThreatsAsync(CancellationToken ct = default);
 
@@ -34,7 +49,13 @@ public interface IDefenderService
     /// </summary>
     Task<OperationResult<ScanOutcome>> RunScanAsync(DefenderScanType scanType, string? targetPath = null, CancellationToken ct = default);
 
-    /// <summary>Update Defender signatures via Update-MpSignature (requires elevation).</summary>
+    /// <summary>
+    /// Update Defender security intelligence via Update-MpSignature
+    /// -UpdateSource MicrosoftUpdateServer, falling back to MpCmdRun.exe
+    /// -SignatureUpdate (requires elevation). Only Microsoft's own update
+    /// service is ever contacted; the result is verified by re-reading
+    /// Get-MpComputerStatus before reporting success.
+    /// </summary>
     Task<OperationResult> UpdateSignaturesAsync(CancellationToken ct = default);
 
     /// <summary>Enable/disable real-time monitoring via Set-MpPreference (requires elevation).</summary>

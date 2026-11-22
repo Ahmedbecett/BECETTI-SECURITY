@@ -33,7 +33,16 @@ public sealed class SettingsService : ISettingsService
         {
             if (!File.Exists(SettingsPath))
             {
-                Current = new AppSettings();
+                // First run: no saved preference yet. Default the UI language to the
+                // real OS display language (Arabic devices get Arabic, everything else
+                // gets English) instead of hardcoding English. This is only a starting
+                // point — the user can change it any time in Settings, and that choice
+                // is what gets persisted and respected afterward.
+                var osLanguage = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                Current = new AppSettings
+                {
+                    Language = string.Equals(osLanguage, "ar", StringComparison.OrdinalIgnoreCase) ? "ar" : "en"
+                };
                 return;
             }
 
@@ -69,6 +78,10 @@ public sealed class TokenStore : ITokenStore
         _filePath = Path.Combine(dir, "tokens.dat");
     }
 
+    // Tells the platform-compatibility analyzer that this property is a valid
+    // "are we on Windows" guard, so the DPAPI calls below that are only reachable
+    // when it is true are not flagged as CA1416 (unsupported on all platforms).
+    [System.Runtime.Versioning.SupportedOSPlatformGuard("windows")]
     public bool ProtectionActive => OperatingSystem.IsWindows();
 
     public async Task SaveAsync(AuthTokens tokens, CancellationToken ct = default)

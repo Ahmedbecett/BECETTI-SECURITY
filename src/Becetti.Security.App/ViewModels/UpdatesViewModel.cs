@@ -1,3 +1,4 @@
+using Becetti.Security.App.Services;
 using Becetti.Security.Core.Models;
 using Becetti.Security.Core.Services;
 
@@ -14,16 +15,18 @@ public sealed class UpdatesViewModel : ViewModelBase
     private readonly ICloudService _cloud;
     private readonly IDefenderService _defender;
     private readonly IEventLogService _events;
+    private readonly SoundService _sound;
 
     private string _appUpdateText = "Not checked yet.";
     private string _signatureText = "Unknown";
     private string _storeText = "Microsoft Store updates are managed by the Store app. BECETTI SECURITY does not install its own updates.";
 
-    public UpdatesViewModel(ICloudService cloud, IDefenderService defender, IEventLogService events)
+    public UpdatesViewModel(ICloudService cloud, IDefenderService defender, IEventLogService events, SoundService sound)
     {
         _cloud = cloud;
         _defender = defender;
         _events = events;
+        _sound = sound;
         CheckAppUpdatesCommand = new RelayCommand(CheckAppUpdatesAsync);
         UpdateSignaturesCommand = new RelayCommand(UpdateSignaturesAsync);
         RefreshSignaturesCommand = new RelayCommand(LoadSignaturesAsync);
@@ -70,18 +73,46 @@ public sealed class UpdatesViewModel : ViewModelBase
 
     public async Task LoadSignaturesAsync()
     {
-        var status = await _defender.GetStatusAsync();
-        if (status.Success && status.Value is not null)
+        // Defensive try/catch kept consistent with every other ViewModel's LoadAsync:
+        // this is invoked both from OnNavigatedTo (an async void - an uncaught exception
+        // there would crash the app) and from RefreshSignaturesCommand (RelayCommand.Execute
+        // only has try/finally, not try/catch). _defender.GetStatusAsync() already wraps its
+        // own failures in a non-throwing OperationResult, but this guards against any
+        // unexpected exception surfacing from here instead of silently crashing the UI.
+        try
         {
-            var s = status.Value;
-            SignatureText = s.AntivirusSignatureVersion is not null
-                ? $"Security intelligence: version {s.AntivirusSignatureVersion}, updated {s.AntivirusSignatureLastUpdated?.ToString("g") ?? "unknown"}"
-                : "Security intelligence version unknown";
+            var status = await _defender.GetStatusAsync();
+            if (status.Success && status.Value is not null)
+            {
+                var s = status.Value;
+                if (!s.Available)
+                {
+                    SignatureText = "Microsoft Defender could not be reached on this device.";
+                }
+                else if (!s.AntivirusEnabled)
+                {
+                    SignatureText = "Microsoft Defender Antivirus is disabled on this device, so no signature status is tracked here.";
+                }
+                else
+                {
+                    var version = s.AntivirusSignatureVersion is not null
+                        ? $"Security intelligence: version {s.AntivirusSignatureVersion}, updated {s.AntivirusSignatureLastUpdated?.ToString("g") ?? "unknown"}"
+                        : "Security intelligence version unknown";
+                    SignatureText = s.ManagedByAnotherAntivirus
+                        ? $"{version}\nDefender running mode: {s.RunningMode} (another antivirus product is the active real-time engine on this device)."
+                        : version;
+                }
+            }
+            else
+            {
+                SignatureText = "Unknown";
+                ErrorMessage = status.Message;
+            }
         }
-        else
+        catch (Exception ex)
         {
             SignatureText = "Unknown";
-            ErrorMessage = status.Message;
+            ErrorMessage = $"Could not read Defender signature status: {ex.Message}";
         }
     }
 
@@ -99,11 +130,13 @@ public sealed class UpdatesViewModel : ViewModelBase
             {
                 StatusMessage = result.Message;
                 await _events.RecordAsync("signatures.updated", result.Message, true);
+                _sound.Play(SoundCue.UpdateCompleted);
             }
             else
             {
                 ErrorMessage = result.Message;
                 await _events.RecordAsync("signatures.failed", result.Message, false);
+                _sound.Play(SoundCue.Warning);
             }
 
             await LoadSignaturesAsync();
