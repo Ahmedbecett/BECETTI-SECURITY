@@ -132,6 +132,5 @@ rule Worm_USB_Autorun_Spreader : worm usb
 
     condition:
         filesize < 15MB and
-        (($u1 or $u2) and $a1 and ($a2 or $h1)) or
-        ($h1 and $h2 and $h3 and $a1)
+        ((($u1 or $u2) and $a1 and ($a2 or $h1)) or ($h1 and $h2 and $h3 and $a1))
 }

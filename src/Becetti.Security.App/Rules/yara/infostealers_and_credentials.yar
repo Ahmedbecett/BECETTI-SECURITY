@@ -96,8 +96,7 @@ rule Infostealer_Discord_Telegram_Session_Theft : stealer token
 
     condition:
         filesize < 20MB and
-        ($d1 and ($d2 or $d3)) or
-        ($t1 and ($t2 or $t3))
+        (($d1 and ($d2 or $d3)) or ($t1 and ($t2 or $t3)))
 }
 
 rule Infostealer_Webhook_Exfiltration_Agent : stealer exfiltration
@@ -149,6 +148,5 @@ rule Credential_SAM_NTDS_Registry_Hive_Dump : credential_access
 
     condition:
         filesize < 15MB and
-        (2 of ($r*)) or
-        ($n1 and $n2 and $n3)
+        ((2 of ($r*)) or ($n1 and $n2 and $n3))
 }

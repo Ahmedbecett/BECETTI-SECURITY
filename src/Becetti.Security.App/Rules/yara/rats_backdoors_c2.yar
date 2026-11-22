@@ -103,11 +103,7 @@ rule Backdoor_Common_Commodity_RAT_Markers : rat backdoor
 
     condition:
         filesize < 15MB and
-        $r3 or
-        ($r1 and $r2) or
-        $r5 or
-        ($r4 and $r7) or
-        ($r6 and $r7)
+        ($r3 or ($r1 and $r2) or $r5 or ($r4 and $r7) or ($r6 and $r7))
 }
 
 rule Backdoor_Meterpreter_Shellcode_Stager : backdoor c2

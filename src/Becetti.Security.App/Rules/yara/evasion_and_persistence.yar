@@ -51,8 +51,7 @@ rule DefenseEvasion_Defender_Exclusion_Tampering : evasion defender
 
     condition:
         filesize < 10MB and
-        (($d1 or $d2) and (1 of ($f*))) or
-        ($r1 and $d1)
+        ((($d1 or $d2) and (1 of ($f*))) or ($r1 and $d1))
 }
 
 rule DefenseEvasion_EventLog_Clearing_Tampering : evasion anti_forensics
@@ -76,9 +75,7 @@ rule DefenseEvasion_EventLog_Clearing_Tampering : evasion anti_forensics
 
     condition:
         filesize < 5MB and
-        (2 of ($w*)) or
-        $p1 or
-        $p2
+        ((2 of ($w*)) or $p1 or $p2)
 }
 
 rule DefenseEvasion_UAC_Bypass_Techniques : evasion privilege_escalation

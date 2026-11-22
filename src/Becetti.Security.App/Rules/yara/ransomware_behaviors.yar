@@ -84,11 +84,13 @@ rule Ransomware_Known_Family_Markers : ransomware critical
 
     condition:
         filesize < 25MB and
-        ($lb1 and ($lb2 or $lb3)) or
-        ($bc1 and $bc3) or
-        $ct1 or
-        $ak1 or
-        ($bb1 and $ct2)
+        (
+            ($lb1 and ($lb2 or $lb3)) or
+            ($bc1 and ($bc2 or $bc3)) or
+            $ct1 or
+            $ak1 or
+            ($bb1 and $ct2)
+        )
 }
 
 rule Ransomware_Mass_Crypto_API_PE : ransomware pe
