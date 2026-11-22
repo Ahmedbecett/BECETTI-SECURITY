@@ -1,0 +1,62 @@
+<Page
+    x:Class="Becetti.Security.App.Views.UsbProtectionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Becetti.Security.Core.Models"
+    xmlns:converters="using:Becetti.Security.App.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+    </Page.Resources>
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="32" MaxWidth="900">
+            <TextBlock x:Uid="TitleUsb" Text="USB Protection" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock x:Uid="SubtitleUsb"
+                       Text="Real connected removable drives and Windows' own AutoPlay/AutoRun policy, which blocks the classic autorun.inf USB-malware vector. Scanning a drive runs through Microsoft Defender — BECETTI SECURITY has no USB scanning engine of its own."
+                       Style="{StaticResource SectionSubtitleStyle}" TextWrapping="Wrap" />
+            <InfoBar Title="Error" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Severity="Error" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" IsClosable="False" Margin="0,0,0,16" />
+            <ProgressRing IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Width="32" Height="32" Margin="0,0,0,16" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="UsbConnectedDrivesLabel" Text="Connected Removable Drives" Style="{StaticResource ValueStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.Drives, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedDrive, Mode=TwoWay}" MinHeight="140" Margin="0,8,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:UsbDriveInfo">
+                                <StackPanel Margin="0,8">
+                                    <TextBlock Text="{x:Bind RootPath}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                                    <TextBlock Text="{x:Bind VolumeLabel}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                                    <TextBlock Text="{x:Bind FileSystem}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,12,0,0">
+                        <Button x:Uid="RefreshButton" Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="ScanSelectedDriveButton" Content="Scan Selected Drive with Defender" Click="ScanSelectedDrive_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="UsbAutoRunLabel" Text="AutoPlay / AutoRun Protection" Style="{StaticResource ValueStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.AutoRunText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <TextBlock Text="Changing this policy requires an administrator. Restart BECETTI SECURITY as administrator from Settings."
+                               Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap" Margin="0,0,0,12"
+                               Visibility="{x:Bind ViewModel.IsAdministrator, Mode=OneWay, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button x:Uid="EnableAutoRunProtectionButton" Content="Enable AutoRun Protection" Command="{x:Bind ViewModel.EnableAutoRunProtectionCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button x:Uid="DisableAutoRunProtectionButton" Content="Remove BECETTI's AutoRun Block" Command="{x:Bind ViewModel.DisableAutoRunProtectionCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

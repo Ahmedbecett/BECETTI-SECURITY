@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 
@@ -20,6 +21,17 @@ public sealed partial class ScanPage : Page
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<ScanViewModel>();
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        // A caller (e.g. USB Protection's "Scan this drive") can pass a real path as the
+        // navigation parameter to prefill the Custom Scan target — the user still has to
+        // press Start Custom Scan themselves, nothing is triggered automatically here.
+        if (e.Parameter is string targetPath && !string.IsNullOrWhiteSpace(targetPath))
+            ViewModel.TargetPath = targetPath;
     }
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)

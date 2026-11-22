@@ -73,6 +73,7 @@
   <data name="NavStartup.Content" xml:space="preserve"><value>Gestionnaire de démarrage</value></data>
   <data name="NavSoftware.Content" xml:space="preserve"><value>Gestionnaire de logiciels</value></data>
   <data name="NavDrivers.Content" xml:space="preserve"><value>Surveillance des pilotes</value></data>
+  <data name="NavUsb.Content" xml:space="preserve"><value>Protection USB</value></data>
   <data name="NavEmergency.Content" xml:space="preserve"><value>Centre d'urgence</value></data>
 
   <data name="TitleRansomware.Text" xml:space="preserve"><value>Protection anti-rançongiciel</value></data>
@@ -107,6 +108,14 @@
 
   <data name="TitleDrivers.Text" xml:space="preserve"><value>Surveillance des pilotes</value></data>
   <data name="SubtitleDrivers.Text" xml:space="preserve"><value>Pilotes de périphériques réellement installés, lus depuis Windows (WMI) — le même inventaire que le Gestionnaire de périphériques. BECETTI SECURITY ne dispose d'aucune base de données de problèmes de pilotes ; consultez Windows Update ou le site du fabricant pour les mises à jour.</value></data>
+
+  <data name="TitleUsb.Text" xml:space="preserve"><value>Protection USB</value></data>
+  <data name="SubtitleUsb.Text" xml:space="preserve"><value>Lecteurs amovibles réellement connectés et la politique AutoPlay/AutoRun propre à Windows, qui bloque le vecteur d'infection classique autorun.inf. L'analyse d'un lecteur passe par Microsoft Defender — BECETTI SECURITY ne dispose d'aucun moteur d'analyse USB propre.</value></data>
+  <data name="UsbConnectedDrivesLabel.Text" xml:space="preserve"><value>Lecteurs amovibles connectés</value></data>
+  <data name="ScanSelectedDriveButton.Content" xml:space="preserve"><value>Analyser le lecteur sélectionné avec Defender</value></data>
+  <data name="UsbAutoRunLabel.Text" xml:space="preserve"><value>Protection AutoPlay / AutoRun</value></data>
+  <data name="EnableAutoRunProtectionButton.Content" xml:space="preserve"><value>Activer la protection AutoRun</value></data>
+  <data name="DisableAutoRunProtectionButton.Content" xml:space="preserve"><value>Supprimer le blocage AutoRun de BECETTI</value></data>
 
   <data name="TitleEmergency.Text" xml:space="preserve"><value>Centre d'urgence</value></data>
   <data name="SubtitleEmergency.Text" xml:space="preserve"><value>Un seul endroit pour les moments « quelque chose ne va pas » — état réel, accès rapide aux outils Windows eux-mêmes, et BECETTI AI pour obtenir de l'aide.</value></data>

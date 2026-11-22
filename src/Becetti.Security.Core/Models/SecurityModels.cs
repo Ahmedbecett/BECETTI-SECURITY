@@ -362,3 +362,45 @@ public sealed class DriverInfo
     public DateTimeOffset? DriverDate { get; init; }
     public bool IsSigned { get; init; }
 }
+
+/// <summary>
+/// One removable (USB/flash/external) drive currently plugged in, read from
+/// the real .NET <see cref="System.IO.DriveInfo"/> API (the same source
+/// Windows Explorer itself uses) — never a simulated device list.
+/// </summary>
+public sealed class UsbDriveInfo
+{
+    /// <summary>Drive root, e.g. "E:\". Used as the scan target path.</summary>
+    public string RootPath { get; init; } = string.Empty;
+    public string? VolumeLabel { get; init; }
+    public string? FileSystem { get; init; }
+    public long? TotalSizeBytes { get; init; }
+    public long? AvailableFreeBytes { get; init; }
+    public bool IsReady { get; init; }
+}
+
+/// <summary>
+/// Real Windows AutoPlay/AutoRun policy state, read from the same registry
+/// values (HKLM Policies\Explorer\NoDriveTypeAutoRun and NoAutorun) Windows'
+/// own Group Policy engine reads and writes. BECETTI SECURITY does not
+/// implement its own USB-malware scanner here — it manages the official
+/// Windows setting that blocks the classic autorun.inf infection vector.
+/// </summary>
+public sealed class UsbAutoRunStatus
+{
+    public bool Available { get; init; }
+    /// <summary>
+    /// True when the NoDriveTypeAutoRun registry policy explicitly blocks
+    /// removable drives; false when it explicitly allows them; null when no
+    /// policy value is set at all. A null value does NOT mean "unprotected" —
+    /// Windows has hard-coded autorun.inf execution off for non-optical
+    /// removable media since a 2011 security update regardless of this key —
+    /// BECETTI SECURITY only reports what the registry itself actually says.
+    /// </summary>
+    public bool? RemovableAutoRunBlocked { get; init; }
+    /// <summary>True/false when NoAutorun is explicitly set; null when absent.</summary>
+    public bool? AutorunInfDisabled { get; init; }
+    /// <summary>True only when both values above are explicitly and verifiably set to block autorun.</summary>
+    public bool FullyProtected => RemovableAutoRunBlocked == true && AutorunInfDisabled == true;
+    public string? RawError { get; init; }
+}

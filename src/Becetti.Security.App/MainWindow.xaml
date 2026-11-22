@@ -82,6 +82,11 @@
                         <FontIcon Glyph="&#xE9CE;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavUsb" Content="USB Protection" Tag="Usb">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE88E;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavPrivacy" Content="Privacy &amp; Network" Tag="Privacy">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE774;" />

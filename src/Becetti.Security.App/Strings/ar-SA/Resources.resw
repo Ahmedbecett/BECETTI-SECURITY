@@ -73,6 +73,7 @@
   <data name="NavStartup.Content" xml:space="preserve"><value>إدارة بدء التشغيل</value></data>
   <data name="NavSoftware.Content" xml:space="preserve"><value>إدارة البرامج</value></data>
   <data name="NavDrivers.Content" xml:space="preserve"><value>مراقبة التعريفات</value></data>
+  <data name="NavUsb.Content" xml:space="preserve"><value>حماية USB</value></data>
   <data name="NavEmergency.Content" xml:space="preserve"><value>مركز الطوارئ</value></data>
 
   <data name="TitleRansomware.Text" xml:space="preserve"><value>حماية الفدية</value></data>
@@ -107,6 +108,14 @@
 
   <data name="TitleDrivers.Text" xml:space="preserve"><value>مراقبة التعريفات</value></data>
   <data name="SubtitleDrivers.Text" xml:space="preserve"><value>تعريفات أجهزة حقيقية مثبتة من Windows (WMI)، نفس القائمة التي يعتمد عليها إدارة الأجهزة. لا تملك BECETTI SECURITY قاعدة بيانات لمشاكل التعريفات — تحقق من Windows Update أو موقع الشركة المصنّعة للحصول على التحديثات.</value></data>
+
+  <data name="TitleUsb.Text" xml:space="preserve"><value>حماية USB</value></data>
+  <data name="SubtitleUsb.Text" xml:space="preserve"><value>محركات الأقراص القابلة للإزالة المتصلة فعليًا وسياسة AutoPlay/AutoRun الخاصة بـ Windows نفسها، التي تمنع أسلوب العدوى الكلاسيكي عبر ملف autorun.inf. فحص أي محرك يتم عبر Microsoft Defender — لا تملك BECETTI SECURITY محرك فحص USB خاصًا بها.</value></data>
+  <data name="UsbConnectedDrivesLabel.Text" xml:space="preserve"><value>محركات الأقراص القابلة للإزالة المتصلة</value></data>
+  <data name="ScanSelectedDriveButton.Content" xml:space="preserve"><value>فحص المحرك المحدد بواسطة Defender</value></data>
+  <data name="UsbAutoRunLabel.Text" xml:space="preserve"><value>حماية AutoPlay / AutoRun</value></data>
+  <data name="EnableAutoRunProtectionButton.Content" xml:space="preserve"><value>تفعيل حماية AutoRun</value></data>
+  <data name="DisableAutoRunProtectionButton.Content" xml:space="preserve"><value>إزالة حظر AutoRun الخاص بـ BECETTI</value></data>
 
   <data name="TitleEmergency.Text" xml:space="preserve"><value>مركز الطوارئ</value></data>
   <data name="SubtitleEmergency.Text" xml:space="preserve"><value>مكان واحد للحظات "هناك خطأ ما" — حالة حقيقية، وصول سريع لأدوات Windows نفسها، وBECETTI AI للمساعدة.</value></data>

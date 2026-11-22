@@ -73,6 +73,7 @@
   <data name="NavStartup.Content" xml:space="preserve"><value>Startup Manager</value></data>
   <data name="NavSoftware.Content" xml:space="preserve"><value>Software Manager</value></data>
   <data name="NavDrivers.Content" xml:space="preserve"><value>Driver Monitor</value></data>
+  <data name="NavUsb.Content" xml:space="preserve"><value>USB Protection</value></data>
   <data name="NavEmergency.Content" xml:space="preserve"><value>Emergency Center</value></data>
 
   <data name="TitleRansomware.Text" xml:space="preserve"><value>Ransomware Defense</value></data>
@@ -107,6 +108,14 @@
 
   <data name="TitleDrivers.Text" xml:space="preserve"><value>Driver Monitor</value></data>
   <data name="SubtitleDrivers.Text" xml:space="preserve"><value>Real installed device drivers from Windows (WMI), the same inventory Device Manager uses. BECETTI SECURITY has no driver issue database of its own — check Windows Update or the manufacturer's site for updates.</value></data>
+
+  <data name="TitleUsb.Text" xml:space="preserve"><value>USB Protection</value></data>
+  <data name="SubtitleUsb.Text" xml:space="preserve"><value>Real connected removable drives and Windows' own AutoPlay/AutoRun policy, which blocks the classic autorun.inf USB-malware vector. Scanning a drive runs through Microsoft Defender — BECETTI SECURITY has no USB scanning engine of its own.</value></data>
+  <data name="UsbConnectedDrivesLabel.Text" xml:space="preserve"><value>Connected Removable Drives</value></data>
+  <data name="ScanSelectedDriveButton.Content" xml:space="preserve"><value>Scan Selected Drive with Defender</value></data>
+  <data name="UsbAutoRunLabel.Text" xml:space="preserve"><value>AutoPlay / AutoRun Protection</value></data>
+  <data name="EnableAutoRunProtectionButton.Content" xml:space="preserve"><value>Enable AutoRun Protection</value></data>
+  <data name="DisableAutoRunProtectionButton.Content" xml:space="preserve"><value>Remove BECETTI's AutoRun Block</value></data>
 
   <data name="TitleEmergency.Text" xml:space="preserve"><value>Emergency Center</value></data>
   <data name="SubtitleEmergency.Text" xml:space="preserve"><value>A single place for 'something feels wrong' moments — real status, quick access to Windows' own tools, and BECETTI AI for help.</value></data>
