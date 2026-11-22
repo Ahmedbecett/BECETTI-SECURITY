@@ -202,6 +202,11 @@
   <data name="ThreatIntelUrlSectionLabel.Text" xml:space="preserve"><value>التحقق من رابط</value></data>
   <data name="ThreatIntelUrlTextBox.PlaceholderText" xml:space="preserve"><value>https://example.com/suspicious-link</value></data>
   <data name="ThreatIntelScanUrlButton.Content" xml:space="preserve"><value>فحص الرابط</value></data>
+  <data name="ThreatIntelEmailSectionLabel.Text" xml:space="preserve"><value>فحص الروابط في بريد إلكتروني أو رسالة</value></data>
+  <data name="ThreatIntelEmailSectionNote.Text" xml:space="preserve"><value>الصق نص بريد إلكتروني أو رسالة مشبوهة أدناه. يعثر BECETTI SECURITY على روابط http(s) الموجودة فيه ويتيح لك فحص كل رابط عبر VirusTotal قبل فتحه مطلقًا — النص الملصق نفسه لا يُرسل إلى أي مكان أبدًا.</value></data>
+  <data name="ThreatIntelEmailTextBox.PlaceholderText" xml:space="preserve"><value>الصق نص البريد الإلكتروني أو الرسالة هنا...</value></data>
+  <data name="ThreatIntelExtractLinksButton.Content" xml:space="preserve"><value>البحث عن الروابط</value></data>
+  <data name="ThreatIntelScanLinksButton.Content" xml:space="preserve"><value>فحص الروابط</value></data>
   <data name="ThreatIntelResultLabel.Text" xml:space="preserve"><value>النتيجة</value></data>
   <data name="ThreatIntelCheckStatusButton.Content" xml:space="preserve"><value>تحقق من الحالة</value></data>
   <data name="ThreatIntelOpenReportButton.Content" xml:space="preserve"><value>فتح التقرير الكامل على virustotal.com</value></data>

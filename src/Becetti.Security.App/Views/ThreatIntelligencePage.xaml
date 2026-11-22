@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Becetti.Security.Core.Models"
     xmlns:converters="using:Becetti.Security.App.Converters"
+    xmlns:vm="using:Becetti.Security.App.ViewModels"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -70,6 +71,33 @@
                                  PlaceholderText="https://example.com/suspicious-link" Margin="0,0,8,0" />
                         <Button x:Uid="ThreatIntelScanUrlButton" Grid.Column="1" Content="Scan link" Command="{x:Bind ViewModel.ScanUrlCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                     </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Email / message link scanner -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Uid="ThreatIntelEmailSectionLabel" Text="Check links in an email or message" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="ThreatIntelEmailSectionNote"
+                               Text="Paste the text of a suspicious email or message below. BECETTI SECURITY finds the http(s) links inside it and lets you check each one against VirusTotal before you ever open it — the pasted text itself is never sent anywhere."
+                               Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,8" />
+                    <TextBox x:Uid="ThreatIntelEmailTextBox" Text="{x:Bind ViewModel.EmailContentInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="Paste email or message text here..." AcceptsReturn="True" TextWrapping="Wrap" Height="120" />
+                    <Button x:Uid="ThreatIntelExtractLinksButton" Content="Find links" Command="{x:Bind ViewModel.ExtractLinksCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,8,0,0" />
+
+                    <ListView ItemsSource="{x:Bind ViewModel.ExtractedLinks}" MinHeight="40" Margin="0,12,0,0"
+                              Visibility="{x:Bind ViewModel.HasExtractedLinks, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:EmailLinkScanStatus">
+                                <StackPanel Margin="0,6" Spacing="2">
+                                    <TextBlock Text="{x:Bind Url, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{x:Bind State, Mode=OneWay}" Foreground="{x:Bind Verdict, Mode=OneWay, Converter={StaticResource VerdictToBrush}}" FontSize="12" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button x:Uid="ThreatIntelScanLinksButton" Content="Scan links" Command="{x:Bind ViewModel.ScanExtractedLinksCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,12,0,0"
+                            Visibility="{x:Bind ViewModel.HasExtractedLinks, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
                 </StackPanel>
             </Border>
 

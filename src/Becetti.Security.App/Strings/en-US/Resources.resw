@@ -202,6 +202,11 @@
   <data name="ThreatIntelUrlSectionLabel.Text" xml:space="preserve"><value>Check a link</value></data>
   <data name="ThreatIntelUrlTextBox.PlaceholderText" xml:space="preserve"><value>https://example.com/suspicious-link</value></data>
   <data name="ThreatIntelScanUrlButton.Content" xml:space="preserve"><value>Scan link</value></data>
+  <data name="ThreatIntelEmailSectionLabel.Text" xml:space="preserve"><value>Check links in an email or message</value></data>
+  <data name="ThreatIntelEmailSectionNote.Text" xml:space="preserve"><value>Paste the text of a suspicious email or message below. BECETTI SECURITY finds the http(s) links inside it and lets you check each one against VirusTotal before you ever open it — the pasted text itself is never sent anywhere.</value></data>
+  <data name="ThreatIntelEmailTextBox.PlaceholderText" xml:space="preserve"><value>Paste email or message text here...</value></data>
+  <data name="ThreatIntelExtractLinksButton.Content" xml:space="preserve"><value>Find links</value></data>
+  <data name="ThreatIntelScanLinksButton.Content" xml:space="preserve"><value>Scan links</value></data>
   <data name="ThreatIntelResultLabel.Text" xml:space="preserve"><value>Result</value></data>
   <data name="ThreatIntelCheckStatusButton.Content" xml:space="preserve"><value>Check status</value></data>
   <data name="ThreatIntelOpenReportButton.Content" xml:space="preserve"><value>Open full report on virustotal.com</value></data>

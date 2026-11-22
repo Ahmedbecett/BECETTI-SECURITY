@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 using Becetti.Security.App.Services;
 using Becetti.Security.Core.Models;
 using Becetti.Security.Core.Services;
@@ -25,6 +26,19 @@ public sealed class ThreatIntelligenceViewModel : ViewModelBase
     private string? _pendingAnalysisId;
     private ThreatIntelTargetType _pendingTargetType;
 
+    private string _emailContentInput = string.Empty;
+    private bool _isScanningLinks;
+
+    /// <summary>
+    /// Matches http(s) URLs in free-form pasted text (an email body, a chat
+    /// message, etc.). Intentionally simple/conservative: it is fine to miss
+    /// an unusual URL, but it must never invent one that is not actually in
+    /// the text.
+    /// </summary>
+    private static readonly Regex UrlPattern = new(
+        @"https?://[^\s<>""'\)\]\}]+",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     public ThreatIntelligenceViewModel(IThreatIntelligenceService threatIntel, IThreatIntelHistoryService history, NotificationService notifications)
     {
         _threatIntel = threatIntel;
@@ -36,6 +50,8 @@ public sealed class ThreatIntelligenceViewModel : ViewModelBase
         ScanUrlCommand = new RelayCommand(ScanUrlAsync, () => !IsBusy && !string.IsNullOrWhiteSpace(UrlInput));
         CheckStatusCommand = new RelayCommand(CheckStatusAsync, () => !IsBusy && _pendingAnalysisId is not null);
         RefreshHistoryCommand = new RelayCommand(LoadHistoryAsync);
+        ExtractLinksCommand = new RelayCommand(ExtractLinksAsync, () => !IsBusy && !string.IsNullOrWhiteSpace(EmailContentInput));
+        ScanExtractedLinksCommand = new RelayCommand(ScanExtractedLinksAsync, () => !_isScanningLinks && ExtractedLinks.Count > 0);
     }
 
     public RelayCommand ScanFileCommand { get; }
@@ -43,6 +59,26 @@ public sealed class ThreatIntelligenceViewModel : ViewModelBase
     public RelayCommand ScanUrlCommand { get; }
     public RelayCommand CheckStatusCommand { get; }
     public RelayCommand RefreshHistoryCommand { get; }
+    public RelayCommand ExtractLinksCommand { get; }
+    public RelayCommand ScanExtractedLinksCommand { get; }
+
+    /// <summary>Pasted email/message content the user wants checked for suspicious links. Never sent anywhere as-is — only the extracted URLs are submitted to VirusTotal, one at a time, after extraction.</summary>
+    public string EmailContentInput
+    {
+        get => _emailContentInput;
+        set
+        {
+            if (SetProperty(ref _emailContentInput, value))
+                ExtractLinksCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public ObservableCollection<EmailLinkScanStatus> ExtractedLinks { get; } = new();
+
+    public bool HasExtractedLinks => ExtractedLinks.Count > 0;
+
+    /// <summary>Maximum links scanned per paste, to stay well inside VirusTotal's free-tier request rate.</summary>
+    public const int MaxLinksPerScan = 8;
 
     public ObservableCollection<ThreatIntelEngineVerdict> FlaggedEngines { get; } = new();
     public ObservableCollection<ThreatIntelScanRecord> History { get; } = new();
@@ -288,5 +324,118 @@ public sealed class ThreatIntelligenceViewModel : ViewModelBase
         History.Clear();
         foreach (var item in items)
             History.Add(item);
+    }
+
+    /// <summary>
+    /// Extracts real http(s) URLs found in the pasted text — nothing is
+    /// guessed or added beyond what the regex actually matched. Does not
+    /// call VirusTotal yet; that only happens once the user explicitly
+    /// presses "Scan links" (ScanExtractedLinksCommand).
+    /// </summary>
+    private Task ExtractLinksAsync()
+    {
+        ClearMessages();
+        ExtractedLinks.Clear();
+
+        var matches = UrlPattern.Matches(EmailContentInput);
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (Match match in matches)
+        {
+            var url = match.Value.TrimEnd('.', ',', ';', ':', '!', '?');
+            if (seen.Add(url))
+                ExtractedLinks.Add(new EmailLinkScanStatus(url));
+
+            if (ExtractedLinks.Count >= MaxLinksPerScan)
+                break;
+        }
+
+        OnPropertyChanged(nameof(HasExtractedLinks));
+        ScanExtractedLinksCommand.RaiseCanExecuteChanged();
+
+        StatusMessage = ExtractedLinks.Count switch
+        {
+            0 => "No http:// or https:// links were found in that text.",
+            1 => "Found 1 link. Press \"Scan links\" to check it against VirusTotal.",
+            _ => $"Found {ExtractedLinks.Count} link(s). Press \"Scan links\" to check them against VirusTotal."
+        };
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Scans each previously-extracted link against VirusTotal, one at a
+    /// time with a short pause between requests to stay well inside the
+    /// free-tier rate limit. A short-lived queued result is polled a couple
+    /// of times before moving on — this never blocks the whole batch
+    /// waiting for one slow scan to finish.
+    /// </summary>
+    private async Task ScanExtractedLinksAsync()
+    {
+        if (_isScanningLinks || ExtractedLinks.Count == 0)
+            return;
+
+        _isScanningLinks = true;
+        ScanExtractedLinksCommand.RaiseCanExecuteChanged();
+        ClearMessages();
+        try
+        {
+            foreach (var link in ExtractedLinks)
+            {
+                link.MarkScanning();
+
+                var result = await _threatIntel.SubmitUrlAsync(link.Url).ConfigureAwait(true);
+                if (!result.Success || result.Value is null)
+                {
+                    link.MarkError(result.Message);
+                    continue;
+                }
+
+                var report = result.Value;
+
+                // A freshly-submitted URL is often still queued; poll a couple of
+                // times (short, fixed delays) before accepting "still scanning" as
+                // the final state for this batch — the user can always re-scan.
+                for (var attempt = 0; attempt < 2 && report.Status == ThreatIntelStatus.Queued && !string.IsNullOrWhiteSpace(report.AnalysisId); attempt++)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+                    var polled = await _threatIntel.GetAnalysisAsync(report.AnalysisId!, ThreatIntelTargetType.Url).ConfigureAwait(true);
+                    if (!polled.Success || polled.Value is null)
+                        break;
+                    report = polled.Value;
+                }
+
+                link.ApplyReport(report);
+
+                if (report.Status == ThreatIntelStatus.Completed)
+                {
+                    await _history.RecordAsync(new ThreatIntelScanRecord
+                    {
+                        TargetType = ThreatIntelTargetType.Url,
+                        TargetDisplay = link.Url,
+                        Verdict = report.Verdict,
+                        DetectionRatio = report.DetectionRatio,
+                        Permalink = report.Permalink
+                    });
+
+                    if (report.Verdict == ThreatIntelVerdict.Malicious)
+                    {
+                        await _notifications.NotifyCriticalAsync(
+                            "BECETTI SECURITY — malicious link in message",
+                            $"VirusTotal flagged a link from pasted message content as malicious ({report.DetectionRatio}): {link.Url}");
+                    }
+                }
+
+                // Small pause between requests — comfortably inside VirusTotal's free-tier rate limit.
+                await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(true);
+            }
+
+            await LoadHistoryAsync();
+            StatusMessage = "Finished scanning the extracted link(s).";
+        }
+        finally
+        {
+            _isScanningLinks = false;
+            ScanExtractedLinksCommand.RaiseCanExecuteChanged();
+        }
     }
 }
