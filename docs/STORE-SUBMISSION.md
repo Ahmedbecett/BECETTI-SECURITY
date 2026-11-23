@@ -171,36 +171,34 @@ Windows machine:
 - [x] **Support email** - `store/privacy-policy.md` now lists
       `ahmedbecetti41@gmail.com` (confirmed by the user) instead of the
       `support@becetti.example` placeholder.
-- [x] **Privacy policy hosted at a public HTTPS URL** - the policy is
-      `store/privacy-policy.md` in the repository (public, no sign-in) and a
-      styled HTML edition is published to GitHub Pages by
-      `.github/workflows/privacy-page.yml` from `docs/privacy/index.html`.
-      Target URL once Pages is switched on:
-      `https://ahmedbecett.github.io/BECETTI-SECURITY/`
-      - **Why the URL keeps changing**: earlier revisions of this document
-        pointed at `https://github.com/.../blob/arena/1590a9fd-becetti-security/...`.
-        That is a *working branch*. It renders today and 404s the moment the
-        branch is deleted, which would break the privacy URL on an app that is
-        already listed. Do not put a branch-scoped URL in Partner Center.
-      - **Verified status of each option** (checked in this session, not
-        assumed): `main`-branch blob URL -> **404 today** (the file is not on
-        `main` yet; it only exists on this branch, so merging is what makes it
-        live). `arena/1590a9fd-...` blob URL -> **200 today, fragile**.
-        GitHub Pages -> `GET /pages` returns **404 / not enabled**: only a
-        repository admin can turn it on (Settings -> Pages -> Source = GitHub
-        Actions), then the workflow above deploys it.
-      - Two hosting paths were ruled out earlier and are recorded so they are
-        not retried: **Vercel** (the connector's first-deployment path rejects
-        every payload with *"The `projectSettings` object is required for new
-        projects"* even when supplied) and **creating Pages via API**
-        (`403 Resource not accessible by integration`).
-- [x] **A stable, permanent fallback URL that works today** - the repository
-      file on the `main` branch will be the durable link once this branch is
-      merged. Until then, the reachable-and-durable option is the repository
-      itself: `https://github.com/Ahmedbecett/BECETTI-SECURITY` (public).
-      A privacy policy URL must be *public and stable*; prefer, in order:
-      GitHub Pages (`https://ahmedbecett.github.io/BECETTI-SECURITY/`), then
-      the `main` blob URL, and treat any `arena/*` URL as temporary.
+- [x] **Privacy policy hosted at a public HTTPS URL** - **done and verified in
+      this session.** This branch was merged into `main` (fast-forward of the
+      whole tree onto `main`'s initial commit), so the durable URL is live:
+
+      `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/main/store/privacy-policy.md`
+      -> **HTTP 200 verified**
+
+      Use that URL in Partner Center. It is on the default branch: it survives
+      this branch, every rebuild and every release.
+
+      - A styled HTML edition is committed at `docs/privacy/index.html`
+        (also **200** on `main`). GitHub Pages is **still not enabled** - the
+        Pages API returns `403 Resource not accessible by integration` even
+        with an admin token, so only the GitHub UI can switch it on
+        (Settings -> Pages -> Source = GitHub Actions). Once enabled, the
+        prepared workflow publishes it to
+        `https://ahmedbecett.github.io/BECETTI-SECURITY/`, which is a nicer URL
+        but **not required** - the `main` blob URL above already satisfies the
+        Store requirement.
+      - `.github/workflows/privacy-page.yml` now has a `verify-url` job that
+        fails the build if either `main` URL stops returning 200, so this link
+        cannot silently rot.
+      - Historical note, kept so the mistake is not repeated: earlier revisions
+        of this document pointed at
+        `https://github.com/.../blob/arena/1590a9fd-becetti-security/...` and
+        claimed it was "verified". That is a disposable work branch - it would
+        404 the moment the branch was deleted, breaking a required field on an
+        app already in the Store.
 - [ ] **Real screenshots of the actual running app**, captured on a real
       Windows 10/11 machine after installing a genuine build. These cannot
       be produced here: this sandbox has no Windows runtime, so the WinUI 3
