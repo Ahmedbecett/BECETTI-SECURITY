@@ -78,10 +78,43 @@ the shipped package into `packaging/store/Package.store.appxmanifest`, and
 | `scripts/verify-store-package.ps1` | Opens the package, re-reads identity/capabilities **from the artifact**, confirms unsigned + x64-only + required payload, prints SHA-256, runs WACK |
 | `.github/workflows/store-package.yml` | Runs all of the above on `windows-latest` and attaches the `.msixupload`, `.msix`, WACK XML and verification report to the run |
 
+### Measured result — Store package run 45148739984 (green)
+
+Every number below was printed by the pipeline, not typed in by hand. It is
+reproducible with `gh run view 45148739984` / the `store-package-x64` artifact.
+
+| Item | Value |
+|---|---|
+| Artifact | `BECETTI-SECURITY_1.0.0.0_x64.msixupload` |
+| Size | 90.16 MB (94,994,236 bytes) |
+| **SHA-256** | `50AE3A4FA42741CDB9B06E07B4AF6386B81C8B2465EDFC97500EABA394C878D5` |
+| Contents | `Becetti.Security.App_1.0.0.0_x64.msix` (94,009,129 B) + `..._x64.appxsym` (513,767 B) |
+| Identity read from the package | `BECETTI.BECETTISECURITY` / `CN=A5D5DC31-4A15-4059-8030-D96C51054596` |
+| Version read from the package | `1.0.0.0` (fourth field 0) |
+| Architecture | `x64`, no x86/ARM payload in 552 files |
+| Capabilities read from the package | `runFullTrust`, `internetClient` — nothing else |
+| Signature | none (`AppxSignature.p7x` absent) — the Store re-signs |
+| Payload spot-checks | `Becetti.Security.App.exe`, `resources.pri`, `Native/yara/win-x64/yara64.exe`, `yarac64.exe`, `Rules/yara/eicar_standard_test.yar`, `THIRD-PARTY-LICENSES/YARA-LICENSE.txt` |
+| WACK | `appcert.exe` exit code **0**, report `WACK-REPORT.xml`, **all requirements PASS**, zero non-PASS entries |
+
+WACK ran against the inner `.msix` on `windows-latest` and detected the app
+type as *Centennial* (desktop bridge), which is the expected result for a
+packaged WinUI 3 / .NET desktop app with `runFullTrust`. Requirements executed
+included App manifest, App resources, Blocked executables, Banned file
+analyzer, Platform appropriate files, Private code signing, Special use
+capabilities, User account control run level, DPIAwarenessValidation,
+Enterprise Features, Registry checks, Type name correctness/case-sensitivity,
+and File association verbs — each reported `execution result was success`.
+
+What this run does **not** prove: it is a packaging/certification-toolkit pass,
+not a functional test. No interactive install on a clean Windows 10/11 device,
+no Defender behaviour check, and no Store ingestion attempt happened here.
+
 Store-policy changes made in the app itself (they apply only when the process
 is running with a package identity, so the standalone build is unaffected):
 
-- `AppUpdaterService.IsPackagedBuild()` — detects an MSIX package context.
+- `IAppUpdaterService.IsRunningPackaged()` (backed by
+  `AppUpdaterService.IsPackagedBuild()`) — detects an MSIX package context.
 - Packaged builds return **no** direct GitHub `.msix` URL (policy 10.2.5:
   Store products are updated only through the Store).
 - Packaged builds refuse the in-app downloader for third-party engine
