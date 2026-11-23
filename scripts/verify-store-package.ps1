@@ -194,7 +194,11 @@ try {
         } else {
             Log ""
             Log "WACK binary: $($appcert.FullName)"
-            $wackReport = Join-Path $reportDir "wack-report.xml"
+            # Name the report in its final form: NTFS is case-insensitive, so
+            # producing wack-report.xml and then copying it to WACK-REPORT.xml
+            # is a self-copy that throws "Cannot overwrite the item ... with
+            # itself".
+            $wackReport = Join-Path $reportDir "WACK-REPORT.xml"
             if (Test-Path $wackReport) { Remove-Item $wackReport -Force }
             Log ""
             Log "-- Running WACK against the inner .msix:"
@@ -230,7 +234,6 @@ try {
                     }
                 }
                 if ($nonPass -eq 0) { Log "   All WACK requirements in the report are PASS." }
-                Copy-Item $wackReport (Join-Path $reportDir "WACK-REPORT.xml") -Force
             } else {
                 Log "   WACK produced no report file."
             }
