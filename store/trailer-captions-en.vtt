@@ -5,40 +5,40 @@ Language: en
 NOTE
 BECETTI SECURITY — Microsoft Store trailer captions (English)
 NOTE
-IMPORTANT: this is a TEMPLATE, not a transcript of a finished video.
-The timings below follow a suggested 30-second trailer script. They only
-become valid once you record that trailer — re-time every cue to match the
-real narration, and delete or add cues so the file matches the audio exactly.
-Microsoft requires closed captions to transcribe the actual trailer audio.
+Timings below are measured from the actual narration in
+store/trailer/BECETTI-SECURITY-trailer-1920x1080.mp4 (silence boundaries
+detected at -38 dB). If you re-record the narration, re-time every cue to
+match the new audio — Microsoft requires captions to transcribe the real
+trailer audio.
 
 1
-00:00:00.000 --> 00:00:03.000
-BECETTI SECURITY
+00:00:00.300 --> 00:00:01.800
+BECETTI SECURITY.
 
 2
-00:00:03.000 --> 00:00:07.000
+00:00:02.900 --> 00:00:06.300
 One dashboard for everything protecting your PC.
 
 3
-00:00:07.000 --> 00:00:11.000
+00:00:06.950 --> 00:00:10.750
 Microsoft Defender and native YARA, scanning together.
 
 4
-00:00:11.000 --> 00:00:15.000
+00:00:11.350 --> 00:00:14.600
 Live threat intelligence from abuse.ch.
 
 5
-00:00:15.000 --> 00:00:19.000
+00:00:15.100 --> 00:00:18.600
 24 MITRE ATT&CK techniques, tagged automatically.
 
 6
-00:00:19.000 --> 00:00:23.000
+00:00:19.200 --> 00:00:23.950
 EDR, hardening, ransomware protection and forensics.
 
 7
-00:00:23.000 --> 00:00:27.000
+00:00:24.550 --> 00:00:27.600
 Ask BECETTI AI anything about your security.
 
 8
-00:00:27.000 --> 00:00:30.000
-BECETTI SECURITY. No simulated security, ever.
+00:00:28.200 --> 00:00:30.750
+No simulated security, ever.
