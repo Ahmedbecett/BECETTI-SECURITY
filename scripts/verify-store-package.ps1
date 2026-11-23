@@ -30,7 +30,7 @@ New-Item -ItemType Directory -Force -Path $reportDir | Out-Null
 $reportPath = Join-Path $reportDir "store-package-verification.txt"
 
 $lines = New-Object System.Collections.Generic.List[string]
-$errors = New-Object System.Collections.Generic.List[string]
+$script:errors = New-Object System.Collections.Generic.List[string]
 function Log([string]$msg) { Write-Host $msg; $lines.Add($msg) | Out-Null }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -69,7 +69,7 @@ try {
 
         # ---- 1. Structure
         $manifestEntry = $entries | Where-Object { $_.FullName -eq "AppxManifest.xml" } | Select-Object -First 1
-        if (-not $manifestEntry) { $errors.Add("AppxManifest.xml missing - not a valid package.") }
+        if (-not $manifestEntry) { $script:errors.Add("AppxManifest.xml missing - not a valid package.") }
         else {
             $reader = New-Object System.IO.StreamReader($manifestEntry.Open())
             $manifestXml = $reader.ReadToEnd(); $reader.Dispose()
@@ -90,20 +90,20 @@ try {
             Log "   Version     : $ver"
             Log "   Architecture: $arch"
 
-            if ($ver -notmatch '^\d+\.\d+\.\d+\.0$') { $errors.Add("Packaged version '$ver' does not end in .0 - the Store reserves the fourth component.") }
-            if ($arch -ne "x64") { $errors.Add("Packaged architecture is '$arch', expected x64.") }
+            if ($ver -notmatch '^\d+\.\d+\.\d+\.0$') { $script:errors.Add("Packaged version '$ver' does not end in .0 - the Store reserves the fourth component.") }
+            if ($arch -ne "x64") { $script:errors.Add("Packaged architecture is '$arch', expected x64.") }
 
             $caps = @()
             foreach ($c in $doc.SelectNodes("/f:Package/f:Capabilities/*", $ns)) { $caps += $c.GetAttribute("Name") }
             Log ("   Capabilities: " + ($caps -join ", "))
-            foreach ($c in $caps) { if (@("runFullTrust", "internetClient") -notcontains $c) { $errors.Add("Unexpected capability '$c' in the package.") } }
-            if ($caps -notcontains "runFullTrust") { $errors.Add("runFullTrust missing from the package.") }
+            foreach ($c in $caps) { if (@("runFullTrust", "internetClient") -notcontains $c) { $script:errors.Add("Unexpected capability '$c' in the package.") } }
+            if ($caps -notcontains "runFullTrust") { $script:errors.Add("runFullTrust missing from the package.") }
         }
 
         # ---- 2. Must be unsigned for Store upload
         $sig = $entries | Where-Object { $_.FullName -eq "AppxSignature.p7x" } | Select-Object -First 1
         if ($sig) {
-            $errors.Add("Package IS signed (AppxSignature.p7x present). The Store submission artifact must be unsigned - the Store re-signs it after certification. Build with AppxPackageSigningEnabled=false.")
+            $script:errors.Add("Package IS signed (AppxSignature.p7x present). The Store submission artifact must be unsigned - the Store re-signs it after certification. Build with AppxPackageSigningEnabled=false.")
         } else {
             Log "-- Signature: none (correct for Store upload; Microsoft re-signs after certification)."
         }
@@ -120,7 +120,7 @@ try {
         )
         foreach ($req in $required) {
             if ($normalized -contains $req) { Log "-- Present: $req" }
-            else { $errors.Add("Required file missing from the package: $req") }
+            else { $script:errors.Add("Required file missing from the package: $req") }
         }
 
         # ---- 4. Architecture sanity: no non-x64 native payload in the way
@@ -130,7 +130,7 @@ try {
         if ($badArch) {
             # Dependencies folders for other architectures are a real risk
             # (makes the Store offer a package the device cannot run).
-            $errors.Add("Package contains binaries for another architecture: " + (($badArch | Select-Object -First 5) -join ", "))
+            $script:errors.Add("Package contains binaries for another architecture: " + (($badArch | Select-Object -First 5) -join ", "))
         } else {
             Log "-- Architecture: no x86/ARM payload present."
         }
