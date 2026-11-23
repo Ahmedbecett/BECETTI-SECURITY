@@ -431,7 +431,7 @@ public sealed class DomainHostingIntelService : IDomainHostingIntelService
                     if (ext.Oid?.Value == "2.5.29.17") // Subject Alternative Name
                     {
                         var formatted = ext.Format(false);
-                        foreach (var m in Regex.Matches(formatted, @"DNS Name=([^,\s]+)"))
+                        foreach (Match m in Regex.Matches(formatted, @"DNS Name=([^,\s]+)"))
                             sans.Add(m.Groups[1].Value);
                     }
                 }
