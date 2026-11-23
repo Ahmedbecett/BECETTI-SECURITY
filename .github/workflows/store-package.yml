@@ -105,6 +105,22 @@ jobs:
           }
           Get-Content $report -ErrorAction SilentlyContinue | Write-Host
 
+          # The verification report only exists once the verifier ran. If the
+          # build itself failed, the tail of the packaging transcript is the
+          # only diagnostic available, so promote it to annotations.
+          $pkgLog = "artifacts\store\package-store-upload.log"
+          if (-not (Test-Path $report) -and (Test-Path $pkgLog)) {
+            $tail = Get-Content $pkgLog -Tail 60
+            Add-Content -Path $summaryFile -Value ""
+            Add-Content -Path $summaryFile -Value "### Packaging log (last 60 lines)"
+            Add-Content -Path $summaryFile -Value '```'
+            foreach ($l in $tail) { Add-Content -Path $summaryFile -Value $l }
+            Add-Content -Path $summaryFile -Value '```'
+            $errs = Select-String -Path $pkgLog -Pattern 'error\s+[A-Z]+\d+|error ' -CaseSensitive:$false |
+                Select-Object -Last 15
+            foreach ($e in $errs) { Write-Host "::error::$($e.Line.Trim())" }
+          }
+
       - name: Upload the Store submission artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -115,5 +131,6 @@ jobs:
             artifacts/store/*.msix
             artifacts/store/*.txt
             artifacts/store/*.xml
+            artifacts/store/*.log
           if-no-files-found: warn
           retention-days: 30

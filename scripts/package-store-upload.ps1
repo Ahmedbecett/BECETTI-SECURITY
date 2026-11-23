@@ -32,6 +32,25 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
 Set-Location $root
 
+# Full transcript on disk. The Actions log blobs are not retrievable from the
+# build agent, so when this script fails the only readable evidence is a file
+# the workflow can turn into annotations (see the summary step) or upload.
+$logDir = Join-Path $root "artifacts\store"
+New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+$transcript = Join-Path $logDir "package-store-upload.log"
+Start-Transcript -Path $transcript -Force | Out-Null
+
+# Any throw in this script used to exit pwsh with a bare code 1 and no
+# annotation, so every failure looked identical ("Process completed with exit
+# code 1."). Report the type and message, then rethrow.
+trap {
+    $msg = "$($_.Exception.GetType().Name): $($_.Exception.Message)"
+    Write-Host "::error::package-store-upload.ps1 threw: $msg"
+    Write-Host "::error::$($_.InvocationInfo.PositionMessage)"
+    Stop-Transcript | Out-Null
+    exit 1
+}
+
 # The Store reserves the 4th version field; refuse to produce a package that
 # Partner Center would bounce at validation time.
 if ($Version -notmatch '^\d+\.\d+\.\d+\.0$') {
@@ -124,3 +143,4 @@ if ($msix) {
 }
 Write-Host "Upload the .msixupload in Partner Center -> your app -> Packages."
 Write-Host "Do NOT sign it locally: the Store replaces the signature with Microsoft's own."
+Stop-Transcript | Out-Null
