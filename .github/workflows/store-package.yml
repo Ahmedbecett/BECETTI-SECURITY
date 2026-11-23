@@ -28,6 +28,10 @@ on:
       - ".github/workflows/store-package.yml"
       - "src/Becetti.Security.App/Package.appxmanifest"
       - "store/**"
+      # The artifact is built from the real sources, so a change anywhere in
+      # the compiled projects invalidates the previous submission package.
+      - "src/**"
+      - "tests/**"
 
 permissions:
   contents: read
