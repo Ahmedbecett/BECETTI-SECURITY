@@ -141,6 +141,19 @@ try {
             else { $script:errors.Add("Required file missing from the package: $req") }
         }
 
+        # Evidence, not guesswork: when a required path is missing the report
+        # must show where the files actually landed, otherwise every fix is a
+        # blind retry.
+        if ($script:errors.Count -gt 0) {
+            Log ""
+            Log "-- Package layout (files matching the expected names, for diagnosis):"
+            $interesting = $normalized | Where-Object {
+                $_ -match '(?i)(\.exe$|\.yar$|\.pri$|license)'
+            } | Sort-Object
+            foreach ($f in ($interesting | Select-Object -First 60)) { Log "   $f" }
+            if ($interesting.Count -gt 60) { Log "   ... $($interesting.Count - 60) more" }
+        }
+
         # ---- 4. Architecture sanity: no non-x64 native payload in the way
         $badArch = $normalized | Where-Object {
             $_ -match '(^|/)(x86|arm64|arm)(/|$)' -or $_ -match '(?i)(win-x86|win-arm64)'
@@ -224,6 +237,16 @@ try {
         }
     }
 }
+}
+catch {
+    Write-Host "::error::Store verification threw: $($_.Exception.GetType().Name): $($_.Exception.Message)"
+    Log ""
+    Log "RESULT: FAILED (verification threw)"
+    Log "  $($_.Exception.GetType().FullName): $($_.Exception.Message)"
+    Log $_.ScriptStackTrace
+    $lines | Set-Content $reportPath -Encoding utf8
+    throw
+}
 finally {
     if (Test-Path $work) { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }
 }
@@ -233,7 +256,13 @@ Log "SHA-256 (artifact): $sha256"
 if ($errors.Count -gt 0) {
     Log ""
     Log "RESULT: FAILED ($($errors.Count) problem(s))"
-    foreach ($e in $errors) { Log "  - $e" }
+    foreach ($e in $errors) {
+        Log "  - $e"
+        # Annotations are the only channel that survives in this environment
+        # (Actions log blobs are not readable from the agent), so every failed
+        # check has to be raised here as well as written to the report.
+        Write-Host "::error::$e"
+    }
     $lines | Set-Content $reportPath -Encoding utf8
     Write-Host "Report: $reportPath" -ForegroundColor Red
     exit 1
