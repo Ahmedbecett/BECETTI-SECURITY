@@ -187,7 +187,9 @@ Defender مثبّت (افتراضي في Windows). اتصال بالإنترنت
 
 ---
 
-## 8) صور Windows وXbox — 16:9 Super hero art
+## 8) صور Windows وXbox — Windows and Xbox images
+
+### 16:9 Super hero art *(لا يجب أن يحتوي على اسم المنتج)*
 
 | المقاس | الملف الجاهز |
 |---|---|
@@ -196,6 +198,18 @@ Defender مثبّت (افتراضي في Windows). اتصال بالإنترنت
 
 > ✅ **لا يحتوي على اسم المنتج** — وهذا شرط صريح من Microsoft لهذا الأصل.
 > ارفعه إن أردت ظهور صورة في أعلى صفحة المتجر. ليس مطلوبًا للإرسال الأول.
+
+### Xbox images
+
+| الأصل | المقاس | الملف الجاهز | شرط الاسم |
+|---|---|---|---|
+| Branded key art | 584 × 800 | `store/art/xbox-branded-keyart-584x800.png` | **يجب** أن يظهر الاسم في أعلى ¾ الصورة |
+| Titled hero art | 1920 × 1080 | `store/art/xbox-titled-heroart-1920x1080.png` | **يجب** أن يظهر الاسم في أعلى ¾ الصورة |
+| Featured promotional square art | 1080 × 1080 | `store/art/xbox-featured-square-1080x1080.png` | **ممنوع** أن يحتوي على الاسم |
+
+> الثلاثة **اختيارية** لتطبيق سطح مكتب — لا ترفعها إلا إن كان التطبيق متاحًا على Xbox
+> أو أردت المشاركة في عروض المتجر الترويجية. ملاحظة: Featured promotional square art
+> مطلوب فقط للأقراص الفعلية (physical discs).
 
 ---
 

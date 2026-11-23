@@ -333,6 +333,100 @@ def superhero(w: int, h: int) -> Image.Image:
     return img
 
 
+def fit_font(text: str, max_w: float, tracking_ratio: float, start: float):
+    """Largest DejaVu Bold size (plus letter-spacing) that fits `max_w`."""
+    size = start
+    while size > 8:
+        f = ImageFont.truetype(FONT_BOLD, int(size))
+        width = sum(f.getlength(c) for c in text) + tracking_ratio * size * (len(text) - 1)
+        if width <= max_w:
+            return f, tracking_ratio * size
+        size -= 2
+    return ImageFont.truetype(FONT_BOLD, 8), 0.0
+
+
+# --------------------------------------------------------------------------- #
+# Xbox: branded key art 584x800 — title MUST sit in the top 3/4
+# --------------------------------------------------------------------------- #
+def branded_keyart(w: int = 584, h: int = 800) -> Image.Image:
+    k = w / 584.0
+    img = vgrad((w, h), BG_TOP, BG_BOTTOM)
+    img = screen(img, radial((w, h), (w * 0.5, h * 0.52), w * 0.72, h * 0.55, CYAN, 0.34))
+    img = screen(img, radial((w, h), (w * 0.5, h * 0.52), w * 0.34, h * 0.30, CYAN_SOFT, 0.26))
+    img = img.convert("RGBA")
+    img.alpha_composite(grid((w, h), int(74 * k), CYAN, 8))
+    img.alpha_composite(shield_watermark((w, h), (w * 0.5, h * 0.54), w * 1.10, EMERALD, 34, max(2, int(2 * k))))
+
+    paste_glowing(img, load_mascot(int(h * 0.56)), (w * 0.5, h * 0.53), CYAN, int(34 * k), 105)
+
+    # wordmark — well inside the top 3/4 (y < 0.75h)
+    f1, t1 = fit_font("BECETTI", w * 0.84, 0.055, 74 * k)
+    f2, t2 = fit_font("SECURITY", w * 0.84, 0.075, 74 * k)
+    y1 = h * 0.085
+    tracked_text(img, (w * 0.5, y1), "BECETTI", f1, WHITE, tracking=t1)
+    tracked_text(img, (w * 0.5, y1 + 92 * k), "SECURITY", f2, CYAN, tracking=t2)
+
+    d = ImageDraw.Draw(img)
+    d.line([(w * 0.5 - 44 * k, y1 + 186 * k), (w * 0.5 + 44 * k, y1 + 186 * k)],
+           fill=EMERALD + (210,), width=max(2, int(2 * k)))
+
+    # bottom 1/4 is the only place a text overlay is allowed
+    f3, t3 = fit_font("WINDOWS 10  ·  WINDOWS 11", w * 0.80, 0.14, 19 * k)
+    tracked_text(img, (w * 0.5, h * 0.905), "WINDOWS 10  ·  WINDOWS 11", f3, MUTED, tracking=t3)
+    return img
+
+
+# --------------------------------------------------------------------------- #
+# Xbox: titled hero art 1920x1080 — title MUST sit in the top 3/4
+# --------------------------------------------------------------------------- #
+def titled_heroart(w: int = 1920, h: int = 1080) -> Image.Image:
+    k = w / 1920.0
+    img = vgrad((w, h), (2, 5, 11), (8, 18, 33))
+    img = screen(img, radial((w, h), (w * 0.73, h * 0.50), w * 0.36, h * 0.85, CYAN, 0.34))
+    img = screen(img, radial((w, h), (w * 0.24, h * 0.42), w * 0.30, h * 0.55, CYAN_SOFT, 0.18))
+    img = img.convert("RGBA")
+    img.alpha_composite(grid((w, h), int(96 * k), CYAN, 7))
+    img.alpha_composite(shield_watermark((w, h), (w * 0.26, h * 0.46), w * 0.30, EMERALD, 40, max(2, int(3 * k))))
+
+    paste_glowing(img, load_mascot(int(h * 0.84)), (w * 0.735, h * 0.52), CYAN, int(56 * k), 115)
+
+    # title inside the top 3/4 (y < 0.75h = 810)
+    f1, t1 = fit_font("BECETTI", w * 0.42, 0.055, 132 * k)
+    f2, t2 = fit_font("SECURITY", w * 0.42, 0.075, 132 * k)
+    y1 = h * 0.33
+    tracked_text(img, (w * 0.26, y1), "BECETTI", f1, WHITE, tracking=t1)
+    tracked_text(img, (w * 0.26, y1 + 152 * k), "SECURITY", f2, CYAN, tracking=t2)
+
+    d = ImageDraw.Draw(img)
+    d.line([(w * 0.26 - 70 * k, y1 + 300 * k), (w * 0.26 + 70 * k, y1 + 300 * k)],
+           fill=EMERALD + (210,), width=max(2, int(3 * k)))
+    return img
+
+
+# --------------------------------------------------------------------------- #
+# Xbox: featured promotional square art 1080x1080 — must NOT contain the title
+# --------------------------------------------------------------------------- #
+def featured_square(w: int = 1080, h: int = 1080) -> Image.Image:
+    k = w / 1080.0
+    img = vgrad((w, h), BG_TOP, BG_BOTTOM)
+    img = screen(img, radial((w, h), (w * 0.5, h * 0.48), w * 0.66, w * 0.66, CYAN, 0.32))
+    img = screen(img, radial((w, h), (w * 0.5, h * 0.48), w * 0.30, w * 0.30, CYAN_SOFT, 0.26))
+    img = img.convert("RGBA")
+    img.alpha_composite(grid((w, h), int(90 * k), CYAN, 7))
+    img.alpha_composite(shield_watermark((w, h), (w * 0.5, h * 0.48), w * 0.98, EMERALD, 32, max(2, int(3 * k))))
+
+    ring = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(ring)
+    cx, cy = w * 0.5, h * 0.48
+    for i, r in enumerate((0.36, 0.46)):
+        rr = w * r
+        d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=CYAN + (28 - i * 9,), width=max(2, int(2 * k)))
+    img.alpha_composite(ring)
+
+    paste_glowing(img, load_mascot(int(h * 0.72)), (w * 0.5, h * 0.48), CYAN, int(48 * k), 110)
+    return img
+
+
 def app_icons():
     src = Image.open(ASSETS / "Square310x310Logo.png").convert("RGBA")
     for size in (300, 150, 71):
@@ -347,6 +441,9 @@ def main():
     save(boxart(1080, 1080), "boxart-1080x1080.png")
     save(superhero(3840, 2160), "superhero-3840x2160.png")
     save(superhero(1920, 1080), "superhero-1920x1080.png")
+    save(branded_keyart(584, 800), "xbox-branded-keyart-584x800.png")
+    save(titled_heroart(1920, 1080), "xbox-titled-heroart-1920x1080.png")
+    save(featured_square(1080, 1080), "xbox-featured-square-1080x1080.png")
     app_icons()
     print("done.")
 
