@@ -77,9 +77,12 @@ try {
             # XmlNamespaceManager proved unreliable in this script's hosting
             # environment, and a failure there would skip the identity checks.
             $doc = [System.Xml.Linq.XDocument]::Parse($manifestXml)
-            $pkgEl = $null
-            foreach ($c in $doc.Root.Elements()) { if ($c.Name.LocalName -eq "Package") { $pkgEl = $c; break } }
-            if ($null -eq $pkgEl) { $pkgEl = $doc.Root }
+            # AppxManifest.xml's root element is <Package>; do not go looking for
+            # it as a child (a one-element pipeline result would come back wrapped).
+            $pkgEl = $doc.Root
+            if ($null -eq $pkgEl -or $pkgEl.Name.LocalName -ne "Package") {
+                throw "AppxManifest.xml root is '$($pkgEl.Name.LocalName)', expected <Package>."
+            }
 
             function Get-LocalChild($parent, [string]$localName) {
                 foreach ($c in $parent.Elements()) { if ($c.Name.LocalName -eq $localName) { return $c } }

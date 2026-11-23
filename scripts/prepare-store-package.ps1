@@ -46,6 +46,10 @@ function Read-ManifestDoc([string]$path) {
     return [System.Xml.Linq.XDocument]::Load((Resolve-Path $path).Path)
 }
 
+# NOTE: return via a variable, never `return $parent.Elements()`. PowerShell
+# unrolls a one-element collection into the element itself and wraps it in a
+# PSObject, which then fails every .Name/.Elements() call with an unrelated
+# "MethodException". Assign first, return the variable.
 function Get-ChildByLocalName($parent, [string]$localName) {
     if ($null -eq $parent) { return $null }
     foreach ($child in $parent.Elements()) {
@@ -101,15 +105,26 @@ try {
     $storeDoc = Read-ManifestDoc $StoreManifest
     $sideDoc  = Read-ManifestDoc $SideloadManifest
 
-    $storePkg = Get-ChildByLocalName $storeDoc.Root "Package"
-    if ($null -eq $storePkg) { throw "Store manifest root is not <Package>." }
-    $sidePkg  = Get-ChildByLocalName $sideDoc.Root "Package"
-    if ($null -eq $sidePkg)  { throw "Sideload manifest root is not <Package>." }
+    # The document root IS <Package> (appxmanifests have no outer wrapper).
+    $storePkg = $storeDoc.Root
+    $sidePkg  = $sideDoc.Root
+    if ($null -eq $storePkg -or $storePkg.Name.LocalName -ne "Package") {
+        throw "Store manifest root element is '$($storePkg.Name.LocalName)', expected <Package>."
+    }
+    if ($null -eq $sidePkg -or $sidePkg.Name.LocalName -ne "Package") {
+        throw "Sideload manifest root element is '$($sidePkg.Name.LocalName)', expected <Package>."
+    }
 
     $storeId = Get-ChildByLocalName $storePkg "Identity"
     $sideId  = Get-ChildByLocalName $sidePkg "Identity"
     if ($null -eq $storeId) { throw "No <Identity> in $StoreManifest" }
     if ($null -eq $sideId)  { throw "No <Identity> in $SideloadManifest" }
+    foreach ($pair in @(@("store", $storeId), @("sideload", $sideId))) {
+        $label = $pair[0]; $el = $pair[1]
+        if ($el -isnot [System.Xml.Linq.XElement]) {
+            throw "Internal: $label <Identity> resolved to $($el.GetType().FullName), not XElement."
+        }
+    }
 
     $nameStore = Get-Attr $storeId "Name"
     $pubStore  = Get-Attr $storeId "Publisher"
