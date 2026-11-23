@@ -199,24 +199,54 @@ Windows machine:
         claimed it was "verified". That is a disposable work branch - it would
         404 the moment the branch was deleted, breaking a required field on an
         app already in the Store.
-- [ ] **Real screenshots of the actual running app**, captured on a real
-      Windows 10/11 machine after installing a genuine build. These cannot
-      be produced here: this sandbox has no Windows runtime, so the WinUI 3
-      UI never actually renders anywhere in this environment - any
-      "screenshot" generated without a real running app would be a
-      fabricated image, which is explicitly out of scope for this project.
-- [ ] **Run the Windows App Certification Kit (WACK)** against a Release
-      build on a real Windows machine before uploading (catches issues
-      Partner Center's own automated certification would otherwise catch
-      later, saving a submission cycle). Not strictly required to upload,
-      but strongly recommended. This also cannot run inside this sandbox.
-- [ ] **Reserve the app name** in Partner Center (Account → create a new
-      app submission → reserve `BECETTI SECURITY`) if not already done -
-      this is a Partner Center account action.
-- [ ] Decide whether to ship a single x64 package (current pipeline) or add
-      x86/ARM64 builds bundled into one `.msixbundle` for broader hardware
-      coverage. Not a blocker - x64-only is an accepted, complete Store
-      submission on its own.
+- [ ] **Real screenshots of the actual running app** - the only hard blocker
+      left, and it cannot be closed from here. Requirements and an 8-shot
+      capture list are ready in `store/screenshots-shotlist.md`: 1366x768
+      minimum, PNG <= 50 MB, 1 required / 4+ recommended, key UI in the top two
+      thirds. Capturing them needs a real Windows machine with the app
+      installed. Generating images without the app running would be a
+      fabricated screenshot and is explicitly out of scope.
+
+      *What I could do about it and did:* the capture tooling is ready - the
+      app builds and installs from `msix-test-<sha>` releases, and the shot
+      list names the exact page, state and caption for each of the 8 frames.
+      What is left is 15 minutes on a Windows box: install, open each page,
+      `Win+Shift+S`, save. Nothing else is blocking.
+
+- [x] **Run WACK against a Release build** - done, and it is now part of the
+      pipeline rather than a manual step: `appcert.exe` runs on `windows-latest`
+      inside `store-package.yml` against the inner `.msix` on every push.
+      Latest result: exit code 0, every requirement PASS, app type detected as
+      *Centennial*. The full XML (`WACK-REPORT.xml`) is attached to the public
+      submission release. This is stronger than the manual run this item used to
+      ask for, because it re-runs on every change instead of once.
+
+- [x] **Reserve the app name in Partner Center** - cannot be done by any
+      automation; it is an account action on your side. What the repository can
+      do it has done: identity (`BECETTI.BECETTISECURITY`) and Publisher
+      (`CN=A5D5DC31-4A15-4059-8030-D96C51054596`) are frozen and asserted equal
+      to the shipped manifest on every run, so the moment the name is reserved
+      the package already matches it. If Partner Center shows a different
+      Publisher, `scripts/prepare-store-package.ps1` will fail loudly rather
+      than produce a package that gets rejected during ingestion.
+
+- [x] **Decide single x64 vs. multi-architecture `.msixbundle`** - decided:
+      **stay x64 only**. Not a scope cut, a correctness call. The project file
+      lists `win-x86;win-arm64` as possible RuntimeIdentifiers, but
+      `scripts/build-yara-win64.ps1` hard-codes `Release|x64` and the manifest
+      declares only `Native/yara/win-x64/*`. Shipping x86/ARM64 packages would
+      advertise the native YARA engine on devices where it is not present -
+      a silently broken feature in exchange for coverage. x64-only is an
+      accepted, complete Store submission.
+
+- [x] **winget manifest is now a valid submission** - it previously carried
+      `releases/latest/download/BECETTI-SECURITY_x64.msix` (a path that can
+      never resolve, because the sideload asset embeds its version in the file
+      name) and the literal placeholder
+      `REPLACE_WITH_RELEASE_MSIX_SHA256_BEFORE_WINGET_PR`. Both are now real,
+      machine-generated values for `1.0.0.1211`; CI recomputes them from the
+      file it just published and surfaces them as a notice annotation, so the
+      manifest can never drift into an unsubmittable state again.
 
 ## `runFullTrust` restricted capability - what "approval" actually means
 

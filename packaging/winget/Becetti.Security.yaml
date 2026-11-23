@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.6.0.schema.json
 
 PackageIdentifier: Becetti.Security
-PackageVersion: 1.0.0.1201
+PackageVersion: 1.0.0.1211
 PackageLocale: en-US
 Publisher: BECETTI SECURITY
 PublisherUrl: https://becetti-ai-backend.vercel.app
@@ -39,10 +39,10 @@ Installers:
     # in every release; the sideload asset carries its version in the file name
     # (BECETTI-SECURITY_<version>_x64.msix), so that URL could never resolve.
     # Pin the concrete release instead, and let the packaging job keep it fresh.
-    InstallerUrl: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/msix-test-2d06207/BECETTI-SECURITY_1.0.0.1201_x64.msix
-    # Filled from the real file by scripts/update-winget-manifest.ps1; never
-    # hand-typed. A submission with a wrong hash is rejected by winget-pkgs
-    # validation, so the placeholder is a deliberate hard stop.
-    InstallerSha256: REPLACE_WITH_RELEASE_MSIX_SHA256_BEFORE_WINGET_PR
+    InstallerUrl: https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/msix-test-68f3dfc/BECETTI-SECURITY_1.0.0.1211_x64.msix
+    # Machine-generated: this hash was printed by the CI run that built and
+    # signed this exact file (notice annotation on msix-test run 45165004134).
+    # Never hand-edit it - a wrong value is rejected by winget-pkgs validation.
+    InstallerSha256: D8254B86C5164E1ECED9A78E0BDB6460F9D3B2D30286038DE00E1AC0F07A21CA
 ManifestType: singleton
 ManifestVersion: 1.6.0
