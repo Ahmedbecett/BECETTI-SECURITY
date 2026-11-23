@@ -662,6 +662,12 @@ jobs:
           Set-Content -Path $file -Value $text -NoNewline
           Write-Host "winget manifest -> $($env:PACKAGE_VERSION) / $sha"
 
+          # Surface the exact values as a notice annotation. Without this the
+          # hash only exists inside the artifact blob, which not every client can
+          # read, so completing the committed manifest meant hand-copying from a
+          # log that may be unreachable.
+          Write-Host "::notice title=winget manifest values::version=$($env:PACKAGE_VERSION) | asset=$($env:MSIX_FILENAME) | url=$url | sha256=$sha"
+
       # Only meaningful when a maintainer triggers the workflow manually: a push
       # must never mutate the repo, and the default GITHUB_TOKEN cannot push to a
       # protected branch. Recorded here so the manifest is refreshed by CI rather
