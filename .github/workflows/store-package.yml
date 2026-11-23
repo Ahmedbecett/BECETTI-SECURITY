@@ -19,7 +19,11 @@ name: Store package
 on:
   workflow_dispatch:
   push:
+    # A `branches:` filter alone makes tag pushes non-matching (GitHub ANDs the
+    # two filters), so the store-package* tag used to publish the submission
+    # artifact never triggered a build at all. Tags are listed explicitly.
     branches: [main, "arena/**"]
+    tags: ["store-package*"]
     paths:
       - "packaging/store/**"
       - "scripts/prepare-store-package.ps1"
