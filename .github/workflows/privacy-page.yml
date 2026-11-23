@@ -59,10 +59,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v5
+      # Every Pages step is continue-on-error: without an enabled Pages site the
+      # very first one (configure-pages) throws "Get Pages site failed", which
+      # would fail the job before the deployment step's tolerance applies.
       - uses: actions/configure-pages@v5
+        continue-on-error: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs/privacy
+        continue-on-error: true
       # GitHub Pages needs a one-time repository-admin action
       # (Settings -> Pages -> Source = GitHub Actions). The API rejects enabling
       # it even for an admin token ("Resource not accessible by integration"),
