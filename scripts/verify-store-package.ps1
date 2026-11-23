@@ -237,7 +237,6 @@ try {
         }
     }
 }
-}
 catch {
     Write-Host "::error::Store verification threw: $($_.Exception.GetType().Name): $($_.Exception.Message)"
     Log ""
