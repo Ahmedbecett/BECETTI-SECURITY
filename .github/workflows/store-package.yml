@@ -34,7 +34,7 @@ on:
       - "tests/**"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-store-package:
@@ -162,3 +162,52 @@ jobs:
             artifacts/store/*.log
           if-no-files-found: warn
           retention-days: 30
+
+      # A public, login-free download link. Workflow artifacts require a GitHub
+      # session and expire after the retention window, which is useless for a
+      # submission record that has to outlive the run.
+      #
+      # ONLY the .msixupload is published - never the inner .msix. The in-app
+      # updater picks the highest-versioned asset whose name ends in ".msix"
+      # (AppUpdaterService.ParseLatestReleaseJson); an unsigned Store .msix
+      # could never be installed by a user, so publishing it would let a future
+      # Store version (e.g. 1.1.0.0) silently outrank the signed sideload build
+      # and hand people a package they cannot install.
+      - name: Publish the submission package to a public release
+        if: success()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = "1.0.0.0"
+          $upload = "artifacts\store\BECETTI-SECURITY_${version}_x64.msixupload"
+          if (-not (Test-Path $upload)) { Write-Host "::error::No .msixupload to publish."; exit 1 }
+
+          $tag = "store-package-$version"
+          $notes = @"
+          Microsoft Store submission package for BECETTI SECURITY $version (x64).
+
+          UNSIGNED on purpose - Microsoft re-signs it after certification.
+          Upload this .msixupload in Partner Center -> Packages; it is not
+          installable by end users.
+
+          SHA-256: $((Get-FileHash $upload -Algorithm SHA256).Hash)
+          Built by Store package run ${{ github.run_id }} from ${{ github.sha }}.
+          "@
+
+          # Re-running the workflow must replace the assets, not fail on "already exists".
+          gh release view $tag --repo ${{ github.repository }} 2>$null | Out-Null
+          if ($LASTEXITCODE -eq 0) {
+            gh release delete $tag --repo ${{ github.repository }} --yes --cleanup-tag 2>$null
+          }
+          gh release create $tag `
+            --repo ${{ github.repository }} `
+            --target ${{ github.sha }} `
+            --title "BECETTI SECURITY $version - Microsoft Store submission package" `
+            --notes $notes `
+            --prerelease `
+            $upload `
+            "artifacts\store\store-package-verification.txt" `
+            "artifacts\store\WACK-REPORT.xml"
+          if ($LASTEXITCODE -ne 0) { Write-Host "::error::Failed to publish the release."; exit 1 }
+          Write-Host "Published: https://github.com/${{ github.repository }}/releases/tag/$tag"
