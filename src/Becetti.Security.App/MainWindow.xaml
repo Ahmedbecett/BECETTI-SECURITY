@@ -49,6 +49,9 @@
                         <NavigationViewItem x:Uid="NavYara" helpers:Loc.Uid="NavYara" Content="YARA Engine" Tag="Yara">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE9D5;" /></NavigationViewItem.Icon>
                         </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavMultiEngineAv" helpers:Loc.Uid="NavMultiEngineAv" Content="Multi-Engine AV (ClamAV/YARA-X)" Tag="MultiEngineAv">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xEA18;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
                         <NavigationViewItem x:Uid="NavAdvancedDefense" helpers:Loc.Uid="NavAdvancedDefense" Content="Advanced Defense" Tag="AdvancedDefense">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE83D;" /></NavigationViewItem.Icon>
                         </NavigationViewItem>
@@ -81,6 +84,9 @@
                         </NavigationViewItem>
                         <NavigationViewItem x:Uid="NavGlobalIntel" helpers:Loc.Uid="NavGlobalIntel" Content="Global Intel &amp; Radar" Tag="GlobalIntel">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE774;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavDomainHosting" helpers:Loc.Uid="NavDomainHosting" Content="Domain, Hosting &amp; DNS Suite" Tag="DomainHosting">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE968;" /></NavigationViewItem.Icon>
                         </NavigationViewItem>
                         <NavigationViewItem x:Uid="NavSocOperations" helpers:Loc.Uid="NavSocOperations" Content="SOC Operations &amp; SIEM" Tag="SocOperations">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE9D2;" /></NavigationViewItem.Icon>

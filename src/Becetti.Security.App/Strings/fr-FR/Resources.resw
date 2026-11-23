@@ -1272,4 +1272,22 @@ BECETTI SECURITY ne simule jamais de détections.</value>
   <data name="InfraComp_Subtitle.Text" xml:space="preserve">
     <value>Découverte LAN &amp; Ports · Journal DNS Live · Nettoyeur de Traces · Coffre AES-256-GCM Pro · Flotte Cloud · Conformité CIS/NIST</value>
   </data>
+  <data name="NavMultiEngineAv.Content" xml:space="preserve">
+    <value>Antivirus Multi-Moteurs Open Source</value>
+  </data>
+  <data name="NavDomainHosting.Content" xml:space="preserve">
+    <value>Domaine, Hébergement &amp; DNS</value>
+  </data>
+  <data name="MultiAv_Header.Text" xml:space="preserve">
+    <value>Hub Antivirus Multi-Moteurs Open Source</value>
+  </data>
+  <data name="MultiAv_Subtitle.Text" xml:space="preserve">
+    <value>5 Moteurs Locaux (0 Clé API, 100% Privé) : Microsoft Defender · YARA v4.6.0 (43 Règles) · Cisco Talos ClamAV · VirusTotal YARA-X (Rust) · Mandiant CAPA</value>
+  </data>
+  <data name="DomainHosting_Header.Text" xml:space="preserve">
+    <value>Suite Sécurité Domaine, Hébergement, DNS &amp; IP</value>
+  </data>
+  <data name="DomainHosting_Subtitle.Text" xml:space="preserve">
+    <value>DNS &amp; Propagation Mondiale · RDAP/WHOIS Officiel · Audit SSL/TLS &amp; En-têtes HTTP · SPF/DMARC/DKIM · IP/ASN/DNSBL/Ports · Sous-domaines crt.sh</value>
+  </data>
 </root>

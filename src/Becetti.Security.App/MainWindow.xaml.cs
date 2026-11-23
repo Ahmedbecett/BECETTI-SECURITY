@@ -55,6 +55,8 @@ public sealed partial class MainWindow : Window
         ["EdrCenter"] = typeof(EdrCenterPage),
         ["ProactiveDefense"] = typeof(ProactiveDefensePage),
         ["GlobalIntel"] = typeof(GlobalIntelPage),
+        ["MultiEngineAv"] = typeof(MultiEngineAvPage),
+        ["DomainHosting"] = typeof(DomainHostingPage),
         ["SocOperations"] = typeof(SocOperationsPage),
         ["InfraCompliance"] = typeof(InfrastructureCompliancePage),
         ["Protection"] = typeof(ProtectionPage),
@@ -279,6 +281,20 @@ public sealed partial class MainWindow : Window
             Subtitle = "Live C2 IP feeds, outbound country/ASN radar, 1-click firewall blocker, privacy hardener & updater",
             Category = "Global",
             TargetTag = "GlobalIntel"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Multi-Engine Open-Source Antivirus (Defender + YARA + ClamAV + YARA-X + CAPA)",
+            Subtitle = "Install official ClamAV/YARA-X/CAPA binaries with 0 API keys and run 5-engine local consensus scans",
+            Category = "Antivirus",
+            TargetTag = "MultiEngineAv"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Domain, Hosting, DNS & IP Security Suite (RDAP, SSL, Headers, SPF/DMARC, DNSBL, crt.sh)",
+            Subtitle = "Audit any domain, website, or IP: DNS records, 4-resolver propagation, WHOIS, TLS, headers, email & ports",
+            Category = "Domain & DNS",
+            TargetTag = "DomainHosting"
         });
         _allPaletteItems.Add(new CommandPaletteItem
         {

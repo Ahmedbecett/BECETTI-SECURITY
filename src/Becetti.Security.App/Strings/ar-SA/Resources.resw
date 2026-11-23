@@ -1273,4 +1273,22 @@
   <data name="InfraComp_Subtitle.Text" xml:space="preserve">
     <value>كشف أجهزة LAN والمنافذ · مراقبة DNS الحية · منظف آثار الخصوصية · خزنة AES-256-GCM Pro · أسطول الأجهزة السحابي · امتثال CIS/NIST</value>
   </data>
+  <data name="NavMultiEngineAv.Content" xml:space="preserve">
+    <value>مكافح الفيروسات متعدد المحركات</value>
+  </data>
+  <data name="NavDomainHosting.Content" xml:space="preserve">
+    <value>الدومين والاستضافة و DNS و IP</value>
+  </data>
+  <data name="MultiAv_Header.Text" xml:space="preserve">
+    <value>مركز مكافحة الفيروسات متعدد المحركات مفتوحة المصدر</value>
+  </data>
+  <data name="MultiAv_Subtitle.Text" xml:space="preserve">
+    <value>5 محركات محلية بدون مفاتيح API وبخصوصية 100%: Microsoft Defender · YARA v4.6.0 (43 قاعدة) · Cisco Talos ClamAV · VirusTotal YARA-X · Mandiant CAPA</value>
+  </data>
+  <data name="DomainHosting_Header.Text" xml:space="preserve">
+    <value>منصة فحص الدومين والاستضافة و DNS و IP العالمية</value>
+  </data>
+  <data name="DomainHosting_Subtitle.Text" xml:space="preserve">
+    <value>فحص سجلات DNS والانتشار العالمي · WHOIS/RDAP الرسمي · شهادات SSL وترويسات الأمان · بريد SPF/DMARC/DKIM · قوائم DNSBL والمنافذ · اكتشاف النطاقات الفرعية</value>
+  </data>
 </root>

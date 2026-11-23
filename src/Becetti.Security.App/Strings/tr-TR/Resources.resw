@@ -1273,4 +1273,22 @@ BECETTI SECURITY never simulates or fabricates detections.</value>
   <data name="InfraComp_Subtitle.Text" xml:space="preserve">
     <value>LAN ve Port Denetimi · Canlı DNS Tehdit Günlüğü · Gizlilik Temizleyici · AES-256-GCM Kasa Pro · Bulut Filosu · CIS/NIST Uyumluluğu</value>
   </data>
+  <data name="NavMultiEngineAv.Content" xml:space="preserve">
+    <value>Çoklu Açık Kaynak Antivirüs</value>
+  </data>
+  <data name="NavDomainHosting.Content" xml:space="preserve">
+    <value>Alan Adı, Hosting ve DNS</value>
+  </data>
+  <data name="MultiAv_Header.Text" xml:space="preserve">
+    <value>Çoklu Motor Açık Kaynak Antivirüs Merkezi</value>
+  </data>
+  <data name="MultiAv_Subtitle.Text" xml:space="preserve">
+    <value>5 Yerel Motor (0 API Anahtarı, %100 Gizli): Microsoft Defender · YARA v4.6.0 (43 Kural) · Cisco Talos ClamAV · VirusTotal YARA-X (Rust) · Mandiant CAPA</value>
+  </data>
+  <data name="DomainHosting_Header.Text" xml:space="preserve">
+    <value>Alan Adı, Hosting, DNS ve IP Güvenlik Paketi</value>
+  </data>
+  <data name="DomainHosting_Subtitle.Text" xml:space="preserve">
+    <value>Canlı DNS ve Küresel Yayılım · Resmi IANA RDAP/WHOIS · SSL/TLS ve HTTP Başlıkları · SPF/DMARC/DKIM · IP/ASN/DNSBL/Portlar · crt.sh Alt Alan Adları</value>
+  </data>
 </root>

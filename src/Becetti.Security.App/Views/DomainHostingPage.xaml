@@ -1,0 +1,212 @@
+<Page
+    x:Class="Becetti.Security.App.Views.DomainHostingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Padding="28,24,28,40" Spacing="18">
+
+            <!-- Hero Search & Grade Banner -->
+            <Border Style="{StaticResource GlassHeroCardStyle}" Padding="22">
+                <StackPanel Spacing="14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="6">
+                            <TextBlock x:Uid="DomainHosting_Header"
+                                       Text="Domain, Hosting, DNS &amp; IP Security Suite"
+                                       Style="{StaticResource PageTitleStyle}" />
+                            <TextBlock x:Uid="DomainHosting_Subtitle"
+                                       Text="Live DNS &amp; 4-Resolver Global Propagation · Official IANA RDAP/WHOIS · SSL/TLS &amp; HTTP Headers Grade · SPF/DMARC/DKIM · IP/ASN/DNSBL/Ports · crt.sh Subdomains"
+                                       Style="{StaticResource SectionSubtitleStyle}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding OverallGrade}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" />
+                            <ProgressRing IsActive="{Binding IsBusy}" Width="30" Height="30" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox PlaceholderText="Enter any domain (example.com), URL (https://site.com), or IP address (1.1.1.1)…"
+                                 Text="{Binding QueryInput, Mode=TwoWay}" />
+                        <Button Grid.Column="1"
+                                Content="Run Complete Audit"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding RunAuditCommand}" />
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <CheckBox Content="Probe Hosting TCP Ports (FTP/SSH/HTTP/HTTPS/MySQL/RDP/PostgreSQL)"
+                                  IsChecked="{Binding ProbeHostingPorts, Mode=TwoWay}" />
+                        <Button Content="Export HTML Report" Command="{Binding ExportHtmlCommand}" />
+                        <Button Content="Export JSON" Command="{Binding ExportJsonCommand}" />
+                        <Button Content="Ask BECETTI AI" Command="{Binding AskAiCommand}" />
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding OverallSummary}" FontWeight="SemiBold" TextWrapping="Wrap" Opacity="0.92" />
+                </StackPanel>
+            </Border>
+
+            <InfoBar IsOpen="{Binding HasStatus}" Severity="Success" Message="{Binding StatusMessage}" IsClosable="True" />
+            <InfoBar IsOpen="{Binding HasError}" Severity="Error" Message="{Binding ErrorMessage}" IsClosable="True" />
+
+            <!-- 6-Tab Domain, Hosting, DNS & IP Pivot -->
+            <Pivot>
+                <!-- TAB 1: WHOIS / RDAP & Overview -->
+                <PivotItem Header="WHOIS / RDAP">
+                    <StackPanel Spacing="12" Padding="0,14,0,0">
+                        <Border Style="{StaticResource CardStyle}" Padding="18">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Official IANA RDAP / WHOIS Registration Intelligence" FontWeight="SemiBold" FontSize="15" />
+                                <TextBlock Text="{Binding RdapSummary}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding RdapDetails}" FontFamily="Consolas" FontSize="12.5" TextWrapping="Wrap" Opacity="0.88" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </PivotItem>
+
+                <!-- TAB 2: Full DNS Records & 4-Resolver Global Propagation -->
+                <PivotItem Header="DNS &amp; Propagation">
+                    <StackPanel Spacing="14" Padding="0,14,0,0">
+                        <Border Style="{StaticResource CardStyle}" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="4-Resolver Global DNS Propagation &amp; DNSSEC Verification" FontWeight="SemiBold" FontSize="15" />
+                                <ListView ItemsSource="{Binding PropagationChecks}" SelectionMode="None" MaxHeight="200">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayLine}" FontFamily="Consolas" FontSize="12.5" TextWrapping="Wrap" Margin="0,2" />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="All Live DNS Records (A, AAAA, MX, NS, TXT, CNAME, SOA, CAA, DS)" FontWeight="SemiBold" FontSize="15" />
+                                <ListView ItemsSource="{Binding DnsRecords}" SelectionMode="None" MaxHeight="340">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayLine}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" Margin="0,2" />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </PivotItem>
+
+                <!-- TAB 3: SSL/TLS & Hosting HTTP Security Headers -->
+                <PivotItem Header="SSL &amp; Hosting">
+                    <StackPanel Spacing="14" Padding="0,14,0,0">
+                        <Border Style="{StaticResource CardStyle}" Padding="18">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Live TLS Certificate &amp; Hosting Stack Fingerprint" FontWeight="SemiBold" FontSize="15" />
+                                <TextBlock Text="{Binding SslSummary}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding SslCertDetails}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" Opacity="0.88" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="HTTP Security Headers Audit (HSTS, CSP, X-Frame-Options, nosniff, Referrer, Permissions)" FontWeight="SemiBold" FontSize="15" />
+                                <ListView ItemsSource="{Binding SecurityHeaders}" SelectionMode="None" MaxHeight="280">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayLine}" FontFamily="Consolas" FontSize="12.5" TextWrapping="Wrap" Margin="0,3" />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </PivotItem>
+
+                <!-- TAB 4: Email Domain Anti-Spoofing (SPF / DMARC / DKIM / MX) -->
+                <PivotItem Header="Email DNS">
+                    <StackPanel Spacing="14" Padding="0,14,0,0">
+                        <Border Style="{StaticResource CardStyle}" Padding="18">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Email Deliverability &amp; Anti-Spoofing Audit (MX / SPF / DMARC / DKIM / BIMI / MTA-STS)" FontWeight="SemiBold" FontSize="15" />
+                                <TextBlock Text="{Binding EmailSummary}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding EmailSpfDmarcDetails}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" Opacity="0.88" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Recommended DNS Hardening Actions" FontWeight="SemiBold" FontSize="15" />
+                                <ListView ItemsSource="{Binding EmailRecommendations}" SelectionMode="None" MaxHeight="220" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </PivotItem>
+
+                <!-- TAB 5: Hosting IP, ASN, 5-DNSBL Blacklist & Open Ports -->
+                <PivotItem Header="IP, DNSBL &amp; Ports">
+                    <StackPanel Spacing="14" Padding="0,14,0,0">
+                        <Border Style="{StaticResource CardStyle}" Padding="18">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Hosting IP, ASN, Reverse PTR &amp; Threat Feed Status" FontWeight="SemiBold" FontSize="15" />
+                                <TextBlock Text="{Binding IpSummary}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding IpDetails}" FontFamily="Consolas" FontSize="12.5" TextWrapping="Wrap" Opacity="0.88" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Live DNSBL / RBL Spam &amp; Malware Blacklist Checks (5 Lists)" FontWeight="SemiBold" FontSize="15" />
+                                <ListView ItemsSource="{Binding DnsblResults}" SelectionMode="None" MaxHeight="200">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayLine}" FontFamily="Consolas" FontSize="12.5" TextWrapping="Wrap" Margin="0,2" />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Hosting Server TCP Port Exposure Probe" FontWeight="SemiBold" FontSize="15" />
+                                <ListView ItemsSource="{Binding PortProbes}" SelectionMode="None" MaxHeight="280">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayLine}" FontFamily="Consolas" FontSize="12.5" TextWrapping="Wrap" Margin="0,2" />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </PivotItem>
+
+                <!-- TAB 6: Subdomain Discovery (crt.sh Certificate Transparency) -->
+                <PivotItem Header="Subdomains (CT)">
+                    <StackPanel Spacing="12" Padding="0,14,0,0">
+                        <Border Style="{StaticResource CardStyle}" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="{Binding SubdomainsSummary}" FontWeight="SemiBold" FontSize="14.5" TextWrapping="Wrap" />
+                                <ListView ItemsSource="{Binding Subdomains}" SelectionMode="None" MaxHeight="380">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayLine}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" Margin="0,2" />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </PivotItem>
+            </Pivot>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

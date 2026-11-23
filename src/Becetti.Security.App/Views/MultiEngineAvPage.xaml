@@ -1,0 +1,118 @@
+<Page
+    x:Class="Becetti.Security.App.Views.MultiEngineAvPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Padding="28,24,28,40" Spacing="18">
+
+            <!-- Hero Header -->
+            <Border Style="{StaticResource GlassHeroCardStyle}" Padding="22">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="6">
+                        <TextBlock x:Uid="MultiAv_Header"
+                                   Text="Multi-Engine Open-Source Antivirus Hub"
+                                   Style="{StaticResource PageTitleStyle}" />
+                        <TextBlock x:Uid="MultiAv_Subtitle"
+                                   Text="5 Local Engines (0 API Keys, 100% Private): Microsoft Defender · Native YARA v4.6.0 (43 Rules) · Cisco Talos ClamAV · VirusTotal YARA-X (Rust) · Mandiant CAPA"
+                                   Style="{StaticResource SectionSubtitleStyle}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ProgressRing Grid.Column="1" IsActive="{Binding IsBusy}" Width="32" Height="32" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <InfoBar IsOpen="{Binding HasStatus}" Severity="Success" Message="{Binding StatusMessage}" IsClosable="True" />
+            <InfoBar IsOpen="{Binding HasError}" Severity="Error" Message="{Binding ErrorMessage}" IsClosable="True" />
+
+            <!-- Open-Source Engines Status & 1-Click Official Installer -->
+            <Border Style="{StaticResource CardStyle}" Padding="18">
+                <StackPanel Spacing="12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="Installed Local &amp; Open-Source Antivirus Engines" FontWeight="SemiBold" FontSize="16" />
+                            <TextBlock Text="{Binding EnginesSummary}" Opacity="0.82" FontSize="12.5" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="Refresh Status" Command="{Binding RefreshEnginesCommand}" />
+                    </Grid>
+
+                    <ListView ItemsSource="{Binding Engines}" SelectionMode="None" MaxHeight="260">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="12,10" Margin="0,3" CornerRadius="8" Background="#14FFFFFF">
+                                    <StackPanel Spacing="3">
+                                        <TextBlock Text="{Binding DisplayLine}" FontWeight="SemiBold" FontSize="13.5" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.78" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Install ClamAV (Cisco Talos)" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding InstallClamAvCommand}" />
+                        <Button Content="Update ClamAV Virus DB (freshclam)" Command="{Binding UpdateClamAvDbCommand}" />
+                        <Button Content="Install YARA-X (VirusTotal Rust)" Command="{Binding InstallYaraXCommand}" />
+                        <Button Content="Install CAPA (Mandiant ATT&amp;CK)" Command="{Binding InstallCapaCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Multi-Engine Consensus Scanner -->
+            <Border Style="{StaticResource CardStyle}" Padding="18">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="1-Click Local Multi-Engine Consensus Scan (VirusTotal-Style · Zero Cloud Upload)" FontWeight="SemiBold" FontSize="16" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Pick File…" Click="OnPickFileClick" />
+                        <Button Content="Pick Folder…" Click="OnPickFolderClick" />
+                        <Button Content="Scan with All Ready Engines" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding ScanAllEnginesCommand}" />
+                        <Button Content="Quarantine File (AES-256)" Command="{Binding QuarantineTargetCommand}" />
+                        <Button Content="Ask BECETTI AI" Command="{Binding AskAiAboutResultCommand}" />
+                    </StackPanel>
+                    <TextBox Header="Target File or Folder" Text="{Binding TargetPath, Mode=TwoWay}" PlaceholderText="Pick any executable, document, archive, or folder to scan…" />
+                    <TextBlock Text="{Binding ConsensusVerdict}" FontWeight="Bold" FontSize="15" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding TargetSha256}" FontFamily="Consolas" FontSize="12" Opacity="0.78" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Engine Verdict Matrix -->
+            <Border Style="{StaticResource CardStyle}" Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Per-Engine Consensus Matrix" FontWeight="SemiBold" FontSize="15" />
+                    <ListView ItemsSource="{Binding ScanVerdicts}" SelectionMode="None" MaxHeight="260">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="10,8" Margin="0,3" CornerRadius="6" Background="#16FFFFFF">
+                                    <TextBlock Text="{Binding DisplayLine}" FontFamily="Consolas" FontSize="12.5" TextWrapping="Wrap" />
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Mandiant CAPA Capabilities -->
+            <Border Style="{StaticResource CardStyle}" Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Mandiant CAPA Malware Behavior Capabilities (MITRE ATT&amp;CK)" FontWeight="SemiBold" FontSize="15" />
+                    <ListView ItemsSource="{Binding CapaCapabilities}" SelectionMode="None" MaxHeight="220">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" Margin="0,2" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

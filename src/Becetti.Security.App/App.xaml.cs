@@ -149,10 +149,14 @@ public partial class App : Application
         services.AddHttpClient<IThreatFeedService, ThreatFeedService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IOutboundRadarService, OutboundRadarService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
         services.AddHttpClient<IAppUpdaterService, AppUpdaterService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IMultiEngineAvService, MultiEngineAvService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
+        services.AddHttpClient<IDomainHostingIntelService, DomainHostingIntelService>().ConfigurePrimaryHttpMessageHandler(NetworkResilientHandler);
 
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<ScanViewModel>();
         services.AddTransient<YaraScannerViewModel>();
+        services.AddTransient<MultiEngineAvViewModel>();
+        services.AddTransient<DomainHostingViewModel>();
         services.AddTransient<AdvancedDefenseViewModel>();
         services.AddTransient<EdrCenterViewModel>();
         services.AddTransient<ProactiveDefenseViewModel>();
