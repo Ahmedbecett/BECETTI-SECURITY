@@ -487,7 +487,7 @@ jobs:
           Windows ever shows "already installed" with Reinstall/Launch
           instead of a normal Install for an older download)
 
-          Package identity: BECETTI.BECETTISECURITY
+          Package identity: Ahmedbecetti.BECETTISECURITY
           Publisher: CN=A5D5DC31-4A15-4059-8030-D96C51054596
           (this is the verified Microsoft Partner Center Windows Publisher ID
           for this account - it identifies WHO the publisher is, independent
@@ -549,7 +549,7 @@ jobs:
           Alternative (PowerShell, as Administrator):
             certutil -hashfile BecettiTestCert.cer SHA256
             Import-Certificate -FilePath BecettiTestCert.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
-            Get-AppxPackage -Name BECETTI.BECETTISECURITY | Remove-AppxPackage
+            Get-AppxPackage -Name Ahmedbecetti.BECETTISECURITY | Remove-AppxPackage
             Add-AppxPackage -Path $env:MSIX_FILENAME
 
           Runtime dependency: this build is SELF-CONTAINED - it bundles its

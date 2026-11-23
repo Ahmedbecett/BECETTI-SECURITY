@@ -19,7 +19,7 @@
   product release; the Store fills the 4th field itself).
 
   IDENTITY IS INTENTIONALLY UNCHANGED from the shipped sideload package:
-    Name      = BECETTI.BECETTISECURITY
+    Name      = Ahmedbecetti.BECETTISECURITY
     Publisher = CN=A5D5DC31-4A15-4059-8030-D96C51054596
   Both values MUST equal Product management -> Product identity in Partner
   Center, character for character (values are case-sensitive). They were NOT
@@ -38,7 +38,7 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="BECETTI.BECETTISECURITY"
+    Name="Ahmedbecetti.BECETTISECURITY"
     Publisher="CN=A5D5DC31-4A15-4059-8030-D96C51054596"
     Version="1.0.0.0"
     ProcessorArchitecture="x64" />

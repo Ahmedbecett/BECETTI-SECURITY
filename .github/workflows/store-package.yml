@@ -68,8 +68,8 @@ jobs:
           # Partner Center -> Product identity first, then updated here.
           [xml]$m = Get-Content "packaging\store\Package.store.appxmanifest"
           $id = $m.Package.Identity
-          if ($id.Name -ne "BECETTI.BECETTISECURITY") {
-            Write-Host "::error::Identity Name is '$($id.Name)' - expected BECETTI.BECETTISECURITY (Partner Center value)."
+          if ($id.Name -ne "Ahmedbecetti.BECETTISECURITY") {
+            Write-Host "::error::Identity Name is '$($id.Name)' - expected Ahmedbecetti.BECETTISECURITY (Partner Center value)."
             exit 1
           }
           if ($id.Publisher -ne "CN=A5D5DC31-4A15-4059-8030-D96C51054596") {
