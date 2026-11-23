@@ -936,12 +936,14 @@ public sealed class DomainHostingIntelService : IDomainHostingIntelService
     private static string ExtractCnShort(string? dn)
     {
         var safe = dn ?? string.Empty;
+        string? orgFallback = null;
         foreach (var p in safe.Split(','))
         {
             var t = p.Trim();
             if (t.StartsWith("CN=", StringComparison.OrdinalIgnoreCase)) return t[3..].Trim();
-            if (t.StartsWith("O=", StringComparison.OrdinalIgnoreCase)) return t[2..].Trim();
+            if (orgFallback is null && t.StartsWith("O=", StringComparison.OrdinalIgnoreCase)) orgFallback = t[2..].Trim();
         }
+        if (!string.IsNullOrWhiteSpace(orgFallback)) return orgFallback;
         return safe.Length > 36 ? safe[..36] + "…" : safe;
     }
 }
