@@ -173,8 +173,15 @@ jobs:
       # could never be installed by a user, so publishing it would let a future
       # Store version (e.g. 1.1.0.0) silently outrank the signed sideload build
       # and hand people a package they cannot install.
+      # Deliberately manual-only. An earlier revision published on every push,
+      # so a one-line source change silently replaced the .msixupload that had
+      # already been uploaded to Partner Center - new bytes, new SHA-256, same
+      # version number. That is indistinguishable from tampering during
+      # certification and makes every recorded hash stale. Building and
+      # verifying still happens on every push; only *publishing* the public
+      # submission artifact is an explicit act (Actions -> Run workflow).
       - name: Publish the submission package to a public release
-        if: success()
+        if: success() && github.event_name == 'workflow_dispatch'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}

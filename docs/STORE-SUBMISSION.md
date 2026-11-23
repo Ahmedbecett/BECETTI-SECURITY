@@ -78,10 +78,17 @@ the shipped package into `packaging/store/Package.store.appxmanifest`, and
 | `scripts/verify-store-package.ps1` | Opens the package, re-reads identity/capabilities **from the artifact**, confirms unsigned + x64-only + required payload, prints SHA-256, runs WACK |
 | `.github/workflows/store-package.yml` | Runs all of the above on `windows-latest` and attaches the `.msixupload`, `.msix`, WACK XML and verification report to the run |
 
-### Measured result — Store package run 45150252128 (green)
+### Measured result — Store package run 45154845554 (green)
 
 Every number below was printed by the pipeline, not typed in by hand. It is
-reproducible with `gh run view 45150252128` / the `store-package-x64` artifact.
+reproducible with `gh run view 45154845554` / the `store-package-x64` artifact.
+
+**This is the build whose bytes are on the public release.** Publishing is
+gated to `workflow_dispatch` on purpose: pushes still build and verify, but
+only a manual run replaces the published `.msixupload`. Before that gate, a
+one-line source change re-ran the release and swapped the bytes while the
+version stayed `1.0.0.0` - new SHA-256, same version, indistinguishable from a
+tampered package mid-certification.
 
 > **The hash is build-specific.** MSIX packaging is not bit-reproducible
 > (timestamps, block map ordering), so every rebuild of the same sources
@@ -94,7 +101,7 @@ reproducible with `gh run view 45150252128` / the `store-package-x64` artifact.
 | Artifact | `BECETTI-SECURITY_1.0.0.0_x64.msixupload` |
 | Public download | <https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/store-package-1.0.0.0/BECETTI-SECURITY_1.0.0.0_x64.msixupload> |
 | Size | 90.16 MB (94,537,759 bytes) |
-| **SHA-256** | `35318BDE4B272519136500ED4816B286D50F9224D8DBF9CF2975F96B7674E0FA` |
+| **SHA-256** | `B30B0522D360F9C367049B9CF5B40633C26492C371A1F737A8453CD0695D0C6D` |
 | Contents | `Becetti.Security.App_1.0.0.0_x64.msix` (94,009,139 B) + `..._x64.appxsym` (513,862 B) |
 | Identity read from the package | `BECETTI.BECETTISECURITY` / `CN=A5D5DC31-4A15-4059-8030-D96C51054596` |
 | Version read from the package | `1.0.0.0` (fourth field 0) |
