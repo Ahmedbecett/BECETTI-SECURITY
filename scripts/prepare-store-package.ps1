@@ -43,12 +43,23 @@ function Read-Manifest([string]$path) {
     return $xml
 }
 
+# NOTE: the XmlNamespaceManager must be built from the XmlDocument's own
+# NameTable inside plain .NET code. `New-Object XmlNamespaceManager($doc.NameTable)`
+# wraps the NameTable and the manager ends up reading a PSObject instead of an
+# XmlNameTable, so every XPath lookup below silently returns $null.
+function New-ManifestNamespaceManager([System.Xml.XmlDocument]$doc) {
+    $ns = [System.Xml.XmlNamespaceManager]::new($doc.NameTable)
+    $ns.AddNamespace("f",      "http://schemas.microsoft.com/appx/manifest/foundation/windows10")
+    $ns.AddNamespace("rescap", "http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities")
+    $ns.AddNamespace("uap",    "http://schemas.microsoft.com/appx/manifest/uap/windows10")
+    return $ns
+}
+
 Write-Host "=== BECETTI SECURITY - Store manifest preparation ===" -ForegroundColor Cyan
 
 if ($Sync) {
     $src = Read-Manifest $SideloadManifest
-    $ns  = New-Object System.Xml.XmlNamespaceManager($src.NameTable)
-    $ns.AddNamespace("f", "http://schemas.microsoft.com/appx/manifest/foundation/windows10")
+    $ns  = New-ManifestNamespaceManager $src
 
     $identity = $src.SelectSingleNode("/f:Package/f:Identity", $ns)
     if (-not $identity) { throw "No <Identity> in $SideloadManifest" }
@@ -63,12 +74,14 @@ if ($Sync) {
 $store = Read-Manifest $StoreManifest
 $side  = Read-Manifest $SideloadManifest
 
-$nsStore = New-Object System.Xml.XmlNamespaceManager($store.NameTable)
-$nsStore.AddNamespace("f",    "http://schemas.microsoft.com/appx/manifest/foundation/windows10")
-$nsStore.AddNamespace("rescap", "http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities")
+$nsStore = New-ManifestNamespaceManager $store
+$nsSide  = New-ManifestNamespaceManager $side
 
 $storeIdentity = $store.SelectSingleNode("/f:Package/f:Identity", $nsStore)
-$sideIdentity  = $side.SelectSingleNode("/f:Package/f:Identity", (New-Object System.Xml.XmlNamespaceManager($side.NameTable) | ForEach-Object { $_.AddNamespace("f","http://schemas.microsoft.com/appx/manifest/foundation/windows10"); $_ }))
+$sideIdentity  = $side.SelectSingleNode("/f:Package/f:Identity", $nsSide)
+
+if (-not $storeIdentity) { throw "No <Identity> found in $StoreManifest - manifest is malformed." }
+if (-not $sideIdentity)  { throw "No <Identity> found in $SideloadManifest - manifest is malformed." }
 
 # ---- 1. Version rules (Microsoft: 4 parts, 4th must be 0, Major != 0, each <= 65535)
 $version = $storeIdentity.GetAttribute("Version")

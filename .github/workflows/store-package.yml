@@ -82,22 +82,22 @@ jobs:
         if: always()
         shell: pwsh
         run: |
-          $summary = ".github/store-summary.md"
+          # $GITHUB_STEP_SUMMARY is the only thing that renders on the run page;
+          # writing a local .md file would leave the reviewer with nothing to read.
+          $summaryFile = $env:GITHUB_STEP_SUMMARY
           $report = "artifacts\store\store-package-verification.txt"
-          "" | Out-File $summary -Encoding utf8
-          "## Microsoft Store submission artifact" | Out-File $summary -Append -Encoding utf8
-          "" | Out-File $summary -Append -Encoding utf8
+          Add-Content -Path $summaryFile -Value "## Microsoft Store submission artifact"
+          Add-Content -Path $summaryFile -Value ""
           if (Test-Path $report) {
-            "``````" | Out-File $summary -Append -Encoding utf8
-            Get-Content $report | Out-File $summary -Append -Encoding utf8
-            "``````" | Out-File $summary -Append -Encoding utf8
+            Add-Content -Path $summaryFile -Value '```'
+            Get-Content $report | ForEach-Object { Add-Content -Path $summaryFile -Value $_ }
+            Add-Content -Path $summaryFile -Value '```'
           } else {
-            "Verification report was not produced - the build or manifest check failed before it ran." | Out-File $summary -Append -Encoding utf8
+            Add-Content -Path $summaryFile -Value "Verification report was not produced - the manifest check or the build failed before it ran."
           }
-          $wack = "artifacts\store\WACK-REPORT.xml"
-          if (Test-Path $wack) {
-            "" | Out-File $summary -Append -Encoding utf8
-            "WACK report attached as an artifact (``WACK-REPORT.xml``)." | Out-File $summary -Append -Encoding utf8
+          if (Test-Path "artifacts\store\WACK-REPORT.xml") {
+            Add-Content -Path $summaryFile -Value ""
+            Add-Content -Path $summaryFile -Value "WACK XML report is attached as the ``store-package-x64`` artifact."
           }
           Get-Content $report -ErrorAction SilentlyContinue | Write-Host
 

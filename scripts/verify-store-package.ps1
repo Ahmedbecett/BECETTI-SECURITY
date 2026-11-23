@@ -75,7 +75,10 @@ try {
             $manifestXml = $reader.ReadToEnd(); $reader.Dispose()
             $doc = New-Object System.Xml.XmlDocument
             $doc.LoadXml($manifestXml)
-            $ns = New-Object System.Xml.XmlNamespaceManager($doc.NameTable)
+            # Plain .NET construction: New-Object XmlNamespaceManager($doc.NameTable)
+            # wraps the NameTable in a PSObject and every XPath lookup then returns
+            # $null, which would silently skip the identity/capability checks.
+            $ns = [System.Xml.XmlNamespaceManager]::new($doc.NameTable)
             $ns.AddNamespace("f", "http://schemas.microsoft.com/appx/manifest/foundation/windows10")
 
             $id = $doc.SelectSingleNode("/f:Package/f:Identity", $ns)
@@ -140,16 +143,26 @@ try {
     if ($SkipWack) {
         Log "-- WACK: skipped (-SkipWack)."
     } else {
-        $candidates = @()
-        $candidates += Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\App Certification Kit\appcert.exe" -ErrorAction SilentlyContinue
-        $candidates += Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\App Certification Kit\appcertui.exe" -ErrorAction SilentlyContinue
-        $appcert = $candidates | Where-Object { $_.Name -eq "appcert.exe" } | Select-Object -First 1
+        $appcert = $null
+        $kitRoot = "${env:ProgramFiles(x86)}\Windows Kits\10\App Certification Kit"
+        $direct  = Join-Path $kitRoot "appcert.exe"
+        if (Test-Path $direct) { $appcert = Get-Item $direct }
+        if (-not $appcert) {
+            # Windows App Cert Kit also ships in version-stamped SDK bin folders on
+            # some runner images - search for it rather than assuming one layout.
+            $appcert = Get-ChildItem -Path "${env:ProgramFiles(x86)}\Windows Kits" -Filter "appcert.exe" -Recurse -ErrorAction SilentlyContinue |
+                Select-Object -First 1
+        }
 
         if (-not $appcert) {
             Log ""
             Log "WACK: appcert.exe not found on this machine (install the Windows SDK's"
-            Log "      'Windows App Certification Kit' component). Not treated as a pass."
+            Log "      'Windows App Certification Kit' component). This run does NOT"
+            Log "      constitute a WACK pass - run store-package.yml on a runner image"
+            Log "      that ships the kit, or run WACK manually on Windows."
         } else {
+            Log ""
+            Log "WACK binary: $($appcert.FullName)"
             $wackReport = Join-Path $reportDir "wack-report.xml"
             if (Test-Path $wackReport) { Remove-Item $wackReport -Force }
             Log ""
