@@ -49,3 +49,8 @@ __pycache__/
 src/Becetti.Security.App/Native/yara/win-x64/*.exe
 src/Becetti.Security.App/Native/yara/win-x64/yara-build-info.json
 src/Becetti.Security.App/Native/yara/win-x64/COPYING
+
+# Store listing artwork pipeline (scripts/store-art.py)
+# The committed PNGs in store/art/ are the deliverables; these are scratch.
+.venv-art/
+.art-cache/

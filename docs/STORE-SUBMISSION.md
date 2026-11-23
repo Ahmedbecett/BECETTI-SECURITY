@@ -40,8 +40,15 @@
    sideload/test artifact only — the `.msixupload` is unsigned and is not
    meant to be installed directly).
 6. Partner Center: create the app, upload the `.msixupload`, add screenshots
-   (capture from the real app), description (`store/description-*.md`),
-   privacy policy URL, support email, age rating questionnaire.
+   (capture from the real app), description, privacy policy URL, support
+   email, age rating questionnaire. **The Arabic (Saudi Arabia) listing is
+   fully written and paste-ready in `store/listing-ar-sa.md`** — every field,
+   with its Microsoft character limit verified. Store artwork at the exact
+   required pixel sizes is in `store/art/` (regenerate with
+   `.venv-art/bin/python scripts/store-art.py`). Screenshots cannot be
+   generated here: capture them from the real app per
+   `store/screenshots-ar-sa.md`. `store/description-ar.md` and
+   `store/description-en.md` are SUPERSEDED — do not submit from them.
 7. Submit for certification. All advertised capabilities exist in the build.
 
 ## Pre-submission readiness checklist (status as of this commit)

@@ -1,3 +1,20 @@
+# BECETTI SECURITY — Store description (English)
+
+> **SUPERSEDED — do not submit from this file.**
+>
+> This text describes an older Defender-only, two-language (EN/AR) build. The
+> shipped app now runs **two engines** (Microsoft Defender + native YARA
+> v4.6.0), ships **6 languages**, and has **50+ modules** (EDR, live threat
+> intel, MITRE ATT&CK, GeoIP radar, hardening, forensics, BECETTI AI).
+>
+> The complete paste-ready listing — every field, not just the description —
+> is [`store/listing-ar-sa.md`](listing-ar-sa.md) for Arabic.
+> Ask for the same treatment for EN/FR/ES/DE/TR before submitting those.
+>
+> Kept below for history only.
+
+---
+
 # BECETTI SECURITY
 
 Your Digital Protection Center.
