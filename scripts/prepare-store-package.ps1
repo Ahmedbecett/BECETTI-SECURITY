@@ -56,6 +56,8 @@ function New-ManifestNamespaceManager([System.Xml.XmlDocument]$doc) {
 }
 
 Write-Host "=== BECETTI SECURITY - Store manifest preparation ===" -ForegroundColor Cyan
+Write-Host "PowerShell $($PSVersionTable.PSVersion) on $([System.Environment]::OSVersion.VersionString)"
+Write-Host "Manifests: sideload='$SideloadManifest' store='$StoreManifest' sync=$Sync"
 
 if ($Sync) {
     $src = Read-Manifest $SideloadManifest
@@ -71,6 +73,7 @@ if ($Sync) {
     $src.Save((Join-Path $root $StoreManifest))
 }
 
+try {
 $store = Read-Manifest $StoreManifest
 $side  = Read-Manifest $SideloadManifest
 
@@ -178,6 +181,13 @@ $langs = @()
 foreach ($r in $store.SelectNodes("/f:Package/f:Resources/f:Resource", $nsStore)) { $langs += $r.GetAttribute("Language") }
 Write-Host ("Resource languages : " + ($langs -join ", "))
 
+}
+catch {
+    Write-Host "::error::prepare-store-package.ps1 threw: $($_.Exception.GetType().Name): $($_.Exception.Message)"
+    Write-Host "at: $($_.InvocationInfo.PositionMessage)"
+    exit 2
+}
+
 Write-Host ""
 if ($warnings.Count -gt 0) {
     Write-Host "WARNINGS ($($warnings.Count)):" -ForegroundColor Yellow
@@ -185,7 +195,10 @@ if ($warnings.Count -gt 0) {
 }
 if ($errors.Count -gt 0) {
     Write-Host "FAILED ($($errors.Count) problem(s)) - this manifest is NOT Store-submittable:" -ForegroundColor Red
-    foreach ($e in $errors) { Write-Host "  - $e" -ForegroundColor Red }
+    foreach ($e in $errors) {
+        Write-Host "  - $e" -ForegroundColor Red
+        Write-Host "::error::$e"
+    }
     exit 1
 }
 
