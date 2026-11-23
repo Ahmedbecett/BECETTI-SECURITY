@@ -164,35 +164,36 @@ Windows machine:
 - [x] **Support email** - `store/privacy-policy.md` now lists
       `ahmedbecetti41@gmail.com` (confirmed by the user) instead of the
       `support@becetti.example` placeholder.
-- [x] **Privacy policy hosted at a public HTTPS URL** - live now at:
-      `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/arena/1590a9fd-becetti-security/store/privacy-policy.md`
-      (GitHub renders `.md` as formatted HTML; verified publicly reachable,
-      no sign-in required, during this session). Two hosting paths were
-      attempted and ruled out first - recorded here so they aren't retried:
-      - **Vercel**: a project was created and a deployment was attempted
-        7 different ways (files-based, git-linked, with/without explicit
-        `project_settings`, with/without `root_directory`). Every attempt
-        failed with the same Vercel API error - *"The `projectSettings`
-        object is required for new projects, but is missing in the
-        deployment payload"* - even when `project_settings` was explicitly
-        supplied. This is a bug/limitation in the Vercel connector tool's
-        first-deployment path, not something fixable from this session. A
-        static HTML privacy-policy page was still prepared at
-        `store/site/index.html` in case you want to deploy it yourself
-        later (`vercel deploy` from the Vercel CLI, or retried through the
-        connector once/if that bug is fixed).
-      - **GitHub Pages**: `gh api -X POST .../pages` failed with `403
-        Resource not accessible by integration` - enabling Pages needs
-        repository-admin permission the sandbox's GitHub token doesn't
-        have; only you can enable it from **Settings → Pages** in the
-        GitHub UI.
-      - **Caveat on the current GitHub-blob URL**: it is tied to the
-        branch name `arena/1590a9fd-becetti-security`. Once this work is
-        merged, **update the Partner Center privacy policy field to point
-        at the `main` branch** version instead, e.g.
-        `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/main/store/privacy-policy.md`,
-        since a feature branch can be deleted after merging and would
-        break the link.
+- [x] **Privacy policy hosted at a public HTTPS URL** - the policy is
+      `store/privacy-policy.md` in the repository (public, no sign-in) and a
+      styled HTML edition is published to GitHub Pages by
+      `.github/workflows/privacy-page.yml` from `docs/privacy/index.html`.
+      Target URL once Pages is switched on:
+      `https://ahmedbecett.github.io/BECETTI-SECURITY/`
+      - **Why the URL keeps changing**: earlier revisions of this document
+        pointed at `https://github.com/.../blob/arena/1590a9fd-becetti-security/...`.
+        That is a *working branch*. It renders today and 404s the moment the
+        branch is deleted, which would break the privacy URL on an app that is
+        already listed. Do not put a branch-scoped URL in Partner Center.
+      - **Verified status of each option** (checked in this session, not
+        assumed): `main`-branch blob URL -> **404 today** (the file is not on
+        `main` yet; it only exists on this branch, so merging is what makes it
+        live). `arena/1590a9fd-...` blob URL -> **200 today, fragile**.
+        GitHub Pages -> `GET /pages` returns **404 / not enabled**: only a
+        repository admin can turn it on (Settings -> Pages -> Source = GitHub
+        Actions), then the workflow above deploys it.
+      - Two hosting paths were ruled out earlier and are recorded so they are
+        not retried: **Vercel** (the connector's first-deployment path rejects
+        every payload with *"The `projectSettings` object is required for new
+        projects"* even when supplied) and **creating Pages via API**
+        (`403 Resource not accessible by integration`).
+- [x] **A stable, permanent fallback URL that works today** - the repository
+      file on the `main` branch will be the durable link once this branch is
+      merged. Until then, the reachable-and-durable option is the repository
+      itself: `https://github.com/Ahmedbecett/BECETTI-SECURITY` (public).
+      A privacy policy URL must be *public and stable*; prefer, in order:
+      GitHub Pages (`https://ahmedbecett.github.io/BECETTI-SECURITY/`), then
+      the `main` blob URL, and treat any `arena/*` URL as temporary.
 - [ ] **Real screenshots of the actual running app**, captured on a real
       Windows 10/11 machine after installing a genuine build. These cannot
       be produced here: this sandbox has no Windows runtime, so the WinUI 3

@@ -49,6 +49,17 @@
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
+                    <TextBlock Text="Privacy Policy" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="What BECETTI SECURITY reads, what it sends to the cloud, and what it never collects."
+                               Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                    <HyperlinkButton x:Uid="PrivacyPolicyLink" helpers:Loc.Uid="PrivacyPolicyLink"
+                                     Content="Open the privacy policy"
+                                     NavigateUri="https://ahmedbecett.github.io/BECETTI-SECURITY/"
+                                     Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
                     <TextBlock Text="Developed by BECETTI" Style="{StaticResource ValueStyle}" />
                     <TextBlock Text="BECETTI SECURITY v1.0.0 — Windows 10 and Windows 11 (x64). English, العربية, Français." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
                 </StackPanel>

@@ -120,15 +120,18 @@ from training-data memory, since Store policy details change over time):
   setup requires. Only you can enable it, from the repo's
   **Settings → Pages**.
 - **What is actually live right now, verified by fetching it in this
-  session**: GitHub renders `store/privacy-policy.md` as a formatted page
-  automatically, and the repository is public, so this URL works today,
-  with no sign-in:
-  `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/arena/1590a9fd-becetti-security/store/privacy-policy.md`
-  This is a real, working, public HTTPS URL - confirmed by fetching it
-  and seeing the rendered content with the real support email, not
-  assumed. **Caveat**: it points at this feature branch. After this work
-  is merged, switch the URL used in Partner Center to the `main`-branch
-  version so it survives this branch being deleted later.
+  session**: `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/arena/1590a9fd-becetti-security/store/privacy-policy.md`
+  returns **HTTP 200** with the rendered policy and the real support email.
+  It is *not* a good URL to ship: it is scoped to a disposable work branch
+  and will 404 once that branch is deleted. The `main` version returns
+  **HTTP 404 today** because the file is not on `main` yet - merging this
+  branch is what makes
+  `https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/main/store/privacy-policy.md`
+  live. GitHub Pages is **not enabled** (the Pages API returns 404); a ready
+  workflow (`.github/workflows/privacy-page.yml`) publishes
+  `docs/privacy/index.html` as soon as a repository admin sets
+  Settings -> Pages -> Source = **GitHub Actions**, giving
+  `https://ahmedbecett.github.io/BECETTI-SECURITY/`.
 - A styled static HTML version was also prepared at `store/site/index.html`
   (bilingual EN/AR, matches the app's dark theme) in case you later want a
   nicer-looking page - e.g. by deploying it yourself through the Vercel

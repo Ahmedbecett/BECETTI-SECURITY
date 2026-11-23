@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — BECETTI SECURITY</title>
+<meta name="description" content="Privacy policy for the BECETTI SECURITY Windows application.">
+<meta name="robots" content="index,follow">
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 2.5rem 1.25rem 5rem;
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #1c1c1e; background: #ffffff;
+    max-width: 54rem; margin-inline: auto;
+  }
+  header { border-bottom: 2px solid #0b6cff; padding-bottom: 1rem; margin-bottom: 2rem; }
+  h1 { font-size: 1.9rem; margin: 0 0 .35rem; letter-spacing: -.02em; }
+  .meta { color: #5a5a66; font-size: .9rem; margin: 0; }
+  h2 { font-size: 1.15rem; margin: 2.25rem 0 .6rem; }
+  ul { padding-left: 1.35rem; }
+  li { margin: .3rem 0; }
+  code { background: #f1f2f6; padding: .12em .38em; border-radius: 4px; font-size: .9em; }
+  .note { background: #f5f8ff; border-left: 4px solid #0b6cff; padding: .9rem 1.1rem; margin: 1.5rem 0; }
+  a { color: #0b5fd0; }
+  footer { margin-top: 3.5rem; padding-top: 1rem; border-top: 1px solid #e3e4ea; color: #5a5a66; font-size: .875rem; }
+  @media (prefers-color-scheme: dark) {
+    body { color: #e8e8ed; background: #131317; }
+    .meta, footer { color: #a0a0ad; }
+    code { background: #23232b; }
+    .note { background: #182238; }
+    a { color: #6fb0ff; }
+    footer { border-top-color: #2b2b34; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Privacy Policy — BECETTI SECURITY</h1>
+  <p class="meta">Effective date: 20 November 2026 &middot; Last updated: 23 November 2026 &middot; Publisher: BECETTI</p>
+</header>
+
+<p>This policy describes exactly what the <strong>BECETTI SECURITY</strong> Windows
+application does with your data. It applies to the version distributed through
+the Microsoft Store and to the signed package distributed from this
+repository.</p>
+
+<h2>What BECETTI SECURITY does</h2>
+<p>BECETTI SECURITY is a Windows security center. It uses <strong>Microsoft
+Defender</strong> for scanning and threat removal. It does not replace Microsoft
+Defender, does not ship its own antivirus engine, and never disables Defender.</p>
+
+<h2>Data processed on your device</h2>
+<ul>
+  <li>Security status and scan results read from Microsoft Defender.</li>
+  <li>Your settings, stored locally under <code>%LocalAppData%\BecettiSecurity</code>.</li>
+  <li>A local history of security events that actually occurred.</li>
+  <li>Cloud session tokens, protected with Windows DPAPI.</li>
+</ul>
+<p>This data stays on the device. It is not transmitted unless you explicitly
+use a cloud feature.</p>
+
+<h2>Data sent to the BECETTI cloud API (only when you configure it)</h2>
+<ul>
+  <li>Your account email and password. Passwords are hashed with BCrypt on the
+      server; the plaintext is never stored.</li>
+  <li>SHA-256 hashes of files you explicitly choose to check.
+      <strong>Files themselves are never uploaded.</strong></li>
+  <li>Your app version, when you check for updates.</li>
+</ul>
+
+<h2>Data never collected</h2>
+<ul>
+  <li>No telemetry by default. Telemetry is opt-in in Settings and off by default.</li>
+  <li>No browsing history, no keystrokes, no screen content, no personal files.</li>
+  <li>No advertising identifiers.</li>
+</ul>
+
+<h2>Third-party services</h2>
+<ul>
+  <li><strong>Microsoft Defender</strong> — on-device scanning, by Microsoft.</li>
+  <li><strong>VirusTotal</strong> — server-side reputation lookups, only when the
+      operator has configured an API key, and only file hashes are sent.</li>
+  <li><strong>Microsoft Store</strong> — distribution and updates, by Microsoft.</li>
+</ul>
+
+<div class="note">
+  <strong>Store builds:</strong> the Microsoft Store version is installed and
+  updated only through the Store. It does not contact GitHub for updates and
+  does not download executable code at runtime.
+</div>
+
+<h2>Your choices</h2>
+<ul>
+  <li>Use the app fully offline: local features work without any account.</li>
+  <li>Sign out at any time (Cloud Security page); tokens are deleted locally.</li>
+  <li>Delete local data by removing <code>%LocalAppData%\BecettiSecurity</code>.</li>
+</ul>
+
+<h2>Children</h2>
+<p>The application is a general-purpose security tool and is not directed at
+children. It collects no personal information from any user beyond what is
+listed above.</p>
+
+<h2>Changes to this policy</h2>
+<p>Material changes will be reflected on this page with a new last-updated
+date before they take effect.</p>
+
+<h2>Contact</h2>
+<p>Support and privacy enquiries:
+<a href="mailto:ahmedbecetti41@gmail.com">ahmedbecetti41@gmail.com</a></p>
+
+<footer>
+  BECETTI SECURITY &middot;
+  <a href="https://github.com/Ahmedbecett/BECETTI-SECURITY">source repository</a> &middot;
+  <a href="https://github.com/Ahmedbecett/BECETTI-SECURITY/blob/main/store/privacy-policy.md">Markdown version</a>
+</footer>
+
+</body>
+</html>
