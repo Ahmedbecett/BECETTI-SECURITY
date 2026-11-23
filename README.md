@@ -38,7 +38,7 @@
 ## 📦 Installation (Windows 10 / 11 x64)
 
 ### Option 1: Official Signed MSIX Package (Recommended)
-1. Visit **[Official Website](https://becetti-ai-backend.vercel.app)** or **[GitHub Releases](https://github.com/Ahmedbecett/BECETTI-SECURITY/releases)**.
+1. Visit **[Official Website](https://becetti-ai-backend.vercel.app)** or **[GitHub Releases](https://github.com/Ahmedbecett/BECETTI-SECURITY/releases)** — the website's download button always resolves to the numerically newest signed MSIX (it does not rely on GitHub's `latest` alias, which is not used for CI builds).
 2. Download the latest `BECETTI-SECURITY_*_x64.msix` package (and `BecettiTestCert.cer` for sideloading test builds — see `INSTALL.txt` inside the release).
 3. Launch **BECETTI SECURITY** and complete the 3-step First-Run Setup Wizard.
 

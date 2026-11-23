@@ -215,7 +215,12 @@ jobs:
           # genuinely fixed it. Stamping a unique 4th version component per
           # CI run makes every build an unambiguous, real upgrade.
           $manifestPath = "src\Becetti.Security.App\Package.appxmanifest"
-          $version = "1.0.0.${{ github.run_number }}"
+          # run_number alone is not collision-proof: it resets if the workflow file itself
+          # is ever recreated, and a re-run of an old commit would rebuild an identical
+          # Name+Publisher+Version, which Windows refuses ("already installed"). Mixing in
+          # the run attempt keeps every published package a real, newer identity.
+          $build = ([int]"${{ github.run_number }}") * 10 + ([int]"${{ github.run_attempt }}") - 10
+          $version = "1.0.0.$build"
           $original = Get-Content $manifestPath -Raw
           $patched = $original -replace 'Version="1\.0\.0\.0"', "Version=`"$version`""
           if ($patched -eq $original) {
