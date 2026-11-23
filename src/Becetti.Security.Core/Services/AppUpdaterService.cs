@@ -36,6 +36,33 @@ public sealed class AppUpdaterService : IAppUpdaterService
         _http = http;
     }
 
+    /// <summary>
+    /// True when the process is running from an MSIX package (i.e. it was
+    /// installed from the Microsoft Store or side-loaded), false for the
+    /// unpackaged developer build. Used to keep Store policy compliance in one
+    /// place: Store policy 10.2.5 requires that products available on the Store
+    /// are installed and updated only through the Store, so a packaged build
+    /// must never offer a direct GitHub MSIX download as an update path.
+    /// </summary>
+    internal static bool IsPackagedBuild()
+    {
+        try
+        {
+            // GetCurrentPackageFullName throws when the process has no package
+            // identity. Any failure means "not packaged" - never let this throw.
+            uint length = 0;
+            var result = GetCurrentPackageFullName(ref length, null);
+            return result != APPMODEL_ERROR_NO_PACKAGE;
+        }
+        catch (DllNotFoundException) { return false; }
+        catch (EntryPointNotFoundException) { return false; }
+    }
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private static extern int GetCurrentPackageFullName(ref uint packageFullNameLength, System.Text.StringBuilder? packageFullName);
+
+    private const int APPMODEL_ERROR_NO_PACKAGE = 15700;
+
     public string GetCurrentVersion()
     {
         var entry = Assembly.GetEntryAssembly();
@@ -146,8 +173,13 @@ public sealed class AppUpdaterService : IAppUpdaterService
             PublishedAt = bestPublished,
             ReleaseNotes = string.IsNullOrWhiteSpace(bestNotes) ? $"Signed Windows x64 MSIX release ({bestTag})." : bestNotes.Trim(),
             ReleasePageUrl = bestHtmlUrl,
-            MsixDownloadUrl = bestMsixUrl,
-            MsixFileName = bestMsixName
+            // Microsoft Store policy 10.2.5: products available in the Store are
+            // installed and updated only through the Store. A packaged (Store or
+            // side-loaded MSIX) build therefore gets no direct GitHub download
+            // link from this code path; the UI points at the Store instead. An
+            // unpackaged developer build keeps the GitHub MSIX link.
+            MsixDownloadUrl = IsPackagedBuild() ? string.Empty : bestMsixUrl,
+            MsixFileName = IsPackagedBuild() ? string.Empty : bestMsixName
         };
     }
 

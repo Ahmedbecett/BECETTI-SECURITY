@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MICROSOFT STORE SUBMISSION MANIFEST
+
+  This is the manifest the .msixupload uploaded to Partner Center is built
+  from. It differs from src/Becetti.Security.App/Package.appxmanifest in
+  exactly ONE respect, and that difference is a hard Microsoft requirement:
+
+    <Identity Version="1.0.0.0" />
+
+  Microsoft: "For Windows 10 or Windows 11 (UWP) packages, the last (fourth)
+  section of the version number is reserved for Store use and must be left
+  as 0 when you build your package" (App package requirements for MSIX app,
+  learn.microsoft.com/windows/apps/publish/publish-your-app/msix/
+  app-package-requirements). CI stamps a unique 4th component (1.0.0.981)
+  into the sideload manifest so testers get a real uninstall/install
+  identity per build; that artifact is NOT Store-submittable. The Store
+  build therefore uses version 1.0.0.0 (Major.Minor.Build come from the
+  product release; the Store fills the 4th field itself).
+
+  IDENTITY IS INTENTIONALLY UNCHANGED from the shipped sideload package:
+    Name      = BECETTI.BECETTISECURITY
+    Publisher = CN=A5D5DC31-4A15-4059-8030-D96C51054596
+  Both values MUST equal Product management -> Product identity in Partner
+  Center, character for character (values are case-sensitive). They were NOT
+  invented or altered by any automation here - see docs/STORE-SUBMISSION.md
+  and the "confirm in Partner Center" step below before uploading.
+
+  Capabilities are identical to the sideload manifest: runFullTrust (desktop
+  bridge requirement for this WinUI 3 / .NET 8 app; justified in
+  store/runfulltrust-justification.md) and internetClient. No other
+  capability is requested.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap rescap">
+
+  <Identity
+    Name="BECETTI.BECETTISECURITY"
+    Publisher="CN=A5D5DC31-4A15-4059-8030-D96C51054596"
+    Version="1.0.0.0"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>BECETTI SECURITY</DisplayName>
+    <PublisherDisplayName>BECETTI</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-US" />
+    <Resource Language="ar-SA" />
+    <Resource Language="fr-FR" />
+    <Resource Language="es-ES" />
+    <Resource Language="de-DE" />
+    <Resource Language="tr-TR" />
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="Becetti.Security.App.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="BECETTI SECURITY"
+        Description="Windows security center powered by Microsoft Defender and the BECETTI cloud API."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile
+          Wide310x150Logo="Assets\Wide310x150Logo.png"
+          Square71x71Logo="Assets\Square71x71Logo.png"
+          Square310x310Logo="Assets\Square310x310Logo.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Desktop bridge (WinUI 3 / .NET 8, packaged Win32 process). Required
+         for this app class; see store/runfulltrust-justification.md. -->
+    <rescap:Capability Name="runFullTrust" />
+    <Capability Name="internetClient" />
+  </Capabilities>
+
+</Package>

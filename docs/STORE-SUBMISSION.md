@@ -44,6 +44,50 @@
    privacy policy URL, support email, age rating questionnaire.
 7. Submit for certification. All advertised capabilities exist in the build.
 
+## 1.0.0.981 — packaged for submission (this session)
+
+Two facts were verified against Microsoft's own documentation before
+changing anything, because both invalidate the previous plan of "upload the
+CI package as-is":
+
+1. **The CI sideload package is not Store-submittable.** Microsoft: *"For
+   Windows 10 or Windows 11 packages, the last (fourth) section of the version
+   number is reserved for Store use and must be left as 0 when you build your
+   package"* (`app-package-requirements`). CI stamps `1.0.0.<run>` (currently
+   `1.0.0.981`) so testers get a distinct identity per build. The Store build
+   therefore uses **`1.0.0.0`**; Major.Minor.Build are the product release and
+   the Store fills the fourth field itself.
+2. **A Store MSIX must not be signed with a local certificate.** Microsoft:
+   *"The Microsoft Store will automatically re-sign your MSIX/AppX packages
+   with a Microsoft certificate ... You don't need to provide a .pfx or .cer
+   file"* (same page). The submission artifact is built with
+   `AppxPackageSigningEnabled=false` and is verified to contain no
+   `AppxSignature.p7x`. The self-signed test certificate stays exclusive to
+   the sideload job in `ci.yml`.
+
+Identity was **not changed**: `Name=BECETTI.BECETTISECURITY`,
+`Publisher=CN=A5D5DC31-4A15-4059-8030-D96C51054596` are copied verbatim from
+the shipped package into `packaging/store/Package.store.appxmanifest`, and
+`scripts/prepare-store-package.ps1` fails if the two manifests ever drift.
+
+| Artifact / tool | Purpose |
+|---|---|
+| `packaging/store/Package.store.appxmanifest` | Store manifest: same identity, version `1.0.0.0`, same two capabilities |
+| `scripts/prepare-store-package.ps1` | Verifies version rules, identity drift, allowed capabilities, asset pixel sizes |
+| `scripts/package-store-upload.ps1` | Builds the unsigned `.msixupload` (StoreUpload mode) and restores the sideload manifest afterwards |
+| `scripts/verify-store-package.ps1` | Opens the package, re-reads identity/capabilities **from the artifact**, confirms unsigned + x64-only + required payload, prints SHA-256, runs WACK |
+| `.github/workflows/store-package.yml` | Runs all of the above on `windows-latest` and attaches the `.msixupload`, `.msix`, WACK XML and verification report to the run |
+
+Store-policy changes made in the app itself (they apply only when the process
+is running with a package identity, so the standalone build is unaffected):
+
+- `AppUpdaterService.IsPackagedBuild()` — detects an MSIX package context.
+- Packaged builds return **no** direct GitHub `.msix` URL (policy 10.2.5:
+  Store products are updated only through the Store).
+- Packaged builds refuse the in-app downloader for third-party engine
+  binaries (policy 10.2: no dynamic code inclusion); engines already on the
+  device are still used.
+
 ## Pre-submission readiness checklist (status as of this commit)
 
 What is already technically ready in this repository:

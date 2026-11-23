@@ -162,6 +162,19 @@ public sealed class MultiEngineAvService : IMultiEngineAvService
         if (!OperatingSystem.IsWindows())
             return OperationResult<AvEngineInfo>.Fail("Open-source engine binary installer requires Windows x64.", "UNSUPPORTED_OS");
 
+        // Microsoft Store policy 10.2 / 10.2.5: a product distributed through the
+        // Store must not dynamically add code, and everything offered in-product
+        // is installed/updated only through the Store. Downloading third-party
+        // engine binaries (ClamAV / YARA-X / CAPA) at runtime would breach both in
+        // a packaged build, so it is refused there. Engines already present on
+        // disk are still detected and usable; only the in-app downloader is off.
+        if (AppUpdaterService.IsPackagedBuild())
+            return OperationResult<AvEngineInfo>.Fail(
+                "This packaged (Microsoft Store) build cannot download third-party engine binaries at runtime " +
+                "(Store policy 10.2 / 10.2.5). Use the engines already installed on this device, or install the " +
+                "standalone build from the official releases page.",
+                "STORE_POLICY_RESTRICTED");
+
         var (repo, pattern, targetSubDir) = engineId.ToLowerInvariant() switch
         {
             "clamav" => ("Cisco-Talos/clamav", @"clamav-.*win\.x64\.zip$", "clamav"),

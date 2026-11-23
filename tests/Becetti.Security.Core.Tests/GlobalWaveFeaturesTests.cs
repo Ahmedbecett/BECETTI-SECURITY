@@ -270,6 +270,37 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
         Assert.Equal("1.0.0.97", live.Value!.LatestVersion);
     }
 
+    // Store policy 10.2.5: a product available in the Microsoft Store must be
+    // installed and updated only through the Store. A packaged build must
+    // therefore never be handed a direct GitHub .msix URL from the update
+    // service. The unit-test host is an unpackaged process, so IsPackagedBuild()
+    // must report false here and the GitHub URL must still be populated for the
+    // standalone build - the mirrored condition guards against a regression that
+    // would blank the URL for standalone users (or, worse, ship a direct
+    // download link inside the Store package).
+    [Fact]
+    public void AppUpdaterService_StandaloneBuildKeepsDirectMsixUrl_AndGateIsWired()
+    {
+        Assert.False(AppUpdaterService.IsPackagedBuild(),
+            "The test host is not an MSIX-packaged process; IsPackagedBuild must report false.");
+
+        const string json = """
+        [
+          { "tag_name": "msix-test-standalone", "html_url": "https://github.com/x/releases/tag/a",
+            "body": "notes", "published_at": "2026-11-23T01:17:03Z", "draft": false,
+            "assets": [ { "name": "BECETTI-SECURITY_1.0.0.99_x64.msix",
+                          "browser_download_url": "https://github.com/x/download/a/BECETTI-SECURITY_1.0.0.99_x64.msix" } ] }
+        ]
+        """;
+
+        var info = AppUpdaterService.ParseLatestReleaseJson(json, "1.0.0.50");
+        Assert.NotNull(info);
+        // Unpackaged build: the URL is present (the gate in ParseLatestReleaseJson
+        // is IsPackagedBuild() ? empty : url, evaluated in this process).
+        Assert.Equal("https://github.com/x/download/a/BECETTI-SECURITY_1.0.0.99_x64.msix", info!.MsixDownloadUrl);
+        Assert.Equal("BECETTI-SECURITY_1.0.0.99_x64.msix", info.MsixFileName);
+    }
+
     // -------------------------------------------------------------------------
     //  #8: Windows Privacy & Anti-Telemetry Hardener
     // -------------------------------------------------------------------------

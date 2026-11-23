@@ -276,7 +276,14 @@ public sealed class GlobalIntelViewModel : ViewModelBase
             var info = res.Value;
             UpdaterSummary = res.Message;
             UpdaterNotes = $"Release: {info.LatestTag} (v{info.LatestVersion})\nAsset: {info.MsixFileName}\n\n{info.ReleaseNotes}";
-            _updaterDownloadUrl = !string.IsNullOrWhiteSpace(info.MsixDownloadUrl) ? info.MsixDownloadUrl : info.ReleasePageUrl;
+            // Store build: AppUpdaterService deliberately returns no direct MSIX
+            // URL (Store policy 10.2.5 - updates come only from the Store), so the
+            // only reachable link is the release notes page. Never turn that into a
+            // "download the installer" button inside a Store-distributed app.
+            var packaged = AppUpdaterService.IsPackagedBuild();
+            _updaterDownloadUrl = !string.IsNullOrWhiteSpace(info.MsixDownloadUrl)
+                ? info.MsixDownloadUrl
+                : (packaged ? string.Empty : info.ReleasePageUrl);
             HasUpdateDownload = !string.IsNullOrWhiteSpace(_updaterDownloadUrl);
             StatusMessage = res.Message;
         }

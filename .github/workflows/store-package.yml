@@ -1,0 +1,115 @@
+name: Store package
+
+# Builds and validates the Microsoft Store submission artifact:
+#   - the Store manifest (version must end in .0, identity must match the
+#     shipped manifest, only runFullTrust + internetClient allowed)
+#   - an UNSIGNED .msixupload (StoreUpload mode, AppxPackageSigningEnabled=false)
+#   - the artifact's structure, identity, architecture and payload
+#   - the Windows App Certification Kit (WACK / appcert.exe) report
+#
+# Deliberately a separate workflow from ci.yml: ci.yml's packaging job
+# produces the self-signed sideload test package for GitHub Releases and is
+# not a Store artifact. Nothing in this workflow touches
+# BecettiTestCert.pfx/.cer.
+#
+# Output: the "store-package-x64" workflow artifact (the .msixupload, the
+# inner .msix, the WACK XML report and the verification text report), all
+# downloadable from the Actions run summary.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, "arena/**"]
+    paths:
+      - "packaging/store/**"
+      - "scripts/prepare-store-package.ps1"
+      - "scripts/package-store-upload.ps1"
+      - "scripts/verify-store-package.ps1"
+      - ".github/workflows/store-package.yml"
+      - "src/Becetti.Security.App/Package.appxmanifest"
+      - "store/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build-store-package:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Verify the Store manifest (identity / version / capabilities / assets)
+        shell: pwsh
+        run: ./scripts/prepare-store-package.ps1
+
+      - name: Confirm the Store manifest matches Partner Center values in the repo
+        shell: pwsh
+        run: |
+          # This does not talk to Partner Center (there is no API credential in
+          # CI by design). It pins the identity so an accidental edit is caught
+          # before a submission is built. A real change must be confirmed in
+          # Partner Center -> Product identity first, then updated here.
+          [xml]$m = Get-Content "packaging\store\Package.store.appxmanifest"
+          $id = $m.Package.Identity
+          if ($id.Name -ne "BECETTI.BECETTISECURITY") {
+            Write-Host "::error::Identity Name is '$($id.Name)' - expected BECETTI.BECETTISECURITY (Partner Center value)."
+            exit 1
+          }
+          if ($id.Publisher -ne "CN=A5D5DC31-4A15-4059-8030-D96C51054596") {
+            Write-Host "::error::Publisher is '$($id.Publisher)' - expected the Partner Center publisher ID. Confirm in Partner Center before changing it."
+            exit 1
+          }
+          if ($id.Version -ne "1.0.0.0") {
+            Write-Host "::error::Store version is '$($id.Version)' - must be 1.0.0.0 (fourth component reserved by the Store)."
+            exit 1
+          }
+          Write-Host "Store identity matches the pinned Partner Center values."
+
+      - name: Build the unsigned .msixupload and run WACK
+        shell: pwsh
+        run: ./scripts/package-store-upload.ps1 -Version 1.0.0.0
+
+      - name: Write a submission summary to the run page
+        if: always()
+        shell: pwsh
+        run: |
+          $summary = ".github/store-summary.md"
+          $report = "artifacts\store\store-package-verification.txt"
+          "" | Out-File $summary -Encoding utf8
+          "## Microsoft Store submission artifact" | Out-File $summary -Append -Encoding utf8
+          "" | Out-File $summary -Append -Encoding utf8
+          if (Test-Path $report) {
+            "``````" | Out-File $summary -Append -Encoding utf8
+            Get-Content $report | Out-File $summary -Append -Encoding utf8
+            "``````" | Out-File $summary -Append -Encoding utf8
+          } else {
+            "Verification report was not produced - the build or manifest check failed before it ran." | Out-File $summary -Append -Encoding utf8
+          }
+          $wack = "artifacts\store\WACK-REPORT.xml"
+          if (Test-Path $wack) {
+            "" | Out-File $summary -Append -Encoding utf8
+            "WACK report attached as an artifact (``WACK-REPORT.xml``)." | Out-File $summary -Append -Encoding utf8
+          }
+          Get-Content $report -ErrorAction SilentlyContinue | Write-Host
+
+      - name: Upload the Store submission artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: store-package-x64
+          path: |
+            artifacts/store/*.msixupload
+            artifacts/store/*.msix
+            artifacts/store/*.txt
+            artifacts/store/*.xml
+          if-no-files-found: warn
+          retention-days: 30

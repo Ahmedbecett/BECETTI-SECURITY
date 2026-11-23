@@ -15,6 +15,10 @@ TestResults/
 AppPackages/
 BundleArtifacts/
 
+# Store submission artifacts (large, binary, reproducible from CI; the
+# checksum is recorded in the release/submission docs instead of the file)
+artifacts/store/
+
 # IDE
 .vs/
 .idea/
