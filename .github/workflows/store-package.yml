@@ -121,6 +121,34 @@ jobs:
             foreach ($e in $errs) { Write-Host "::error::$($e.Line.Trim())" }
           }
 
+      # Annotations are the only machine-readable channel that comes back out of
+      # a run here: the artifact and the step summary are both blob storage,
+      # which is not reachable from every client. Chunk the report into notice
+      # annotations so the SHA-256 and the WACK verdict are readable from
+      # `gh api .../check-runs/<id>/annotations`.
+      - name: Publish the verification report as annotations
+        if: always()
+        shell: pwsh
+        run: |
+          $report = "artifacts\store\store-package-verification.txt"
+          if (-not (Test-Path $report)) { Write-Host "No verification report to publish."; exit 0 }
+          $text = (Get-Content $report -Raw) -replace "`r", ""
+          $chunks = @()
+          $buf = ""
+          foreach ($line in ($text -split "`n")) {
+            if ([string]::IsNullOrWhiteSpace($line)) { continue }
+            if (($buf.Length + $line.Length) -gt 1200) { $chunks += $buf; $buf = "" }
+            $buf += $line + " | "
+          }
+          if ($buf.Trim()) { $chunks += $buf }
+          $i = 0
+          foreach ($c in $chunks) {
+            $i++
+            $safe = $c -replace "%", "%25" -replace "`n", "%0A" -replace "`r", "%0D"
+            Write-Host "::notice title=Store verification ($i/$($chunks.Count))::$safe"
+            if ($i -ge 12) { break }
+          }
+
       - name: Upload the Store submission artifacts
         if: always()
         uses: actions/upload-artifact@v4
