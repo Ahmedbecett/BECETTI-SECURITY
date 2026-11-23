@@ -9,6 +9,14 @@ public interface IAppUpdaterService
 {
     string GetCurrentVersion();
     Task<OperationResult<AppReleaseInfo>> CheckLatestGitHubReleaseAsync(CancellationToken ct = default);
+
+    /// <summary>
+    /// True when this process runs from an MSIX package (Store install or
+    /// side-loaded), false for the unpackaged standalone build. Public because
+    /// the app layer must not offer Store-policy-restricted actions (direct
+    /// installer download) from a packaged build.
+    /// </summary>
+    bool IsRunningPackaged();
 }
 
 /// <summary>
@@ -44,7 +52,9 @@ public sealed class AppUpdaterService : IAppUpdaterService
     /// are installed and updated only through the Store, so a packaged build
     /// must never offer a direct GitHub MSIX download as an update path.
     /// </summary>
-    internal static bool IsPackagedBuild()
+    public bool IsRunningPackaged() => IsPackagedBuild();
+
+    public static bool IsPackagedBuild()
     {
         try
         {

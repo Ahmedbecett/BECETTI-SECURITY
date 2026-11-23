@@ -280,7 +280,7 @@ public sealed class GlobalIntelViewModel : ViewModelBase
             // URL (Store policy 10.2.5 - updates come only from the Store), so the
             // only reachable link is the release notes page. Never turn that into a
             // "download the installer" button inside a Store-distributed app.
-            var packaged = AppUpdaterService.IsPackagedBuild();
+            var packaged = _updater.IsRunningPackaged();
             _updaterDownloadUrl = !string.IsNullOrWhiteSpace(info.MsixDownloadUrl)
                 ? info.MsixDownloadUrl
                 : (packaged ? string.Empty : info.ReleasePageUrl);
