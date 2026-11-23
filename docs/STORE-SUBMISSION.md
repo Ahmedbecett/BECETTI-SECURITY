@@ -78,17 +78,24 @@ the shipped package into `packaging/store/Package.store.appxmanifest`, and
 | `scripts/verify-store-package.ps1` | Opens the package, re-reads identity/capabilities **from the artifact**, confirms unsigned + x64-only + required payload, prints SHA-256, runs WACK |
 | `.github/workflows/store-package.yml` | Runs all of the above on `windows-latest` and attaches the `.msixupload`, `.msix`, WACK XML and verification report to the run |
 
-### Measured result — Store package run 45148739984 (green)
+### Measured result — Store package run 45150252128 (green)
 
 Every number below was printed by the pipeline, not typed in by hand. It is
-reproducible with `gh run view 45148739984` / the `store-package-x64` artifact.
+reproducible with `gh run view 45150252128` / the `store-package-x64` artifact.
+
+> **The hash is build-specific.** MSIX packaging is not bit-reproducible
+> (timestamps, block map ordering), so every rebuild of the same sources
+> produces a different SHA-256. The authoritative value is always the one
+> printed by the run that produced the file you are holding - never copy a
+> hash forward from an older run.
 
 | Item | Value |
 |---|---|
 | Artifact | `BECETTI-SECURITY_1.0.0.0_x64.msixupload` |
-| Size | 90.16 MB (94,994,236 bytes) |
-| **SHA-256** | `50AE3A4FA42741CDB9B06E07B4AF6386B81C8B2465EDFC97500EABA394C878D5` |
-| Contents | `Becetti.Security.App_1.0.0.0_x64.msix` (94,009,129 B) + `..._x64.appxsym` (513,767 B) |
+| Public download | <https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/store-package-1.0.0.0/BECETTI-SECURITY_1.0.0.0_x64.msixupload> |
+| Size | 90.16 MB (94,537,759 bytes) |
+| **SHA-256** | `35318BDE4B272519136500ED4816B286D50F9224D8DBF9CF2975F96B7674E0FA` |
+| Contents | `Becetti.Security.App_1.0.0.0_x64.msix` (94,009,139 B) + `..._x64.appxsym` (513,862 B) |
 | Identity read from the package | `BECETTI.BECETTISECURITY` / `CN=A5D5DC31-4A15-4059-8030-D96C51054596` |
 | Version read from the package | `1.0.0.0` (fourth field 0) |
 | Architecture | `x64`, no x86/ARM payload in 552 files |
