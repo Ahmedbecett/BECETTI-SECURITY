@@ -119,6 +119,26 @@ try {
     $sideId  = Get-ChildByLocalName $sidePkg "Identity"
     if ($null -eq $storeId) { throw "No <Identity> in $StoreManifest" }
     if ($null -eq $sideId)  { throw "No <Identity> in $SideloadManifest" }
+    # PublisherDisplayName is NOT part of package identity (it does not affect
+    # Identity/@Name, Identity/@Publisher or signing), but Partner Center does
+    # compare it against the account's "Publisher display name". It is checked
+    # here so it cannot silently drift back to a value that fails ingestion.
+    $expectedPublisherDisplayName = "Ahmedbecetti"
+    foreach ($doc in @(@("store", $storePkg), @("sideload", $sidePkg))) {
+        $label = $doc[0]; $pkgEl = $doc[1]
+        $props = Get-ChildByLocalName $pkgEl "Properties"
+        $pdn = $null
+        if ($null -ne $props) { $pdn = Get-ChildByLocalName $props "PublisherDisplayName" }
+        if ($null -eq $pdn) {
+            $script:errors.Add("$label manifest has no <Properties>/<PublisherDisplayName>.")
+        } else {
+            $actual = [string]$pdn.Value
+            if ($actual -ne $expectedPublisherDisplayName) {
+                $script:errors.Add("$label PublisherDisplayName is '$actual', expected '$expectedPublisherDisplayName'. Partner Center compares this against the account's publisher display name.")
+            }
+        }
+    }
+
     foreach ($pair in @(@("store", $storeId), @("sideload", $sideId))) {
         $label = $pair[0]; $el = $pair[1]
         if ($el -isnot [System.Xml.Linq.XElement]) {

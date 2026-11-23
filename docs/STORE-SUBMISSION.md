@@ -65,6 +65,20 @@ CI package as-is":
    `AppxSignature.p7x`. The self-signed test certificate stays exclusive to
    the sideload job in `ci.yml`.
 
+**PublisherDisplayName changed to `Ahmedbecetti`** (both manifests). This was
+the one field Partner Center rejected. It is *not* part of package identity: it
+does not affect `Identity/@Name`, `Identity/@Publisher`, the signing
+certificate, or the app name (`DisplayName` stays `BECETTI SECURITY`).
+`scripts/prepare-store-package.ps1` now asserts it on every run, so it cannot
+drift back to a value that fails ingestion silently.
+
+**Device families**: exactly one, `Windows.Desktop` (min 10.0.17763.0, max
+tested 10.0.26100.0). No `Windows.Xbox`, `Windows.Holographic` or
+`Windows.Team` declaration exists anywhere in the repository, so there is
+nothing to remove for Xbox compatibility - the app was never declared to
+support it. Architecture is `x64` only, matching the YARA engine that
+`build-yara-win64.ps1` actually builds.
+
 Identity was **not changed**: `Name=BECETTI.BECETTISECURITY`,
 `Publisher=CN=A5D5DC31-4A15-4059-8030-D96C51054596` are copied verbatim from
 the shipped package into `packaging/store/Package.store.appxmanifest`, and
