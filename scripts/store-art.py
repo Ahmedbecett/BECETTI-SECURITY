@@ -427,6 +427,28 @@ def featured_square(w: int = 1080, h: int = 1080) -> Image.Image:
     return img
 
 
+# --------------------------------------------------------------------------- #
+# Trailer thumbnail 1920x1080 (used in "Trailers and additional assets")
+# --------------------------------------------------------------------------- #
+def trailer_thumbnail(w: int = 1920, h: int = 1080) -> Image.Image:
+    k = w / 1920.0
+    img = vgrad((w, h), (2, 5, 11), (8, 18, 33))
+    img = screen(img, radial((w, h), (w * 0.5, h * 0.50), w * 0.46, h * 0.95, CYAN, 0.30))
+    img = screen(img, radial((w, h), (w * 0.5, h * 0.50), w * 0.20, h * 0.42, CYAN_SOFT, 0.24))
+    img = img.convert("RGBA")
+    img.alpha_composite(grid((w, h), int(110 * k), CYAN, 7))
+    img.alpha_composite(shield_watermark((w, h), (w * 0.5, h * 0.52), w * 0.46, EMERALD, 34, max(2, int(3 * k))))
+
+    paste_glowing(img, load_mascot(int(h * 0.78)), (w * 0.5, h * 0.54), CYAN, int(62 * k), 115)
+
+    f1, t1 = fit_font("BECETTI", w * 0.30, 0.055, 118 * k)
+    f2, t2 = fit_font("SECURITY", w * 0.30, 0.075, 118 * k)
+    y1 = h * 0.055
+    tracked_text(img, (w * 0.5, y1), "BECETTI", f1, WHITE, tracking=t1)
+    tracked_text(img, (w * 0.5, y1 + 128 * k), "SECURITY", f2, CYAN, tracking=t2)
+    return img
+
+
 def app_icons():
     src = Image.open(ASSETS / "Square310x310Logo.png").convert("RGBA")
     for size in (300, 150, 71):
@@ -444,6 +466,7 @@ def main():
     save(branded_keyart(584, 800), "xbox-branded-keyart-584x800.png")
     save(titled_heroart(1920, 1080), "xbox-titled-heroart-1920x1080.png")
     save(featured_square(1080, 1080), "xbox-featured-square-1080x1080.png")
+    save(trailer_thumbnail(1920, 1080), "trailer-thumbnail-1920x1080.png")
     app_icons()
     print("done.")
 
