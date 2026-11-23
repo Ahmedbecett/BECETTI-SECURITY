@@ -9,17 +9,25 @@ people want** — it is the only one that installs on a normal Windows PC.
 
 > **For Partner Center upload only. It does NOT install on a PC.**
 
-**[⬇ Download the Store package (.msixupload)](https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/store-package-1.0.0.0/BECETTI-SECURITY_1.0.0.0_x64.msixupload)**
+**[⬇ Download the Store package (.msixupload)](https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/store-package-1.0.0.0-pdn2/BECETTI-SECURITY_1.0.0.0_x64.msixupload)**
 
 | | |
 |---|---|
 | File | `BECETTI-SECURITY_1.0.0.0_x64.msixupload` |
 | Size | 90.16 MB |
-| SHA-256 | `B30B0522D360F9C367049B9CF5B40633C26492C371A1F737A8453CD0695D0C6D` |
+| SHA-256 | `09AE8CE6B5F6A4007EA5F030A631D35B9B9E65710C8938580954F53C9682D3B6` |
 | Signed | No — Microsoft re-signs it after certification |
+| Package identity | `Ahmedbecetti.BECETTISECURITY` |
+| Publisher | `CN=A5D5DC31-4A15-4059-8030-D96C51054596` |
 
 This is deliberately unsigned. Upload it at
 **Partner Center → your app → Packages**. It is not a file you double-click.
+
+> **Only this build is accepted.** Partner Center rejected two earlier uploads
+> for identity-name mismatch (`BECETTI.BECETTISECURITY` instead of
+> `Ahmedbecetti.BECETTISECURITY`). Those older `.msixupload` files are still
+> published under `store-package-1.0.0.0` and `store-package-1.0.0.0-pdn` for the
+> record, but uploading them will fail the same validation. Use the link above.
 
 ---
 
@@ -54,8 +62,8 @@ need it, because Microsoft signs that one itself.
 
 ## 3. Verification reports
 
-**[📋 Verification report](https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/store-package-1.0.0.0/store-package-verification.txt)**
-· **[🧪 WACK report (7.56 MB)](https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/store-package-1.0.0.0/WACK-REPORT.xml)**
+**[📋 Verification report](https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/store-package-1.0.0.0-pdn2/store-package-verification.txt)**
+· **[🧪 WACK report (7.56 MB)](https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/store-package-1.0.0.0-pdn2/WACK-REPORT.xml)**
 
 The WACK report is the Windows App Certification Kit output: every requirement
 **PASS**, `appcert.exe` exit code 0.
