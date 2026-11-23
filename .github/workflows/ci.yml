@@ -625,3 +625,13 @@ jobs:
             --notes "Package version: ${PACKAGE_VERSION} (unique per build - if Windows shows \"already installed\" with Reinstall/Launch for an OLDER downloaded copy, that one predates this per-build versioning; uninstall it first). Publisher identity: CN=A5D5DC31-4A15-4059-8030-D96C51054596 (verified Microsoft Partner Center Windows Publisher ID). Signed with a self-signed TEST certificate - NOT a Microsoft-issued or CA-trusted certificate, and not the certificate Microsoft uses when it re-signs a package during real Store certification. Certificate SHA-256 fingerprint: ${CERT_SHA256} / SHA-1 thumbprint: ${CERT_SHA1} (verify with 'certutil -hashfile BecettiTestCert.cer SHA256' before trusting it). Self-contained build: bundles its own .NET 8 and Windows App Runtime 1.8, so no separate runtime install is needed on the target machine (only the one-time certificate trust step still applies). Built from commit ${GITHUB_SHA}. See INSTALL.txt in the release assets for install steps and the 0x800B010A fix. Not a Microsoft Store submission artifact." \
             --latest=false
           echo "Release created: https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag"
+
+          # --latest=false keeps GitHub's "Latest" badge off routine CI builds, but that
+          # also froze /releases/latest on the very first test build (1.0.0.0). The official
+          # website and the in-app updater both used to read it, so they pointed users at a
+          # months-old package. The app and the site now compute the newest MSIX version by
+          # themselves; this step additionally moves the alias onto the build that was just
+          # published so anything else reading /releases/latest gets a correct answer too.
+          new_id=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" --jq .id)
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$new_id" -F make_latest=true
+          echo "GitHub 'latest' alias now points at: $tag"

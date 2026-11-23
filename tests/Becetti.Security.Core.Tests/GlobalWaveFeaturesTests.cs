@@ -208,6 +208,68 @@ public sealed class GlobalWaveFeaturesTests : IDisposable
         Assert.Equal("BECETTI-SECURITY_2.5.0.0_x64.msix", check.Value.MsixFileName);
     }
 
+    // Regression: the real GitHub API does NOT return /releases sorted by version (every CI
+    // build shares one created_at, and all are published with --latest=false). Taking the
+    // first entry in the JSON made the updater compare against 1.0.0.63 while 1.0.0.97 was
+    // already published, so it told users on older builds they were up to date - and the
+    // official website linked to the old download. The newest MSIX must win regardless of
+    // the order the API returns them in.
+    [Fact]
+    public async Task AppUpdaterService_PicksHighestVersionWhenGitHubListIsOutOfOrder()
+    {
+        // Same shape as the real API: the newest build is neither first nor last.
+        const string json = """
+        [
+          { "tag_name": "msix-test-fb6a9fe", "html_url": "https://github.com/x/releases/tag/fb6a9fe",
+            "body": "older build", "published_at": "2026-11-22T16:45:49Z", "draft": false,
+            "assets": [ { "name": "BECETTI-SECURITY_1.0.0.63_x64.msix",
+                          "browser_download_url": "https://github.com/x/download/fb6a9fe/BECETTI-SECURITY_1.0.0.63_x64.msix" } ] },
+          { "tag_name": "msix-test-d3f5201", "html_url": "https://github.com/x/releases/tag/d3f5201",
+            "body": "newest build", "published_at": "2026-11-23T01:17:03Z", "draft": false,
+            "assets": [ { "name": "BECETTI-SECURITY_1.0.0.97_x64.msix",
+                          "browser_download_url": "https://github.com/x/download/d3f5201/BECETTI-SECURITY_1.0.0.97_x64.msix" } ] },
+          { "tag_name": "msix-test-d08aa56", "html_url": "https://github.com/x/releases/tag/d08aa56",
+            "body": "middle build", "published_at": "2026-11-23T00:43:57Z", "draft": false,
+            "assets": [ { "name": "BECETTI-SECURITY_1.0.0.94_x64.msix",
+                          "browser_download_url": "https://github.com/x/download/d08aa56/BECETTI-SECURITY_1.0.0.94_x64.msix" } ] }
+        ]
+        """;
+
+        var handler = new StubHttpHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        });
+
+        using var http = new HttpClient(handler);
+        var updater = new AppUpdaterService(http);
+
+        var info = AppUpdaterService.ParseLatestReleaseJson(json, "1.0.0.63");
+        Assert.NotNull(info);
+        Assert.Equal("1.0.0.97", info!.LatestVersion);
+        Assert.Equal("msix-test-d3f5201", info.LatestTag);
+        Assert.Equal("BECETTI-SECURITY_1.0.0.97_x64.msix", info.MsixFileName);
+        Assert.Contains("d3f5201", info.MsixDownloadUrl);
+        Assert.True(info.IsUpdateAvailable);
+
+        // Someone already on the newest build must not be offered anything.
+        var newest = AppUpdaterService.ParseLatestReleaseJson(json, "1.0.0.97");
+        Assert.NotNull(newest);
+        Assert.False(newest!.IsUpdateAvailable);
+
+        // And a draft newer build must be ignored entirely.
+        var draftJson = json.Replace(
+            "\"published_at\": \"2026-11-23T01:17:03Z\", \"draft\": false",
+            "\"published_at\": \"2026-11-23T01:17:03Z\", \"draft\": true");
+        Assert.Contains("\"draft\": true", draftJson);
+        var withoutDraft = AppUpdaterService.ParseLatestReleaseJson(draftJson, "1.0.0.63");
+        Assert.NotNull(withoutDraft);
+        Assert.Equal("1.0.0.94", withoutDraft!.LatestVersion);
+
+        var live = await updater.CheckLatestGitHubReleaseAsync();
+        Assert.True(live.Success);
+        Assert.Equal("1.0.0.97", live.Value!.LatestVersion);
+    }
+
     // -------------------------------------------------------------------------
     //  #8: Windows Privacy & Anti-Telemetry Hardener
     // -------------------------------------------------------------------------

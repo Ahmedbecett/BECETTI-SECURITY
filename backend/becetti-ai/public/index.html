@@ -95,6 +95,13 @@
     }
     .btn-secondary { background: rgba(15, 23, 42, 0.85); color: var(--text); }
     .release-meta { font-size: 13px; color: var(--muted); }
+    .release-links { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; }
+    .release-links a {
+      padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border-soft);
+      background: rgba(15, 23, 42, 0.6); color: var(--muted); font-weight: 600;
+    }
+    .release-links a:hover { color: #fff; border-color: var(--blue); }
+    .release-links a[hidden] { display: none; }
 
     /* Telemetry Strip */
     .stats {
@@ -185,7 +192,14 @@
           <span data-i18n="githubBtn">View Open-Source Repository</span>
         </a>
       </div>
-      <div id="releaseMeta" class="release-meta">Checking latest signed GitHub Release…</div>
+      <div id="releaseMeta" class="release-meta">
+        <span data-i18n="releaseMeta">Checking the newest signed GitHub Release…</span>
+      </div>
+      <div class="release-links">
+        <a id="certLink" href="https://github.com/Ahmedbecett/BECETTI-SECURITY/releases" target="_blank" rel="noopener" hidden data-i18n="certLink">Test certificate (.cer)</a>
+        <a id="installLink" href="https://github.com/Ahmedbecett/BECETTI-SECURITY/releases" target="_blank" rel="noopener" hidden data-i18n="installLink">Install steps (INSTALL.txt)</a>
+        <a id="allReleasesLink" href="https://github.com/Ahmedbecett/BECETTI-SECURITY/releases" target="_blank" rel="noopener" data-i18n="allReleasesLink">All releases</a>
+      </div>
     </section>
 
     <div class="stats">
@@ -237,6 +251,11 @@
           <p data-i18n="c5d">Scores risky Chrome/Edge/Brave/Firefox extensions, detects ARP spoofing MITM attacks, shreds files via DoD 5220.22-M, and checks passwords via HIBP k-anonymity.</p>
         </article>
         <article class="card">
+          <span class="badge">AI COPILOT</span>
+          <h3 data-i18n="c6t">AI Executive Briefing &amp; 1-Click Triage</h3>
+          <p data-i18n="c6d">Readable and spoken AI security briefing right on the Dashboard, plus 1-click "Ask BECETTI AI" triage on alerts, URLs, extensions, DLLs, and scripts.</p>
+        </article>
+        <article class="card">
           <span class="badge">5-ENGINE OPEN-SOURCE AV</span>
           <h3 data-i18n="c7t">Multi-Engine Consensus: Defender · YARA · ClamAV · YARA-X · CAPA</h3>
           <p data-i18n="c7d">Local VirusTotal-style consensus scanning with ZERO API keys and ZERO cloud uploads: 43 built-in YARA rules, 1-click official Cisco Talos ClamAV + freshclam signatures, VirusTotal Rust YARA-X, and Mandiant CAPA ATT&amp;CK behavior detection.</p>
@@ -248,8 +267,8 @@
         </article>
         <article class="card">
           <span class="badge">SOC · SIEM · SOAR · COMPLIANCE</span>
-          <h3 data-i18n="c6t">Local SIEM, Sigma YAML, SOAR, Vault Pro &amp; CIS/NIST</h3>
-          <p data-i18n="c6d">Correlates real Windows Event Logs with Sigma YAML rules, hunts live Process Tree anomalies, runs automated SOAR containment, analyzes .EML phishing headers, encrypts folders in AES-256-GCM Vault Pro, and exports CIS/NIST compliance reports with BECETTI AI.</p>
+          <h3 data-i18n="c9t">Local SIEM, Sigma YAML, SOAR, Vault Pro &amp; CIS/NIST</h3>
+          <p data-i18n="c9d">Correlates real Windows Event Logs with Sigma YAML rules, hunts live Process Tree anomalies, runs automated SOAR containment, analyzes .EML phishing headers, encrypts folders in AES-256-GCM Vault Pro, and exports CIS/NIST compliance reports with BECETTI AI.</p>
         </article>
       </div>
     </section>
@@ -301,7 +320,17 @@
         c6t: "Executive Security Briefings & 1-Click Triage",
         c6d: "Readable & spoken AI Executive Security Briefings on the Dashboard, plus instant 1-click AI triage for any alert, URL, browser extension, DLL, or YARA rule.",
         truthTitle: "Our Engineering Covenant: Verifiable Security, Never Theater",
-        truthBody: "BECETTI SECURITY is open-source, auditable, and built with WinUI 3 on .NET 8 (Windows x64). Every scan result, firewall rule, registry check, threat feed indicator, and update release is verified directly against Windows, official VirusTotal YARA binaries, abuse.ch open feeds, and GitHub Releases."
+        truthBody: "BECETTI SECURITY is open-source, auditable, and built with WinUI 3 on .NET 8 (Windows x64). Every scan result, firewall rule, registry check, threat feed indicator, and update release is verified directly against Windows, official VirusTotal YARA binaries, abuse.ch open feeds, and GitHub Releases.",
+        releaseMeta: "Checking the newest signed GitHub Release…",
+        certLink: "Test certificate (.cer)",
+        installLink: "Install steps (INSTALL.txt)",
+        allReleasesLink: "All releases",
+        c7t: "Multi-Engine Consensus: Defender · YARA · ClamAV · YARA-X · CAPA",
+        c7d: "Local VirusTotal-style consensus scanning with ZERO API keys and ZERO cloud uploads: 43 built-in YARA rules, official Cisco Talos ClamAV + freshclam signatures, VirusTotal Rust YARA-X, and Mandiant CAPA ATT&CK behavior detection.",
+        c8t: "Global Domain, Hosting, DNS & IP Security Suite",
+        c8d: "100% live zero-API-key web & infrastructure audits: 11 DNS record types + 4-resolver propagation & DNSSEC, official IANA RDAP/WHOIS, TLS 1.3 & HTTP Security Headers Grade (A+–F), Email SPF/DMARC/DKIM, 5-DNSBL blacklist & port probes, plus crt.sh subdomains.",
+        c9t: "Local SIEM, Sigma YAML, SOAR, Vault Pro & CIS/NIST",
+        c9d: "Correlates real Windows Event Logs with Sigma YAML rules, hunts live Process Tree anomalies, runs automated SOAR containment, analyzes .EML phishing headers, encrypts folders in AES-256-GCM Vault Pro, and exports CIS/NIST compliance reports with BECETTI AI.",
       },
       ar: {
         dir: "rtl",
@@ -328,7 +357,17 @@
         c6t: "الموجز الأمني التنفيذي والتحقيق بالذكاء الاصطناعي",
         c6d: "موجز أمني مقروء ومسموع على لوحة القيادة، مع زر تحقيق فوري بالذكاء الاصطناعي لأي تنبيه أو رابط أو إضافة أو مكتبة DLL.",
         truthTitle: "ميثاقنا الهندسي: أمن حقيقي قابل للتدقيق، وليس مجرد عرض",
-        truthBody: "BECETTI SECURITY مشروع مفتوح المصدر مبني بتقنية WinUI 3 و .NET 8 لويندوز x64. كل نتيجة فحص وقاعدة جدار ناري وتحديث أمني يتم التحقق منها مباشرة من النظام وقواعد abuse.ch وإصدارات GitHub الرسمية."
+        truthBody: "BECETTI SECURITY مشروع مفتوح المصدر مبني بتقنية WinUI 3 و .NET 8 لويندوز x64. كل نتيجة فحص وقاعدة جدار ناري وتحديث أمني يتم التحقق منها مباشرة من النظام وقواعد abuse.ch وإصدارات GitHub الرسمية.",
+        releaseMeta: "جارٍ التحقق من أحدث إصدار موقّع على GitHub…",
+        certLink: "شهادة الاختبار (.cer)",
+        installLink: "خطوات التثبيت (INSTALL.txt)",
+        allReleasesLink: "كل الإصدارات",
+        c7t: "توافق متعدد المحركات: Defender · YARA · ClamAV · YARA-X · CAPA",
+        c7d: "فحص محلي بنمط VirusTotal بالتوافق الجماعي بدون أي مفاتيح API وبدون رفع سحابي: 43 قاعدة YARA مدمجة، توقيعات Cisco Talos ClamAV + freshclam الرسمية بنقرة واحدة، محرك YARA-X بلغة Rust من VirusTotal، وكشف سلوك ATT&CK عبر Mandiant CAPA.",
+        c8t: "حزمة أمان النطاقات والاستضافة وDNS وعناوين IP",
+        c8d: "تدقيق ويب وبنية تحتية حيّ 100% بدون مفاتيح API: 11 نوعاً من سجلات DNS + انتشار عبر 4 خوادم تحقق وDNSSEC، RDAP/WHOIS الرسمي من IANA، تقييم TLS 1.3 ورؤوس الأمان (A+–F)، بريد SPF/DMARC/DKIM، 5 قوائم DNSBL سوداء وفحص المنافذ، ونطاقات فرعية من crt.sh.",
+        c9t: "SIEM محلي وSigma YAML وSOAR وVault Pro ومعايير CIS/NIST",
+        c9d: "يربط سجلات أحداث Windows الحقيقية بقواعد Sigma YAML، ويصطاد الشذوذ في شجرة العمليات الحيّة، وينفّذ احتواءً آلياً عبر SOAR، ويحلّل ترويسات التصيّد في ملفات .EML، ويشفّر المجلدات في Vault Pro بـ AES-256-GCM، ويصدّر تقارير الامتثال CIS/NIST مع BECETTI AI.",
       },
       fr: {
         dir: "ltr",
@@ -355,7 +394,17 @@
         c6t: "Briefings exécutifs IA & Triage en 1 clic",
         c6d: "Briefing de sécurité lisible et vocal sur le tableau de bord, plus triage IA instantané pour chaque alerte.",
         truthTitle: "Notre pacte d'ingénierie : sécurité vérifiable, jamais de théâtre",
-        truthBody: "BECETTI SECURITY est open-source, auditable et conçu avec WinUI 3 sur .NET 8 (Windows x64). Chaque résultat est vérifié en direct."
+        truthBody: "BECETTI SECURITY est open-source, auditable et conçu avec WinUI 3 sur .NET 8 (Windows x64). Chaque résultat est vérifié en direct.",
+        releaseMeta: "Vérification de la dernière version signée sur GitHub…",
+        certLink: "Certificat de test (.cer)",
+        installLink: "Étapes d'installation (INSTALL.txt)",
+        allReleasesLink: "Toutes les versions",
+        c7t: "Consensus multi-moteurs : Defender · YARA · ClamAV · YARA-X · CAPA",
+        c7d: "Analyse locale par consensus façon VirusTotal sans AUCUNE clé API et sans envoi cloud : 43 règles YARA intégrées, signatures officielles Cisco Talos ClamAV + freshclam, YARA-X en Rust de VirusTotal, et détection comportementale ATT&CK Mandiant CAPA.",
+        c8t: "Suite de sécurité Domaines, Hébergement, DNS et IP",
+        c8d: "Audits web et infrastructure 100 % réels sans clé API : 11 types d'enregistrements DNS + propagation sur 4 résolveurs et DNSSEC, RDAP/WHOIS officiel IANA, note TLS 1.3 et en-têtes de sécurité (A+–F), e-mail SPF/DMARC/DKIM, 5 listes noires DNSBL et sondage de ports, plus sous-domaines crt.sh.",
+        c9t: "SIEM local, Sigma YAML, SOAR, Vault Pro et CIS/NIST",
+        c9d: "Corrèle les journaux d’événements Windows réels avec des règles Sigma YAML, traque les anomalies de l’arborescence des processus, exécute un confinement SOAR automatisé, analyse les en-têtes d’hameçonnage .EML, chiffre des dossiers dans Vault Pro (AES-256-GCM) et exporte des rapports de conformité CIS/NIST avec BECETTI AI.",
       },
       es: {
         dir: "ltr",
@@ -382,7 +431,17 @@
         c6t: "Resumen Ejecutivo IA y Triaje en 1 Clic",
         c6d: "Resumen ejecutivo legible y narrado en el Panel, más triaje instantáneo con BECETTI AI.",
         truthTitle: "Nuestro compromiso: seguridad verificable, nunca simulada",
-        truthBody: "BECETTI SECURITY es código abierto y auditable, construido con WinUI 3 sobre .NET 8 para Windows x64."
+        truthBody: "BECETTI SECURITY es código abierto y auditable, construido con WinUI 3 sobre .NET 8 para Windows x64.",
+        releaseMeta: "Comprobando la última versión firmada en GitHub…",
+        certLink: "Certificado de prueba (.cer)",
+        installLink: "Pasos de instalación (INSTALL.txt)",
+        allReleasesLink: "Todas las versiones",
+        c7t: "Consenso multi-motor: Defender · YARA · ClamAV · YARA-X · CAPA",
+        c7d: "Análisis local por consenso estilo VirusTotal con CERO claves de API y CERO subidas a la nube: 43 reglas YARA integradas, firmas oficiales Cisco Talos ClamAV + freshclam, YARA-X en Rust de VirusTotal y detección de comportamiento ATT&CK con Mandiant CAPA.",
+        c8t: "Suite de seguridad de Dominios, Hosting, DNS e IP",
+        c8d: "Auditorías web e infraestructura 100 % reales sin claves de API: 11 tipos de registros DNS + propagación en 4 resolutores y DNSSEC, RDAP/WHOIS oficial de IANA, nota TLS 1.3 y cabeceras de seguridad (A+–F), correo SPF/DMARC/DKIM, 5 listas negras DNSBL y sondeo de puertos, además de subdominios de crt.sh.",
+        c9t: "SIEM local, Sigma YAML, SOAR, Vault Pro y CIS/NIST",
+        c9d: "Correlaciona registros de eventos reales de Windows con reglas Sigma YAML, caza anomalías en el árbol de procesos, ejecuta contención SOAR automatizada, analiza cabeceras de phishing .EML, cifra carpetas en Vault Pro con AES-256-GCM y exporta informes de cumplimiento CIS/NIST con BECETTI AI.",
       },
       de: {
         dir: "ltr",
@@ -409,7 +468,17 @@
         c6t: "KI-Executive-Briefings & 1-Klick-Triage",
         c6d: "Lesbare und vorgelesene KI-Sicherheitsbriefings auf dem Dashboard sowie sofortige KI-Analyse jeder Warnung.",
         truthTitle: "Unser Versprechen: Verifizierbare Sicherheit statt Show",
-        truthBody: "BECETTI SECURITY ist Open Source, auditierbar und nativ mit WinUI 3 auf .NET 8 für Windows x64 entwickelt."
+        truthBody: "BECETTI SECURITY ist Open Source, auditierbar und nativ mit WinUI 3 auf .NET 8 für Windows x64 entwickelt.",
+        releaseMeta: "Neueste signierte GitHub-Version wird geprüft…",
+        certLink: "Testzertifikat (.cer)",
+        installLink: "Installationsschritte (INSTALL.txt)",
+        allReleasesLink: "Alle Versionen",
+        c7t: "Multi-Engine-Konsens: Defender · YARA · ClamAV · YARA-X · CAPA",
+        c7d: "Lokales VirusTotal-artiges Konsens-Scanning mit NULL API-Schlüsseln und NULL Cloud-Uploads: 43 integrierte YARA-Regeln, offizielle Cisco-Talos-ClamAV- + freshclam-Signaturen, VirusTotal YARA-X (Rust) und Mandiant CAPA ATT&CK-Verhaltenserkennung.",
+        c8t: "Domain-, Hosting-, DNS- & IP-Sicherheitssuite",
+        c8d: "100 % echte Web- und Infrastruktur-Audits ohne API-Schlüssel: 11 DNS-Eintragstypen + Propagation über 4 Resolver und DNSSEC, offizielles IANA-RDAP/WHOIS, TLS-1.3- und HTTP-Security-Header-Bewertung (A+–F), E-Mail SPF/DMARC/DKIM, 5 DNSBL-Blacklists und Portprüfungen sowie crt.sh-Subdomains.",
+        c9t: "Lokales SIEM, Sigma YAML, SOAR, Vault Pro & CIS/NIST",
+        c9d: "Korreliert echte Windows-Ereignisprotokolle mit Sigma-YAML-Regeln, jagt Anomalien im Prozessbaum, führt automatisierte SOAR-Eindämmung aus, analysiert .EML-Phishing-Header, verschlüsselt Ordner in Vault Pro (AES-256-GCM) und exportiert CIS/NIST-Compliance-Berichte mit BECETTI AI.",
       },
       tr: {
         dir: "ltr",
@@ -436,7 +505,17 @@
         c6t: "Yapay Zeka Yönetici Özeti ve Anında Analiz",
         c6d: "Kontrol panelinde okunabilir ve sesli yapay zeka güvenlik özeti ile her uyarı için tek tıkla BECETTI AI analizi.",
         truthTitle: "Mühendislik Sözümüz: Doğrulanabilir Güvenlik, Asla Gösteriş Değil",
-        truthBody: "BECETTI SECURITY açık kaynaklıdır, denetlenebilir ve Windows x64 için .NET 8 / WinUI 3 ile geliştirilmiştir."
+        truthBody: "BECETTI SECURITY açık kaynaklıdır, denetlenebilir ve Windows x64 için .NET 8 / WinUI 3 ile geliştirilmiştir.",
+        releaseMeta: "En yeni imzalı GitHub sürümü denetleniyor…",
+        certLink: "Test sertifikası (.cer)",
+        installLink: "Kurulum adımları (INSTALL.txt)",
+        allReleasesLink: "Tüm sürümler",
+        c7t: "Çoklu Motor Uzlaşısı: Defender · YARA · ClamAV · YARA-X · CAPA",
+        c7d: "SIFIR API anahtarı ve SIFIR bulut yüklemesiyle yerel VirusTotal tarzı uzlaşma taraması: 43 yerleşik YARA kuralı, resmi Cisco Talos ClamAV + freshclam imzaları, VirusTotal Rust YARA-X ve Mandiant CAPA ATT&CK davranış tespiti.",
+        c8t: "Alan Adı, Barındırma, DNS ve IP Güvenlik Paketi",
+        c8d: "API anahtarı gerektirmeyen %100 gerçek web ve altyapı denetimleri: 11 DNS kayıt türü + 4 çözümleyicide yayılım ve DNSSEC, resmi IANA RDAP/WHOIS, TLS 1.3 ve HTTP güvenlik başlıkları notu (A+–F), e-posta SPF/DMARC/DKIM, 5 DNSBL kara liste ve port taraması, ayrıca crt.sh alt alan adları.",
+        c9t: "Yerel SIEM, Sigma YAML, SOAR, Vault Pro ve CIS/NIST",
+        c9d: "Gerçek Windows olay günlüklerini Sigma YAML kurallarıyla ilişkilendirir, süreç ağacındaki anormallikleri avlar, otomatik SOAR müdahalesi çalıştırır, .EML kimlik avı başlıklarını analiz eder, klasörleri Vault Pro’da AES-256-GCM ile şifreler ve BECETTI AI ile CIS/NIST uyum raporları dışa aktarır.",
       }
     };
 
@@ -445,6 +524,9 @@
       document.documentElement.lang = code;
       document.documentElement.dir = pack.dir;
       document.querySelectorAll("[data-i18n]").forEach(el => {
+        // Elements already filled with live data (the real release version/size) must not
+        // be reset to the generic placeholder when the visitor switches language.
+        if (el.dataset.i18nLive === "1") return;
         const k = el.getAttribute("data-i18n");
         if (pack[k]) el.textContent = pack[k];
       });
@@ -457,38 +539,119 @@
       btn.addEventListener("click", () => applyLang(btn.dataset.lang));
     });
 
-    // Live health check against our own Vercel /api/health
+    // Live health check against our own Vercel /api/health.
+    // /api/health answers { configured, geminiReachable, httpStatus, modelCount } - it
+    // has no "ok" field, so the old `d.ok` test reported "Check /api/health" even when
+    // the cloud was perfectly healthy. Read the fields the endpoint really returns.
     fetch("/api/health")
       .then(r => r.json())
       .then(d => {
+        const online = d && d.configured && d.geminiReachable;
         document.getElementById("healthText").textContent =
-          d && d.ok ? "BECETTI AI Cloud Online · Live Production" : "BECETTI AI Cloud Status: Check /api/health";
+          online
+            ? "BECETTI AI Cloud Online · Live Production"
+            : "BECETTI AI Cloud online · AI key not configured (see /api/health)";
       })
       .catch(() => {
-        document.getElementById("healthText").textContent = "BECETTI SECURITY Official Global Portal";
+        document.getElementById("healthText").textContent =
+          "BECETTI AI Cloud unreachable right now · Official Global Portal";
       });
 
-    // Live GitHub Releases API fetch for latest signed x64 MSIX (queries releases list directly to avoid 404 on prereleases)
-    fetch("https://api.github.com/repos/Ahmedbecett/BECETTI-SECURITY/releases?per_page=10")
-      .then(r => r.ok ? r.json() : [])
-      .then(list => {
-        if (!Array.isArray(list) || list.length === 0) return;
-        const rel = list.find(r => Array.isArray(r.assets) && r.assets.some(a => a.name && a.name.toLowerCase().endsWith(".msix"))) || list[0];
-        const msix = (rel.assets || []).find(a => a.name && a.name.toLowerCase().endsWith(".msix"));
-        const btn = document.getElementById("downloadBtn");
-        const meta = document.getElementById("releaseMeta");
-        if (msix && typeof msix.browser_download_url === "string" && msix.browser_download_url.startsWith("https://")) {
-          btn.href = msix.browser_download_url;
-          const mb = (msix.size / (1024 * 1024)).toFixed(1);
-          meta.textContent = `Latest Release: ${rel.tag_name} · ${msix.name} (${mb} MB) · Windows 10/11 x64`;
-        } else if (typeof rel.html_url === "string" && rel.html_url.startsWith("https://")) {
-          btn.href = rel.html_url;
-          meta.textContent = `Latest Release: ${rel.tag_name} · Windows 10/11 x64`;
+    // Live "latest release" lookup for the newest signed x64 MSIX. This used to read
+    // /releases?per_page=10 and take the FIRST entry that had an .msix asset - but
+    // GitHub does not guarantee the order of that list, and every CI build is created
+    // with the same release timestamp, so the official site ended up linking to an old
+    // build (1.0.0.63) while the newest one (1.0.0.97) already existed. It also broke
+    // the "latest" alias, because every CI release is published with --latest=false.
+    // Fix: ask each GitHub endpoint in turn and pick the numerically highest MSIX
+    // version (not simply the first JSON entry), so the button always points at the
+    // genuinely newest package even if GitHub's ordering changes again.
+    (function () {
+      const REPO = "Ahmedbecett/BECETTI-SECURITY";
+      const RELEASES_PAGE = "https://github.com/" + REPO + "/releases";
+      const ENDPOINTS = [
+        "https://api.github.com/repos/" + REPO + "/releases/latest",
+        "https://api.github.com/repos/" + REPO + "/releases?per_page=100"
+      ];
+
+      const btn = document.getElementById("downloadBtn");
+      const meta = document.getElementById("releaseMeta");
+      const certLink = document.getElementById("certLink");
+      const installLink = document.getElementById("installLink");
+
+      const setText = (key, value) => {
+        const slot = meta && meta.querySelector('[data-i18n="' + key + '"]');
+        if (slot) { slot.textContent = value; slot.dataset.i18nLive = "1"; }
+        else if (meta) meta.textContent = value;
+      };
+
+      const versionOf = (name) => {
+        const m = /BECETTI-SECURITY_(\d+)\.(\d+)\.(\d+)\.(\d+)_x64\.msix$/i.exec(name || "");
+        return m ? [Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4])] : null;
+      };
+      const newer = (a, b) => {
+        if (!a) return false;
+        if (!b) return true;
+        for (let i = 0; i < 4; i++) {
+          if (a[i] !== b[i]) return a[i] > b[i];
         }
-      })
-      .catch(() => {
-        document.getElementById("releaseMeta").textContent = "Official Signed Windows 10/11 x64 MSIX Releases on GitHub";
-      });
+        return false;
+      };
+
+      const pickNewest = (releases) => {
+        let best = null;
+        for (const rel of releases) {
+          if (!rel || rel.draft) continue;
+          for (const asset of rel.assets || []) {
+            const v = versionOf(asset.name);
+            if (!v || !asset.browser_download_url) continue;
+            if (!best || newer(v, best.version)) best = { rel, asset, version: v };
+          }
+        }
+        return best;
+      };
+
+      const applyRelease = (best) => {
+        if (!best) return false;
+        const { rel, asset } = best;
+        btn.href = asset.browser_download_url;
+        const mb = asset.size ? (asset.size / (1024 * 1024)).toFixed(1) + " MB" : "";
+        setText("releaseMeta", "v" + (versionOf(asset.name) || []).join(".") + " · " + asset.name + (mb ? " (" + mb + ")" : "") + " · Windows 10/11 x64");
+
+        const assetUrl = (name) => {
+          const hit = (rel.assets || []).find((a) => a.name && a.name.toLowerCase() === name.toLowerCase());
+          return hit && typeof hit.browser_download_url === "string" ? hit.browser_download_url : null;
+        };
+        const cert = assetUrl("BecettiTestCert.cer");
+        const install = assetUrl("INSTALL.txt");
+        if (cert && certLink) { certLink.href = cert; certLink.hidden = false; }
+        if (install && installLink) { installLink.href = install; installLink.hidden = false; }
+        return true;
+      };
+
+      const getJson = (url) =>
+        fetch(url, { headers: { Accept: "application/vnd.github+json" } }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+
+      // The /releases/latest alias is permanently pinned to an old test build, because every
+      // CI release is created with --latest=false. So "latest" is only a fast hint: compare
+      // it against the full list and keep whichever carries the higher MSIX version.
+      const fromLatest = getJson(ENDPOINTS[0]).then((one) => (one ? pickNewest([one]) : null));
+      const fromList = getJson(ENDPOINTS[1]).then((list) => pickNewest(Array.isArray(list) ? list : []));
+
+      Promise.all([fromLatest, fromList])
+        .then(([a, b]) => {
+          let best = a;
+          if (!best || (b && newer(b.version, best.version))) best = b;
+          if (!applyRelease(best)) {
+            btn.href = RELEASES_PAGE;
+            setText("releaseMeta", "Official signed Windows 10/11 x64 MSIX releases on GitHub");
+          }
+        })
+        .catch(() => {
+          btn.href = RELEASES_PAGE;
+          setText("releaseMeta", "Official signed Windows 10/11 x64 MSIX releases on GitHub");
+        });
+    })();
   </script>
 </body>
 </html>

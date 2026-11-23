@@ -19,7 +19,14 @@ public interface IAppUpdaterService
 /// </summary>
 public sealed class AppUpdaterService : IAppUpdaterService
 {
-    private const string ReleasesApiUrl = "https://api.github.com/repos/Ahmedbecett/BECETTI-SECURITY/releases?per_page=10";
+    // Ask for the newest releases in one page (max page size GitHub allows) and then pick
+    // the NUMERICALLY highest MSIX version ourselves. Do not trust the JSON order: every
+    // CI build is created with the same release timestamp and is published with
+    // --latest=false, so /releases/latest stays pinned to an old build and GitHub's list
+    // ordering is not by version. Taking the first entry made the updater compare against
+    // 1.0.0.63 while 1.0.0.97 was already published, i.e. it reported "up to date" to a
+    // user running an older build - or worse, offered a downgrade.
+    private const string ReleasesApiUrl = "https://api.github.com/repos/Ahmedbecett/BECETTI-SECURITY/releases?per_page=100";
     private static readonly Regex MsixVersionRegex = new("BECETTI-SECURITY_(\\d+\\.\\d+\\.\\d+\\.\\d+)_x64\\.msix", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private readonly HttpClient _http;
@@ -77,6 +84,12 @@ public sealed class AppUpdaterService : IAppUpdaterService
         if (doc.RootElement.ValueKind != JsonValueKind.Array)
             return null;
 
+        // Pick the release/asset whose MSIX file name carries the highest version, so an
+        // out-of-order JSON page can never make an older build look newest.
+        string bestTag = string.Empty, bestHtmlUrl = string.Empty, bestNotes = string.Empty;
+        string bestMsixUrl = string.Empty, bestMsixName = string.Empty, bestVersion = string.Empty;
+        DateTimeOffset? bestPublished = null;
+
         foreach (var rel in doc.RootElement.EnumerateArray())
         {
             if (rel.TryGetProperty("draft", out var draftEl) && draftEl.ValueKind == JsonValueKind.True)
@@ -89,46 +102,53 @@ public sealed class AppUpdaterService : IAppUpdaterService
                 ? parsedDate
                 : null;
 
-            string msixUrl = string.Empty;
-            string msixName = string.Empty;
-            string latestVersion = ExtractVersionFromTag(tag);
-
-            if (rel.TryGetProperty("assets", out var assetsEl) && assetsEl.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var asset in assetsEl.EnumerateArray())
-                {
-                    var name = asset.TryGetProperty("name", out var nEl) ? nEl.GetString() ?? "" : "";
-                    if (name.EndsWith(".msix", StringComparison.OrdinalIgnoreCase))
-                    {
-                        msixName = name;
-                        msixUrl = asset.TryGetProperty("browser_download_url", out var uEl) ? uEl.GetString() ?? "" : "";
-                        var m = MsixVersionRegex.Match(name);
-                        if (m.Success)
-                            latestVersion = m.Groups[1].Value;
-                        break;
-                    }
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(msixUrl))
+            if (!rel.TryGetProperty("assets", out var assetsEl) || assetsEl.ValueKind != JsonValueKind.Array)
                 continue;
 
-            bool isNewer = CompareVersions(latestVersion, currentVersion) > 0;
-            return new AppReleaseInfo
+            foreach (var asset in assetsEl.EnumerateArray())
             {
-                CurrentVersion = currentVersion,
-                LatestTag = tag,
-                LatestVersion = latestVersion,
-                IsUpdateAvailable = isNewer,
-                PublishedAt = pub,
-                ReleaseNotes = string.IsNullOrWhiteSpace(notes) ? $"Signed Windows x64 MSIX release ({tag})." : notes.Trim(),
-                ReleasePageUrl = htmlUrl,
-                MsixDownloadUrl = msixUrl,
-                MsixFileName = msixName
-            };
+                var name = asset.TryGetProperty("name", out var nEl) ? nEl.GetString() ?? "" : "";
+                if (!name.EndsWith(".msix", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var url = asset.TryGetProperty("browser_download_url", out var uEl) ? uEl.GetString() ?? "" : "";
+                if (string.IsNullOrWhiteSpace(url))
+                    continue;
+
+                var m = MsixVersionRegex.Match(name);
+                var version = m.Success ? m.Groups[1].Value : ExtractVersionFromTag(tag);
+
+                // File names that do not encode a version (legacy 1.0.0.0 test builds) still
+                // compete, but on their tag-derived version, and never beat an equal one.
+                if (string.IsNullOrEmpty(bestVersion) || CompareVersions(version, bestVersion) > 0)
+                {
+                    bestVersion = version;
+                    bestMsixName = name;
+                    bestMsixUrl = url;
+                    bestTag = tag;
+                    bestHtmlUrl = htmlUrl;
+                    bestNotes = notes;
+                    bestPublished = pub;
+                }
+                break; // only one .msix per release matters
+            }
         }
 
-        return null;
+        if (string.IsNullOrWhiteSpace(bestMsixUrl))
+            return null;
+
+        return new AppReleaseInfo
+        {
+            CurrentVersion = currentVersion,
+            LatestTag = bestTag,
+            LatestVersion = bestVersion,
+            IsUpdateAvailable = CompareVersions(bestVersion, currentVersion) > 0,
+            PublishedAt = bestPublished,
+            ReleaseNotes = string.IsNullOrWhiteSpace(bestNotes) ? $"Signed Windows x64 MSIX release ({bestTag})." : bestNotes.Trim(),
+            ReleasePageUrl = bestHtmlUrl,
+            MsixDownloadUrl = bestMsixUrl,
+            MsixFileName = bestMsixName
+        };
     }
 
     internal static int CompareVersions(string a, string b)
