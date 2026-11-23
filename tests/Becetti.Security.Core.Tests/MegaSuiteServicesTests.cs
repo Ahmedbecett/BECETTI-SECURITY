@@ -91,7 +91,7 @@ public sealed class MegaSuiteServicesTests : IDisposable
         var quar = new QuarantineService(settings);
         var yara = new YaraEngineService(new HttpClient(), settings);
         var net = new NetworkMonitorService();
-        var pers = new PersistenceHunterService();
+        var pers = new PersistenceHunterService(new FileForensicsService());
         var hard = new WindowsHardeningService();
         var hosts = new HostsDnsGuardService();
         var cam = new CameraMicAuditorService();

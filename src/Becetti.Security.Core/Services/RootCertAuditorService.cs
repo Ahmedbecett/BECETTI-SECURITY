@@ -129,14 +129,15 @@ public sealed class RootCertAuditorService : IRootCertAuditorService
         catch { }
     }
 
-    private static string TrimCn(string dn)
+    private static string TrimCn(string? dn)
     {
-        foreach (var part in (dn ?? string.Empty).Split(','))
+        var safe = dn ?? string.Empty;
+        foreach (var part in safe.Split(','))
         {
             var t = part.Trim();
             if (t.StartsWith("CN=", StringComparison.OrdinalIgnoreCase))
                 return t[3..].Trim();
         }
-        return dn.Length > 72 ? dn[..72] + "…" : dn;
+        return safe.Length > 72 ? safe[..72] + "…" : safe;
     }
 }
