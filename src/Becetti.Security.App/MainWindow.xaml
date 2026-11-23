@@ -82,6 +82,12 @@
                         <NavigationViewItem x:Uid="NavGlobalIntel" helpers:Loc.Uid="NavGlobalIntel" Content="Global Intel &amp; Radar" Tag="GlobalIntel">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE774;" /></NavigationViewItem.Icon>
                         </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavSocOperations" helpers:Loc.Uid="NavSocOperations" Content="SOC Operations &amp; SIEM" Tag="SocOperations">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE9D2;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem x:Uid="NavInfraCompliance" helpers:Loc.Uid="NavInfraCompliance" Content="Infra, Vault &amp; Compliance" Tag="InfraCompliance">
+                            <NavigationViewItem.Icon><FontIcon Glyph="&#xE83D;" /></NavigationViewItem.Icon>
+                        </NavigationViewItem>
                         <NavigationViewItem x:Uid="NavThreatIntel" helpers:Loc.Uid="NavThreatIntel" Content="Threat Intelligence" Tag="ThreatIntel">
                             <NavigationViewItem.Icon><FontIcon Glyph="&#xE7BA;" /></NavigationViewItem.Icon>
                         </NavigationViewItem>

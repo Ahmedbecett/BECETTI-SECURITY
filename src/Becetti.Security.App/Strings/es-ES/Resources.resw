@@ -1255,4 +1255,22 @@ BECETTI SECURITY never simulates or fabricates detections.</value>
   <data name="GlobalTabUpdater.Header" xml:space="preserve">
     <value>Actualizador Automático</value>
   </data>
+  <data name="NavSocOperations.Content" xml:space="preserve">
+    <value>Operaciones SOC y SIEM</value>
+  </data>
+  <data name="NavInfraCompliance.Content" xml:space="preserve">
+    <value>Infra, Bóveda y Cumplimiento</value>
+  </data>
+  <data name="SocOps_Header.Text" xml:space="preserve">
+    <value>Operaciones SOC y Caza Activa</value>
+  </data>
+  <data name="SocOps_Subtitle.Text" xml:space="preserve">
+    <value>SIEM Local · Reglas Sigma YAML · Árbol de Procesos · Playbooks SOAR · Forense de Correo EML · Auditoría de Certificados Raíz</value>
+  </data>
+  <data name="InfraComp_Header.Text" xml:space="preserve">
+    <value>Infraestructura, Bóveda y Cumplimiento</value>
+  </data>
+  <data name="InfraComp_Subtitle.Text" xml:space="preserve">
+    <value>Red LAN y Puertos · Monitor DNS en Vivo · Limpiador de Privacidad · Bóveda AES-256-GCM Pro · Flota Cloud · Cumplimiento CIS/NIST</value>
+  </data>
 </root>

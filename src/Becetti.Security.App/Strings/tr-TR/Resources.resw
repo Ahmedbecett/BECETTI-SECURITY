@@ -1255,4 +1255,22 @@ BECETTI SECURITY never simulates or fabricates detections.</value>
   <data name="GlobalTabUpdater.Header" xml:space="preserve">
     <value>Otomatik Güncelleyici</value>
   </data>
+  <data name="NavSocOperations.Content" xml:space="preserve">
+    <value>SOC Operasyonları ve SIEM</value>
+  </data>
+  <data name="NavInfraCompliance.Content" xml:space="preserve">
+    <value>Altyapı, Kasa ve Uyumluluk</value>
+  </data>
+  <data name="SocOps_Header.Text" xml:space="preserve">
+    <value>SOC Operasyonları ve Aktif Tehdit Avı</value>
+  </data>
+  <data name="SocOps_Subtitle.Text" xml:space="preserve">
+    <value>Yerel SIEM Korelasyonu · Sigma YAML Kuralları · Canlı Süreç Ağacı · SOAR Yanıtları · EML Oltalama Analizi · Kök Sertifika Denetimi</value>
+  </data>
+  <data name="InfraComp_Header.Text" xml:space="preserve">
+    <value>Altyapı, Şifreli Kasa ve Uyumluluk</value>
+  </data>
+  <data name="InfraComp_Subtitle.Text" xml:space="preserve">
+    <value>LAN ve Port Denetimi · Canlı DNS Tehdit Günlüğü · Gizlilik Temizleyici · AES-256-GCM Kasa Pro · Bulut Filosu · CIS/NIST Uyumluluğu</value>
+  </data>
 </root>

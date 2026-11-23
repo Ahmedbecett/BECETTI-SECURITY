@@ -1255,4 +1255,22 @@
   <data name="GlobalTabUpdater.Header" xml:space="preserve">
     <value>التحديث التلقائي</value>
   </data>
+  <data name="NavSocOperations.Content" xml:space="preserve">
+    <value>عمليات SOC و SIEM المحلي</value>
+  </data>
+  <data name="NavInfraCompliance.Content" xml:space="preserve">
+    <value>الشبكة والخزنة والامتثال</value>
+  </data>
+  <data name="SocOps_Header.Text" xml:space="preserve">
+    <value>مركز عمليات SOC والصيد الاستباقي</value>
+  </data>
+  <data name="SocOps_Subtitle.Text" xml:space="preserve">
+    <value>ارتباط أحداث SIEM المحلي · قواعد Sigma YAML · شجرة العمليات الحية · استجابة SOAR التلقائية · تحليل بريد EML · تدقيق شهادات الجذر</value>
+  </data>
+  <data name="InfraComp_Header.Text" xml:space="preserve">
+    <value>البنية التحتية والخزنة المشفرة والامتثال</value>
+  </data>
+  <data name="InfraComp_Subtitle.Text" xml:space="preserve">
+    <value>كشف أجهزة LAN والمنافذ · مراقبة DNS الحية · منظف آثار الخصوصية · خزنة AES-256-GCM Pro · أسطول الأجهزة السحابي · امتثال CIS/NIST</value>
+  </data>
 </root>

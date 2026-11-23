@@ -107,6 +107,19 @@ public partial class App : Application
         services.AddSingleton<IExecutiveHtmlReportService, ExecutiveHtmlReportService>();
         services.AddSingleton<IAppLockService, AppLockService>();
         services.AddSingleton<IWindowsPrivacyHardenerService, WindowsPrivacyHardenerService>();
+        // 12-Module Enterprise Mega-Suite Core Services
+        services.AddSingleton<ILocalSiemService, LocalSiemService>();
+        services.AddSingleton<ILanDiscoveryService, LanDiscoveryService>();
+        services.AddSingleton<IPrivacyCleanerService, PrivacyCleanerService>();
+        services.AddSingleton<ISoarPlaybookService, SoarPlaybookService>();
+        services.AddSingleton<IRootCertAuditorService, RootCertAuditorService>();
+        services.AddSingleton<IVaultProService, VaultProService>();
+        services.AddSingleton<IEmailForensicsService, EmailForensicsService>();
+        services.AddSingleton<IProcessTreeHunterService, ProcessTreeHunterService>();
+        services.AddSingleton<ISigmaRuleScannerService, SigmaRuleScannerService>();
+        services.AddSingleton<INetworkDnsMonitorService, NetworkDnsMonitorService>();
+        services.AddSingleton<IFleetDashboardService, FleetDashboardService>();
+        services.AddSingleton<IComplianceCenterService, ComplianceCenterService>();
         services.AddSingleton<Services.IAiTriageNavigator, Services.AiTriageNavigator>();
         services.AddSingleton<LocalizationService>();
         services.AddSingleton<Services.SystemTrayService>();
@@ -144,6 +157,8 @@ public partial class App : Application
         services.AddTransient<EdrCenterViewModel>();
         services.AddTransient<ProactiveDefenseViewModel>();
         services.AddTransient<GlobalIntelViewModel>();
+        services.AddTransient<SocOperationsViewModel>();
+        services.AddTransient<InfrastructureComplianceViewModel>();
         services.AddTransient<ProtectionViewModel>();
         services.AddTransient<CloudViewModel>();
         services.AddTransient<ThreatsViewModel>();

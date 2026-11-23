@@ -1255,4 +1255,22 @@ BECETTI SECURITY never simulates or fabricates detections.</value>
   <data name="GlobalTabUpdater.Header" xml:space="preserve">
     <value>Auto-Updater</value>
   </data>
+  <data name="NavSocOperations.Content" xml:space="preserve">
+    <value>SOC-Betrieb &amp; SIEM</value>
+  </data>
+  <data name="NavInfraCompliance.Content" xml:space="preserve">
+    <value>Infra, Tresor &amp; Compliance</value>
+  </data>
+  <data name="SocOps_Header.Text" xml:space="preserve">
+    <value>SOC-Betrieb &amp; Aktives Threat Hunting</value>
+  </data>
+  <data name="SocOps_Subtitle.Text" xml:space="preserve">
+    <value>Lokales SIEM · Sigma-YAML-Regeln · Live-Prozessbaum · SOAR-Playbooks · EML-Phishing-Forensik · Root-CA-Audit</value>
+  </data>
+  <data name="InfraComp_Header.Text" xml:space="preserve">
+    <value>Infrastruktur, Tresor &amp; Compliance</value>
+  </data>
+  <data name="InfraComp_Subtitle.Text" xml:space="preserve">
+    <value>LAN- &amp; Port-Auditor · Live-DNS-Logger · Datenschutz-Reiniger · AES-256-GCM Tresor Pro · Cloud-Flotte · CIS/NIST-Compliance</value>
+  </data>
 </root>

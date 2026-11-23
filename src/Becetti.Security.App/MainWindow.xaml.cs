@@ -55,6 +55,8 @@ public sealed partial class MainWindow : Window
         ["EdrCenter"] = typeof(EdrCenterPage),
         ["ProactiveDefense"] = typeof(ProactiveDefensePage),
         ["GlobalIntel"] = typeof(GlobalIntelPage),
+        ["SocOperations"] = typeof(SocOperationsPage),
+        ["InfraCompliance"] = typeof(InfrastructureCompliancePage),
         ["Protection"] = typeof(ProtectionPage),
         ["Cloud"] = typeof(CloudPage),
         ["Ai"] = typeof(BecettiAiPage),
@@ -277,6 +279,20 @@ public sealed partial class MainWindow : Window
             Subtitle = "Live C2 IP feeds, outbound country/ASN radar, 1-click firewall blocker, privacy hardener & updater",
             Category = "Global",
             TargetTag = "GlobalIntel"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "SOC Operations: Local SIEM, Sigma Rules, Process Tree, SOAR, EML Forensics & Root CA",
+            Subtitle = "Correlate Windows Event Logs, run Sigma YAML rules, hunt parent-child anomalies & run SOAR containment",
+            Category = "SOC",
+            TargetTag = "SocOperations"
+        });
+        _allPaletteItems.Add(new CommandPaletteItem
+        {
+            Title = "Infrastructure & Compliance: LAN/Ports, DNS Logger, Privacy Cleaner, Vault Pro, Cloud Fleet & CIS/NIST",
+            Subtitle = "Discover LAN ARP devices, audit DNS cache vs URLhaus, AES-256-GCM Vault Pro & export CIS/NIST reports",
+            Category = "Compliance",
+            TargetTag = "InfraCompliance"
         });
         _allPaletteItems.Add(new CommandPaletteItem
         {
