@@ -1,24 +1,28 @@
 # Prepares and verifies the Microsoft Store submission manifest.
 #
 # Why this exists: the CI package-msix job stamps a UNIQUE fourth version
-# component (1.0.0.981) into Package.appxmanifest so every sideload build has
-# a distinct package identity. Microsoft requires the fourth component to be
-# 0 for a Store package ("reserved for Store use ... must be left as 0 when
-# you build your package"), so the sideload .msix published on GitHub Releases
-# can NOT be uploaded to Partner Center as-is.
+# component (1.0.0.981) into Package.appxmanifest so every sideload build has a
+# distinct package identity. Microsoft requires the fourth component to be 0
+# for a Store package ("reserved for Store use ... must be left as 0 when you
+# build your package"), so the sideload .msix published on GitHub Releases can
+# NOT be uploaded to Partner Center as-is.
 #
-# This script produces packaging\store\Package.store.appxmanifest (already
-# committed - this script verifies it and can refresh it) and fails loudly on
+# This script verifies packaging\store\Package.store.appxmanifest and fails on
 # anything Microsoft would reject during certification:
 #   - Version not 4 components / 4th component != 0 / Major == 0 / > 65535
-#   - Identity Name or Publisher not identical to the sideload manifest
-#     (identity must not drift silently; Partner Center is the source of truth
-#     and a human confirms it - see docs/STORE-SUBMISSION.md)
+#   - Identity Name or Publisher differing from the shipped sideload manifest
+#     (identity must not drift silently; Partner Center is the source of truth)
 #   - Any capability other than runFullTrust + internetClient
 #   - Missing required tile/logo assets or wrong pixel dimensions
 #
+# Implementation note: the manifest is read with System.Xml.Linq (XDocument)
+# and elements are matched on LocalName. XPath + XmlNamespaceManager proved
+# unreliable here - a mis-bound XmlNamespaceManager makes SelectSingleNode
+# throw MethodException for the 2-argument overload, and swallowing that would
+# have hidden the identity checks entirely.
+#
 # Usage:
-#   .\scripts\prepare-store-package.ps1            # verify + print summary
+#   .\scripts\prepare-store-package.ps1            # verify
 #   .\scripts\prepare-store-package.ps1 -Sync      # regenerate store manifest
 #                                                  # from the sideload manifest
 #                                                  # (keeps identity, forces .0)
@@ -32,155 +36,185 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
 Set-Location $root
 
-$script:errors   = New-Object System.Collections.Generic.List[string]
-$script:warnings = New-Object System.Collections.Generic.List[string]
+$script:errors   = New-Object 'System.Collections.Generic.List[string]'
+$script:warnings = New-Object 'System.Collections.Generic.List[string]'
 
-function Read-Manifest([string]$path) {
+Add-Type -AssemblyName System.Xml.Linq -ErrorAction SilentlyContinue
+
+function Read-ManifestDoc([string]$path) {
     if (-not (Test-Path $path)) { throw "Manifest not found: $path" }
-    $xml = New-Object System.Xml.XmlDocument
-    $xml.PreserveWhitespace = $true
-    $xml.Load((Resolve-Path $path).Path)
-    return $xml
+    return [System.Xml.Linq.XDocument]::Load((Resolve-Path $path).Path)
 }
 
-# NOTE: the XmlNamespaceManager must be built from the XmlDocument's own
-# NameTable inside plain .NET code. `New-Object XmlNamespaceManager($doc.NameTable)`
-# wraps the NameTable and the manager ends up reading a PSObject instead of an
-# XmlNameTable, so every XPath lookup below silently returns $null.
+function Get-ChildByLocalName($parent, [string]$localName) {
+    if ($null -eq $parent) { return $null }
+    foreach ($child in $parent.Elements()) {
+        if ($child.Name.LocalName -eq $localName) { return $child }
+    }
+    return $null
+}
+
+function Get-DescendantsByLocalName($parent, [string]$localName) {
+    $result = New-Object 'System.Collections.Generic.List[object]'
+    if ($null -eq $parent) { return $result }
+    foreach ($el in $parent.Descendants()) {
+        if ($el.Name.LocalName -eq $localName) { $result.Add($el) | Out-Null }
+    }
+    return $result
+}
+
+function Get-Attr($element, [string]$name) {
+    if ($null -eq $element) { return $null }
+    $attr = $element.Attribute($name)
+    if ($null -eq $attr) { return $null }
+    return [string]$attr.Value
+}
+
 function New-ManifestNamespaceManager([System.Xml.XmlDocument]$doc) {
-    $ns = [System.Xml.XmlNamespaceManager]::new($doc.NameTable)
-    $ns.AddNamespace("f",      "http://schemas.microsoft.com/appx/manifest/foundation/windows10")
-    $ns.AddNamespace("rescap", "http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities")
-    $ns.AddNamespace("uap",    "http://schemas.microsoft.com/appx/manifest/uap/windows10")
-    return $ns
+    # Kept only for the -Sync path, which writes through XmlDocument so the
+    # original file formatting is preserved. Verification never uses XPath.
+    $nsm = [System.Xml.XmlNamespaceManager]::new($doc.NameTable)
+    $nsm.AddNamespace("f", "http://schemas.microsoft.com/appx/manifest/foundation/windows10")
+    $nsm.AddNamespace("rescap", "http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities")
+    return $nsm
 }
 
 Write-Host "=== BECETTI SECURITY - Store manifest preparation ===" -ForegroundColor Cyan
-Write-Host "PowerShell $($PSVersionTable.PSVersion) on $([System.Environment]::OSVersion.VersionString)"
-Write-Host "Manifests: sideload='$SideloadManifest' store='$StoreManifest' sync=$Sync"
-
-if ($Sync) {
-    $src = Read-Manifest $SideloadManifest
-    $ns  = New-ManifestNamespaceManager $src
-
-    $identity = $src.SelectSingleNode("/f:Package/f:Identity", $ns)
-    if (-not $identity) { throw "No <Identity> in $SideloadManifest" }
-
-    # Only the version is rewritten; Name/Publisher are copied verbatim so the
-    # Store identity cannot silently diverge from the shipped package.
-    $identity.SetAttribute("Version", "1.0.0.0")
-    Write-Host "Rewrote Identity/@Version to 1.0.0.0 (Store requirement); Name and Publisher copied unchanged."
-    $src.Save((Join-Path $root $StoreManifest))
-}
+Write-Host "PowerShell $($PSVersionTable.PSVersion) on Windows $([System.Environment]::OSVersion.Version)"
+Write-Host "sideload=$SideloadManifest"
+Write-Host "store=$StoreManifest  sync=$Sync"
 
 try {
-$store = Read-Manifest $StoreManifest
-$side  = Read-Manifest $SideloadManifest
-
-$nsStore = New-ManifestNamespaceManager $store
-$nsSide  = New-ManifestNamespaceManager $side
-
-$storeIdentity = $store.SelectSingleNode("/f:Package/f:Identity", $nsStore)
-$sideIdentity  = $side.SelectSingleNode("/f:Package/f:Identity", $nsSide)
-
-if (-not $storeIdentity) { throw "No <Identity> found in $StoreManifest - manifest is malformed." }
-if (-not $sideIdentity)  { throw "No <Identity> found in $SideloadManifest - manifest is malformed." }
-
-# ---- 1. Version rules (Microsoft: 4 parts, 4th must be 0, Major != 0, each <= 65535)
-$version = $storeIdentity.GetAttribute("Version")
-Write-Host "Store package version: $version"
-$parts = $version -split '\.'
-if ($parts.Count -ne 4) {
-    $script:errors.Add("Version '$version' does not have exactly 4 components.")
-} else {
-    $numbers = @()
-    foreach ($p in $parts) {
-        $n = 0
-        if (-not [int]::TryParse($p, [ref]$n)) { $script:errors.Add("Version component '$p' is not an integer."); continue }
-        $numbers += $n
+    if ($Sync) {
+        $doc = New-Object System.Xml.XmlDocument
+        $doc.PreserveWhitespace = $true
+        $doc.Load((Resolve-Path $SideloadManifest).Path)
+        $nsm = New-ManifestNamespaceManager $doc
+        $identityNode = $doc.SelectSingleNode("/f:Package/f:Identity", $nsm)
+        if ($null -eq $identityNode) { throw "No <Identity> element in $SideloadManifest" }
+        # Only the version changes; Name and Publisher are copied verbatim.
+        $identityNode.SetAttribute("Version", "1.0.0.0")
+        $doc.Save((Join-Path $root $StoreManifest))
+        Write-Host "Rewrote Identity/@Version to 1.0.0.0; Name and Publisher copied unchanged."
     }
-    if ($numbers.Count -eq 4) {
-        if ($numbers[3] -ne 0) { $script:errors.Add("Fourth version component is $($numbers[3]); Microsoft requires 0 for Store packages (it is reserved for Store use).") }
-        if ($numbers[0] -eq 0)  { $script:errors.Add("First version component must not be 0.") }
-        foreach ($n in $numbers) { if ($n -lt 0 -or $n -gt 65535) { $script:errors.Add("Version component $n is outside 0..65535.") } }
-    }
-}
 
-# ---- 2. Identity must match the shipped package exactly (case-sensitive)
-$nameStore  = $storeIdentity.GetAttribute("Name")
-$pubStore   = $storeIdentity.GetAttribute("Publisher")
-$archStore  = $storeIdentity.GetAttribute("ProcessorArchitecture")
-$nameSide   = $sideIdentity.GetAttribute("Name")
-$pubSide    = $sideIdentity.GetAttribute("Publisher")
+    $storeDoc = Read-ManifestDoc $StoreManifest
+    $sideDoc  = Read-ManifestDoc $SideloadManifest
 
-Write-Host "Identity Name      : $nameStore"
-Write-Host "Identity Publisher : $pubStore"
-Write-Host "Architecture       : $archStore"
+    $storePkg = Get-ChildByLocalName $storeDoc.Root "Package"
+    if ($null -eq $storePkg) { throw "Store manifest root is not <Package>." }
+    $sidePkg  = Get-ChildByLocalName $sideDoc.Root "Package"
+    if ($null -eq $sidePkg)  { throw "Sideload manifest root is not <Package>." }
 
-if ($nameStore -cne $nameSide) { $script:errors.Add("Store identity Name '$nameStore' differs from the shipped manifest '$nameSide'. Confirm BOTH against Partner Center before changing anything.") }
-if ($pubStore  -cne $pubSide)  { $script:errors.Add("Store identity Publisher '$pubStore' differs from the shipped manifest '$pubSide'. Confirm BOTH against Partner Center before changing anything.") }
-if ($archStore -ne "x64")      { $script:errors.Add("ProcessorArchitecture is '$archStore'; this submission only packages x64.") }
+    $storeId = Get-ChildByLocalName $storePkg "Identity"
+    $sideId  = Get-ChildByLocalName $sidePkg "Identity"
+    if ($null -eq $storeId) { throw "No <Identity> in $StoreManifest" }
+    if ($null -eq $sideId)  { throw "No <Identity> in $SideloadManifest" }
 
-# Partner Center publishes the Publisher as CN=<GUID> for this account type.
-if ($pubStore -notmatch '^CN=[0-9A-Fa-f-]{36}$') {
-    $script:warnings.Add("Publisher '$pubStore' does not look like a CN=<GUID> Partner Center publisher ID. That is only correct if Partner Center really shows it that way - verify on Product identity.")
-}
+    $nameStore = Get-Attr $storeId "Name"
+    $pubStore  = Get-Attr $storeId "Publisher"
+    $verStore  = Get-Attr $storeId "Version"
+    $archStore = Get-Attr $storeId "ProcessorArchitecture"
 
-# ---- 3. Capabilities: only runFullTrust + internetClient may be requested
-$declared = @()
-foreach ($cap in $store.SelectNodes("/f:Package/f:Capabilities/*", $nsStore)) {
-    $declared += $cap.GetAttribute("Name")
-}
-Write-Host ("Capabilities       : " + ($declared -join ", "))
-$allowed = @("runFullTrust", "internetClient")
-foreach ($d in $declared) {
-    if ($allowed -notcontains $d) { $script:errors.Add("Undeclared-in-policy capability '$d' is present; this submission is reviewed for runFullTrust + internetClient only.") }
-}
-if ($declared -notcontains "runFullTrust") { $script:errors.Add("runFullTrust is missing - a packaged WinUI 3/.NET 8 app cannot start without it.") }
-if ($declared -notcontains "internetClient") { $script:warnings.Add("internetClient is not declared; cloud features would fail at runtime.") }
+    Write-Host ""
+    Write-Host "-- Identity (store manifest)"
+    Write-Host "   Name        : $nameStore"
+    Write-Host "   Publisher   : $pubStore"
+    Write-Host "   Version     : $verStore"
+    Write-Host "   Architecture: $archStore"
 
-# ---- 4. Target device family
-$tdf = $store.SelectSingleNode("/f:Package/f:Dependencies/f:TargetDeviceFamily", $nsStore)
-if (-not $tdf) { $script:errors.Add("No <TargetDeviceFamily> declared.") }
-else {
-    Write-Host "TargetDeviceFamily : $($tdf.GetAttribute('Name')) min $($tdf.GetAttribute('MinVersion')) / tested $($tdf.GetAttribute('MaxVersionTested'))"
-    if ($tdf.GetAttribute("Name") -ne "Windows.Desktop") { $script:errors.Add("TargetDeviceFamily must be Windows.Desktop for this app.") }
-}
-
-# ---- 5. Assets: exist at the exact pixel sizes the manifest references
-Add-Type -AssemblyName System.Drawing -ErrorAction SilentlyContinue
-$assetChecks = @{
-    "Assets\StoreLogo.png"        = @(50, 50)
-    "Assets\Square44x44Logo.png"  = @(44, 44)
-    "Assets\Square71x71Logo.png"  = @(71, 71)
-    "Assets\Square150x150Logo.png"= @(150, 150)
-    "Assets\Square310x310Logo.png"= @(310, 310)
-    "Assets\Wide310x150Logo.png"  = @(310, 150)
-}
-$appDir = Split-Path $SideloadManifest -Parent
-foreach ($rel in $assetChecks.Keys) {
-    $full = Join-Path $appDir $rel
-    if (-not (Test-Path $full)) { $script:errors.Add("Missing logo asset: $rel"); continue }
-    $expected = $assetChecks[$rel]
-    try {
-        $img = [System.Drawing.Image]::FromFile((Resolve-Path $full).Path)
-        $actual = @($img.Width, $img.Height)
-        $img.Dispose()
-        if ($actual[0] -ne $expected[0] -or $actual[1] -ne $expected[1]) {
-            $script:errors.Add("$rel is $($actual[0])x$($actual[1]); the manifest/Store requires $($expected[0])x$($expected[1]).")
-        } else {
-            Write-Host "Asset OK           : $rel ($($actual[0])x$($actual[1]))"
+    # ---- 1. Version rules
+    $parts = @($verStore -split '\.')
+    if ($parts.Count -ne 4) {
+        $script:errors.Add("Version '$verStore' does not have exactly 4 components.")
+    } else {
+        $numbers = New-Object 'System.Collections.Generic.List[int]'
+        foreach ($p in $parts) {
+            $n = 0
+            if ([int]::TryParse($p, [ref]$n)) { $numbers.Add($n) | Out-Null }
+            else { $script:errors.Add("Version component '$p' is not an integer.") }
         }
-    } catch {
-        $script:warnings.Add("Could not read image dimensions for $rel (System.Drawing unavailable): $($_.Exception.Message)")
+        if ($numbers.Count -eq 4) {
+            if ($numbers[3] -ne 0) { $script:errors.Add("Fourth version component is $($numbers[3]); Microsoft requires 0 for Store packages (it is reserved for Store use).") }
+            if ($numbers[0] -eq 0) { $script:errors.Add("First version component must not be 0.") }
+            foreach ($n in $numbers) { if ($n -lt 0 -or $n -gt 65535) { $script:errors.Add("Version component $n is outside 0..65535.") } }
+        }
     }
-}
 
-# ---- 6. Languages referenced by the package
-$langs = @()
-foreach ($r in $store.SelectNodes("/f:Package/f:Resources/f:Resource", $nsStore)) { $langs += $r.GetAttribute("Language") }
-Write-Host ("Resource languages : " + ($langs -join ", "))
+    # ---- 2. Identity must match the shipped package exactly (case-sensitive)
+    $nameSide = Get-Attr $sideId "Name"
+    $pubSide  = Get-Attr $sideId "Publisher"
+    if ($nameStore -cne $nameSide) { $script:errors.Add("Store Name '$nameStore' differs from the shipped manifest '$nameSide'. Confirm BOTH in Partner Center before changing anything.") }
+    if ($pubStore -cne $pubSide)   { $script:errors.Add("Store Publisher '$pubStore' differs from the shipped manifest '$pubSide'. Confirm BOTH in Partner Center before changing anything.") }
+    if ($archStore -ne "x64")      { $script:errors.Add("ProcessorArchitecture is '$archStore'; this submission only packages x64.") }
+    if ($pubStore -notmatch '^CN=[0-9A-Fa-f-]{36}$') {
+        $script:warnings.Add("Publisher '$pubStore' does not look like a CN=<GUID> Partner Center publisher ID. Only correct if Partner Center really shows it that way.")
+    }
 
+    # ---- 3. Capabilities
+    $capsParent = Get-ChildByLocalName $storePkg "Capabilities"
+    $declared = New-Object 'System.Collections.Generic.List[string]'
+    if ($null -ne $capsParent) {
+        foreach ($cap in $capsParent.Elements()) { $declared.Add((Get-Attr $cap "Name")) | Out-Null }
+    }
+    Write-Host ("-- Capabilities: " + ($declared -join ", "))
+    $allowed = @("runFullTrust", "internetClient")
+    foreach ($d in $declared) {
+        if ($allowed -notcontains $d) { $script:errors.Add("Capability '$d' is not part of this submission; only runFullTrust + internetClient are reviewed.") }
+    }
+    if ($declared -notcontains "runFullTrust") { $script:errors.Add("runFullTrust is missing - a packaged WinUI 3/.NET 8 app cannot start without it.") }
+    if ($declared -notcontains "internetClient") { $script:warnings.Add("internetClient is not declared; cloud features would fail at runtime.") }
+
+    # ---- 4. Target device family
+    $deps = Get-ChildByLocalName $storePkg "Dependencies"
+    $tdf = $null
+    if ($null -ne $deps) { foreach ($c in $deps.Elements()) { if ($c.Name.LocalName -eq "TargetDeviceFamily") { $tdf = $c; break } } }
+    if ($null -eq $tdf) {
+        $script:errors.Add("No <TargetDeviceFamily> declared.")
+    } else {
+        $tdfName = Get-Attr $tdf "Name"
+        Write-Host "-- TargetDeviceFamily: $tdfName min $(Get-Attr $tdf 'MinVersion') / tested $(Get-Attr $tdf 'MaxVersionTested')"
+        if ($tdfName -ne "Windows.Desktop") { $script:errors.Add("TargetDeviceFamily must be Windows.Desktop for this app.") }
+    }
+
+    # ---- 5. Assets at the exact pixel sizes referenced
+    $assetChecks = [ordered]@{
+        "Assets\StoreLogo.png"         = @(50, 50)
+        "Assets\Square44x44Logo.png"   = @(44, 44)
+        "Assets\Square71x71Logo.png"   = @(71, 71)
+        "Assets\Square150x150Logo.png" = @(150, 150)
+        "Assets\Square310x310Logo.png" = @(310, 310)
+        "Assets\Wide310x150Logo.png"   = @(310, 150)
+    }
+    $appDir = Split-Path $SideloadManifest -Parent
+    $drawingOk = $true
+    try { Add-Type -AssemblyName System.Drawing } catch { $drawingOk = $false }
+    foreach ($rel in $assetChecks.Keys) {
+        $full = Join-Path $appDir $rel
+        if (-not (Test-Path $full)) { $script:errors.Add("Missing logo asset: $rel"); continue }
+        $expected = $assetChecks[$rel]
+        if (-not $drawingOk) { $script:warnings.Add("System.Drawing unavailable - could not verify dimensions of $rel."); continue }
+        try {
+            $img = [System.Drawing.Image]::FromFile((Resolve-Path $full).Path)
+            $w = $img.Width; $h = $img.Height
+            $img.Dispose()
+            if ($w -ne $expected[0] -or $h -ne $expected[1]) {
+                $script:errors.Add("$rel is ${w}x${h}; requires $($expected[0])x$($expected[1]).")
+            } else {
+                Write-Host "-- Asset OK: $rel (${w}x${h})"
+            }
+        } catch {
+            $script:warnings.Add("Could not read $rel : $($_.Exception.Message)")
+        }
+    }
+
+    # ---- 6. Resource languages
+    $resParent = Get-ChildByLocalName $storePkg "Resources"
+    $langs = New-Object 'System.Collections.Generic.List[string]'
+    if ($null -ne $resParent) {
+        foreach ($r in $resParent.Elements()) { if ($r.Name.LocalName -eq "Resource") { $langs.Add((Get-Attr $r "Language")) | Out-Null } }
+    }
+    Write-Host ("-- Resource languages: " + ($langs -join ", "))
 }
 catch {
     Write-Host "::error::prepare-store-package.ps1 threw: $($_.Exception.GetType().Name): $($_.Exception.Message)"
@@ -189,13 +223,13 @@ catch {
 }
 
 Write-Host ""
-if ($warnings.Count -gt 0) {
-    Write-Host "WARNINGS ($($warnings.Count)):" -ForegroundColor Yellow
-    foreach ($w in $warnings) { Write-Host "  - $w" -ForegroundColor Yellow }
+if ($script:warnings.Count -gt 0) {
+    Write-Host "WARNINGS ($($script:warnings.Count)):" -ForegroundColor Yellow
+    foreach ($w in $script:warnings) { Write-Host "  - $w" -ForegroundColor Yellow }
 }
-if ($errors.Count -gt 0) {
-    Write-Host "FAILED ($($errors.Count) problem(s)) - this manifest is NOT Store-submittable:" -ForegroundColor Red
-    foreach ($e in $errors) {
+if ($script:errors.Count -gt 0) {
+    Write-Host "FAILED ($($script:errors.Count) problem(s)) - this manifest is NOT Store-submittable:" -ForegroundColor Red
+    foreach ($e in $script:errors) {
         Write-Host "  - $e" -ForegroundColor Red
         Write-Host "::error::$e"
     }
@@ -204,5 +238,5 @@ if ($errors.Count -gt 0) {
 
 Write-Host "Store manifest verification: PASS" -ForegroundColor Green
 Write-Host "  $StoreManifest"
-Write-Host "Next: scripts\package-store-upload.ps1 builds the unsigned .msixupload,"
-Write-Host "      scripts\verify-store-package.ps1 checks the artifact and runs WACK."
+Write-Host "Next: scripts\package-store-upload.ps1 builds the unsigned .msixupload"
+Write-Host "      and scripts\verify-store-package.ps1 checks it and runs WACK."

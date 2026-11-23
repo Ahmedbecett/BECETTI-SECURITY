@@ -73,17 +73,29 @@ try {
         else {
             $reader = New-Object System.IO.StreamReader($manifestEntry.Open())
             $manifestXml = $reader.ReadToEnd(); $reader.Dispose()
-            $doc = New-Object System.Xml.XmlDocument
-            $doc.LoadXml($manifestXml)
-            # Plain .NET construction: New-Object XmlNamespaceManager($doc.NameTable)
-            # wraps the NameTable in a PSObject and every XPath lookup then returns
-            # $null, which would silently skip the identity/capability checks.
-            $ns = [System.Xml.XmlNamespaceManager]::new($doc.NameTable)
-            $ns.AddNamespace("f", "http://schemas.microsoft.com/appx/manifest/foundation/windows10")
+            # Parsed with XDocument and matched on LocalName: XPath through an
+            # XmlNamespaceManager proved unreliable in this script's hosting
+            # environment, and a failure there would skip the identity checks.
+            $doc = [System.Xml.Linq.XDocument]::Parse($manifestXml)
+            $pkgEl = $null
+            foreach ($c in $doc.Root.Elements()) { if ($c.Name.LocalName -eq "Package") { $pkgEl = $c; break } }
+            if ($null -eq $pkgEl) { $pkgEl = $doc.Root }
 
-            $id = $doc.SelectSingleNode("/f:Package/f:Identity", $ns)
-            $name = $id.GetAttribute("Name"); $pub = $id.GetAttribute("Publisher")
-            $ver  = $id.GetAttribute("Version"); $arch = $id.GetAttribute("ProcessorArchitecture")
+            function Get-LocalChild($parent, [string]$localName) {
+                foreach ($c in $parent.Elements()) { if ($c.Name.LocalName -eq $localName) { return $c } }
+                return $null
+            }
+            function Get-LocalAttr($el, [string]$attrName) {
+                if ($null -eq $el) { return $null }
+                $a = $el.Attribute($attrName)
+                if ($null -eq $a) { return $null }
+                return [string]$a.Value
+            }
+
+            $id = Get-LocalChild $pkgEl "Identity"
+            if ($null -eq $id) { throw "AppxManifest.xml has no <Identity> element." }
+            $name = Get-LocalAttr $id "Name"; $pub = Get-LocalAttr $id "Publisher"
+            $ver  = Get-LocalAttr $id "Version"; $arch = Get-LocalAttr $id "ProcessorArchitecture"
             Log "-- Identity inside the package:"
             Log "   Name        : $name"
             Log "   Publisher   : $pub"
@@ -94,7 +106,10 @@ try {
             if ($arch -ne "x64") { $script:errors.Add("Packaged architecture is '$arch', expected x64.") }
 
             $caps = @()
-            foreach ($c in $doc.SelectNodes("/f:Package/f:Capabilities/*", $ns)) { $caps += $c.GetAttribute("Name") }
+            $capsParent = Get-LocalChild $pkgEl "Capabilities"
+            if ($null -ne $capsParent) {
+                foreach ($c in $capsParent.Elements()) { $caps += (Get-LocalAttr $c "Name") }
+            }
             Log ("   Capabilities: " + ($caps -join ", "))
             foreach ($c in $caps) { if (@("runFullTrust", "internetClient") -notcontains $c) { $script:errors.Add("Unexpected capability '$c' in the package.") } }
             if ($caps -notcontains "runFullTrust") { $script:errors.Add("runFullTrust missing from the package.") }
@@ -176,14 +191,29 @@ try {
                 & $appcert.FullName finalizereport -reportfilepath $wackReport 2>&1 | ForEach-Object { Log "   $_" }
             }
             if (Test-Path $wackReport) {
-                $w = New-Object System.Xml.XmlDocument
-                $w.Load($wackReport)
-                $overall = ($w.SelectNodes("//REQUIREMENT") | Where-Object { $_.GetAttribute("NAME") -match 'OVERALL' } | Select-Object -First 1)
-                if ($overall) { Log "   OVERALL_RESULT: $($overall.GetAttribute('STATUS'))" }
-                foreach ($req in $w.SelectNodes("//REQUIREMENT")) {
-                    $status = $req.GetAttribute("STATUS")
-                    if ($status -and $status -ne "PASS") { Log "   [$status] $($req.GetAttribute('NAME')) - $($req.GetAttribute('DESCRIPTION'))" }
+                $w = [System.Xml.Linq.XDocument]::Load((Resolve-Path $wackReport).Path)
+                $requirements = @()
+                foreach ($el in $w.Descendants()) {
+                    if ($el.Name.LocalName -eq "REQUIREMENT") { $requirements += $el }
                 }
+                $overall = $requirements | Where-Object {
+                    $a = $_.Attribute("NAME"); $a -and ([string]$a.Value) -match 'OVERALL'
+                } | Select-Object -First 1
+                if ($overall) {
+                    $st = $overall.Attribute("STATUS")
+                    Log "   OVERALL_RESULT: $([string]$st.Value)"
+                }
+                $nonPass = 0
+                foreach ($req in $requirements) {
+                    $stAttr = $req.Attribute("STATUS")
+                    $status = if ($stAttr) { [string]$stAttr.Value } else { $null }
+                    if ($status -and $status -ne "PASS") {
+                        $n = $req.Attribute("NAME"); $d = $req.Attribute("DESCRIPTION"); $m = $req.Attribute("MESSAGE")
+                        Log "   [$status] $([string]$n.Value) - $([string]$d.Value) $([string]$m.Value)"
+                        $nonPass++
+                    }
+                }
+                if ($nonPass -eq 0) { Log "   All WACK requirements in the report are PASS." }
                 Copy-Item $wackReport (Join-Path $reportDir "WACK-REPORT.xml") -Force
             } else {
                 Log "   WACK produced no report file."
