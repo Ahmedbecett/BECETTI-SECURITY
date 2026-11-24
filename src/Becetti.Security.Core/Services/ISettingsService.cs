@@ -14,6 +14,12 @@ public sealed class AppSettings
     /// <summary>Telemetry is opt-in and OFF by default.</summary>
     public bool TelemetryOptIn { get; set; }
 
+    /// <summary>
+    /// MG Ads banner + full-screen advertising. ON by default; turning it off
+    /// stops the out-of-process MG Ads host and removes all ad requests.
+    /// </summary>
+    public bool AdsEnabled { get; set; } = true;
+
     /// <summary>"dark", "light" or "system". Default: dark (product design).</summary>
     public string Theme { get; set; } = "dark";
 

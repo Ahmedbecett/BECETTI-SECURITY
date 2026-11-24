@@ -28,7 +28,7 @@
 # submission -> Packages -> drag and drop.
 
 param(
-    [string]$Version = "1.0.0.0"
+    [string]$Version = "1.0.1.0"
 )
 
 $ErrorActionPreference = "Stop"

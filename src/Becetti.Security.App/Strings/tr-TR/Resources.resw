@@ -1291,4 +1291,16 @@ BECETTI SECURITY never simulates or fabricates detections.</value>
   <data name="DomainHosting_Subtitle.Text" xml:space="preserve">
     <value>Canlı DNS ve Küresel Yayılım · Resmi IANA RDAP/WHOIS · SSL/TLS ve HTTP Başlıkları · SPF/DMARC/DKIM · IP/ASN/DNSBL/Portlar · crt.sh Alt Alan Adları</value>
   </data>
+  <data name="AdBannerLabel.Text" xml:space="preserve">
+    <value>REKLAM</value>
+  </data>
+  <data name="SettingsAdsTitle.Text" xml:space="preserve">
+    <value>Reklam</value>
+  </data>
+  <data name="SettingsAdsHint.Text" xml:space="preserve">
+    <value>MG Ads 728x90 banner ve tam ekran reklam gösterir. Tüm reklam isteklerini durdurmak için bu seçeneği kapatın. Güvenlik özellikleri etkilenmez.</value>
+  </data>
+  <data name="SettingsAdsToggle.Header" xml:space="preserve">
+    <value>Reklamları göster</value>
+  </data>
 </root>

@@ -134,7 +134,11 @@ try {
             "Native/yara/win-x64/yara64.exe",
             "Native/yara/win-x64/yarac64.exe",
             "Rules/yara/eicar_standard_test.yar",
-            "THIRD-PARTY-LICENSES/YARA-LICENSE.txt"
+            "THIRD-PARTY-LICENSES/YARA-LICENSE.txt",
+            "MgAds/mgads.json",
+            "MgAdsHost/Becetti.Security.MgAdsHost.exe",
+            "MgAdsHost/MiracleGamesAd.dll",
+            "MgAdsHost/runtimes/win-x64/native/WebView2Loader.dll"
         )
         foreach ($req in $required) {
             if ($normalized -contains $req) { Log "-- Present: $req" }

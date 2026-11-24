@@ -54,6 +54,15 @@
     <Content Include="..\..\THIRD-PARTY-LICENSES\YARA-LICENSE.txt" Link="THIRD-PARTY-LICENSES\YARA-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- MG Ads host + config. Both folders are generated before the app build:
+       scripts/build-mgads-host.ps1 builds the net472 host into MgAdsHost\ and
+       writes MgAds\mgads.json from repository secrets. If either is absent
+       (plain dev build), MgAdsService logs and the app runs ad-free. -->
+  <ItemGroup>
+    <Content Include="MgAds\**" Condition="Exists('MgAds')" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="MgAdsHost\**" Condition="Exists('MgAdsHost')" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <!-- The .NET SDK already includes *.resw files from the project directory as PRIResource
        items by default (EnableDefaultPriItems). Declaring them again here duplicates the
        items and fails the build ("Duplicate 'PRIResource' items were included"). -->

@@ -42,6 +42,8 @@ public sealed partial class MainWindow : Window
     private ProtectionLevel _lastProtectionLevel = ProtectionLevel.Unknown;
     private string? _lastYaraVersion;
     private int _lastYaraRuleCount;
+    private MgAdsService? _mgAds;
+    private bool _mgAdsStarted;
 
     private readonly List<CommandPaletteItem> _allPaletteItems = new();
     private readonly ObservableCollection<CommandPaletteItem> _filteredPaletteItems = new();
@@ -121,10 +123,51 @@ public sealed partial class MainWindow : Window
         ContentFrame.Navigate(typeof(DashboardPage));
         _ = LoadFooterStatusAsync();
 
+        AdBannerSurface.Loaded += (_, _) => _mgAds?.UpdateBannerLayout();
+        AdBannerSurface.SizeChanged += (_, _) => _mgAds?.UpdateBannerLayout();
+
         if (!_settings.Current.OnboardingCompleted)
         {
             ShowOnboardingWizard();
         }
+    }
+
+    /// <summary>
+    /// Starts the MG Ads host. Ads are deliberately not started until the
+    /// first-run onboarding is finished, so the welcome wizard is never
+    /// covered by a full-screen ad.
+    /// </summary>
+    public async Task StartMgAdsAsync()
+    {
+        if (_mgAdsStarted)
+            return;
+
+        if (!_settings.Current.AdsEnabled)
+            return;
+
+        _mgAdsStarted = true;
+        _mgAds = new MgAdsService(this, AdBannerSurface);
+        _mgAds.Log += message => System.Diagnostics.Debug.WriteLine("[MG Ads] " + message);
+        await _mgAds.StartAsync().ConfigureAwait(true);
+
+        if (_settings.Current.OnboardingCompleted)
+        {
+            // Let the dashboard paint first; the splash is an interstitial,
+            // not a replacement for the app's own startup.
+            await Task.Delay(1200).ConfigureAwait(true);
+            _mgAds.QueueSplash();
+        }
+    }
+
+    /// <summary>
+    /// Stops and disposes the MG Ads host (used when the user turns ads off
+    /// in Settings). A subsequent StartMgAdsAsync starts a fresh host.
+    /// </summary>
+    public void StopMgAds()
+    {
+        try { _mgAds?.Stop(); } catch { }
+        _mgAds = null;
+        _mgAdsStarted = false;
     }
 
     private void ConfigureTitleBar()
@@ -165,9 +208,16 @@ public sealed partial class MainWindow : Window
             });
             _tray.ExitRequested += () => DispatcherQueue.TryEnqueue(ExitApplicationCompletely);
 
+            AppWindow.Changed += OnAppWindowChanged;
             AppWindow.Closing += OnAppWindowClosing;
         }
         catch { }
+    }
+
+    private void OnAppWindowChanged(AppWindow sender, AppWindowChangedEventArgs args)
+    {
+        if (args.DidPositionChange || args.DidSizeChange)
+            _mgAds?.UpdateBannerLayout();
     }
 
     private void OnAppWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
@@ -175,10 +225,16 @@ public sealed partial class MainWindow : Window
         if (!_allowFullExit && _settings.Current.MinimizeToTrayOnClose)
         {
             args.Cancel = true;
-            try { sender.Hide(); } catch { }
+            try
+            {
+                _mgAds?.HideBanner();
+                sender.Hide();
+            }
+            catch { }
         }
         else
         {
+            _mgAds?.Stop();
             _tray.Dispose();
         }
     }
@@ -189,6 +245,7 @@ public sealed partial class MainWindow : Window
         {
             AppWindow.Show();
             Activate();
+            _mgAds?.ShowBanner();
         }
         catch { }
     }
@@ -196,6 +253,7 @@ public sealed partial class MainWindow : Window
     public void ExitApplicationCompletely()
     {
         _allowFullExit = true;
+        _mgAds?.Stop();
         _tray.Dispose();
         Close();
     }
@@ -708,6 +766,7 @@ public sealed partial class MainWindow : Window
             await _settings.SaveAsync();
             OnboardingOverlay.Visibility = Visibility.Collapsed;
             NavigateTo("GlobalIntel", null);
+            _ = StartMgAdsAsync();
         }
         catch { }
     }
@@ -719,6 +778,7 @@ public sealed partial class MainWindow : Window
             _settings.Current.OnboardingCompleted = true;
             await _settings.SaveAsync();
             OnboardingOverlay.Visibility = Visibility.Collapsed;
+            _ = StartMgAdsAsync();
         }
         catch { }
     }

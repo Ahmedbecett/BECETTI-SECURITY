@@ -1,0 +1,53 @@
+MG Ads SDK (Miracle Games) — third-party notice
+=================================================
+
+Product integrated into BECETTI SECURITY
+----------------------------------------
+  MG Ads C# SDK, version 1.2.1 (released 2026-10-26)
+
+SDK provider
+------------
+  Beijing Qiyou Lingdong Technology Co., Ltd. (Miracle Games)
+  Privacy policy: https://mg-ads.com/privacy.html
+  Compliance guide:
+  https://doc.ad.mguwp.net/docs/ComplianceGuide/MGPlatformCompliance/MGAdsAggregationAdvertisingPlatformComplianceManagementGuide
+  Developer documentation: https://doc.ad.mguwp.net/
+  SDK download: https://github.com/MiracleGames/sdk/tree/main/win32/1.2.1
+
+Binaries redistributed unmodified
+---------------------------------
+  src/Becetti.Security.MgAdsHost/SDK/MiracleGamesAd.dll
+  src/Becetti.Security.MgAdsHost/SDK/Microsoft.Web.WebView2.Core.dll
+  src/Becetti.Security.MgAdsHost/SDK/Microsoft.Web.WebView2.WinForms.dll
+  src/Becetti.Security.MgAdsHost/SDK/AxInterop.WMPLib.dll
+  src/Becetti.Security.MgAdsHost/SDK/Interop.WMPLib.dll
+  src/Becetti.Security.MgAdsHost/SDK/runtimes/win-x64/native/WebView2Loader.dll
+
+  SHA-256 of MiracleGamesAd.dll (v1.2.1):
+  d43a986ec7d472d66948624d26caa47ff779b077164d2818d10a76b52fd2de2e
+
+  The MG Ads SDK is proprietary software distributed by Miracle Games for
+  integration into Windows applications. It is not licensed under the
+  Apache-2.0 license that covers the surrounding open-source project; the
+  Apache-2.0 LICENSE in this repository does not apply to these SDK files.
+
+What the SDK processes
+----------------------
+  Per the MG Ads SDK privacy disclosure: information the user actively
+  uploads, device information (device model, operating-system version),
+  network information (network type), application information and interface
+  information. Purpose: advertising and cross-promotion. Data is transmitted
+  over HTTPS with de-identification measures applied by the provider.
+
+  See store/privacy-policy.md, section "Advertising (MG Ads)", for the
+  user-facing disclosure. Users can disable all ads in Settings ->
+  Advertising -> "Show ads".
+
+WebView2 Runtime
+----------------
+  The SDK uses Microsoft Edge WebView2 for image/web/video creatives.
+  Windows 11 includes the Evergreen WebView2 Runtime. On Windows 10 devices
+  where it is missing, ads simply do not render; the security features of
+  BECETTI SECURITY are unaffected. The host sets WEBVIEW2_USER_DATA_FOLDER to
+  %LocalAppData%\BecettiSecurity\WebView2 because the MSIX install folder is
+  read-only.

@@ -38,6 +38,13 @@ jobs:
           Get-ChildItem src/Becetti.Security.App/Native/yara/win-x64
           Get-Content src/Becetti.Security.App/Native/yara/win-x64/yara-build-info.json
 
+      - name: Build MG Ads host (net472) and probe the official SDK
+        shell: pwsh
+        env:
+          MGADS_APP_ID: ${{ secrets.MGADS_APP_ID }}
+          MGADS_SECRET_KEY: ${{ secrets.MGADS_SECRET_KEY }}
+        run: ./scripts/build-mgads-host.ps1
+
       - name: Restore
         run: dotnet restore Becetti.Security.sln
 
@@ -220,11 +227,11 @@ jobs:
           # Name+Publisher+Version, which Windows refuses ("already installed"). Mixing in
           # the run attempt keeps every published package a real, newer identity.
           $build = ([int]"${{ github.run_number }}") * 10 + ([int]"${{ github.run_attempt }}") - 10
-          $version = "1.0.0.$build"
+          $version = "1.0.1.$build"
           $original = Get-Content $manifestPath -Raw
-          $patched = $original -replace 'Version="1\.0\.0\.0"', "Version=`"$version`""
+          $patched = $original -replace 'Version="1\.0\.1\.0"', "Version=`"$version`""
           if ($patched -eq $original) {
-            Write-Host "::error::Package.appxmanifest's Version=`"1.0.0.0`" was not found/replaced - refusing to build with an unverified version."
+            Write-Host "::error::Package.appxmanifest's Version=`"1.0.1.0`" was not found/replaced - refusing to build with an unverified version."
             exit 1
           }
           Set-Content -Path $manifestPath -Value $patched -Encoding utf8 -NoNewline
@@ -245,6 +252,13 @@ jobs:
           ./scripts/build-yara-win64.ps1
           Get-ChildItem src/Becetti.Security.App/Native/yara/win-x64
           Get-Content src/Becetti.Security.App/Native/yara/win-x64/yara-build-info.json
+
+      - name: Build MG Ads host (net472) and probe the official SDK
+        shell: pwsh
+        env:
+          MGADS_APP_ID: ${{ secrets.MGADS_APP_ID }}
+          MGADS_SECRET_KEY: ${{ secrets.MGADS_SECRET_KEY }}
+        run: ./scripts/build-mgads-host.ps1
 
       - name: Restore (msbuild, not dotnet - required for single-project MSIX packaging targets)
         # RuntimeIdentifier + SelfContained must match the actual build/package step below,
@@ -441,12 +455,16 @@ jobs:
               "Native/yara/win-x64/yara64.exe",
               "Native/yara/win-x64/yarac64.exe",
               "Rules/yara/eicar_standard_test.yar",
-              "THIRD-PARTY-LICENSES/YARA-LICENSE.txt"
+              "THIRD-PARTY-LICENSES/YARA-LICENSE.txt",
+              "MgAds/mgads.json",
+              "MgAdsHost/Becetti.Security.MgAdsHost.exe",
+              "MgAdsHost/MiracleGamesAd.dll",
+              "MgAdsHost/runtimes/win-x64/native/WebView2Loader.dll"
             )
             foreach ($req in $requiredAssets) {
               $entry = $zip.Entries | Where-Object { $_.FullName -replace '\\','/' -ieq $req }
               if (-not $entry) {
-                Write-Host "::error::Required YARA asset '$req' is missing from the MSIX package."
+                Write-Host "::error::Required asset '$req' is missing from the MSIX package."
                 exit 1
               }
               Write-Host "Verified MSIX asset: $($entry.FullName) ($($entry.Length) bytes)"

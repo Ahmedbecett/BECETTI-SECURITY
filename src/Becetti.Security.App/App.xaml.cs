@@ -220,6 +220,11 @@ public partial class App : Application
         MainWindow = mainWindow;
         mainWindow.Activate();
 
+        // MG Ads starts only after the first-run wizard has been completed.
+        // A first-run user sees the onboarding flow, not an interstitial ad.
+        if (settings.Current.OnboardingCompleted && settings.Current.AdsEnabled)
+            _ = mainWindow.StartMgAdsAsync();
+
         WireAdvancedSecurityGuards(settings, notifications);
 
         // Handle Windows Explorer Right-Click ("Scan with BECETTI YARA") launch argument

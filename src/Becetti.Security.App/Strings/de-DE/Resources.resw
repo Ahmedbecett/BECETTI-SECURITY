@@ -1291,4 +1291,16 @@ BECETTI SECURITY never simulates or fabricates detections.</value>
   <data name="DomainHosting_Subtitle.Text" xml:space="preserve">
     <value>Live-DNS &amp; Globale Propagation · Offizielles IANA RDAP/WHOIS · SSL/TLS &amp; HTTP-Header · SPF/DMARC/DKIM · IP/ASN/DNSBL/Ports · crt.sh Subdomains</value>
   </data>
+  <data name="AdBannerLabel.Text" xml:space="preserve">
+    <value>WERBUNG</value>
+  </data>
+  <data name="SettingsAdsTitle.Text" xml:space="preserve">
+    <value>Werbung</value>
+  </data>
+  <data name="SettingsAdsHint.Text" xml:space="preserve">
+    <value>MG Ads zeigt ein 728x90-Banner und eine Vollbildanzeige. Deaktiviere diese Option, um alle Werbeanfragen zu stoppen. Sicherheitsfunktionen bleiben unberührt.</value>
+  </data>
+  <data name="SettingsAdsToggle.Header" xml:space="preserve">
+    <value>Anzeigen anzeigen</value>
+  </data>
 </root>

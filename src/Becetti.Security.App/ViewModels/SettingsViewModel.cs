@@ -14,6 +14,7 @@ public sealed class SettingsViewModel : ViewModelBase
     private string _apiBaseUrl = string.Empty;
     private string _language = "en";
     private bool _telemetryOptIn;
+    private bool _adsEnabled = true;
     private bool _enableAnimations = true;
     private bool _enableSounds = true;
     private string _connectionText = string.Empty;
@@ -69,6 +70,7 @@ public sealed class SettingsViewModel : ViewModelBase
     }
 
     public bool TelemetryOptIn { get => _telemetryOptIn; set => SetProperty(ref _telemetryOptIn, value); }
+    public bool AdsEnabled { get => _adsEnabled; set => SetProperty(ref _adsEnabled, value); }
     public bool EnableAnimations { get => _enableAnimations; set => SetProperty(ref _enableAnimations, value); }
     public bool EnableSounds { get => _enableSounds; set => SetProperty(ref _enableSounds, value); }
     public string ConnectionText { get => _connectionText; set => SetProperty(ref _connectionText, value); }
@@ -106,6 +108,7 @@ public sealed class SettingsViewModel : ViewModelBase
             ApiBaseUrl = _settings.Current.ApiBaseUrl;
             Language = _localization.ShortCode;
             TelemetryOptIn = _settings.Current.TelemetryOptIn;
+            AdsEnabled = _settings.Current.AdsEnabled;
             EnableAnimations = _settings.Current.EnableAnimations;
             EnableSounds = _settings.Current.EnableSounds;
             AiApiBaseUrl = _settings.Current.AiApiBaseUrl;
@@ -156,6 +159,8 @@ public sealed class SettingsViewModel : ViewModelBase
         {
             _settings.Current.ApiBaseUrl = ApiBaseUrl.Trim();
             _settings.Current.TelemetryOptIn = TelemetryOptIn;
+            var adsWereEnabled = _settings.Current.AdsEnabled;
+            _settings.Current.AdsEnabled = AdsEnabled;
             _settings.Current.EnableAnimations = EnableAnimations;
             _settings.Current.EnableSounds = EnableSounds;
             _settings.Current.AiApiBaseUrl = AiApiBaseUrl.Trim();
@@ -171,6 +176,14 @@ public sealed class SettingsViewModel : ViewModelBase
             var language = LocalizationService.ParseLanguageCode(Language);
             await _localization.SetLanguageAsync(language);
             App.ApplyLanguageOverride(Language);
+
+            if (adsWereEnabled != AdsEnabled && App.MainWindow is { } mainWindow)
+            {
+                if (AdsEnabled)
+                    _ = mainWindow.StartMgAdsAsync();
+                else
+                    mainWindow.StopMgAds();
+            }
 
             StatusMessage = _localization.Get("SettingsSavedMessage", "Settings saved.");
         }

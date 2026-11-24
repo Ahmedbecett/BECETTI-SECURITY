@@ -76,15 +76,18 @@ jobs:
             Write-Host "::error::Publisher is '$($id.Publisher)' - expected the Partner Center publisher ID. Confirm in Partner Center before changing it."
             exit 1
           }
-          if ($id.Version -ne "1.0.0.0") {
-            Write-Host "::error::Store version is '$($id.Version)' - must be 1.0.0.0 (fourth component reserved by the Store)."
+          if ($id.Version -ne "1.0.1.0") {
+            Write-Host "::error::Store version is '$($id.Version)' - must be 1.0.1.0 (fourth component reserved by the Store)."
             exit 1
           }
           Write-Host "Store identity matches the pinned Partner Center values."
 
       - name: Build the unsigned .msixupload and run WACK
         shell: pwsh
-        run: ./scripts/package-store-upload.ps1 -Version 1.0.0.0
+        env:
+          MGADS_APP_ID: ${{ secrets.MGADS_APP_ID }}
+          MGADS_SECRET_KEY: ${{ secrets.MGADS_SECRET_KEY }}
+        run: ./scripts/package-store-upload.ps1 -Version 1.0.1.0
 
       - name: Write a submission summary to the run page
         if: always()
@@ -195,7 +198,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $version = "1.0.0.0"
+          $version = "1.0.1.0"
           # When publishing from a tag, use it as the release tag so a refreshed
           # package gets its own release instead of silently replacing the bytes
           # of a package that may already be uploaded to Partner Center.

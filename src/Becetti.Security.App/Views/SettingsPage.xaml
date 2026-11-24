@@ -45,6 +45,13 @@
             </Border>
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
+                    <TextBlock x:Uid="SettingsAdsTitle" helpers:Loc.Uid="SettingsAdsTitle" Text="Advertising" Style="{StaticResource ValueStyle}" />
+                    <TextBlock x:Uid="SettingsAdsHint" helpers:Loc.Uid="SettingsAdsHint" Text="MG Ads displays a 728x90 banner and a full-screen ad. Turn this off to stop all ad requests. Security features are unaffected either way." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsAdsToggle" helpers:Loc.Uid="SettingsAdsToggle" Header="Show ads" IsOn="{x:Bind ViewModel.AdsEnabled, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
                     <TextBlock x:Uid="SettingsFeedbackTitle" helpers:Loc.Uid="SettingsFeedbackTitle" Text="Feedback" Style="{StaticResource ValueStyle}" />
                     <TextBlock x:Uid="SettingsFeedbackHint" helpers:Loc.Uid="SettingsFeedbackHint" Text="Animations are purely decorative and never used to imply a scan or update is running. Sounds play only on genuine completed/failed actions." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" TextWrapping="Wrap" />
                     <ToggleSwitch x:Uid="SettingsAnimations" helpers:Loc.Uid="SettingsAnimations" Header="Enable decorative animations" IsOn="{x:Bind ViewModel.EnableAnimations, Mode=TwoWay}" />

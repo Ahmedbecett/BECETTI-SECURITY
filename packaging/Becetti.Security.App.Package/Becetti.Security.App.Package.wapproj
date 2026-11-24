@@ -15,7 +15,7 @@
          Subject of whatever certificate signs this package exactly. -->
     <AppxPackagePublisher>CN=A5D5DC31-4A15-4059-8030-D96C51054596</AppxPackagePublisher>
     <AppxPackagePublisherDisplayName>BECETTI</AppxPackagePublisherDisplayName>
-    <AppxPackageVersion>1.0.0.0</AppxPackageVersion>
+    <AppxPackageVersion>1.0.1.0</AppxPackageVersion>
     <AppxPackageDescription>BECETTI SECURITY — Windows security center powered by Microsoft Defender and the BECETTI cloud API.</AppxPackageDescription>
     <AppxPackageDisplayName>BECETTI SECURITY</AppxPackageDisplayName>
     <AppxPackageLogo>..\..\src\Becetti.Security.App\Assets\StoreLogo.png</AppxPackageLogo>

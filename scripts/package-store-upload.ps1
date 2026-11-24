@@ -24,7 +24,7 @@
 # Output:
 #   artifacts\store\BECETTI-SECURITY_<version>_x64.msixupload
 param(
-    [string]$Version = "1.0.0.0",
+    [string]$Version = "1.0.1.0",
     [switch]$SkipWack
 )
 
@@ -77,6 +77,13 @@ try {
     Write-Host ""
     Write-Host "=== 2/5 Building official YARA engine (native x64, required by the app) ===" -ForegroundColor Cyan
     & (Join-Path $PSScriptRoot "build-yara-win64.ps1")
+
+    Write-Host ""
+    Write-Host "=== 2b/5 Building MG Ads host and runtime config (net472) ===" -ForegroundColor Cyan
+    # Must run BEFORE the app project is evaluated: the app's csproj includes
+    # MgAds\** and MgAdsHost\** as Content, and MSBuild globs them when the
+    # project loads. Credentials come from repository secrets via env vars.
+    & (Join-Path $PSScriptRoot "build-mgads-host.ps1")
 
     Write-Host ""
     Write-Host "=== 3/5 Restoring (msbuild; single-project MSIX needs the packaging targets) ===" -ForegroundColor Cyan

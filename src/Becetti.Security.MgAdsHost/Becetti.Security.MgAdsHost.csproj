@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    MG Ads out-of-process host.
+
+    WHY THIS IS A SEPARATE net472 PROCESS:
+    BECETTI SECURITY is a WinUI 3 / .NET 8 desktop app. The official MG Ads
+    C# SDK (MiracleGamesAd.dll, v1.2.1) targets .NET Framework 4.7.2 and is
+    built on WinForms/WebView2; it cannot be loaded into a .NET 8 (CoreCLR)
+    process. This tiny host is the supported way to use the SDK: it runs the
+    official SDK on the .NET Framework 4.7.2 runtime (built into Windows
+    10/11), and renders the ad containers in owned top-level windows that are
+    positioned over the WinUI 3 window. Communication with the app is a
+    line-based named pipe. If this host is missing or fails, the app simply
+    runs without ads - no security feature depends on it.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>Becetti.Security.MgAdsHost</AssemblyName>
+    <RootNamespace>Becetti.Security.MgAdsHost</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Deterministic>true</Deterministic>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Version>1.0.1.0</Version>
+    <FileVersion>1.0.1.0</FileVersion>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <DebugType>none</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Official MG Ads C# SDK v1.2.1 (unmodified, redistributed from
+         https://github.com/MiracleGames/sdk/tree/main/win32/1.2.1). -->
+    <Reference Include="MiracleGamesAd">
+      <HintPath>SDK\MiracleGamesAd.dll</HintPath>
+      <Private>true</Private>
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+
+    <!-- The SDK references Newtonsoft.Json 13.0.0.0. -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+
+    <!-- Lets `dotnet build` target net472 on machines without the old
+         targeting pack (GitHub windows-latest has it, local machines may not). -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copy the unmodified SDK payload next to the host executable.
+         runtimes/win-x64/native/WebView2Loader.dll must keep its relative
+         path for the WebView2 loader to find it. -->
+    <None Include="SDK\*.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="SDK\runtimes\**\*" CopyToOutputDirectory="PreserveNewest">
+      <!-- The WebView2 loader is resolved relative to the EXE as
+           runtimes\win-x64\native\WebView2Loader.dll, not SDK\runtimes\... -->
+      <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </None>
+  </ItemGroup>
+
+</Project>

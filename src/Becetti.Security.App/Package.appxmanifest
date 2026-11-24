@@ -27,7 +27,7 @@
   <Identity
     Name="Ahmedbecetti.BECETTISECURITY"
     Publisher="CN=A5D5DC31-4A15-4059-8030-D96C51054596"
-    Version="1.0.0.0"
+    Version="1.0.1.0"
     ProcessorArchitecture="x64" />
 
   <Properties>

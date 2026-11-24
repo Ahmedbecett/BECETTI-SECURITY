@@ -97,9 +97,9 @@ try {
         $identityNode = $doc.SelectSingleNode("/f:Package/f:Identity", $nsm)
         if ($null -eq $identityNode) { throw "No <Identity> element in $SideloadManifest" }
         # Only the version changes; Name and Publisher are copied verbatim.
-        $identityNode.SetAttribute("Version", "1.0.0.0")
+        $identityNode.SetAttribute("Version", "1.0.1.0")
         $doc.Save((Join-Path $root $StoreManifest))
-        Write-Host "Rewrote Identity/@Version to 1.0.0.0; Name and Publisher copied unchanged."
+        Write-Host "Rewrote Identity/@Version to 1.0.1.0; Name and Publisher copied unchanged."
     }
 
     $storeDoc = Read-ManifestDoc $StoreManifest
