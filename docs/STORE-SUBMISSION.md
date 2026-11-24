@@ -39,10 +39,71 @@
 5. Validate: `signtool verify` and install the MSIX on a clean VM (for the
    sideload/test artifact only — the `.msixupload` is unsigned and is not
    meant to be installed directly).
-6. Partner Center: create the app, upload the `.msixupload`, add screenshots
-   (capture from the real app), description (`store/description-*.md`),
-   privacy policy URL, support email, age rating questionnaire.
+6. Partner Center: **for the existing app** open Packages → new submission
+   and upload the `.msixupload` (the app already exists in the Store; do not
+   reserve a second app). Add screenshots (capture from the real app),
+   description (`store/description-*.md`), privacy policy URL, support
+   email, age rating questionnaire.
 7. Submit for certification. All advertised capabilities exist in the build.
+
+## 1.0.1.0 — MG Ads update (current submission)
+
+`1.0.1.0` is the **update for the app already in the Store**, not a new app:
+the package identity is unchanged (`Ahmedbecetti.BECETTISECURITY` /
+`CN=A5D5DC31-4A15-4059-8030-D96C51054596`), only the version moved from
+`1.0.0.0` to `1.0.1.0`. In Partner Center this is uploaded on the existing
+product's **Packages** page as a new submission; no new app reservation is
+created.
+
+### What is new in this package
+
+- MG Ads advertising: a 728×90 banner unit (`ce139ccaa1754b54909a1e9802f25721`)
+  in the shell and a 1920×1080 full-screen unit
+  (`87675322692c4be2a66550cb86160f80`) shown after the first-run wizard.
+- The official MG Ads C# SDK (v1.2.1, .NET Framework 4.7.2 + WinForms +
+  WebView2) cannot be loaded by the .NET 8 WinUI 3 process, so it runs in a
+  separate net472 host process (`MgAdsHost\Becetti.Security.MgAdsHost.exe`)
+  that paints owned windows over the app window. It is started by the app,
+  controlled over a named pipe and shut down with it.
+- Everything else is untouched: same security features, same settings file,
+  same user data. Advertising is a separate `AppSettings.AdsEnabled` toggle
+  (default on) in **Settings → Advertising**; the ad host never starts
+  before onboarding is complete and never blocks a security feature.
+- Store-visible additions: `MgAds\mgads.json` (ad configuration),
+  `MgAdsHost\` (host + SDK payload) and the MG Ads section of the privacy
+  policy (`store/privacy-policy.md`).
+
+### Measured result — Store package run 45499863358 (tag `store-package-1.0.1.0`)
+
+Printed by the pipeline, not typed by hand.
+
+| Item | Value |
+|---|---|
+| Artifact | `BECETTI-SECURITY_1.0.1.0_x64.msixupload` |
+| Public download | <https://github.com/Ahmedbecett/BECETTI-SECURITY/releases/download/store-package-1.0.1.0/BECETTI-SECURITY_1.0.1.0_x64.msixupload> |
+| Size | 91.23 MB (95,658,809 bytes) |
+| **SHA-256** | `594D51F8E7D5DA767E4BAA351610754125D5A5A4E4B6144872F6E7445114CE6A` |
+| Contents | `Becetti.Security.App_1.0.1.0_x64.msix` (95,127,555 B) + `..._x64.appxsym` (516,326 B) |
+| Identity read from the package | `Ahmedbecetti.BECETTISECURITY` / `CN=A5D5DC31-4A15-4059-8030-D96C51054596` |
+| Version read from the package | `1.0.1.0` (fourth field 0) |
+| Architecture | `x64`, no x86/ARM payload in 567 files |
+| Capabilities read from the package | `runFullTrust`, `internetClient` — nothing else |
+| Signature | none (`AppxSignature.p7x` absent) — the Store re-signs |
+| Ad payload spot-checks | `MgAds/mgads.json`, `MgAdsHost/Becetti.Security.MgAdsHost.exe`, `MgAdsHost/MiracleGamesAd.dll`, `MgAdsHost/runtimes/win-x64/native/WebView2Loader.dll` |
+| WACK | `appcert.exe` exit code **0**, report `WACK-REPORT.xml`, **all requirements PASS** |
+
+The same pipeline also builds the sideload MSIX (CI run 45498241442, green)
+and publishes the signed test build `1.0.1.1361` from `msix-test-a7d3963`;
+that artifact is for installation testing only and is never uploaded to
+Partner Center.
+
+### Credentials
+
+`MGADS_APP_ID` / `MGADS_SECRET_KEY` are read from the environment by
+`scripts/build-mgads-host.ps1`. When they are absent the script falls back to
+the committed `MgAds/mgads.json`, which is what this build used. To rotate the
+key, set the two environment variables (repository secrets in Actions) and
+rebuild; the committed file is then overwritten.
 
 ## 1.0.0.981 — packaged for submission (this session)
 
