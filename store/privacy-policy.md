@@ -57,7 +57,7 @@ started until the first-run setup wizard has been completed.
 - Use the app fully offline: local features work without any account.
 - Sign out at any time (Cloud Security page); tokens are deleted locally.
 - Turn off advertising in Settings -> Advertising.
-- Delete local data by removing `%LocalAppData%\\BecettiSecurity`.
+- Delete local data by removing `%LocalAppData%\BecettiSecurity`.
 
 ## Contact
 Support: ahmedbecetti41@gmail.com
