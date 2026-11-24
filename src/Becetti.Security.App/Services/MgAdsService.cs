@@ -25,7 +25,7 @@ namespace Becetti.Security.App.Services;
 public sealed class MgAdsService
 {
     private readonly Window _window;
-    private readonly UIElement _bannerSurface;
+    private readonly FrameworkElement _bannerSurface;
     private readonly DispatcherQueue _queue;
 
     private NamedPipeServerStream? _pipe;
@@ -46,7 +46,7 @@ public sealed class MgAdsService
     /// <summary>Diagnostics for the About/diagnostic log; never user-visible.</summary>
     public event Action<string>? Log;
 
-    public MgAdsService(Window window, UIElement bannerSurface)
+    public MgAdsService(Window window, FrameworkElement bannerSurface)
     {
         _window = window ?? throw new ArgumentNullException(nameof(window));
         _bannerSurface = bannerSurface ?? throw new ArgumentNullException(nameof(bannerSurface));
