@@ -19,7 +19,7 @@ namespace Becetti.Security.MgAdsHost
                 try
                 {
                     var configPath = GetArg(args, "--config");
-                    var config = MgAdsConfig.Load(configPath);
+                    var probeConfig = MgAdsConfig.Load(configPath);
 
                     var sdkPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MiracleGamesAd.dll");
                     var assembly = Assembly.LoadFrom(sdkPath);
@@ -29,7 +29,7 @@ namespace Becetti.Security.MgAdsHost
                     Console.WriteLine("PROBE OK sdk=" + assembly.GetName().Version +
                                       " advertManager=" + (advertManager != null) +
                                       " applicationManager=" + (applicationManager != null) +
-                                      " appId=" + config.AppId);
+                                      " appId=" + probeConfig.AppId);
                     return 0;
                 }
                 catch (Exception ex)
