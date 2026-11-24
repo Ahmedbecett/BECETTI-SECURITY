@@ -4,6 +4,7 @@ using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Windows.Foundation;
 using WinRT.Interop;
