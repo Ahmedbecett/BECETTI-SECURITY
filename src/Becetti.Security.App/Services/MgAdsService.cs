@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Threading;
 using Windows.Foundation;
 using WinRT.Interop;
 
